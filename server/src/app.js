@@ -21,7 +21,7 @@ app.get('/posts' , (req, res) => {
 
 app.listen(process.env.PORT || 8081)
 
-mongoose.connect('mongodb://localhost:27017/posts');
+mongoose.connect('mongodb://username:password1@ds249267.mlab.com:49267/mongotest');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function(callback){
