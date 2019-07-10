@@ -10,24 +10,12 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
 
-app.get('/posts' , (req, res) => {
-    res.send(
-        [{
-            title: "Hello World!",
-            description: "Hi there! How are you?"
-        }]
-    )
-})
-
-app.listen(process.env.PORT || 8081)
-
 mongoose.connect('mongodb://username:password1@ds249267.mlab.com:49267/mongotest');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function(callback){
   console.log("Connection Succeeded");
 });
-
 
 // Add new post
 app.post('/posts', (req, res) => {
@@ -52,10 +40,24 @@ app.post('/posts', (req, res) => {
 
   // Fetch all posts
 app.get('/posts', (req, res) => {
-    Post.find({}, 'title description', function (error, posts) {
+    var db = req.db;
+    db.find({}, function (error, posts) {
       if (error) { console.error(error); }
       res.send({
         posts: posts
       })
     }).sort({_id:-1})
   })
+
+  
+app.get('/posts' , (req, res) => {
+  res.send(
+      [{
+          title: "Hello World!",
+          description: "Hi there! How are you?"
+      }]
+  )
+})
+
+app.listen(process.env.PORT || 8081)
+

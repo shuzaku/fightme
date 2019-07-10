@@ -38,16 +38,18 @@ export default {
     }
   },
   mounted () {
-    this.getPosts()
+    this.getPosts() 
   },
   methods: {
     async getPosts () {
       const response = await PostsService.fetchPosts()
-      this.posts = response.data.posts
+      this.posts = response.data
     }
   }
 }
 </script>
+
+
 <style type="text/css">
 .table-wrap {
   width: 60%;
