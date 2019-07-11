@@ -3,7 +3,7 @@
     <h1>Posts</h1>
     <div v-if="posts.length > 0" class="table-wrap">
       <div>
-        <router-link v-bind:to="{ name: 'NewPost' }" class="">Add Post</router-link>
+        <router-link to='/posts/new' class="">Add Post</router-link>
       </div>
       <table>
         <tr>
@@ -23,12 +23,12 @@
     </div>
     <div v-else>
       There are no posts.. Lets add one now <br /><br />
-      <router-link to='/posts/new/' class="add_post_link">Add Post</router-link>
+      <router-link to='/posts/new' class="add_post_link">Add Post</router-link>
     </div>
   </div>
 </template>
 
-<script> 
+<script>
 import PostsService from '@/services/PostsService'
 export default {
   name: 'posts',
@@ -38,18 +38,16 @@ export default {
     }
   },
   mounted () {
-    this.getPosts() 
+    this.getPosts()
   },
   methods: {
     async getPosts () {
       const response = await PostsService.fetchPosts()
-      this.posts = response.data
+      this.posts = response.data.posts
     }
   }
 }
 </script>
-
-
 <style type="text/css">
 .table-wrap {
   width: 60%;
