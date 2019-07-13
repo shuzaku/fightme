@@ -3,7 +3,7 @@
     <h1>Posts</h1>
     <div v-if="posts.length > 0" class="table-wrap">
       <div>
-        <router-link to='/posts/new' class="">Add Post</router-link>
+        <router-link v-bind:to="{ name: 'NewPost' }" class="">Add Post</router-link>
       </div>
       <table>
         <tr>
@@ -16,14 +16,14 @@
           <td>{{ post.description }}</td>
           <td align="center">
             <router-link v-bind:to="{ name: 'EditPost', params: { id: post._id } }">Edit</router-link> |
-            <a href="#">Delete</a>
+            <a href="#" @click="deletePost(post._id)">Delete</a>
           </td>
         </tr>
       </table>
     </div>
     <div v-else>
       There are no posts.. Lets add one now <br /><br />
-      <router-link to='/posts/new' class="add_post_link">Add Post</router-link>
+      <router-link v-bind:to="{ name: 'NewPost' }" class="add_post_link">Add Post</router-link>
     </div>
   </div>
 </template>
@@ -36,7 +36,7 @@ export default {
     return {
       posts: []
     }
-  },
+  }, 
   mounted () {
     this.getPosts()
   },
@@ -44,6 +44,10 @@ export default {
     async getPosts () {
       const response = await PostsService.fetchPosts()
       this.posts = response.data.posts
+    },
+    async deletePost (id) {
+      await PostsService.deletePost(id) 
+      this.getPosts()
     }
   }
 }

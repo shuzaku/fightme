@@ -2,8 +2,8 @@
   <div id="app">
     <img src="./assets/logo.png">
     <nav>
-        <router-link to='/'>Home</router-link> </br>
-        <router-link to='/posts/'>Posts</router-link>
+        <router-link v-bind:to="{ name: 'Hello' }">Home</router-link>
+        <router-link v-bind:to="{ name: 'Posts' }">Posts</router-link>
     </nav>
     <router-view ></router-view>
 
