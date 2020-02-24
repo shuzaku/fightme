@@ -5,7 +5,7 @@
         <div>
           <input type="text" name="name" placeholder="PLAYER NAME" v-model="name">
           <input type="text" name="region" placeholder="REGION" v-model="region">
-          <label class="typo__label">Simple select / dropdown</label>
+          <div class="multiselect-container">
             <multiselect 
               v-model="selectedGames" 
               :options="games" 
@@ -13,7 +13,7 @@
               :close-on-select="false" 
               :clear-on-select="false" 
               :preserve-search="true" 
-              placeholder="Pick some" 
+              placeholder="Select Games" 
               label="GameTitle" 
               track-by="GameTitle" 
               :preselect-first="true">
@@ -24,11 +24,12 @@
                   Select Games
                 </span></template>
             </multiselect>
-            <ul>
-              <li v-for = "game in selectedGames" :key="game._id">
+            <ul class="list-of-games">
+              <li v-for = "game in selectedGames" class="player-games" :key="game._id">
                   {{game.GameTitle}}
               </li>
             </ul>
+            </div>
         </div>
         <div>
           <button class="app_player_btn" @click="addPlayer">Add</button>
@@ -59,7 +60,7 @@ export default {
         CreatedDate: this.timestamp,
         UpdatedDate: null,
         PlayerRegion: this.region,
-        PlayerGames: this.games
+        GamesPlayed: this.selectedGames._id
       })
       this.$router.push({ name: 'Players' })
     },
@@ -79,17 +80,18 @@ export default {
 }
 </script>
 <style type="text/css">
-.form input, .form textarea {
+.players .form input, 
+.players .form textarea, 
+.players .multiselect-container .multiselect {
   width: 500px;
   padding: 10px;
   border: 1px solid #e0dede;
   outline: none;
   font-size: 12px;
+  margin: 0 auto;
 }
-.form div {
-  margin: 20px;
-}
-.app_post_btn {
+
+.players .app_post_btn {
   background: #4d7ef7;
   color: #fff;
   padding: 10px 80px;
@@ -99,5 +101,31 @@ export default {
   width: 520px;
   border: none;
   cursor: pointer;
+}
+
+.players .multiselect--active .multiselect__tags-wrap {
+  display: none
+}
+
+.players .multiselect__tags,
+.players .multiselect__select {
+  margin: 0;
+}
+
+.players .player-games {
+  list-style: none;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5px;
+  background: green;
+  color: #fff;
+  display: block;
+}
+
+.players .list-of-games {
+  display: flex;
+  flex-direction: row;
+  width: 500px;
+  margin: 0 auto;
 }
 </style>
