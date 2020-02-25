@@ -1,7 +1,7 @@
 <template>
   <div class="playerse">
     <h1>Players</h1>
-    <div v-if="player" class="table-wrap">
+    <div v-if="players" class="table-wrap">
       <div>
         <router-link v-bind:to="{ name: 'NewPlayer' }" class="">Add Player</router-link>
       </div>
@@ -11,7 +11,7 @@
           <td width="100" align="center">Action</td>
         </tr>
         <tr v-for="player in players" :key="player._id">
-          <td>{{ player.PlayerTitle }}</td>
+          <td>{{ player.PlayerName }}</td>
           <td align="center">
             <router-link v-bind:to="{ name: 'EditPlayer', params: { id: player._id } }">Edit</router-link> |
             <a href="#" @click="deletePlayer(player._id)">Delete</a>

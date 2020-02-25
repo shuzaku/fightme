@@ -103,7 +103,7 @@ app.post('/players', (req, res) => {
   var PlayerName = req.body.PlayerName;
   var CreatedDate = req.body.CreatedDate;
   var GamesPlayed = req.body.GamesPlayed;
-  var Region = req.body.Region;
+  var Region = req.body.PlayerRegion;
 
   var new_player = new Player({
     PlayerName: PlayerName,

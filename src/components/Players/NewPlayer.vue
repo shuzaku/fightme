@@ -50,23 +50,28 @@ export default {
       games: [],
       name: '',
       region: '',
-      selectedGames: []
+      selectedGames: [],
+      gameIds: ''
     }
   },
   methods: {
     async addPlayer () {
+      this.collectGameIds()
       await PlayersService.addPlayer({
         PlayerName: this.name,
         CreatedDate: this.timestamp,
         UpdatedDate: null,
         PlayerRegion: this.region,
-        GamesPlayed: this.selectedGames._id
+        GamesPlayed: this.gameIds
       })
       this.$router.push({ name: 'Players' })
     },
     async getGames () {
       const response = await GamesService.fetchGames()
       this.games = response.data.games
+    },
+    collectGameIds () {
+      this.gameIds = this.selectedGames.map( x => x._id )
     }
   },
   computed: {
