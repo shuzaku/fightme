@@ -61,7 +61,10 @@ export default {
   },
   mounted () {
     this.getGames()
-    this.getPlayer()
+      .then(function(){
+        console.log('getting players...')
+        this.getPlayer()
+      })
 
   },
   methods: {
@@ -72,14 +75,16 @@ export default {
       this.name = response.data.PlayerName
       this.region = response.data.Region
       this.createdDate = response.data.CreatedDate
-      this.gameIds = response.data.GamesPlayed
-      this.selectedGames = gameIds.map(function(x) {
+      this.selectedGames = response.data.GamesPlayed
+      console.log(this.selectedGames)
+      let theGames = this.selectedGames.map(function(x) {
         for(let i = 0; i < this.games.length; i++){
-          if(games[i]._id === x) {
-            return games[i];
+          if(this.games[i]._id === x) { 
+            return this.games[i];
           }
         }
       }); 
+      console.log(theGames)
     },
     async updatePlayer () {
       await PlayersService.updatePlayer({

@@ -2,11 +2,19 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var PlayerSchema = new Schema({
-  PlayerName: String,
-  CreatedDate: String,
-  UpdatedDate: String,
-  GamesPlayed: Array,
-  Region: String
+  PlayerName: {
+    type: String,
+    required: '{PATH} is required!'
+  },
+  GamesPlayed: {
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Games'
+  },
+  Region: {
+    type: String
+  }
+}, {
+  timestamp: true
 });
 
 var Players = mongoose.model("Players", PlayerSchema);
