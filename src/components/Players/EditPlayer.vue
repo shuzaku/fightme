@@ -61,30 +61,33 @@ export default {
   },
   mounted () {
     this.getGames()
-      .then(function(){
-        console.log('getting players...')
-        this.getPlayer()
-      })
+    console.log('getting players...')
+    this.getPlayer()
 
   },
   methods: {
     async getPlayer () {
-      const response = await PlayersService.getPlayer({
-        id: this.$route.params.id
+
+      return new Promise((resolve, reject) => {
+        const response = PlayersService.getPlayer({
+          id: this.$route.params.id
+        })
+          .then(response => {
+            this.name = response.data.PlayerName
+            this.region = response.data.Region
+            this.createdDate = response.data.CreatedDate
+            this.selectedGames = response.data.GamesPlayed
+            console.log(this.selectedGames)
+            let theGames = this.selectedGames.map(function(x) {
+              for(let i = 0; i < this.games.length; i++){
+                if(this.games[i]._id === x) { 
+                  return this.games[i];
+                }
+              }
+            }); 
+            resolve();
+          })
       })
-      this.name = response.data.PlayerName
-      this.region = response.data.Region
-      this.createdDate = response.data.CreatedDate
-      this.selectedGames = response.data.GamesPlayed
-      console.log(this.selectedGames)
-      let theGames = this.selectedGames.map(function(x) {
-        for(let i = 0; i < this.games.length; i++){
-          if(this.games[i]._id === x) { 
-            return this.games[i];
-          }
-        }
-      }); 
-      console.log(theGames)
     },
     async updatePlayer () {
       await PlayersService.updatePlayer({
@@ -96,8 +99,13 @@ export default {
       this.$router.push({ name: 'Players' })
     },
     async getGames () {
-      const response = await GamesService.fetchGames()
-      this.games = response.data.games
+      return new Promise((resolve, reject) => {
+        GamesService.fetchGames()
+          .then(response => {
+            this.games = response.data.games
+            resolve();
+          })
+      })
     },
   },
   computed: {
