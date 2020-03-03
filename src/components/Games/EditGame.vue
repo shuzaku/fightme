@@ -1,48 +1,54 @@
 <template>
-  <div class="posts">
-    <h1>Edit Post</h1>
+  <div class="games">
+    <h1>Edit Game</h1>
       <div class="form">
         <div>
           <input type="text" name="title" placeholder="TITLE" v-model="title">
         </div>
         <div>
-          <textarea rows="15" cols="15" placeholder="DESCRIPTION" v-model="description"></textarea>
-        </div>
-        <div>
-          <button class="app_post_btn" @click="updatePost">Update</button>
+          <button class="app_post_btn" @click="updateGame">Update</button>
         </div>
       </div>
   </div>
 </template>
 
 <script>
-import PostsService from '@/services/PostsService'
+import GamesService from '@/services/GamesService'
+import moment from 'moment'
 export default {
-  name: 'EditPost',
+  name: 'EditGame', 
   data () {
     return {
       title: '',
-      description: ''
+      description: '',
+      createdDate: '',
+      updatedDate: '',
     }
   },
   mounted () {
-    this.getPost()
+    this.getGame()
   },
   methods: {
-    async getPost () {
-      const response = await PostsService.getPost({
+    async getGame () {
+      const response = await GamesService.getGame({
         id: this.$route.params.id
       })
-      this.title = response.data.title
-      this.description = response.data.description
+      this.title = response.data.GameTitle
+      this.createdDate = response.data.CreatedDate
     },
-    async updatePost () {
-      await PostsService.updatePost({
+    async updateGame () {
+      await GamesService.updateGame({
         id: this.$route.params.id,
-        title: this.title,
-        description: this.description
+        GameTitle: this.title,
+        CreatedDate: this.createdDate,
+        UpdatedDate: this.timestamp
       })
-      this.$router.push({ name: 'Posts' })
+      this.$router.push({ name: 'Games' })
+    }
+  },
+  computed: {
+    timestamp: function() {
+      return moment().format()
     }
   }
 }

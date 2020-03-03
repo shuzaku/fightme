@@ -1,37 +1,41 @@
 <template>
-  <div class="posts">
-    <h1>Add Post</h1>
+  <div class="games">
+    <h1>Add Game</h1>
       <div class="form">
         <div>
           <input type="text" name="title" placeholder="TITLE" v-model="title">
         </div>
         <div>
-          <textarea rows="15" cols="15" placeholder="DESCRIPTION" v-model="description"></textarea>
-        </div>
-        <div>
-          <button class="app_post_btn" @click="addPost">Add</button>
+          <button class="app_game_btn" @click="addGame">Add</button>
         </div>
       </div>
   </div>
 </template>
 
 <script>
-import PostsService from '@/services/PostsService'
+import GamesService from '@/services/GamesService'
+import moment from 'moment'
+
 export default {
-  name: 'NewPost',
+  name: 'NewGame',
   data () {
     return {
       title: '',
-      description: ''
     }
   },
   methods: {
-    async addPost () {
-      await PostsService.addPost({
-        title: this.title,
-        description: this.description
+    async addGame () {
+      await GamesService.addGame({
+        GameTitle: this.title,
+        CreatedDate: this.timestamp,
+        UpdatedDate: null
       })
-      this.$router.push({ name: 'Posts' })
+      this.$router.push({ name: 'Games' })
+    }
+  },
+  computed: {
+    timestamp: function() {
+      return moment().format()
     }
   }
 }

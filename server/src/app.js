@@ -2,7 +2,8 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
-var Post = require("../models/post");
+var Game = require("../models/games");
+var Player = require("../models/players");
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -12,63 +13,65 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
 
-mongoose.connect('mongodb://username:password1@ds249267.mlab.com:49267/mongotest');
+mongoose.connect('mongodb://mtchau:Test1234@ds249267.mlab.com:49267/mongotest');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function(callback){
+db.once("open", function (callback) {
   console.log("Connection Succeeded");
 });
 
 // Add new post
-app.post('/posts', (req, res) => {
-    var db = req.db;
-    var title = req.body.title;
-    var description = req.body.description;
-    var new_post = new Post({
-      title: title,
-      description: description
-    })
-  
-    new_post.save(function (error) {
-      if (error) {
-        console.log(error)
-      }
-      res.send({
-        success: true,
-        message: 'Post saved successfully!'
-      })
-    })
+app.post('/games', (req, res) => {
+  var db = req.db;
+  var GameTitle = req.body.GameTitle;
+  var CreatedDate = req.body.CreatedDate;
+  var UpdatedDate = req.body.UpdatedDate;
+  var new_game = new Game({
+    GameTitle: GameTitle,
+    CreatedDate: CreatedDate,
+    UpdatedDate: null
   })
 
+  new_game.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
 
-// Fetch all posts
-app.get('/posts', (req, res) => {
-  Post.find({}, 'title description', function (error, posts) {
+// Fetch all games
+app.get('/games', (req, res) => {
+  Game.find({}, 'GameTitle CreatedDate UpdatedDate', function (error, games) {
     if (error) { console.error(error); }
     res.send({
-      posts: posts
+      games: games
     })
-  }).sort({_id:-1})
+  }).sort({ _id: -1 })
 })
 
-// Fetch single post
-app.get('/post/:id', (req, res) => {
+// Fetch single game
+app.get('/games/:id', (req, res) => {
   var db = req.db;
-  Post.findById(req.params.id, 'title description', function (error, post) {
+  Game.findById(req.params.id, 'GameTitle CreatedDate UpdatedDate', function (error, game) {
     if (error) { console.error(error); }
-    res.send(post)
+    res.send(game)
   })
 })
 
-// Update a post
-app.put('/posts/:id', (req, res) => {
+// Update a game
+app.put('/games/:id', (req, res) => {
   var db = req.db;
-  Post.findById(req.params.id, 'title description', function (error, post) {
+  Game.findById(req.params.id, 'GameTitle CreatedDate UpdatedDate', function (error, game) {
     if (error) { console.error(error); }
 
-    post.title = req.body.title
-    post.description = req.body.description
-    post.save(function (error) {
+    game.GameTitle = req.body.GameTitle;
+    game.CreatedDate = req.body.CreatedDate;
+    game.UpdatedDate = req.body.UpdatedDate;
+    game.save(function (error) {
       if (error) {
         console.log(error)
       }
@@ -79,12 +82,12 @@ app.put('/posts/:id', (req, res) => {
   })
 })
 
-// Delete a post
-app.delete('/posts/:id', (req, res) => {
+// Delete a game
+app.delete('/games/:id', (req, res) => {
   var db = req.db;
-  Post.remove({
+  Game.remove({
     _id: req.params.id
-  }, function(err, post){
+  }, function (err, game) {
     if (err)
       res.send(err)
     res.send({
@@ -92,5 +95,93 @@ app.delete('/posts/:id', (req, res) => {
     })
   })
 })
+
+
+// Add new player
+app.post('/players', (req, res) => {
+  var db = req.db;
+  var PlayerName = req.body.PlayerName;
+  var CreatedDate = req.body.CreatedDate;
+  var GamesPlayed = req.body.GamesPlayed;
+  var Region = req.body.PlayerRegion;
+
+  var new_player = new Player({
+    PlayerName: PlayerName,
+    CreatedDate: CreatedDate,
+    UpdatedDate: null,
+    GamesPlayed: GamesPlayed,
+    Region: Region
+  })
+
+  new_player.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
+
+// Fetch all player
+app.get('/players', (req, res) => {
+  Player.find({}, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region', function (error, players) {
+    if (error) { console.error(error); }
+    res.send({
+      players: players
+    })
+  }).sort({ _id: -1 })
+})
+
+// Fetch single player
+app.get('/players/:id', (req, res) => {
+  var db = req.db;
+  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region', function (error, player) {
+    if (error) { console.error(error); }
+    res.send(player)
+  })
+})
+
+// Update a player
+app.put('/players/:id', (req, res) => {
+  var db = req.db;
+  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region', function (error, player) {
+    if (error) { console.error(error); }
+
+    player.PlayerName = req.body.PlayerName;
+    player.CreatedDate = req.body.CreatedDate;
+    player.UpdatedDate = req.body.UpdatedDate;
+    player.GamesPlayed = req.body.GamesPlayed,
+    player.Region = req.body.Region
+
+    player.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true
+      })
+    })
+  })
+})
+
+// Delete a player
+app.delete('/players/:id', (req, res) => {
+  var db = req.db;
+  Player.remove({
+    _id: req.params.id
+  }, function (err, player) {
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})
+
+
+
+
 app.listen(process.env.PORT || 8081)
 
