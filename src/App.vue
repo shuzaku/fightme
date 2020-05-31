@@ -1,17 +1,16 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <nav>
-        <router-link v-bind:to="{ name: 'Hello' }">Home</router-link>
-        <router-link v-bind:to="{ name: 'Posts' }">Posts</router-link>
-    </nav>
     <router-view ></router-view>
 
   </div>
 </template>
  
 <script>
+
 export default {
+  name: "App",
+  components:  {
+  }
 }
 </script>
 

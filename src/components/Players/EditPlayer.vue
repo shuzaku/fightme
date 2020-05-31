@@ -61,33 +61,30 @@ export default {
   },
   mounted () {
     this.getGames()
-    console.log('getting players...')
     this.getPlayer()
 
   },
   methods: {
     async getPlayer () {
 
-      return new Promise((resolve, reject) => {
-        const response = PlayersService.getPlayer({
-          id: this.$route.params.id
-        })
-          .then(response => {
-            this.name = response.data.PlayerName
-            this.region = response.data.Region
-            this.createdDate = response.data.CreatedDate
-            this.selectedGames = response.data.GamesPlayed
-            console.log(this.selectedGames)
-            let theGames = this.selectedGames.map(function(x) {
-              for(let i = 0; i < this.games.length; i++){
-                if(this.games[i]._id === x) { 
-                  return this.games[i];
-                }
-              }
-            }); 
-            resolve();
-          })
-      })
+      // return new Promise((resolve) => {
+      //   const [response] = PlayersService.getPlayer({
+      //     id: this.$route.params.id
+      //   })
+      //     .then(response => {
+      //       this.name = response.data.PlayerName
+      //       this.region = response.data.Region
+      //       this.createdDate = response.data.CreatedDate
+      //       let theGames = this.selectedGames.map(function(x) {
+      //         for(let i = 0; i < this.games.length; i++){
+      //           if(this.games[i]._id === x) { 
+      //             return this.games[i];
+      //           }
+      //         }
+      //       }); 
+      //       resolve();
+      //     })
+      // })
     },
     async updatePlayer () {
       await PlayersService.updatePlayer({
@@ -98,8 +95,9 @@ export default {
       })
       this.$router.push({ name: 'Players' })
     },
+
     async getGames () {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         GamesService.fetchGames()
           .then(response => {
             this.games = response.data.games

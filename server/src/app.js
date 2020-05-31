@@ -4,8 +4,8 @@ const morgan = require('morgan')
 const cors = require('cors')
 var Game = require("../models/games");
 var Player = require("../models/players");
+var Video = require("../models/videos");
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 
 
 const app = express()
@@ -180,7 +180,85 @@ app.delete('/players/:id', (req, res) => {
   })
 })
 
+// Add new Video
+app.post('/videos', (req, res) => {
+  var db = req.db;
+  var VideoUrl = req.body.VideoUrl;
+  var VideoType = req.body.VideoType
+  var Players = req.body.Players;
+  var Game = req.body.Game;
 
+  var new_video = new Video({
+    VideoUrl: VideoUrl,
+    VideoType: VideoType,
+    Players: Players,
+    Game: Game,
+  })
+
+  new_video.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
+
+// Fetch all Video
+app.get('/videos', (req, res) => {
+  Video.find({}, 'VideoUrl VideoType Players Game', function (error, videos) {
+    if (error) { console.error(error); }
+    res.send({
+      videos: videos
+    })
+  }).sort({ _id: -1 })
+})
+
+// Fetch single Video
+app.get('/videos/:id', (req, res) => {
+  var db = req.db;
+  Videos.findById(req.params.id, 'VideoUrl VideoType Players Game', function (error, video) {
+    if (error) { console.error(error); }
+    res.send(video)
+  })
+})
+
+// Update a Video
+app.put('/videos/:id', (req, res) => {
+  var db = req.db;
+  Video.findById(req.params.id, 'VideoUrl VideoType Players Game', function (error, video) {
+    if (error) { console.error(error); }
+
+    video.VideoUrl = req.body.VideoUrl;
+    video.Players = req.body.Players;
+    video.Game = req.body.Game;
+
+    video.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true
+      })
+    })
+  })
+})
+
+// Delete a Video
+app.delete('/videos/:id', (req, res) => {
+  var db = req.db;
+  Video.remove({
+    _id: req.params.id
+  }, function (err, video) {
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})
 
 
 app.listen(process.env.PORT || 8081)

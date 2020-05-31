@@ -1,17 +1,15 @@
 import Vue from 'vue';
+
 import App from './App.vue';
 import VueRouter from 'vue-router';
  
 import routes from './routes.js';
 import moment from 'moment';
-import multiselect from 'vue-multiselect';
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 Vue.use(moment);
-
-Vue.component('multiselect', multiselect)
 
 const router = new VueRouter({
   mode: 'history',

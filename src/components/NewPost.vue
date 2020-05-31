@@ -1,4 +1,4 @@
-g<template>
+<template>
   <div class="posts">
     <h1>Add Post</h1>
       <div class="form">
