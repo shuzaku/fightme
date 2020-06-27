@@ -1,7 +1,7 @@
 <template>
   <div class="videos">
     <h1>Videos</h1>
-    <div v-if="videos" class="table-wrap">
+    <div v-if="videos">
         <div v-for="video in videos" :key="video._id">
           <video 
             :src="video.VideoUrl"
@@ -18,6 +18,10 @@
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
           </iframe>
+          <div class="players">
+            <p>Player 1: {{video.Players.Player1}}</p>
+            <p>Player 2: {{video.Players.Player2}}</p>
+          </div>
         </div>
     </div>
     <div v-else>
@@ -47,3 +51,17 @@ export default {
   }
 }
 </script>
+
+<style>
+  .videos {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .videos .players {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+  }
+</style>

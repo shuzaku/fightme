@@ -43,6 +43,7 @@ export default {
       const response = await PlayersService.fetchPlayers()
       this.players = response.data.players
     },
+    
     async deletePlayer (id) {
       await PlayersService.deletePlayer(id) 
       this.getPlayers()

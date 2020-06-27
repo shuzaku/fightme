@@ -42,8 +42,12 @@
 import PlayersService from '@/services/PlayersService'
 import GamesService from '@/services/GamesService'
 import moment from 'moment'
+import MultiSelect from 'vue-multiselect'
 
 export default {
+  components: {
+    multiselect: MultiSelect
+  },
   name: 'NewPlayer',
   data () {
     return {

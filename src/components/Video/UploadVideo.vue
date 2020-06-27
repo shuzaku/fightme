@@ -4,13 +4,14 @@
       <progress-bar :options="options" :value="progress" />
     </div>
     <form v-on:submit.prevent="upload">
-        <label for="file-input">Upload Video:</label>
-        <input 
+
+        <v-file-input 
             id="file-input"
             type="file"
             accept="video/mp4"
+            placeholder="Upload Video"
             @change="handleFileChange($event)" />
-        <button type="submit" class="submit-btn" :disable="filesSelected < 1">upload</button>
+        <v-btn class="ma-2" tile color="indigo" dark :disabled="filesSelected">upload</v-btn>
     </form>
   </div>
 </template>

@@ -3,23 +3,27 @@ import Api from '@/services/Api'
 
 export default {
   //Players
-  fetchPlayers () {
+  fetchPlayers() {
     return Api().get('players')
   },
 
-  addPlayer (params) {
+  addPlayer(params) {
     return Api().post('players', params)
   },
 
-  updatePlayer (params) {
+  updatePlayer(params) {
     return Api().put('players/' + params.id, params)
   },
 
-  getPlayer (params) {
-    return Api().get('players/' + params.id) 
+  getPlayer() {
+    return Api().get('players/') 
   },
 
-  deletePlayer (id) {
+  findPlayer(params) {
+    return Api().findOne('players/' + params) 
+  },
+
+  deletePlayer(id) {
     return Api().delete('players/' + id)
   },
 } 

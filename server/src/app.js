@@ -5,6 +5,7 @@ const cors = require('cors')
 var Game = require("../models/games");
 var Player = require("../models/players");
 var Video = require("../models/videos");
+var Tag = require("../models/tags");
 var mongoose = require('mongoose');
 
 
@@ -143,6 +144,19 @@ app.get('/players/:id', (req, res) => {
   })
 })
 
+// Fetch single player by name
+app.get('/players/', (req, res) => {
+  var db = req.db;
+  Player.findOne({'PlayerName':{$search: req.body.search}}).then(result=>{
+    if (result)
+    {
+       //do something with your code
+        console.log(result);
+        res.send(result);
+    }
+  })
+})
+
 // Update a player
 app.put('/players/:id', (req, res) => {
   var db = req.db;
@@ -260,6 +274,34 @@ app.delete('/videos/:id', (req, res) => {
   })
 })
 
+// Fetch all Tag
+app.get('/tags', (req, res) => {
+  Tag.find({}, 'TagName', function (error, tags) {
+    if (error) { console.error(error); }
+    res.send({
+      tags: tags
+    })
+  }).sort({ _id: -1 })
+})
 
+// Add new Tag
+app.post('/tags', (req, res) => {
+  var db = req.db;
+  var TagName = req.body.TagName;
+
+  var new_tag = new Tag({
+    TagName: TagName
+  })
+
+  new_tag.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Tag saved successfully!'
+    })
+  })
+})
 app.listen(process.env.PORT || 8081)
 
