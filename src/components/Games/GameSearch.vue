@@ -3,11 +3,11 @@
       <multiselect 
         v-model="selectedGame" 
         :options="games" 
-        :multiple="false" 
-        :close-on-select="true" 
+        :multiple= taggable 
+        :close-on-select="true"
         :clear-on-select="false" 
         :preserve-search="true" 
-        :taggable="true" 
+        :taggable= taggable 
         @tag="addGame"
         @input="setGame"
         placeholder="Search or add a Game"
@@ -29,6 +29,12 @@ import GamesService from '@/services/GamesService'
 
 export default {
   name: 'games-search',
+  props: {
+    taggable: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
       games: [],

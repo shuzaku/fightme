@@ -7,10 +7,12 @@ var PlayerSchema = new Schema({
     required: '{PATH} is required!'
   },
   GamesPlayed: {
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Games'
+    type: Array
   },
   Region: {
+    type: String
+  },
+  PlayerImg: {
     type: String
   }
 }, {

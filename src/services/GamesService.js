@@ -21,25 +21,5 @@ export default {
 
   deleteGame (id) {
     return Api().delete('games/' + id)
-  },
-  //Players
-  fetchPlayers () {
-    return Api().get('players')
-  },
-
-  addPlayers (params) {
-    return Api().post('players', params)
-  },
-
-  updatePlayers(params) {
-    return Api().put('players/' + params.id, params)
-  },
-
-  getPlayers (params) {
-    return Api().get('players/' + params.id) 
-  },
-
-  deletePlayers (id) {
-    return Api().delete('players/' + id)
   }
-} 
+}

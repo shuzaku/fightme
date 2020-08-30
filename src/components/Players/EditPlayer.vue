@@ -1,142 +1,140 @@
 <template>
   <div class="edit-players">
     <h1>Edit Player</h1>
-      <div class="form">
-        <div>
-          <input type="text" name="name" placeholder="Player Name" v-model="name">
-        </div>
-        <div>
-          <input type="text" name="region" placeholder="Region" v-model="region">
-        </div>
-          <div class="multiselect-container">
-            <multiselect 
-              v-model="selectedGames" 
-              :options="games" 
-              :multiple="true" 
-              :close-on-select="false" 
-              :clear-on-select="false" 
-              :preserve-search="true" 
-              placeholder="Select Games" 
-              label="GameTitle" 
-              track-by="GameTitle" 
-              :preselect-first="true">
-              <template slot="selection" 
-                slot-scope="{ values, search, isOpen }">
-                <span class="multiselect__single" 
-                  v-if="values.length &amp;&amp; !isOpen">
-                  Select Games
-                </span></template>
-            </multiselect>
-            <ul class="list-of-games">
-              <li v-for = "game in selectedGames" class="player-games" :key="game._id">
-                  {{game.GameTitle}}
-              </li>
-            </ul>
-          </div>
-        <div>
-          <button class="app_post_btn" @click="updatePlayer">Update</button>
-        </div>
+    <v-text-field 
+        id="import-image"
+        type="text"
+        v-model="player.playerImg"
+        placeholder="image Url"
+        v-if="!player.playerImg" />
+    <div class="player-img-container" v-if="player.playerImg">
+      <img  :src="player.playerImg" class="player-img"/>
+      <v-btn @click="player.playerImg=''">X</v-btn>
+    </div>
+    <div class="form">
+      <div>
+        <input type="text" name="name" placeholder="Player Name" v-model="player.name">
       </div>
+      <div>
+        <input type="text" name="region" placeholder="Region" v-model="player.region">
+      </div>
+      <!--- game --->
+      <game-search 
+        v-model="game" 
+        :taggable="true"
+        @update:game="setGame($event)" />
+      <ul class="list-of-games">
+        <li v-for = "game in player.selectedGames" class="player-games" :key="game._id">
+            {{game.GameTitle}}
+        </li>
+      </ul>
+      <div>
+        <button class="app_post_btn" @click="updatePlayer">Update</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import PlayersService from '@/services/PlayersService'
 import moment from 'moment'
-import GamesService from '@/services/GamesService'
+import GameSearch from '@/components/Games/GameSearch'
 
 export default {
-  name: 'EditPlayer', 
+  name: 'EditPlayer',
+
+  components:{
+      'game-search': GameSearch,
+  },
+
   data () {
     return {
-      name: '',
-      region: '',
-      description: '',
-      createdDate: '',
-      updatedDate: '',
-      selectedGames: '',
-      gameIds: '',
-      games: ''
+      player: {
+        name: null,
+        region: null,
+        updatedDate: null,
+        selectedGames: [],
+        playerImg: null
+      },
+      games: '',
+      game: null
     }
-  },
-  mounted () {
-    this.getGames()
-    this.getPlayer()
-
   },
   methods: {
     async getPlayer () {
-
-      // return new Promise((resolve) => {
-      //   const [response] = PlayersService.getPlayer({
-      //     id: this.$route.params.id
-      //   })
-      //     .then(response => {
-      //       this.name = response.data.PlayerName
-      //       this.region = response.data.Region
-      //       this.createdDate = response.data.CreatedDate
-      //       let theGames = this.selectedGames.map(function(x) {
-      //         for(let i = 0; i < this.games.length; i++){
-      //           if(this.games[i]._id === x) { 
-      //             return this.games[i];
-      //           }
-      //         }
-      //       }); 
-      //       resolve();
-      //     })
-      // })
+        const response = await PlayersService.getPlayer({
+          id: this.$route.params.id
+        });
+        this.player.name = response.data.PlayerName
+        this.player.region = response.data.Region
+        this.player.createdDate = response.data.CreatedDate
+        this.player.selectedGames= response.data.GamesPlayed 
+        this.player.playerImg = response.data.PlayerImg
     },
+
     async updatePlayer () {
       await PlayersService.updatePlayer({
         id: this.$route.params.id,
-        PlayerName: this.name,
-        CreatedDate: this.createdDate,
-        UpdatedDate: this.timestamp
+        PlayerName: this.player.name,
+        Region: this.player.region,
+        GamesPlayed: this.player.selectedGames,
+        UpdatedDate: this.player.timestamp,
+        PlayerImg: this.player.playerImg
       })
       this.$router.push({ name: 'Players' })
     },
 
-    async getGames () {
-      return new Promise((resolve) => {
-        GamesService.fetchGames()
-          .then(response => {
-            this.games = response.data.games
-            resolve();
-          })
-      })
-    },
+    setGame(game) {
+      this.player.selectedGames = game;
+    }
   },
+  
   computed: {
     timestamp: function() {
       return moment().format()
     }
+  },
+
+  created() {
+    this.getPlayer()
   }
 }
 </script>
 <style type="text/css">
-.players .form input, 
-.players .form textarea, 
-.players .multiselect-container .multiselect {
-  width: 500px;
+.edit-players {
+    max-width: 600px;
+    text-align: left;
+    margin: 0 auto;
+    background: #fff;
+    width: 400px;
+    border-radius: 10px;
+    padding: 20px 60px;
+}
+
+.edit-players  .form input, 
+.edit-players  .form textarea, 
+.edit-players  .multiselect-container .multiselect {
+  width: 100%; 
   padding: 10px;
   border: 1px solid #e0dede;
   outline: none; 
   font-size: 12px;
   margin: 0 auto;
 }
-.form div {
-  margin: 20px;
+
+.edit-players .games-search {
+  margin: 0;
 }
-.app_post_btn {
-  background: #4d7ef7;
-  color: #fff;
-  padding: 10px 80px;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: bold;
-  width: 520px;
-  border: none;
-  cursor: pointer;
+
+.edit-players .app_post_btn {
+  width: 100%;
+}
+.edit-players .form div {
+  margin: 20px 0;
+}
+
+.edit-players .form .multiselect__select {
+  margin: 0
 }
 
 .edit-players .multiselect--active .multiselect__tags-wrap {
@@ -163,5 +161,18 @@ export default {
   flex-direction: row;
   width: 500px;
   margin: 0 auto;
+}
+
+.edit-players .player-img-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.edit-players .player-img-container .player-img {
+  max-width: 175px;
+  border-radius: 50%;
+  margin: 0 auto;
+  border: 5px solid #000;
 }
 </style>

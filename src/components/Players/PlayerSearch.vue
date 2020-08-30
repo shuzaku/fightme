@@ -11,8 +11,7 @@
         @tag="addPlayer"
         @input="setPlayer"
         placeholder="Search or add a Player"
-        label="PlayerName" 
-        track-by="PlayerName">
+        label="PlayerName" >
         <template slot="selection" 
           slot-scope="{ values, search, isOpen }">
           <span class="multiselect__single" 
@@ -29,15 +28,18 @@ import PlayersService from '@/services/PlayersService'
 
 export default {
   name: 'players-search',
+  
   data () {
     return {
       players: [],
       selectedPlayer: null
     }
   }, 
+
   mounted () {
     this.getPlayers()
   },
+
   methods: {
     async addPlayer (newPlayer) {
       await PlayersService.addPlayer({
@@ -56,6 +58,10 @@ export default {
     setPlayer() {
       this.$emit('update:player' , this.selectedPlayer);
     }
+  },
+  
+  created() {
+    this.getPlayers();
   }
 }
 </script>

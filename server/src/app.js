@@ -25,12 +25,14 @@ db.once("open", function (callback) {
 app.post('/games', (req, res) => {
   var db = req.db;
   var GameTitle = req.body.GameTitle;
+  var Characters = req.body.Characters
   var CreatedDate = req.body.CreatedDate;
   var UpdatedDate = req.body.UpdatedDate;
   var new_game = new Game({
     GameTitle: GameTitle,
+    Characters: Characters,
     CreatedDate: CreatedDate,
-    UpdatedDate: null
+    UpdatedDate: UpdatedDate
   })
 
   new_game.save(function (error) {
@@ -46,7 +48,7 @@ app.post('/games', (req, res) => {
 
 // Fetch all games
 app.get('/games', (req, res) => {
-  Game.find({}, 'GameTitle CreatedDate UpdatedDate', function (error, games) {
+  Game.find({}, 'GameTitle Characters CreatedDate UpdatedDate', function (error, games) {
     if (error) { console.error(error); }
     res.send({
       games: games
@@ -57,7 +59,7 @@ app.get('/games', (req, res) => {
 // Fetch single game
 app.get('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'GameTitle CreatedDate UpdatedDate', function (error, game) {
+  Game.findById(req.params.id, 'GameTitle Characters CreatedDate UpdatedDate', function (error, game) {
     if (error) { console.error(error); }
     res.send(game)
   })
@@ -66,10 +68,11 @@ app.get('/games/:id', (req, res) => {
 // Update a game
 app.put('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'GameTitle CreatedDate UpdatedDate', function (error, game) {
+  Game.findById(req.params.id, 'GameTitle Characters CreatedDate UpdatedDate', function (error, game) {
     if (error) { console.error(error); }
 
     game.GameTitle = req.body.GameTitle;
+    game.Characters = req.body.Characters
     game.CreatedDate = req.body.CreatedDate;
     game.UpdatedDate = req.body.UpdatedDate;
     game.save(function (error) {
@@ -79,7 +82,7 @@ app.put('/games/:id', (req, res) => {
       res.send({
         success: true
       })
-    })
+    }) 
   })
 })
 
@@ -105,13 +108,15 @@ app.post('/players', (req, res) => {
   var CreatedDate = req.body.CreatedDate;
   var GamesPlayed = req.body.GamesPlayed;
   var Region = req.body.PlayerRegion;
+  var PlayerImg = req.body.PlayerImg;
 
   var new_player = new Player({
     PlayerName: PlayerName,
     CreatedDate: CreatedDate,
     UpdatedDate: null,
     GamesPlayed: GamesPlayed,
-    Region: Region
+    Region: Region,
+    PlayerImg: PlayerImg
   })
 
   new_player.save(function (error) {
@@ -138,29 +143,16 @@ app.get('/players', (req, res) => {
 // Fetch single player
 app.get('/players/:id', (req, res) => {
   var db = req.db;
-  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region', function (error, player) {
+  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
     if (error) { console.error(error); }
     res.send(player)
-  })
-})
-
-// Fetch single player by name
-app.get('/players/', (req, res) => {
-  var db = req.db;
-  Player.findOne({'PlayerName':{$search: req.body.search}}).then(result=>{
-    if (result)
-    {
-       //do something with your code
-        console.log(result);
-        res.send(result);
-    }
   })
 })
 
 // Update a player
 app.put('/players/:id', (req, res) => {
   var db = req.db;
-  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region', function (error, player) {
+  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
     if (error) { console.error(error); }
 
     player.PlayerName = req.body.PlayerName;
@@ -168,6 +160,7 @@ app.put('/players/:id', (req, res) => {
     player.UpdatedDate = req.body.UpdatedDate;
     player.GamesPlayed = req.body.GamesPlayed,
     player.Region = req.body.Region
+    player.PlayerImg = req.body.PlayerImg
 
     player.save(function (error) {
       if (error) {
@@ -201,12 +194,20 @@ app.post('/videos', (req, res) => {
   var VideoType = req.body.VideoType
   var Players = req.body.Players;
   var Game = req.body.Game;
+  var Tags = req.body.Tags;
+  var ContentType = req.body.ContentType;
+  var Combo = req.body.Combo;
+  var IsInView = req.body.IsInView;
 
   var new_video = new Video({
     VideoUrl: VideoUrl,
     VideoType: VideoType,
     Players: Players,
     Game: Game,
+    Tags: Tags,
+    ContentType: ContentType,
+    Combo: Combo,
+    IsInView: IsInView
   })
 
   new_video.save(function (error) {
@@ -222,7 +223,7 @@ app.post('/videos', (req, res) => {
 
 // Fetch all Video
 app.get('/videos', (req, res) => {
-  Video.find({}, 'VideoUrl VideoType Players Game', function (error, videos) {
+  Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
     if (error) { console.error(error); }
     res.send({
       videos: videos
@@ -233,7 +234,7 @@ app.get('/videos', (req, res) => {
 // Fetch single Video
 app.get('/videos/:id', (req, res) => {
   var db = req.db;
-  Videos.findById(req.params.id, 'VideoUrl VideoType Players Game', function (error, video) {
+  Videos.findById(req.params.id, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, video) {
     if (error) { console.error(error); }
     res.send(video)
   })
@@ -242,12 +243,13 @@ app.get('/videos/:id', (req, res) => {
 // Update a Video
 app.put('/videos/:id', (req, res) => {
   var db = req.db;
-  Video.findById(req.params.id, 'VideoUrl VideoType Players Game', function (error, video) {
+  Video.findById(req.params.id, 'VideoUrl VideoType Players Game Tags ContentType Combo', function (error, video) {
     if (error) { console.error(error); }
 
     video.VideoUrl = req.body.VideoUrl;
     video.Players = req.body.Players;
     video.Game = req.body.Game;
+    video.Combo = req.body.Combo;
 
     video.save(function (error) {
       if (error) {

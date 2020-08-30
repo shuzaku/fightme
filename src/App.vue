@@ -1,23 +1,44 @@
 <template>
   <div id="app">
+    <top-nav 
+    @open:createWidget="openModal($event)"/>
+    <modal v-if="isWidgetOpen"
+    :createType = createType
+    @closeModal = "closeModal()" />
+    <navigation-drawer />
     <router-view ></router-view>
-
   </div>
 </template>
 
 <script>
-
+import TopNav from '@/components/Common/TopNav'
+import NavigationDrawer from '@/components/Common/NavigationDrawer';
+import Modal from '@/components/Common/Modal'
 
 export default {
   name: 'App',
 
   components: {
-
+    'navigation-drawer' : NavigationDrawer,
+    'top-nav' : TopNav,
+    'modal': Modal
   },
 
   data: () => ({
-    //
+    createType: null,
+    isWidgetOpen: false,
   }),
+
+  methods: {
+    openModal(createType) {
+      this.createType = createType;
+      this.isWidgetOpen = true;
+    },
+
+    closeModal() {
+      this.isWidgetOpen = false;
+    }
+  }
 };
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
@@ -25,13 +46,23 @@ export default {
 #app {
   font-family: "Roboto";
   min-height: 100vh;
-  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#bac0f3+0,f0cef7+100 */
-  background: #bac0f3; /* Old browsers */
-  background: -moz-linear-gradient(45deg, #bac0f3 0%, #f0cef7 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(45deg, #bac0f3 0%,#f0cef7 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(45deg, #bac0f3 0%,#f0cef7 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bac0f3', endColorstr='#f0cef7',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+  background: #171733
 }
 
+#app h1 {
+  margin-bottom: 40px;
+}
 
+#app .v-navigation-drawer {
+  position: fixed;
+  z-index: 100;
+}
+
+#app .top-nav {
+  z-index: 90;
+}
+
+#app .text-center {
+  text-align: center;
+}
 </style>

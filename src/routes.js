@@ -5,8 +5,8 @@ import EditGame from './components/Games/EditGame.vue';
 import Players from './components/Players/Players.vue';
 import NewPlayer from './components/Players/NewPlayer.vue';
 import EditPlayer from './components/Players/EditPlayer.vue';
-import PostVideo from './components/Video/PostVideo.vue';
-import Videos from './components/Video/Videos.vue';
+import PostVideo from './components/Videos/PostVideo.vue';
+import Videos from './components/Videos/Videos.vue';
 
 
 const routes = [

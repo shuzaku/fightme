@@ -7,7 +7,7 @@
         :close-on-select="false" 
         :clear-on-select="false" 
         :preserve-search="true" 
-        :taggable="true" 
+        :taggable= taggable
         @tag="addTag"
         @input="setTags"
         placeholder="Search or add a Tag"
@@ -29,6 +29,12 @@ import TagsService from '@/services/TagsService'
 
 export default {
   name: 'players-search',
+  props: {
+    taggable: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
       tags: [],

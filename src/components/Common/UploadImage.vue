@@ -1,17 +1,16 @@
 <template>
-  <div class="upload-media">
+  <div class="upload-image">
     <div v-show="showProgress">
       <progress-bar :options="options" :value="progress" />
     </div>
     <form v-on:submit.prevent="upload">
-
-        <v-file-input 
-            id="file-input"
-            type="file"
-            accept="video/mp4"
-            placeholder="Upload Video"
-            @change="handleFileChange($event)" />
-        <v-btn class="ma-2" tile color="indigo" dark :disabled="filesSelected">upload</v-btn>
+      <v-file-input 
+          id="file-input"
+          type="file"
+          accept="image/*"
+          placeholder="Upload image"
+          @change="handleFileChange($event)" />
+      <v-btn class="ma-2" tile color="indigo" dark :disabled="filesSelected">upload</v-btn>
     </form>
   </div>
 </template>
@@ -54,21 +53,19 @@ export default {
         progress: 0,
         showProgress: false,
         fileContents: null,
-        preset: "video_upload",
+        preset: "image_upload",
         options: progressBarOptions,
         results: null,
-        video: {
+        image: {
             secureUrl: '',
             uploadDate: '',
-            length: '',
             id: ''
         }
     }
   },
   methods: {
     handleFileChange(event) {
-        this.file = event.target.files[0];
-        this.filesSelected = event.target.files.length
+        this.file = event
     },
 
     prepareFormData() {
@@ -99,8 +96,8 @@ export default {
           axios(requestObj)
             .then(response => {
               this.results = response.data;
-              this.videoUrl = response.data.secure_url
-              this.$emit('upload:video' , this.videoUrl);
+              this.imageUrl = response.data.secure_url
+              this.$emit('upload:image' , this.imageUrl);
             })
             .catch(error => {
               this.errors.push(error);

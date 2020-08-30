@@ -8,17 +8,22 @@ import moment from 'moment';
 
 import Multiselect from 'vue-multiselect'
 import vuetify from './plugins/vuetify';
+import VueWaypoint from "vue-waypoint"
+
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 Vue.use(moment);
+Vue.use(VueWaypoint);
 Vue.component('multiselect', Multiselect)
 
 const router = new VueRouter({
   mode: 'history',
   routes
 });
+
+export const eventbus = new Vue();
 
 new Vue({
   router,

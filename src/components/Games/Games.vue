@@ -1,23 +1,25 @@
 <template>
-  <div class="games">
-    <h1>Games</h1>
+  <div class="games-list">
     <div v-if="games" class="table-wrap">
-      <div>
-        <router-link v-bind:to="{ name: 'NewGame' }" class="">Add Game</router-link>
-      </div>
-      <table>
-        <tr>
-          <td>Game Title</td>
-          <td width="100" align="center">Action</td>
-        </tr>
-        <tr v-for="game in games" :key="game._id">
-          <td>{{ game.GameTitle }}</td>
-          <td align="center">
-            <router-link v-bind:to="{ name: 'EditGame', params: { id: game._id } }">Edit</router-link> |
-            <a href="#" @click="deleteGame(game._id)">Delete</a>
-          </td>
-        </tr>
-      </table>
+      <v-simple-table>
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th class="text-left">Name</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="game in games" :key="game._id">
+              <td>{{ game.GameTitle }}</td>
+              <td align="center">
+                <router-link v-bind:to="{ name: 'EditGame', params: { id: game._id } }">Edit</router-link> |
+                <a href="#" @click="deleteGame(game._id)">Delete</a>
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </v-simple-table>
     </div>
     <div v-else>
       There are no games.. Lets add one now <br /><br />
@@ -28,6 +30,7 @@
 
 <script>
 import GamesService from '@/services/GamesService'
+
 export default {
   name: 'games',
   data () {
@@ -51,32 +54,29 @@ export default {
 }
 </script>
 <style type="text/css">
-.table-wrap {
-  width: 60%;
-  margin: 0 auto;
-  text-align: center;
+
+.games-list .table-wrap {
+  max-width: 450px;
+  margin: 50px auto 0;
 }
-table th, table tr {
+
+.games-list table th, .games-list table tr {
   text-align: left;
 }
-table thead {
+
+.games-list table thead {
   background: #f2f2f2;
 }
-table tr td {
-  padding: 10px;
+
+.games-list table tr td {
+  padding: 10px 20px;
 }
-table tr:nth-child(odd) {
+
+.games-list table tr:nth-child(odd) {
   background: #f2f2f2;
 }
-table tr:nth-child(1) {
-  background: #4d7ef7;
-  color: #fff;
-}
-a {
-  color: #4d7ef7;
-  text-decoration: none;
-}
-a.add_post_link {
+
+.games-list a.add_post_link {
   background: #4d7ef7;
   color: #fff;
   padding: 10px 80px;

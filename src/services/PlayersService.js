@@ -15,15 +15,11 @@ export default {
     return Api().put('players/' + params.id, params)
   },
 
-  getPlayer() {
-    return Api().get('players/') 
+  getPlayer(params) {
+    return Api().get('players/' + params.id) 
   },
-
-  findPlayer(params) {
-    return Api().findOne('players/' + params) 
-  },
-
+  
   deletePlayer(id) {
     return Api().delete('players/' + id)
-  },
+  }
 } 

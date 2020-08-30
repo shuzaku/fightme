@@ -7,14 +7,25 @@ var VideoSchema = new Schema({
       required: '{PATH} is required!'
     },
     VideoType: {
-      type: String,
+      type: String
     },
     Players: {
-      type: Object,
+      type: Object
     },
     Game: {
-      type: String,
-      required: '{PATH} is required!'
+      type: Object
+    },
+    Tags: {
+      type: Array
+    },
+    ContentType: {
+      type: String
+    },
+    Combo: {
+      type: Object
+    },
+    IsInView: {
+      type: Boolean
     }
   }, {
   timestamp: true, 
