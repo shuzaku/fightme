@@ -1,4 +1,3 @@
-import HelloWorld from './components/HelloWorld.vue';
 import Games from './components/Games/Games.vue';
 import NewGame from './components/Games/NewGame.vue';
 import EditGame from './components/Games/EditGame.vue';
