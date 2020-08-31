@@ -10,7 +10,6 @@ import Videos from './components/Videos/Videos.vue';
 
 
 const routes = [
-    {path: '/', name: 'Hello', component: HelloWorld },
     {path: '/games/', name: 'Games', component: Games },
     {path: '/games/new', name: 'NewGame', component: NewGame },
     {path: '/games/:id', name: 'EditGame', component: EditGame},
