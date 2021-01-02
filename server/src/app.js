@@ -14,7 +14,7 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
 
-mongoose.connect('mongodb://mtchau:Test1234@ds249267.mlab.com:49267/mongotest');
+mongoose.connect('mongodb+srv://mtchau:CSLNsZTp!pqf3cA@fightme.vdh52.mongodb.net/mongotest?retryWrites=true&w=majority');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function (callback) {

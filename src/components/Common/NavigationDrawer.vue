@@ -50,9 +50,12 @@ export default {
     return {
         drawer: true,
         items: [
-          { title: 'Videos', icon: 'mdi-video-box', action: () => {this.$router.push({ name: 'Videos' })} },
+          { title: 'Feed', icon: 'mdi-video-box', action: () => {this.$router.push({ name: 'Videos' })} },
+          { title: 'Games', icon: 'mdi-gamepad', action: () => {this.$router.push({ name: 'Games' })} },
           { title: 'Players', icon: 'mdi-account-box', action: () => {this.$router.push({ name: 'Players' })}},
-          { title: 'Games', icon: 'mdi-gamepad', action: () => {this.$router.push({ name: 'Games' })} }
+          { title: 'Content Creator', icon: 'mdi-account-box', action: () => {this.$router.push({ name: 'Players' })}},
+          { title: 'Tournament', icon: 'mdi-account-box', action: () => {this.$router.push({ name: 'Players' })}},
+          { title: 'Region', icon: 'mdi-account-box', action: () => {this.$router.push({ name: 'Players' })}},
         ],
         color: 'primary',
         colors: [
@@ -65,7 +68,7 @@ export default {
         right: false,
         permanent: true,
         miniVariant: false,
-        expandOnHover: true,
+        expandOnHover: false,
         background: false,
     }
   },

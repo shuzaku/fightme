@@ -184,19 +184,19 @@ export default {
         VideoType: this.video.videoType,
         Players: {
           Player1: {
-            id: this.video.player1.id,
-            name: this.video.player1.name,
-            character: this.video.player1.character
+            Id: this.video.player1.id,
+            Name: this.video.player1.name,
+            Character: this.video.player1.character
           },
           Player2: {
-            id: this.video.player2.id,
-            name: this.video.player2.name,
-            character: this.video.player2.character
+            Id: this.video.player2.id,
+            Name: this.video.player2.name,
+            Character: this.video.player2.character
           }
         },
         Game: {
-          id: this.video.game.id,
-          title: this.video.game.title
+          Id: this.video.game.id,
+          Title: this.video.game.title
         },
         Tags: this.video.tags,
         ContentType: this.video.contentType,

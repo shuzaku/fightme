@@ -6,7 +6,9 @@
     :createType = createType
     @closeModal = "closeModal()" />
     <navigation-drawer />
-    <router-view ></router-view>
+    <router-view >
+      
+    </router-view>
   </div>
 </template>
 
@@ -44,9 +46,11 @@ export default {
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
 #app {
-  font-family: "Roboto";
-  min-height: 100vh;
-  background: #171733
+    font-family: "Roboto";
+    min-height: 100vh;
+    background: #171733;
+    padding-left: 280px;
+    padding-top: 48px;
 }
 
 #app h1 {
@@ -59,10 +63,17 @@ export default {
 }
 
 #app .top-nav {
-  z-index: 90;
+    z-index: 90;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 #app .text-center {
   text-align: center;
+}
+
+#app .heavy-weight {
+  font-weight: 600;
 }
 </style>

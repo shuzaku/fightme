@@ -9,7 +9,8 @@ import moment from 'moment';
 import Multiselect from 'vue-multiselect'
 import vuetify from './plugins/vuetify';
 import VueWaypoint from "vue-waypoint"
-
+import _ from 'lodash';    
+Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
 Vue.config.productionTip = false;
 
