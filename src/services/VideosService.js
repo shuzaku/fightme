@@ -2,12 +2,18 @@ import Api from '@/services/Api'
 
 export default {
   //Videos
-  fetchVideos () {
-    return Api().get('videos')
+  fetchVideos (params) {
+    return Api().get('videos', params)
   },
 
   addVideo (params) {
     return Api().post('videos', params)
+  },
+  
+  queryVideos (params) {
+    var queryNames = params.map(param => { return param.queryName}); 
+    var queryValue = params.map(param => { return param.queryValue}); 
+    return Api().get('videoQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
   },
 
   updateVideo (params) {

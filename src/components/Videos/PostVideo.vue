@@ -64,7 +64,7 @@
             <character-search 
               v-model="video.player1.character"
               v-if="video.game.title"
-              :characters="video.game.characters" 
+              :gameCharacters="video.game.characters" 
               @update:character="setPlayer1Character($event)" />
             <strong> VS. </strong>
             <player-search 

@@ -1,92 +1,177 @@
 <template>
-  <div class="videos-view">
-    <video-navigation 
-    @video:update="setVideo($event)"/>
-    <div class="loading" v-if="loading">Loading...</div>
-    <div v-else class="videos-container"> 
-      <video controls width="100%">
-        <source :src="video.videoUrl">
-      </video>
+  <div class="videos-view" ref="videoViewRef">
+    <div class="videos-container">
+      <div 
+        v-for="video in videos" :key="video.id" 
+        :class="{selected: video.selected}" >
+        <video-card 
+        v-waypoint="{ active: true, callback: onWaypoint, options: intersectionOptions }"
+        v-model="video.isPlaying"
+        :id="video.id"
+        :video="video" />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import VideoNavigation from '@/components/Videos/VideoNavigation'
+import VideosService from '@/services/VideosService';
+import VideoCard from '@/components/Videos/VideoCard';
 import { eventbus } from '@/main'
 
 
 export default {
   name: 'videos',
+
   components: {
-    'video-navigation': VideoNavigation,
+    'video-card': VideoCard,
   },
 
   data () {
     return {
-      video: null,
-      loading: true
+      videos: [],
+      loading: true,
+      query: null,
+      intersectionOptions: {
+        root: null,
+        rootMargin: '0px 0px 0px 0px',
+        threshold: 1,
+      }
     }
   }, 
 
-  mounted () {
-    
+  computed: {
   },
 
   methods: {
-  setVideo(video){
-    this.loading = true;
-    setTimeout(() => {     
-      this.video = video;
-      this.loading = false; 
-    }, 600);
-  }
+    async getVideos() {
+      const response = await VideosService.fetchVideos();
+      this.hydrateVideos(response);
+      this.playFirstVideo();
+    },
 
-    // filterVideos(data) {
-    //   this.filteredVideos = [];
-    //   if(!data) {
-    //     this.filteredVideos = this.videos;
-    //   }
-    //   else if (data.type === 'character'){
-    //     this.filteredVideos = this.videos.filter( video => video.Players.Player1.character === data.name || video.Players.Player2.character === data.name ||  video.Combo.ComboCharacter.Name === data.name);
-    //   }
-    //   else if (data.type === 'game'){
-    //     this.filteredVideos = this.videos.filter( video => video.Game.title === data.name);
-    //   }
-    // }
+    async queryVideos(query) {
+      var searchQuery = null;
+      if(query.queryName === 'Game') {
+        searchQuery = [{
+          queryName : 'Game.Title',
+          queryValue : query.queryValue.GameTitle
+        }]
+      }
+      if(query.queryName === 'Player') {
+        searchQuery = [{
+          queryName : 'Players.Player1.Name',
+          queryValue : query.queryValue.PlayerName
+        },{
+          queryName : 'Players.Player2.Name',
+          queryValue : query.queryValue.PlayerName
+        }]
+      }
+      if(query.queryName === 'Character') {
+        searchQuery = [{
+          queryName : 'Players.Player1.Character.Name',
+          queryValue : query.queryValue.Name
+        },{
+          queryName : 'Players.Player2.Character.Name',
+          queryValue : query.queryValue.Name
+        },{
+          queryName : 'Combo.ComboCharacter.Name',
+          queryValue : query.queryValue.Name
+        }]
+      }
+      if(query.queryName === 'Video Type') {
+        searchQuery = [{
+          queryName : 'ContentType',
+          queryValue : query.queryValue
+        }]
+      }
+      const response = await VideosService.queryVideos(searchQuery);
+      this.hydrateVideos(response);
+      this.playFirstVideo();
+    },
+
+    playFirstVideo() {
+      for(var i = 0; i < 3; i++){
+        this.videos[i].inview = true;
+      }
+      this.videos[0].isPlaying = true;
+      this.isLoading = false;
+    },
+
+    hydrateVideos(response){
+      this.videos = response.data.videos.map(video => {
+        return {
+          id: video._id,
+          contentType: video.ContentType,
+          videoUrl: video.VideoUrl,
+          videoType: video.VideoType,
+          combo: video.ContentType === 'Combo' ? {
+            character: {
+              name: video.Combo.ComboCharacter.Name,
+              imageUrl: video.Combo.ComboCharacter.ImageUrl,
+            }
+          } : null,
+          players: video.ContentType === 'Match' ?{ 
+            player1: {
+              id: video.Players.Player1.Id,
+              name: video.Players.Player1.Name,
+              character: {
+                name: video.Players.Player1.Character.Name,
+                imageUrl: video.Players.Player1.Character.ImageUrl,
+              }
+            },
+            player2: {
+              id: video.Players.Player2.Id,
+              name: video.Players.Player2.Name,
+              character: {
+                name: video.Players.Player2.Character.Name,
+                imageUrl: video.Players.Player2.Character.ImageUrl,
+              }
+            },
+          } : null,
+          inview: false,
+          isPlaying: false
+        }
+      });
+    },
+
+    onWaypoint ({ el, going, direction }) {
+        var objectId = el.id;
+        var featuredVideo = this.videos.find(video => video.id == objectId);
+        if (going === this.$waypointMap.GOING_IN && direction) {
+          featuredVideo.inview = true;
+          featuredVideo.isPlaying = true;
+        }
+
+        if (going === this.$waypointMap.GOING_OUT && direction) {
+          featuredVideo.isPlaying = false;
+        }
+    }
   },
 
-  created() {
-    eventbus.$on('search:update', (data) => { this.filterVideos(data) });
+  mounted() {
+    this.getVideos();
+    eventbus.$on('query:update', (data) => { this.queryVideos(data) });
     eventbus.$on('newVideoPosted' , () => {this.getVideos()});
   },
 
   beforeDestroy() {
-    eventbus.$off('search:update', (data) => { this.filterVideos(data) });
+    eventbus.$off('query:update', (data) => { this.queryVideos(data) });
     eventbus.$off('newVideoPosted' , () => {this.getVideos()});
   }
 }
 </script>
 
 <style>
-  .videos-view .video-list{
-    max-width: 350px;
-    margin-right: 80px;
-    width: 100%;
-    overflow-y: scroll;
-    max-height: 850px;
-  }
-
   .videos-view {
     display: flex;
     align-items: flex-start;
+    position: relative
   }
 
   .videos-view .videos-container {
     position: relative;
-    padding: 40px;
-    max-width: 1200px;
-    width: 100%;
+    padding: 0 40px;
   }
 
   .videos-view .videos-container video {

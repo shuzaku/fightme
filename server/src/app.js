@@ -223,12 +223,44 @@ app.post('/videos', (req, res) => {
 
 // Fetch all Video
 app.get('/videos', (req, res) => {
-  Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
-    if (error) { console.error(error); }
-    res.send({
-      videos: videos
-    })
-  }).sort({ _id: -1 })
+  var query = req.query;
+    Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+      if (error) { console.error(error); }
+      res.send({
+        videos: videos
+      })
+    }).sort({ _id: -1 })    
+})
+
+// Query Videos
+app.get('/videoQuery', (req, res) => {
+  var db = req.db;
+  var names = req.query.queryName.split(",");
+  var values = req.query.queryValue.split(",");
+  var queries = [];
+
+  for(var i = 0; i < names.length; i++){
+    var query = {};
+    query[names[i]] = values[i];
+    queries.push(query);
+  }
+  
+  if(queries.length > 1) {
+    Video.find({ $or: queries }, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+      if (error) { console.error(error); }
+      res.send({
+        videos: videos
+      })
+    }).sort({ _id: -1 })    
+  }
+  else {
+    Video.find(queries[0], 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+      if (error) { console.error(error); }
+      res.send({
+        videos: videos
+      })
+    }).sort({ _id: -1 })    
+  }
 })
 
 // Fetch single Video

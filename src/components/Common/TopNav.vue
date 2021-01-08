@@ -1,11 +1,34 @@
 <template>
     <div class="top-nav">
-      <div class="search-container">
-        <search-all
-          v-model="search"
-          @update:search="setSearch($event)" />
+      <div class="search-container" placeholder="Search Category">
+        <select name="queryName" v-model="queryName" class="search-category">
+          <option disabled selected>Search Category</option>
+          <option v-for="name in queryNames" :key="name" :value="name">{{name}}</option>
+        </select>
+        <game-search
+          v-if="queryName === 'Game'"
+          @update:game="setQueryInput($event)" />
+        <player-search
+          v-if="queryName === 'Player'"
+          @update:player="setQueryInput($event)" />
+        <tag-search
+          v-if="queryName === 'Tag'"
+          @update:tag="setQueryInput($event)" />
+        <character-search
+          v-if="queryName === 'Character'"
+          @update:character="setQueryInput($event)" />
+        <video-type-search
+          v-if="queryName === 'Video Type'"
+          @update:type="setQueryInput($event)" />
+        <v-btn
+          class="search-btn"
+          dark color="cyan"
+          v-if="queryName && queryValue"
+          @click="submitQuery">
+          Search
+        </v-btn>
       </div>
-      <v-btn class="mx-2" fab dark color="cyan" @click="toggleDropDown()">
+      <v-btn class="mx-2 add-btn" fab dark color="cyan" @click="toggleDropDown()" >
         <v-icon dark>mdi-plus</v-icon>
       </v-btn>
       <div class="add-content-dropdown" v-if="isDropDownOpen">
@@ -19,19 +42,31 @@
 </template>
 
 <script>
-import SearchAll from '@/components/Common/SearchAll'
+// import SearchAll from '@/components/Common/SearchAll'
 import { eventbus } from '@/main'
+import GameSearch from '@/components/Games/GameSearch'
+import PlayerSearch from '@/components/Players/PlayerSearch'
+import TagSearch from '@/components/Tags/TagSearch'
+import CharacterSearch from '@/components/Games/CharacterSearch'
+import VideoTypeSearch from '@/components/Videos/VideoTypeSearch'
 
 export default {
   name: 'TopNav',
 
   components: {
-    'search-all': SearchAll,
+    // 'search-all': SearchAll,
+    'game-search': GameSearch,
+    'player-search': PlayerSearch,
+    'tag-search': TagSearch,
+    'character-search': CharacterSearch,
+    'video-type-search': VideoTypeSearch
   },
 
   data: () => ({
     search: null,
     isDropDownOpen: false,
+    queryName: '',
+    queryNames:['Player', 'Game' , 'Character' , 'Video Type' , 'Tag'],
     createOptions:[{
       name: 'Video',
       value: 'video'
@@ -43,19 +78,30 @@ export default {
     {
       name: 'Player',
       value: 'player'
-    }]
+    }],
+    queryValue: null
   }),
 
   methods: {
     setSearch(searchInput) {
       eventbus.$emit('search:update', searchInput);
     },
+
     openCreateWidget(createType) {
       this.$emit('open:createWidget' , createType);
       this.toggleDropDown();
     },
+    
     toggleDropDown() {
       this.isDropDownOpen = !this.isDropDownOpen;
+    },
+
+    submitQuery() {
+      eventbus.$emit('query:update' , {'queryName' : this.queryName, 'queryValue' : this.queryValue})
+    },
+
+    setQueryInput(input) {
+      this.queryValue = input;
     }
   }
 };
@@ -64,6 +110,9 @@ export default {
 <style type="text/css">
   .top-nav .search-container {
     padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .top-nav .search-container .multiselect {
@@ -83,7 +132,7 @@ export default {
     position: relative;
   }
 
-  .top-nav .v-btn {
+  .top-nav .add-btn {
     position: absolute;
     top: 0;
     right: 56px;
@@ -106,5 +155,23 @@ export default {
 
   .top-nav .add-content-dropdown li:hover {
     opacity: .7;
+  }
+
+  .top-nav .search-container fieldset {
+    background: #fff;
+  }
+
+  .top-nav .search-category,
+  .top-nav .search-input {
+    background: #fff;
+    color: #000;
+    padding: 10px;
+    border-radius: 8px;
+    width: 200px;
+    margin: 0 10px;
+  }
+
+  .top-nav .search-btn {
+    margin-left: 10px;
   }
 </style>

@@ -35,14 +35,17 @@ export default {
       type: Boolean,
       default: false
     },
-    characters: {
-        type: Array 
+    gameCharacters: {
+      type: Array,
     }
   },
 
   data () {
     return {
-      selectedCharacter: null
+      selectedCharacter: null,
+      games: [],
+      characterList: [],
+      characters: []
     }
   }, 
 
@@ -57,7 +60,27 @@ export default {
 
     setCharacter() {
       this.$emit('update:character' , this.selectedCharacter);
+    },
+
+    async getGames () {
+      const response = await GamesService.fetchGames()
+      this.games = response.data.games;
+      this.games.forEach(game => {
+        game.Characters.forEach(character => {
+          this.characters.push({'Name': character.Name});
+        })
+      });
+    },
+
+  },
+
+  mounted() {
+    if(this.gameCharacters){
+      this.characters = this.gameCharacters;
+    } else {
+      this.getGames();
     }
+    
   }
 }
 </script>

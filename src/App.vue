@@ -5,23 +5,18 @@
     <modal v-if="isWidgetOpen"
     :createType = createType
     @closeModal = "closeModal()" />
-    <navigation-drawer />
-    <router-view >
-      
-    </router-view>
+    <router-view />
   </div>
 </template>
 
 <script>
 import TopNav from '@/components/Common/TopNav'
-import NavigationDrawer from '@/components/Common/NavigationDrawer';
 import Modal from '@/components/Common/Modal'
 
 export default {
   name: 'App',
 
   components: {
-    'navigation-drawer' : NavigationDrawer,
     'top-nav' : TopNav,
     'modal': Modal
   },
@@ -49,8 +44,11 @@ export default {
     font-family: "Roboto";
     min-height: 100vh;
     background: #171733;
-    padding-left: 280px;
-    padding-top: 48px;
+    padding-top: 50px;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
 }
 
 #app h1 {
@@ -60,6 +58,8 @@ export default {
 #app .v-navigation-drawer {
   position: fixed;
   z-index: 100;
+  min-height: 100vh;
+  margin-top: 0px;
 }
 
 #app .top-nav {

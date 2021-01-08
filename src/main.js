@@ -5,19 +5,22 @@ import VueRouter from 'vue-router';
 
 import routes from './routes.js';
 import moment from 'moment';
-
+import VueWaypoint from 'vue-waypoint'
 import Multiselect from 'vue-multiselect'
-import vuetify from './plugins/vuetify';
-import VueWaypoint from "vue-waypoint"
+import VueYouTubeEmbed from 'vue-youtube-embed'
+import vuetify from '@/plugins/vuetify' // path to vuetify export
+
 import _ from 'lodash';    
+
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
 Vue.config.productionTip = false;
 
+Vue.use(VueWaypoint)
 Vue.use(VueRouter);
 Vue.use(moment);
-Vue.use(VueWaypoint);
 Vue.component('multiselect', Multiselect)
+Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })
 
 const router = new VueRouter({
   mode: 'history',

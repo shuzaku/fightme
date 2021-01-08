@@ -21,9 +21,6 @@
 </template>
 
 <script>
-import moment from 'moment'
-import UploadVideo from '@/components/Videos/UploadVideo'
-import VideosService from '@/services/VideosService'
 import PlayerSearch from '@/components/Players/PlayerSearch'
 import CharacterSearch from '@/components/Games/CharacterSearch'
 import GameSearch from '@/components/Games/GameSearch'
