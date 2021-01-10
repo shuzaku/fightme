@@ -61,7 +61,11 @@ export default {
     'character-search': CharacterSearch,
     'video-type-search': VideoTypeSearch
   },
-
+  provide() {
+    return {
+        'video': this.video,
+    };
+  },
   data: () => ({
     search: null,
     isDropDownOpen: false,
@@ -79,7 +83,8 @@ export default {
       name: 'Player',
       value: 'player'
     }],
-    queryValue: null
+    queryValue: null,
+    video: null
   }),
 
   methods: {

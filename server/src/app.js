@@ -65,6 +65,37 @@ app.get('/games/:id', (req, res) => {
   })
 })
 
+// Query Games
+app.get('/gameQuery', (req, res) => {
+  var db = req.db;
+  var names = req.query.queryName.split(",");
+  var values = req.query.queryValue.split(",");
+  var queries = [];
+
+  for(var i = 0; i < names.length; i++){
+    var query = {};
+    query[names[i]] = values[i];
+    queries.push(query);
+  }
+  
+  if(queries.length > 1) {
+    Game.find({ $or: queries }, 'GameTitle Characters CreatedDate UpdatedDate', function (error, games) {
+      if (error) { console.error(error); }
+      res.send({
+        games: games
+      })
+    }).sort({ _id: -1 })    
+  }
+  else {
+    Game.find(queries[0], 'GameTitle Characters CreatedDate UpdatedDate', function (error, games) {
+      if (error) { console.error(error); }
+      res.send({
+        games: games
+      })
+    }).sort({ _id: -1 })    
+  }
+})
+
 // Update a game
 app.put('/games/:id', (req, res) => {
   var db = req.db;

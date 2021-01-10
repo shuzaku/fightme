@@ -59,29 +59,36 @@
         <h2>Players</h2>
         <v-btn class="close-btn" rounded @click="isAddingPlayers = !isAddingPlayers" >X</v-btn>
         <player-search 
-          v-model="video.player1.name" 
+          v-model="video.players.player1" 
+          :player=1
           @update:player="setPlayer1($event)" />
         <character-search 
-          v-model="video.player1.character"
+          v-model="video.players.player1.character"
           v-if="video.game.title"
-          :gameCharacters="video.game.characters" 
+          :game="video.game"
+          :player=1 
           @update:character="setPlayer1Character($event)" />
         <strong> VS. </strong>
         <player-search 
-          v-model="video.player2.name"
+          v-model="video.players.player2"
+          :player=2
           @update:player="setPlayer2($event)" />
         <character-search 
           v-if="video.game.title"
-          v-model="video.player2.character"
-          :characters="video.game.characters" 
-          @update:character="setPlayer2Character($event)" />
+          v-model="video.players.player2.character"
+          :game="video.game"
+          :player=2 />
+        <select v-model="winner">
+          <option v-for="player in players" :key="player.id">
+            {{player.name}}
+          </option>
+        </select>
     </div>
     <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
         <character-search 
           v-if="video.game.title"
           v-model="video.combo.comboCharacter"
-          :characters="video.game.characters" 
-          @update:character="setComboCharacter($event)" />
+          :game="video.game" />
     </div>
     <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.comboCharacter">
         <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
@@ -116,41 +123,66 @@ export default {
       'tag-search': TagSearch,
       'character-search': CharacterSearch,
   },
+  provide() {
+    return {
+        'video': this.video,
+    };
+  },
   data () {
     return {
+      winner: null,
       video: {
-        player1: {
           id: null,
-          name: null,
-          character: null,
-        },
-        player2: {
-          id: null,
-          name: null,
-          character: null,
-        },
-        game: {
-          id: null,
-          title: null,
-          characters: [],
-        },
-        url: null,
-        videoType: null,
-        tags: [],
-        contentType: null,
-        combo: {
-          comboCharacter: null,
-          comboInput: null
-        }
-
+          contentType: null,
+          videoUrl: null,
+          videoType: null,
+          game: {
+            id: null,
+            title: null,
+            characters: null
+          },
+          combo: {
+            character: {
+              name: null,
+              imageUrl: null,
+            }
+          },
+          players: { 
+            player1: {
+              id: null,
+              name: null,
+              character: {
+                name: null,
+                imageUrl: null,
+              }
+            },
+            player2: {
+              id: null,
+              name: null,
+              character: {
+                name: null,
+                imageUrl: null,
+              }
+            },
+          },
+          tags: null
       },
-
       isAddingPlayers: false,
       isImportingVideo: true,
       importVideoUrl: null,
       games: [],
       videoOrigin: "web",
       contentTypes: ['Match' , 'Combo' , 'Analysis']
+    }
+  },
+  computed: {
+    timeStamp: function() {
+      return moment().format()
+    },
+    players: function() {
+      var players = [];
+      players.push(this.video.players.player1, this.video.players.player2);
+      return players
     }
   },
   methods: {
@@ -203,8 +235,7 @@ export default {
         Combo: {
           ComboCharacter: this.video.combo.comboCharacter,
           ComboInput: this.video.combo.comboInput
-        },
-        IsInView: false
+        }
       });
 
       this.$emit('closeModal');
@@ -241,11 +272,6 @@ export default {
 
     setTags(tags) {
       this.video.tags = tags
-    }
-  },
-  computed: {
-    timeStamp: function() {
-      return moment().format()
     }
   }
 }

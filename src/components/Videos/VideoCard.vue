@@ -84,6 +84,12 @@ export default {
     }
   },
 
+  provide() {
+    return {
+        'video': this.video,
+    };
+  },
+
   data () {
     return {
     }
@@ -118,16 +124,24 @@ export default {
     async patchVideo() {
       await VideosService.updateVideo({
         id: this.video.id,
+        VideoUrl: this.video.videoUrl,
+        VideoType: this.video.videoType,
         Players: {
           Player1: {
-            Id: this.video.player1.id,
-            Name: this.video.player1.name,
-            Character: this.video.player1.character
+            Id: this.video.players.player1.id,
+            Name: this.video.players.player1.name,
+            Character: {
+              Name: this.video.players.player1.character.name,
+              ImageUrl: this.video.players.player1.character.imageUrl
+            }
           },
           Player2: {
-            Id: this.video.player2.id,
-            Name: this.video.player2.name,
-            Character: this.video.player2.character
+            Id: this.video.players.player2.id,
+            Name: this.video.players.player2.name,
+            Character: {
+              Name: this.video.players.player2.character.name,
+              ImageUrl: this.video.players.player2.character.imageUrl
+            }
           }
         },
         Game: {
@@ -135,11 +149,12 @@ export default {
           Title: this.video.game.title
         },
         Tags: this.video.tags,
-        Combo: {
+        Combo: this.combo ? {
           ComboCharacter: this.video.combo.comboCharacter,
           ComboInput: this.video.combo.comboInput
-        }      
+        } : null
       });
+      this.video.isEditing = false;
     }
   }
 }

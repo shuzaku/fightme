@@ -8,21 +8,24 @@
     <div class="players-container" v-if=" video.contentType == 'Match'">
         <div class="player1 player">
           <player-search 
-            v-model="video.players.player1" />
+            v-model="video.players.player1"
+            :player=1 />
           <character-search 
             v-model="video.players.player1.character"
             v-if="video.game.title"
-            :gameCharacters="video.game.characters"  />
+            :game="video.game"
+            :player=1  />
         </div>
         <strong> VS. </strong>
         <div class="player2 player">
           <player-search 
-            v-model="video.players.player2" />
+            v-model="video.players.player2"
+            :player=2 />
           <character-search 
             v-if="video.game.title"
             v-model="video.players.player2.character"
             :game="video.game"
-            :characters="video.game.characters" />
+            :player=2 />
           </div>
     </div>
     <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
@@ -51,6 +54,8 @@ import GameSearch from '@/components/Games/GameSearch'
 import TagSearch from '@/components/Tags/TagSearch'
 
 export default {
+  inject: ['video'],
+
   components:{
       'player-search' : PlayerSearch,
       'game-search': GameSearch,
@@ -61,9 +66,6 @@ export default {
   name: 'video-edit',
 
   props: {
-    video: {
-      type: Object,
-    },
     value: {
       type: Boolean
     }

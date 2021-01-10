@@ -55,28 +55,28 @@ export default {
       if(query.queryName === 'Game') {
         searchQuery = [{
           queryName : 'Game.Title',
-          queryValue : query.queryValue.GameTitle
+          queryValue : query.queryValue.title
         }]
       }
       if(query.queryName === 'Player') {
         searchQuery = [{
           queryName : 'Players.Player1.Name',
-          queryValue : query.queryValue.PlayerName
+          queryValue : query.queryValue.name
         },{
           queryName : 'Players.Player2.Name',
-          queryValue : query.queryValue.PlayerName
+          queryValue : query.queryValue.name
         }]
       }
       if(query.queryName === 'Character') {
         searchQuery = [{
           queryName : 'Players.Player1.Character.Name',
-          queryValue : query.queryValue.Name
+          queryValue : query.queryValue.name
         },{
           queryName : 'Players.Player2.Character.Name',
-          queryValue : query.queryValue.Name
+          queryValue : query.queryValue.name
         },{
           queryName : 'Combo.ComboCharacter.Name',
-          queryValue : query.queryValue.Name
+          queryValue : query.queryValue.name
         }]
       }
       if(query.queryName === 'Video Type') {
@@ -108,7 +108,7 @@ export default {
           game: {
             id: video.Game.Id,
             title: video.Game.Title,
-            character: video.Game.Characters
+            characters: video.Game.Characters
           },
           combo: video.ContentType === 'Combo' ? {
             character: {

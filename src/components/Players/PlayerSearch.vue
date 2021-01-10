@@ -27,10 +27,11 @@
 import PlayersService from '@/services/PlayersService'
 
 export default {
+  inject: ['video'],
   name: 'players-search',
   props: {
-    value: {
-      type: Object
+    player: {
+      type: Number
     }
   },  
   data () {
@@ -40,12 +41,16 @@ export default {
     }
   }, 
 
-  mounted () {
-    this.selectedPlayer = {
-      id: this.value.id,
-      name: this.value.name
-    };
-    this.getPlayers();
+  watch: {
+    selectedPlayer: function() {
+      if(this.player === 1) {
+        this.video.players.player1.id = this.selectedPlayer.id;
+        this.video.players.player1.name = this.selectedPlayer.name;
+      } 
+      else if(this.player === 2) {
+        this.video.players.player2.id = this.selectedPlayer.id;
+        this.video.players.player2.name = this.selectedPlayer.name;      }
+    }
   },
 
   methods: {
@@ -71,7 +76,20 @@ export default {
     setPlayer() {
       this.$emit('update:player' , this.selectedPlayer);
     }
-  }
+  },
+
+  mounted () {
+    if(this.video){
+      if(this.player === 1) {
+        this.selectedPlayer = this.video.players.player1;
+      } 
+      else if(this.player === 2) {
+        this.selectedPlayer = this.video.players.player2;
+      }
+    }
+
+    this.getPlayers();
+  },
 }
 </script>
 <style type="text/css">

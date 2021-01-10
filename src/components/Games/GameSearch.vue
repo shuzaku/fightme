@@ -11,8 +11,7 @@
         @tag="addGame"
         @input="setGame"
         placeholder="Search or add a Game"
-        label="title" 
-        track-by="GameTitle">
+        label="title" >
         <template slot="selection" 
           slot-scope="{ values, search, isOpen }">
           <span class="multiselect__single" 
@@ -28,27 +27,28 @@
 import GamesService from '@/services/GamesService'
 
 export default {
+  inject: ['video'],
   name: 'games-search',
   props: {
     taggable: {
       type: Boolean,
       default: false
-    },
-    
-    value: {
-      type: Object
     }
   },
+
   data () {
     return {
       games: [],
       selectedGame: null
     }
   }, 
-  mounted () {
-    this.getGames();
-    this.selectedGame = this.value;
+
+  watch: {
+    selectedGame: function() {
+      this.video.game = this.selectedGame
+    }
   },
+
   methods: {
     async addGame (newGame) {
       await GamesService.addGame({
@@ -71,7 +71,14 @@ export default {
     setGame() {
       this.$emit('update:game' , this.selectedGame);
     }
-  }
+  },
+
+  mounted () {    
+    if(this.video){
+      this.selectedGame = this.video.game
+    }
+    this.getGames();
+  },
 }
 </script>
 <style type="text/css">
