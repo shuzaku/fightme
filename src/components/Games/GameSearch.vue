@@ -11,7 +11,7 @@
         @tag="addGame"
         @input="setGame"
         placeholder="Search or add a Game"
-        label="GameTitle" 
+        label="title" 
         track-by="GameTitle">
         <template slot="selection" 
           slot-scope="{ values, search, isOpen }">
@@ -33,6 +33,10 @@ export default {
     taggable: {
       type: Boolean,
       default: false
+    },
+    
+    value: {
+      type: Object
     }
   },
   data () {
@@ -42,7 +46,8 @@ export default {
     }
   }, 
   mounted () {
-    this.getGames()
+    this.getGames();
+    this.selectedGame = this.value;
   },
   methods: {
     async addGame (newGame) {
@@ -55,7 +60,12 @@ export default {
 
     async getGames () {
       const response = await GamesService.fetchGames()
-      this.games = response.data.games
+      this.games = response.data.games.map(game => {
+        return {
+            id: game._id,
+            title: game.GameTitle
+        }
+      })
     },
 
     setGame() {

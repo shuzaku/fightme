@@ -8,7 +8,7 @@
         :clear-on-select="true" 
         :preserve-search="true" 
         :taggable= taggable 
-        label="Name"
+        label="name"
         @tag="addCharacter"
         @input="setCharacter"
         placeholder="Search or add a Character"
@@ -37,6 +37,12 @@ export default {
     },
     gameCharacters: {
       type: Array,
+    },
+    value: {
+      type: Object
+    },
+    game: {
+      type: Object
     }
   },
 
@@ -67,7 +73,7 @@ export default {
       this.games = response.data.games;
       this.games.forEach(game => {
         game.Characters.forEach(character => {
-          this.characters.push({'Name': character.Name});
+          this.characters.push({'name': character.Name});
         })
       });
     },
@@ -75,6 +81,7 @@ export default {
   },
 
   mounted() {
+    this.selectedCharacter = {'name': this.value.name};
     if(this.gameCharacters){
       this.characters = this.gameCharacters;
     } else {

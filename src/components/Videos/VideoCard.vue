@@ -17,6 +17,15 @@
           <p>99 Hits</p>
           <p>999 Damage</p>
         </div>
+        <v-btn 
+          v-if="!video.isEditing"
+          @click="video.isEditing = true">
+          Edit
+        </v-btn>
+        <video-edit
+          v-if="video.isEditing"
+          :video="video"
+          @update="patchVideo()" />
       </div>
       <div class="match-card card" v-if="video.contentType === 'Match'">
         <youtube-media
@@ -31,8 +40,8 @@
         <div class="card-label">{{video.contentType}}</div>
         <div class="character-container" :style="{ 'backgroundImage': `url('${video.players.player1.character.imageUrl}')` }" />
         <div class="character-container player2" :style="{ 'backgroundImage': `url('${video.players.player2.character.imageUrl}')` }" />
-        <div class="characters">
-          <div class="player1">
+        <div class="characters" v-if="!video.isEditing">
+          <div class="player1" >
             <div class="heavy-weight player-name"><p>{{video.players.player1.name}}</p></div>
             <div class="character-name"><p>{{video.players.player1.character.Name}}</p></div>
           </div>
@@ -42,12 +51,28 @@
             <div class="character-name"><p>{{video.players.player2.character.Name}}</p></div>
           </div>
         </div>
+        <v-btn 
+          v-if="!video.isEditing"
+          @click="video.isEditing = true">
+          Edit
+        </v-btn>
+        <video-edit
+          v-if="video.isEditing"
+          :video="video"
+          @update="patchVideo()" />
       </div>
+
   </div>
 </template>
 
 <script>
+import VideoEdit from '@/components/Videos/VideoEdit'
+import VideosService from '@/services/VideosService';
+
 export default {
+  components: {
+    'video-edit' : VideoEdit
+  },
   name: 'video-card',
 
   props: {
@@ -89,6 +114,33 @@ export default {
     ready (event) {
       this.player = event.target
     },
+
+    async patchVideo() {
+      await VideosService.updateVideo({
+        id: this.video.id,
+        Players: {
+          Player1: {
+            Id: this.video.player1.id,
+            Name: this.video.player1.name,
+            Character: this.video.player1.character
+          },
+          Player2: {
+            Id: this.video.player2.id,
+            Name: this.video.player2.name,
+            Character: this.video.player2.character
+          }
+        },
+        Game: {
+          Id: this.video.game.id,
+          Title: this.video.game.title
+        },
+        Tags: this.video.tags,
+        Combo: {
+          ComboCharacter: this.video.combo.comboCharacter,
+          ComboInput: this.video.combo.comboInput
+        }      
+      });
+    }
   }
 }
 </script>

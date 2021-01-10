@@ -1,5 +1,5 @@
 <template>
-  <div class="players-search">
+  <div class="tags-search">
       <multiselect 
         v-model="selectedTags" 
         :options="tags" 
@@ -11,7 +11,7 @@
         @tag="addTag"
         @input="setTags"
         placeholder="Search or add a Tag"
-        label="TagName" 
+        label="name" 
         track-by="TagName">
         <template slot="selection" 
           slot-scope="{ values, search, isOpen }">
@@ -28,11 +28,14 @@
 import TagsService from '@/services/TagsService'
 
 export default {
-  name: 'players-search',
+  name: 'tags-search',
   props: {
     taggable: {
       type: Boolean,
       default: false
+    },
+    value: {
+      type: Array
     }
   },
   data () {
@@ -42,6 +45,7 @@ export default {
     }
   }, 
   mounted () {
+    this.selectedTags = this.value;
     this.getTags()
   },
   methods: {
@@ -56,7 +60,12 @@ export default {
 
     async getTags () {
       const response = await TagsService.fetchTags()
-      this.tags = response.data.tags
+      this.tags = response.data.tags.map(tag => {
+        return {
+          id: tag._id,
+          name: tag.TagName
+        }
+      })
     },
 
     setTags() {

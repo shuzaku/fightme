@@ -5,10 +5,10 @@
         v-for="video in videos" :key="video.id" 
         :class="{selected: video.selected}" >
         <video-card 
-        v-waypoint="{ active: true, callback: onWaypoint, options: intersectionOptions }"
-        v-model="video.isPlaying"
-        :id="video.id"
-        :video="video" />
+          v-waypoint="{ active: true, callback: onWaypoint, options: intersectionOptions }"
+          v-model="video.isPlaying"
+          :id="video.id"
+          :video="video" />
       </div>
     </div>
   </div>
@@ -105,6 +105,11 @@ export default {
           contentType: video.ContentType,
           videoUrl: video.VideoUrl,
           videoType: video.VideoType,
+          game: {
+            id: video.Game.Id,
+            title: video.Game.Title,
+            character: video.Game.Characters
+          },
           combo: video.ContentType === 'Combo' ? {
             character: {
               name: video.Combo.ComboCharacter.Name,
@@ -129,8 +134,15 @@ export default {
               }
             },
           } : null,
+          tags: video.Tags.map(tag => {
+            return {
+              id:tag._id,
+              name: tag.TagName
+            }
+          }),
           inview: false,
-          isPlaying: false
+          isPlaying: false,
+          isEditing: false
         }
       });
     },
@@ -146,7 +158,8 @@ export default {
         if (going === this.$waypointMap.GOING_OUT && direction) {
           featuredVideo.isPlaying = false;
         }
-    }
+    },
+
   },
 
   mounted() {

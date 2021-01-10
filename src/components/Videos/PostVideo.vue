@@ -41,59 +41,59 @@
         </div>
       </v-col>
     </v-row>
-        <!--- game --->
-        <div class="game-container" >
-            <game-search 
-              v-model="video.game.title" 
-              @update:game="setGame($event)" />
-        </div>
-        <!--- players --->
-        <v-btn  
-            @click="isAddingPlayers = !isAddingPlayers"
-            v-if="!isAddingPlayers && video.contentType == 'Match'"
-            class="players-btn"
-            tile color="indigo">
-            Add Player(s)
-        </v-btn>
-        <div class="players-container" v-if="isAddingPlayers && video.contentType == 'Match'">
-            <h2>Players</h2>
-            <v-btn class="close-btn" rounded @click="isAddingPlayers = !isAddingPlayers" >X</v-btn>
-            <player-search 
-              v-model="video.player1.name" 
-              @update:player="setPlayer1($event)" />
-            <character-search 
-              v-model="video.player1.character"
-              v-if="video.game.title"
-              :gameCharacters="video.game.characters" 
-              @update:character="setPlayer1Character($event)" />
-            <strong> VS. </strong>
-            <player-search 
-              v-model="video.player2.name"
-              @update:player="setPlayer2($event)" />
-            <character-search 
-              v-if="video.game.title"
-              v-model="video.player2.character"
-              :characters="video.game.characters" 
-              @update:character="setPlayer2Character($event)" />
-        </div>
-        <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
-            <character-search 
-              v-if="video.game.title"
-              v-model="video.combo.comboCharacter"
-              :characters="video.game.characters" 
-              @update:character="setComboCharacter($event)" />
-        </div>
-        <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.comboCharacter">
-            <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
-        </div>
-        <!--- tags --->
-        <div class="tag-containers">
-          <tag-search
-            v-model="video.tags"
-            :taggable = true
-            @update:tags="setTags($event)" />
-        </div>
-        <v-btn class="submit-btn" rounded @click="setUpVideo()">Submit</v-btn>
+    <!--- game --->
+    <div class="game-container" >
+        <game-search 
+          v-model="video.game.title" 
+          @update:game="setGame($event)" />
+    </div>
+    <!--- players --->
+    <v-btn  
+        @click="isAddingPlayers = !isAddingPlayers"
+        v-if="!isAddingPlayers && video.contentType == 'Match'"
+        class="players-btn"
+        tile color="indigo">
+        Add Player(s)
+    </v-btn>
+    <div class="players-container" v-if="isAddingPlayers && video.contentType == 'Match'">
+        <h2>Players</h2>
+        <v-btn class="close-btn" rounded @click="isAddingPlayers = !isAddingPlayers" >X</v-btn>
+        <player-search 
+          v-model="video.player1.name" 
+          @update:player="setPlayer1($event)" />
+        <character-search 
+          v-model="video.player1.character"
+          v-if="video.game.title"
+          :gameCharacters="video.game.characters" 
+          @update:character="setPlayer1Character($event)" />
+        <strong> VS. </strong>
+        <player-search 
+          v-model="video.player2.name"
+          @update:player="setPlayer2($event)" />
+        <character-search 
+          v-if="video.game.title"
+          v-model="video.player2.character"
+          :characters="video.game.characters" 
+          @update:character="setPlayer2Character($event)" />
+    </div>
+    <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
+        <character-search 
+          v-if="video.game.title"
+          v-model="video.combo.comboCharacter"
+          :characters="video.game.characters" 
+          @update:character="setComboCharacter($event)" />
+    </div>
+    <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.comboCharacter">
+        <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
+    </div>
+    <!--- tags --->
+    <div class="tag-containers">
+      <tag-search
+        v-model="video.tags"
+        :taggable = true
+        @update:tags="setTags($event)" />
+    </div>
+    <v-btn class="submit-btn" rounded @click="setUpVideo()">Submit</v-btn>
   </div>
 </template>
 
@@ -114,7 +114,7 @@ export default {
       'player-search' : PlayerSearch,
       'game-search': GameSearch,
       'tag-search': TagSearch,
-      'character-search': CharacterSearch
+      'character-search': CharacterSearch,
   },
   data () {
     return {

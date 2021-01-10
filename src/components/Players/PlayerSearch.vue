@@ -11,7 +11,7 @@
         @tag="addPlayer"
         @input="setPlayer"
         placeholder="Search or add a Player"
-        label="PlayerName" >
+        label="name" >
         <template slot="selection" 
           slot-scope="{ values, search, isOpen }">
           <span class="multiselect__single" 
@@ -28,7 +28,11 @@ import PlayersService from '@/services/PlayersService'
 
 export default {
   name: 'players-search',
-  
+  props: {
+    value: {
+      type: Object
+    }
+  },  
   data () {
     return {
       players: [],
@@ -37,7 +41,11 @@ export default {
   }, 
 
   mounted () {
-    this.getPlayers()
+    this.selectedPlayer = {
+      id: this.value.id,
+      name: this.value.name
+    };
+    this.getPlayers();
   },
 
   methods: {
@@ -52,16 +60,17 @@ export default {
 
     async getPlayers () {
       const response = await PlayersService.fetchPlayers()
-      this.players = response.data.players
+      this.players = response.data.players.map(player => {
+        return {
+          id: player._id,
+          name: player.PlayerName         
+        }
+      });
     },
 
     setPlayer() {
       this.$emit('update:player' , this.selectedPlayer);
     }
-  },
-  
-  created() {
-    this.getPlayers();
   }
 }
 </script>

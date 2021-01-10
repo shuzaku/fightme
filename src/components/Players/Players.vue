@@ -43,7 +43,12 @@ export default {
   methods: {
     async getPlayers () {
       const response = await PlayersService.fetchPlayers()
-      this.players = response.data.players
+      this.players = response.data.players.map(player => {
+        return {
+          id: player._id,
+          name: player.PlayerName,
+        }
+      })
     },
     
     async deletePlayer (id) {
