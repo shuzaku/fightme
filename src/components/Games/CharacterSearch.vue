@@ -110,12 +110,15 @@ export default {
   },
 
   mounted() {
-    if(this.video){
+    if(this.video) {
       if(this.player === 1) {
-        this.selectedCharacter = this.video.players.player1.character
+        this.selectedCharacter = this.video.players.player1.character;
       } 
       else if(this.player ===2) {
-        this.selectedCharacter = this.video.players.player2.character
+        this.selectedCharacter = this.video.players.player2.character;
+      }
+      else {
+        this.selectedCharacter = this.video.combo.character;
       }
     }
 
@@ -130,6 +133,29 @@ export default {
       this.getGames();
     }
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 }
 </script>

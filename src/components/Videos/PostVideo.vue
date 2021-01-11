@@ -154,7 +154,8 @@ export default {
               character: {
                 name: null,
                 imageUrl: null,
-              }
+              },
+              isWinner: false
             },
             player2: {
               id: null,
@@ -162,7 +163,8 @@ export default {
               character: {
                 name: null,
                 imageUrl: null,
-              }
+              },
+              isWinner: null
             },
           },
           tags: null
@@ -175,16 +177,32 @@ export default {
       contentTypes: ['Match' , 'Combo' , 'Analysis']
     }
   },
+
   computed: {
     timeStamp: function() {
       return moment().format()
     },
+
     players: function() {
       var players = [];
       players.push(this.video.players.player1, this.video.players.player2);
       return players
     }
   },
+
+  watch: {
+    winner: function() {
+      if(this.winner === this.video.players.player1.name) {
+        this.video.players.player1.isWinner = true;
+        this.video.players.player2.isWinner = false;
+      }
+      else if(this.winner === this.video.players.player2.name) {
+        this.video.players.player1.isWinner = false;
+        this.video.players.player2.isWinner = true;       
+      }
+    }
+  },
+
   methods: {
     setUploadedVideo(uploadedVideo) {
       this.$refs.videoUploader.upload();

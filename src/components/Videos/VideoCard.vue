@@ -11,11 +11,11 @@
         </video>
         <div v-else class="video-ghost"/>
         <div class="card-label">{{video.contentType}}</div>
-        <div class="character-container" :style="{ 'backgroundImage': `url('${video.combo.character.imageUrl}')` }" />
+        <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.combo.character.imageUrl}')` }" />
         <div class="heavy-weight character-name"><p>{{video.combo.character.name}}</p></div>
         <div class="combo-stats">
-          <p>99 Hits</p>
-          <p>999 Damage</p>
+          <p>{{video.combo.comboHits}} Hits</p>
+          <p>{{video.combo.comboDamage}} Damage</p>
         </div>
         <v-btn 
           v-if="!video.isEditing"
@@ -126,14 +126,15 @@ export default {
         id: this.video.id,
         VideoUrl: this.video.videoUrl,
         VideoType: this.video.videoType,
-        Players: {
+        Players: this.video.contentType === 'Match' ? {
           Player1: {
             Id: this.video.players.player1.id,
             Name: this.video.players.player1.name,
             Character: {
               Name: this.video.players.player1.character.name,
               ImageUrl: this.video.players.player1.character.imageUrl
-            }
+            },
+            IsWinner: this.video.players.player1.isWinner
           },
           Player2: {
             Id: this.video.players.player2.id,
@@ -141,17 +142,23 @@ export default {
             Character: {
               Name: this.video.players.player2.character.name,
               ImageUrl: this.video.players.player2.character.imageUrl
-            }
+            },
+            IsWinner: this.video.players.player2.isWinner
           }
-        },
+        } : null,
         Game: {
           Id: this.video.game.id,
           Title: this.video.game.title
         },
         Tags: this.video.tags,
-        Combo: this.combo ? {
-          ComboCharacter: this.video.combo.comboCharacter,
-          ComboInput: this.video.combo.comboInput
+        Combo: this.video.combo ? {
+          ComboCharacter: {
+            Name: this.video.combo.character.name,
+            ImageUrl: this.video.combo.character.imageUrl
+          },
+          ComboInput: this.video.combo.comboInput,
+          ComboHits: this.video.combo.comboHits,
+          ComboDamage: this.video.combo.comboDamage
         } : null
       });
       this.video.isEditing = false;
@@ -165,7 +172,7 @@ export default {
     margin: 60px 0;
 }
 
-.video-card .character-container {
+.video-card .character-bubble {
   height: 50px;
   width: 50px;
   border-radius: 50%;
@@ -178,7 +185,7 @@ export default {
   left: -25px
 }
 
-.video-card .character-container.player2 {
+.video-card .character-bubble.player2 {
   right: -25px;
   left: auto;
 }

@@ -26,16 +26,29 @@
             v-model="video.players.player2.character"
             :game="video.game"
             :player=2 />
-          </div>
+        </div>
+    </div>
+    <div class="winner-section">
+      <select v-model="winner" v-if="players.length === 2">
+        <option value="" disabled selected>Winner</option>
+        <option v-for="player in players" :key="player.id">
+          {{player.name}}
+        </option>
+      </select>
     </div>
     <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
         <character-search 
           v-if="video.game.title"
-          v-model="video.combo.comboCharacter"
-          :characters="video.game.characters" />
+          v-model="video.combo.character"
+          :characters="video.game.characters"
+          :game="video.game" />
     </div>
-    <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.comboCharacter">
+    <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.character">
         <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
+        <div class="combo-details">
+          <input v-model.number="video.combo.comboHits" placeholder="Combo Hits" type="number">
+          <input v-model.number="video.combo.comboDamage" placeholder="Combo Damage" type="number">
+        </div>
     </div>
     <!--- tags --->
     <div class="tag-containers">
@@ -73,6 +86,28 @@ export default {
 
   data () {
     return {
+      winner: null
+    }
+  },
+  computed: {
+    players: function() {
+      var players = [];
+      if(this.video.contentType === 'Match') {
+        players.push(this.video.players.player1, this.video.players.player2);
+      }
+      return players
+    }
+  },
+  watch: {
+    winner: function() {
+      if(this.winner === this.video.players.player1.name) {
+        this.video.players.player1.isWinner = true;
+        this.video.players.player2.isWinner = false;
+      }
+      else if(this.winner === this.video.players.player2.name) {
+        this.video.players.player1.isWinner = false;
+        this.video.players.player2.isWinner = true;       
+      }
     }
   },
 
@@ -102,5 +137,37 @@ export default {
 
 .video-edit .player {
   min-width: 250px;
+}
+
+.video-edit .winner-section {
+  width: 100%;
+}
+
+.video-edit .winner-section select {
+  max-width: 300px;
+  margin: 10px auto;
+  width: 100%;
+  height: 40px;
+  border: 1px solid #eee;
+  display: block;
+  color: #000;
+  padding: 10px;
+}
+
+.video-edit .combo-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.video-edit input {
+  max-width: 265px;
+  margin: 10px auto;
+  width: 100%;
+  height: 40px;
+  border: 1px solid #eee;
+  color: #000;
+  padding: 10px;  
+  border-radius: 3px;
 }
 </style>

@@ -99,6 +99,7 @@ export default {
     },
 
     hydrateVideos(response){
+      console.log(response);
       this.videos = response.data.videos.map(video => {
         return {
           id: video._id,
@@ -110,13 +111,15 @@ export default {
             title: video.Game.Title,
             characters: video.Game.Characters
           },
-          combo: video.ContentType === 'Combo' ? {
+          combo: video.Combo ? {
             character: {
               name: video.Combo.ComboCharacter.Name,
               imageUrl: video.Combo.ComboCharacter.ImageUrl,
-            }
+            },
+            comboDamage: video.Combo.ComboDamage || null,
+            comboHits: video.Combo.ComboHits || null,
           } : null,
-          players: video.ContentType === 'Match' ?{ 
+          players: video.ContentType === 'Match' ? { 
             player1: {
               id: video.Players.Player1.Id,
               name: video.Players.Player1.Name,
