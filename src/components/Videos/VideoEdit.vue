@@ -1,15 +1,18 @@
 <template>
   <div class="video-edit" ref="videoList"  >
 <div class="game-container" >
+        <label>Game</label>
         <game-search 
           v-model="video.game" />
     </div>
     <!--- players --->
     <div class="players-container" v-if=" video.contentType == 'Match'">
         <div class="player1 player">
+          <label>Player 1</label>
           <player-search 
             v-model="video.players.player1"
             :player=1 />
+          <label>Character</label>
           <character-search 
             v-model="video.players.player1.character"
             v-if="video.game.title"
@@ -18,9 +21,11 @@
         </div>
         <strong> VS. </strong>
         <div class="player2 player">
+          <label>Player 2</label>
           <player-search 
             v-model="video.players.player2"
             :player=2 />
+          <label>Character</label>
           <character-search 
             v-if="video.game.title"
             v-model="video.players.player2.character"
@@ -29,6 +34,7 @@
         </div>
     </div>
     <div class="winner-section">
+      <label>Match Winner</label>
       <select v-model="winner" v-if="players.length === 2">
         <option value="" disabled selected>Winner</option>
         <option v-for="player in players" :key="player.id">
@@ -37,6 +43,7 @@
       </select>
     </div>
     <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
+        <label>Character</label>
         <character-search 
           v-if="video.game.title"
           v-model="video.combo.character"
@@ -44,14 +51,22 @@
           :game="video.game" />
     </div>
     <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.character">
+        <label>Combo Inputs</label>
         <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
         <div class="combo-details">
-          <input v-model.number="video.combo.comboHits" placeholder="Combo Hits" type="number">
-          <input v-model.number="video.combo.comboDamage" placeholder="Combo Damage" type="number">
+          <div class="hits">
+            <label>Combo Hits</label>
+            <input v-model.number="video.combo.comboHits" placeholder="Combo Hits" type="number">
+          </div>
+          <div class="damage">
+            <label>Combo Damage</label>
+            <input v-model.number="video.combo.comboDamage" placeholder="Combo Damage" type="number">
+          </div>
         </div>
     </div>
     <!--- tags --->
     <div class="tag-containers">
+      <label>Tags</label>
       <tag-search
         v-model="video.tags"
         :taggable = true />
@@ -165,9 +180,13 @@ export default {
   margin: 10px auto;
   width: 100%;
   height: 40px;
-  border: 1px solid #eee;
   color: #000;
   padding: 10px;  
   border-radius: 3px;
+}
+
+.video-card label {
+  font-size: 11px;
+  font-weight: 600
 }
 </style>

@@ -14,14 +14,22 @@
         <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.combo.character.imageUrl}')` }" />
         <div class="heavy-weight character-name"><p>{{video.combo.character.name}}</p></div>
         <div class="combo-stats">
-          <p>{{video.combo.comboHits}} Hits</p>
-          <p>{{video.combo.comboDamage}} Damage</p>
+          <p v-if="video.combo.comboHits">{{video.combo.comboHits}} Hits</p>
+          <p v-if="video.combo.comboDamage">{{video.combo.comboDamage}} Damage</p>
         </div>
-        <v-btn 
-          v-if="!video.isEditing"
-          @click="video.isEditing = true">
-          Edit
-        </v-btn>
+        <div class="combo-input">
+          <p class="inputs">{{video.combo.comboInput}}</p>
+        </div>
+        <div class="edit-btn-container">
+          <v-btn 
+            class="edit-btn"
+            v-if="!video.isEditing"
+            @click="video.isEditing = true">
+            <v-icon dark>
+              mdi-wrench
+            </v-icon>
+          </v-btn>
+        </div>
         <video-edit
           v-if="video.isEditing"
           :video="video"
@@ -54,7 +62,9 @@
         <v-btn 
           v-if="!video.isEditing"
           @click="video.isEditing = true">
-          Edit
+          <v-icon dark>
+            mdi-wrench
+          </v-icon>
         </v-btn>
         <video-edit
           v-if="video.isEditing"
@@ -269,5 +279,29 @@ export default {
 .video-card .video-ghost {
   height: 313px;
   width: 556px;
+}
+
+.video-card .combo-input {
+  padding: 0 10px;
+  margin: 10px 0;
+  font-style: italic;
+}
+
+.video-card .inputs {
+    border: 2px solid #eee;
+    border-radius: 3px;
+    padding: 10px;  
+}
+
+.video-card .card .edit-btn-container {
+  padding: 10px;
+}
+
+.video-card .card .edit-btn-container button {
+  padding: 20px 10px;
+  background-color: #1ab097 !important;
+  border-radius: 50%;
+  min-width: 0px;
+  color: #fff;
 }
 </style>

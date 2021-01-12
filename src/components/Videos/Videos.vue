@@ -118,6 +118,7 @@ export default {
             },
             comboDamage: video.Combo.ComboDamage || null,
             comboHits: video.Combo.ComboHits || null,
+            comboInput: video.Combo.ComboInput
           } : null,
           players: video.ContentType === 'Match' ? { 
             player1: {
