@@ -260,7 +260,7 @@ app.get('/videos', (req, res) => {
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 })    
+    }).sort({ _id: -1 }).limit(10)  
 })
 
 // Query Videos

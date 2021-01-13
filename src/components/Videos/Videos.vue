@@ -164,15 +164,23 @@ export default {
         }
     },
 
+    handleScroll() {
+      var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+      if (bottomOfWindow) {
+        this.hydrateVideos();
+      }
+    }
+
   },
 
   mounted() {
-    this.getVideos();
+    window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('query:update', (data) => { this.queryVideos(data) });
     eventbus.$on('newVideoPosted' , () => {this.getVideos()});
   },
 
   beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll);
     eventbus.$off('query:update', (data) => { this.queryVideos(data) });
     eventbus.$off('newVideoPosted' , () => {this.getVideos()});
   }
