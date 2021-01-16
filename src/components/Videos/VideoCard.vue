@@ -33,7 +33,8 @@
         <video-edit
           v-if="video.isEditing"
           :video="video"
-          @update="patchVideo()" />
+          @update="patchVideo()"
+          @delete="deleteVideo()" />
       </div>
       <div class="match-card card" v-if="video.contentType === 'Match'">
         <youtube-media
@@ -69,7 +70,8 @@
         <video-edit
           v-if="video.isEditing"
           :video="video"
-          @update="patchVideo()" />
+          @update="patchVideo()"
+          @delete="deleteVideo()" />
       </div>
 
   </div>
@@ -129,6 +131,11 @@ export default {
   methods: {
     ready (event) {
       this.player = event.target
+    },
+    
+    async deleteVideo() {
+      await VideosService.deleteVideo(this.video.id);
+      this.$emit('video:delete' , this.video);
     },
 
     async patchVideo() {

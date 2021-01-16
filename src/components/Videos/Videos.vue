@@ -7,6 +7,7 @@
         <video-card 
           v-waypoint="{ active: true, callback: onWaypoint, options: intersectionOptions }"
           v-model="video.isPlaying"
+          @video:delete="spliceVideo($event)"
           :id="video.id"
           :video="video" />
       </div>
@@ -88,7 +89,13 @@ export default {
           queryValue : query.queryValue
         }]
       }
-      const response = await VideosService.queryVideos(searchQuery);
+
+      var queryParameter = {
+        skip: this.skip,
+        searchQuery: searchQuery
+      }
+      const response = await VideosService.queryVideos(queryParameter);
+      this.videos = [];
       this.hydrateVideos(response);
       this.playFirstVideo();
     },
@@ -171,6 +178,10 @@ export default {
       if (bottomOfWindow) {
         this.getVideos();
       }
+    },
+
+    spliceVideo(video) {
+      this.videos.splice(this.videos.indexOf(video),1);
     }
 
   },

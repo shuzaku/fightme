@@ -256,7 +256,6 @@ app.post('/videos', (req, res) => {
 app.get('/videos', (req, res) => {
   var query = req.query;
   var skip = parseInt(req.query.skip);
-  console.log(skip)
     Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
       if (error) { console.error(error); }
       res.send({
@@ -270,6 +269,8 @@ app.get('/videoQuery', (req, res) => {
   var db = req.db;
   var names = req.query.queryName.split(",");
   var values = req.query.queryValue.split(",");
+  console.log(req.query)
+  var skip =  parseInt(req.query.skip);
   var queries = [];
 
   for(var i = 0; i < names.length; i++){
@@ -284,7 +285,7 @@ app.get('/videoQuery', (req, res) => {
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 })    
+    }).sort({ _id: -1 }).limit(10).skip(skip);
   }
   else {
     Video.find(queries[0], 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
@@ -292,7 +293,7 @@ app.get('/videoQuery', (req, res) => {
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 })    
+    }).sort({ _id: -1 }).limit(10).skip(skip); 
   }
 })
 

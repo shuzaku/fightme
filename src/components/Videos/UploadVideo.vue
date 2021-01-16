@@ -114,7 +114,7 @@ export default {
 }
 </script>
 <style type="text/css">
-.submit-btn {
+.upload-media .submit-btn {
   display: block;
   margin: 0 auto;
 }

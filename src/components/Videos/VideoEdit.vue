@@ -71,7 +71,11 @@
         v-model="video.tags"
         :taggable = true />
     </div>
-    <v-btn class="submit-btn" rounded @click="updateVideo()">Update</v-btn>
+    <div class="button-container">
+      <v-btn class="submit-btn" rounded @click="updateVideo()">Update</v-btn>
+      <v-btn class="delete-btn" rounded @click="deleteVideo()">Delete</v-btn>
+      <v-btn class="delete-btn" rounded @click="cancel()">Cancel</v-btn>
+    </div>
   </div>
 </template>
 
@@ -131,7 +135,13 @@ export default {
       this.player = event.target
     },
     updateVideo() {
-      this.$emit('update', this.video);
+      this.$emit('update');
+    },
+    deleteVideo() {
+      this.$emit('delete');
+    },
+    cancel() {
+      this.video.isEditing = false;
     }
   }
 }
@@ -188,5 +198,9 @@ export default {
 .video-card label {
   font-size: 11px;
   font-weight: 600
+}
+
+.video-card .button-container {
+  display: flex;
 }
 </style>

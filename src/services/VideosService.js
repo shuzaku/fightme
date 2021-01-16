@@ -11,9 +11,10 @@ export default {
   },
   
   queryVideos (params) {
-    var queryNames = params.map(param => { return param.queryName}); 
-    var queryValue = params.map(param => { return param.queryValue}); 
-    return Api().get('videoQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
+    var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+    var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+    var skip = params.skip;
+    return Api().get(`videoQuery?queryName=${queryNames.join(',')}&queryValue=${queryValue.join(',')}&skip=${skip}`, params)
   },
 
   updateVideo (params) {
