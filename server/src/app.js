@@ -255,12 +255,14 @@ app.post('/videos', (req, res) => {
 // Fetch all Video
 app.get('/videos', (req, res) => {
   var query = req.query;
+  var skip = parseInt(req.query.skip);
+  console.log(skip)
     Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 }).limit(10)  
+    }).sort({ _id: -1 }).limit(10).skip(skip);
 })
 
 // Query Videos

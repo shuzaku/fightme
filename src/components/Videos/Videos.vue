@@ -1,6 +1,6 @@
 <template>
   <div class="videos-view" ref="videoViewRef">
-    <div class="videos-container">
+    <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
         :class="{selected: video.selected}" >
@@ -41,11 +41,14 @@ export default {
   }, 
 
   computed: {
+    skip: function() {
+      return this.videos.length;
+    }
   },
 
   methods: {
     async getVideos() {
-      const response = await VideosService.fetchVideos();
+      const response = await VideosService.fetchVideos(this.skip);
       this.hydrateVideos(response);
       this.playFirstVideo();
     },
@@ -99,9 +102,8 @@ export default {
     },
 
     hydrateVideos(response){
-      console.log(response);
-      this.videos = response.data.videos.map(video => {
-        return {
+       response.data.videos.forEach(video => {
+        this.videos.push({
           id: video._id,
           contentType: video.ContentType,
           videoUrl: video.VideoUrl,
@@ -147,7 +149,7 @@ export default {
           inview: false,
           isPlaying: false,
           isEditing: false
-        }
+        })
       });
     },
 
@@ -167,13 +169,14 @@ export default {
     handleScroll() {
       var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
       if (bottomOfWindow) {
-        this.hydrateVideos();
+        this.getVideos();
       }
     }
 
   },
 
   mounted() {
+    this.getVideos();
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('query:update', (data) => { this.queryVideos(data) });
     eventbus.$on('newVideoPosted' , () => {this.getVideos()});

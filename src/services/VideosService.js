@@ -3,7 +3,7 @@ import Api from '@/services/Api'
 export default {
   //Videos
   fetchVideos (params) {
-    return Api().get('videos', params)
+    return Api().get('videos?skip='+ params, params)
   },
 
   addVideo (params) {
