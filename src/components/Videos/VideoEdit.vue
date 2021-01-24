@@ -74,7 +74,7 @@
     <div class="button-container">
       <v-btn class="submit-btn" rounded @click="updateVideo()">Update</v-btn>
       <v-btn class="delete-btn" rounded @click="deleteVideo()">Delete</v-btn>
-      <v-btn class="delete-btn" rounded @click="cancel()">Cancel</v-btn>
+      <v-btn class="cancel-btn" rounded @click="cancel()">Cancel</v-btn>
     </div>
   </div>
 </template>

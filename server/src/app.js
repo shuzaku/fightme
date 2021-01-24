@@ -267,19 +267,31 @@ app.get('/videos', (req, res) => {
 // Query Videos
 app.get('/videoQuery', (req, res) => {
   var db = req.db;
-  var names = req.query.queryName.split(",");
-  var values = req.query.queryValue.split(",");
-  console.log(req.query)
-  var skip =  parseInt(req.query.skip);
   var queries = [];
 
-  for(var i = 0; i < names.length; i++){
-    var query = {};
-    query[names[i]] = values[i];
-    queries.push(query);
+  if(req.query.queryName || req.query.queryValue){
+    var names = req.query.queryName.split(",");
+    var values = req.query.queryValue.split(",");
+
+    for(var i = 0; i < names.length; i++){
+      var query = {};
+      query[names[i]] = values[i];
+      queries.push(query);
+    }
   }
+
+  var skip =  parseInt(req.query.skip);
   
-  if(queries.length > 1) {
+  
+  if(!req.query.queryValue) {
+    Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+      if (error) { console.error(error); }
+      res.send({
+        videos: videos
+      })
+    }).sort({ _id: -1 }).limit(10).skip(skip);    
+  }
+  else if(queries.length > 1) {
     Video.find({ $or: queries }, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
       if (error) { console.error(error); }
       res.send({

@@ -33,6 +33,7 @@ export default {
       videos: [],
       loading: true,
       query: null,
+      savedQuery: null,
       intersectionOptions: {
         root: null,
         rootMargin: '0px 0px 0px 0px',
@@ -56,6 +57,11 @@ export default {
 
     async queryVideos(query) {
       var searchQuery = null;
+      if(query != this.savedQuery) {
+        
+        this.savedQuery = query;
+      }
+      
       if(query){
         if(query.queryName === 'Game') {
           searchQuery = [{
@@ -91,7 +97,7 @@ export default {
           }]
         }
       }
-      
+
       var queryParameter = {
         skip: this.skip,
         searchQuery: searchQuery

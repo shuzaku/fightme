@@ -28,6 +28,12 @@
           Search
         </v-btn>
       </div>
+
+      <v-btn class="register-btn" @click="openRegisterModal()"/>
+      <register 
+      v-if="isRegisterModalOpen"
+      @register:success="closeRegisterModal()" />
+
       <v-btn class="mx-2 add-btn" fab dark color="cyan" @click="toggleDropDown()" >
         <v-icon dark>mdi-plus</v-icon>
       </v-btn>
@@ -49,6 +55,7 @@ import PlayerSearch from '@/components/Players/PlayerSearch'
 import TagSearch from '@/components/Tags/TagSearch'
 import CharacterSearch from '@/components/Games/CharacterSearch'
 import VideoTypeSearch from '@/components/Videos/VideoTypeSearch'
+import Register from '@/components/Account/Register'
 
 export default {
   name: 'TopNav',
@@ -59,7 +66,8 @@ export default {
     'player-search': PlayerSearch,
     'tag-search': TagSearch,
     'character-search': CharacterSearch,
-    'video-type-search': VideoTypeSearch
+    'video-type-search': VideoTypeSearch,
+    'register': Register
   },
   provide() {
     return {
@@ -84,7 +92,8 @@ export default {
       value: 'player'
     }],
     queryValue: null,
-    video: null
+    video: null,
+    isRegisterModalOpen: false
   }),
 
   methods: {
@@ -107,6 +116,14 @@ export default {
 
     setQueryInput(input) {
       this.queryValue = input;
+    },
+
+    openRegisterModal() {
+      this.isRegisterModalOpen = true;
+    },
+
+    closeRegisterModal() {
+      this.isRegisteredModalOpen = false;
     }
   }
 };
