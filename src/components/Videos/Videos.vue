@@ -33,6 +33,7 @@ export default {
       videos: [],
       loading: true,
       query: null,
+      savedQuery: null,
       intersectionOptions: {
         root: null,
         rootMargin: '0px 0px 0px 0px',
@@ -56,38 +57,45 @@ export default {
 
     async queryVideos(query) {
       var searchQuery = null;
-      if(query.queryName === 'Game') {
-        searchQuery = [{
-          queryName : 'Game.Title',
-          queryValue : query.queryValue.title
-        }]
+      if(query != this.savedQuery) {
+        
+        this.savedQuery = query;
       }
-      if(query.queryName === 'Player') {
-        searchQuery = [{
-          queryName : 'Players.Player1.Name',
-          queryValue : query.queryValue.name
-        },{
-          queryName : 'Players.Player2.Name',
-          queryValue : query.queryValue.name
-        }]
-      }
-      if(query.queryName === 'Character') {
-        searchQuery = [{
-          queryName : 'Players.Player1.Character.Name',
-          queryValue : query.queryValue.name
-        },{
-          queryName : 'Players.Player2.Character.Name',
-          queryValue : query.queryValue.name
-        },{
-          queryName : 'Combo.ComboCharacter.Name',
-          queryValue : query.queryValue.name
-        }]
-      }
-      if(query.queryName === 'Video Type') {
-        searchQuery = [{
-          queryName : 'ContentType',
-          queryValue : query.queryValue
-        }]
+      
+      if(query){
+        if(query.queryName === 'Game') {
+          searchQuery = [{
+            queryName : 'Game.Title',
+            queryValue : query.queryValue.title
+          }]
+        }
+        if(query.queryName === 'Player') {
+          searchQuery = [{
+            queryName : 'Players.Player1.Name',
+            queryValue : query.queryValue.name
+          },{
+            queryName : 'Players.Player2.Name',
+            queryValue : query.queryValue.name
+          }]
+        }
+        if(query.queryName === 'Character') {
+          searchQuery = [{
+            queryName : 'Players.Player1.Character.Name',
+            queryValue : query.queryValue.name
+          },{
+            queryName : 'Players.Player2.Character.Name',
+            queryValue : query.queryValue.name
+          },{
+            queryName : 'Combo.ComboCharacter.Name',
+            queryValue : query.queryValue.name
+          }]
+        }
+        if(query.queryName === 'Video Type') {
+          searchQuery = [{
+            queryName : 'ContentType',
+            queryValue : query.queryValue
+          }]
+        }
       }
 
       var queryParameter = {
@@ -176,18 +184,17 @@ export default {
     handleScroll() {
       var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
       if (bottomOfWindow) {
-        this.getVideos();
+        this.queryVideos();
       }
     },
 
     spliceVideo(video) {
       this.videos.splice(this.videos.indexOf(video),1);
     }
-
   },
 
   mounted() {
-    this.getVideos();
+    this.queryVideos();
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('query:update', (data) => { this.queryVideos(data) });
     eventbus.$on('newVideoPosted' , () => {this.getVideos()});
@@ -205,7 +212,29 @@ export default {
   .videos-view {
     display: flex;
     align-items: flex-start;
-    position: relative
+    position: relative;
+    overflow: auto;
+    justify-content: space-around;
+    padding-top: 30px;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .videos-view::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    background-color: #1f1d2b;
+  }
+
+  .videos-view::-webkit-scrollbar {
+    width: 12px;
+    background-color: #1f1d2b;
+  }
+
+  .videos-view::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    background-color: #515b89;
   }
 
   .videos-view .videos-container {

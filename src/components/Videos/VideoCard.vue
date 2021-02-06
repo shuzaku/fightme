@@ -1,15 +1,16 @@
 <template>
   <div class="video-card" ref="videoList"  >
       <div class="combo-card card" v-if="video.contentType === 'Combo'">
-        <video 
-          ref="videoRef"
-          v-if="video.videoType === 'uploaded'"
-          loop
-          controls 
-          muted >
-          <source :src="video.videoUrl" type="video/mp4">
-        </video>
-        <div v-else class="video-ghost"/>
+        <div class="video-container">
+          <video 
+            ref="videoRef"
+            v-if="video.videoType === 'uploaded'"
+            loop
+            controls 
+            muted >
+            <source :src="video.videoUrl" type="video/mp4">
+          </video>
+        </div>
         <div class="card-label">{{video.contentType}}</div>
         <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.combo.character.imageUrl}')` }" />
         <div class="heavy-weight character-name"><p>{{video.combo.character.name}}</p></div>
@@ -44,20 +45,20 @@
         :video-id="video.videoUrl"
         :player-width='556'
         :player-height='313'
-        :player-vars="{ rel: 0 }"
+        :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
         :mute="true" />
         <div class="card-label">{{video.contentType}}</div>
-        <div class="character-container" :style="{ 'backgroundImage': `url('${video.players.player1.character.imageUrl}')` }" />
-        <div class="character-container player2" :style="{ 'backgroundImage': `url('${video.players.player2.character.imageUrl}')` }" />
+        <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.players.player1.character.imageUrl}')` }" />
+        <div class="character-bubble player2" :style="{ 'backgroundImage': `url('${video.players.player2.character.imageUrl}')` }" />
         <div class="characters" v-if="!video.isEditing">
           <div class="player1" >
             <div class="heavy-weight player-name"><p>{{video.players.player1.name}}</p></div>
-            <div class="character-name"><p>{{video.players.player1.character.Name}}</p></div>
+            <div class="character-name"><p>{{video.players.player1.character.name}}</p></div>
           </div>
           <div class="versus heavy-weight">vs.</div>
           <div class="player2">
             <div class="heavy-weight player-name"><p>{{video.players.player2.name}}</p></div>
-            <div class="character-name"><p>{{video.players.player2.character.Name}}</p></div>
+            <div class="character-name"><p>{{video.players.player2.character.name}}</p></div>
           </div>
         </div>
         <v-btn 
@@ -104,6 +105,8 @@ export default {
 
   data () {
     return {
+      videoId: null,
+      startTime : null
     }
   },
 
@@ -143,6 +146,8 @@ export default {
         id: this.video.id,
         VideoUrl: this.video.videoUrl,
         VideoType: this.video.videoType,
+        VideoStartTime: this.video.startTime,
+        VideoEndTime: this.video.endTime,
         Players: this.video.contentType === 'Match' ? {
           Player1: {
             Id: this.video.players.player1.id,
@@ -180,6 +185,9 @@ export default {
       });
       this.video.isEditing = false;
     }
+  },
+
+  mounted() {
   }
 }
 </script>
@@ -209,16 +217,18 @@ export default {
 
 .video-card .combo-card,
 .video-card .match-card {
-  background: #fff;
+  /* background-image: linear-gradient(#515b89, #171b33); */
+  background: #515b89;
   border-radius: 15px;
   margin-bottom: 30px;
   position: relative;
-  border: 2px solid #fff;
+  border: 2px solid #4a5689;
   cursor: pointer;
 }
 .video-card .card {
   width: 100%;
   max-width: 560px;
+  box-shadow: 0px 0px 15px 0px rgb(0 0 0 / 54%);
 }
 
 .video-card .combo-card:hover,
@@ -232,7 +242,9 @@ export default {
 }
 
 .video-card .combo-card .combo-stats p {
-  font-size: 12px;
+  font-size: 14px;
+  color: #1ab097;
+  font-weight: 600;
 }
 
 .video-card .match-card .player2 .player-name p {
@@ -273,10 +285,36 @@ export default {
 }
 
 .video-card .character-name {
-  padding: 5px 10px 0;
+  padding: 20px 20px 0;
+  color: #fff;
+  font-size: 20px;
 }
+
+.video-card .player-name{
+  color: #fff;
+  font-size: 20px;  
+  padding: 0 20px;
+} 
+
+.video-card .match-card .character-name {
+  padding-top: 0px;
+  font-size: 13px;
+}
+
+
+.video-card .match-card .character-name p{
+  font-size: 14px;
+  color: #1ab097;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.video-card .match-card .player2 .character-name p{
+  text-align: right;
+}
+
 .video-card .combo-stats {
-  padding: 0 10px 5px;
+    padding: 5px 20px 5px;
 }
 
 .video-card .characters {
@@ -289,15 +327,16 @@ export default {
 }
 
 .video-card .combo-input {
-  padding: 0 10px;
+  padding: 0 20px;
   margin: 10px 0;
   font-style: italic;
 }
 
 .video-card .inputs {
-    border: 2px solid #eee;
     border-radius: 3px;
     padding: 10px;  
+    background: rgba(255,255,255,.2);
+    border: 1px solid #4a5689;
 }
 
 .video-card .card .edit-btn-container {
@@ -311,4 +350,11 @@ export default {
   min-width: 0px;
   color: #fff;
 }
+
+.video-card .video-container {
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+}
+
+
 </style>

@@ -28,6 +28,17 @@
           Search
         </v-btn>
       </div>
+      <div class="account-btns">
+        <v-btn class="register-btn" @click="openRegisterModal()">Register</v-btn>
+        <register 
+        v-if="isRegisterModalOpen"
+        @register:success="closeRegisterModal()" />
+
+        <v-btn class="login-btn" @click="openLoginModal()">Login</v-btn>
+        <login 
+        v-if="isLoginModalOpen"
+        @register:success="closeLoginModal()" />
+      </div>
       <v-btn class="mx-2 add-btn" fab dark color="cyan" @click="toggleDropDown()" >
         <v-icon dark>mdi-plus</v-icon>
       </v-btn>
@@ -49,6 +60,8 @@ import PlayerSearch from '@/components/Players/PlayerSearch'
 import TagSearch from '@/components/Tags/TagSearch'
 import CharacterSearch from '@/components/Games/CharacterSearch'
 import VideoTypeSearch from '@/components/Videos/VideoTypeSearch'
+import Register from '@/components/Account/Register'
+import Login from '@/components/Account/Login'
 
 export default {
   name: 'TopNav',
@@ -59,7 +72,9 @@ export default {
     'player-search': PlayerSearch,
     'tag-search': TagSearch,
     'character-search': CharacterSearch,
-    'video-type-search': VideoTypeSearch
+    'video-type-search': VideoTypeSearch,
+    'register': Register,
+    'login': Login
   },
   provide() {
     return {
@@ -84,7 +99,9 @@ export default {
       value: 'player'
     }],
     queryValue: null,
-    video: null
+    video: null,
+    isRegisterModalOpen: false,
+    isLoginModalOpen: false
   }),
 
   methods: {
@@ -107,6 +124,24 @@ export default {
 
     setQueryInput(input) {
       this.queryValue = input;
+    },
+
+    openRegisterModal() {
+      this.isRegisterModalOpen = true;
+      this.closeLoginModal();
+    },
+
+    closeRegisterModal() {
+      this.isRegisterModalOpen = false;
+    },
+
+    openLoginModal() {
+      this.isLoginModalOpen = true;
+      this.closeRegisterModal();
+    },
+
+    closeLoginModal() {
+      this.isLoginModalOpen = false;
     }
   }
 };
@@ -130,7 +165,7 @@ export default {
     width: 100%;
     color: #fff;
     text-align: center;
-    background: #0f102e;
+    background: transparent;
     display: flex;
     justify-content: center;
     padding: 0 56px 0 56px;
@@ -170,7 +205,7 @@ export default {
   .top-nav .search-input {
     background: #fff;
     color: #000;
-    padding: 10px;
+    padding: 7px;
     border-radius: 8px;
     width: 200px;
     margin: 0 10px;
@@ -178,5 +213,17 @@ export default {
 
   .top-nav .search-btn {
     margin-left: 10px;
+  }
+
+  .top-nav .account-btns .v-btn {
+    color: #000;
+    margin: 0 10px;
+    height: 33px;
+  }
+
+  .top-nav .account-btns {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 </style>

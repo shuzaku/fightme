@@ -1,14 +1,15 @@
 <template>
   <div class="video-edit" ref="videoList"  >
-<div class="game-container" >
-        <label>Game</label>
-        <game-search 
-          v-model="video.game" />
+    <div class="game-container" >
+      <label>Game</label>
+      <game-search 
+        v-model="video.game" />
     </div>
     <!--- players --->
     <div class="players-container" v-if=" video.contentType == 'Match'">
         <div class="player1 player">
-          <label>Player 1</label>
+          <p class="player-label">Player 1</p>
+          <label>Name 1</label>
           <player-search 
             v-model="video.players.player1"
             :player=1 />
@@ -19,9 +20,10 @@
             :game="video.game"
             :player=1  />
         </div>
-        <strong> VS. </strong>
+        <strong class="versus"> VS. </strong>
         <div class="player2 player">
-          <label>Player 2</label>
+          <p class="player-label">Player 2</p>
+          <label>Name</label>
           <player-search 
             v-model="video.players.player2"
             :player=2 />
@@ -35,12 +37,25 @@
     </div>
     <div class="winner-section">
       <label>Match Winner</label>
-      <select v-model="winner" v-if="players.length === 2">
-        <option value="" disabled selected>Winner</option>
-        <option v-for="player in players" :key="player.id">
-          {{player.name}}
-        </option>
-      </select>
+      <multiselect 
+        v-if="players"
+        v-model="winner" 
+        :options="players" 
+        :multiple= taggable 
+        :close-on-select="true"
+        :clear-on-select="true" 
+        :preserve-search="true" 
+        :taggable= taggable 
+        label="name"
+        placeholder="Select Winner">
+        <template slot="selection" 
+          slot-scope="{ values, search, isOpen }">
+          <span class="multiselect__single" 
+            v-if="values.length &amp;&amp; !isOpen">
+            Select Winner
+          </span>
+        </template>
+      </multiselect>
     </div>
     <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
         <label>Character</label>
@@ -74,7 +89,7 @@
     <div class="button-container">
       <v-btn class="submit-btn" rounded @click="updateVideo()">Update</v-btn>
       <v-btn class="delete-btn" rounded @click="deleteVideo()">Delete</v-btn>
-      <v-btn class="delete-btn" rounded @click="cancel()">Cancel</v-btn>
+      <v-btn class="cancel-btn" rounded @click="cancel()">Cancel</v-btn>
     </div>
   </div>
 </template>
@@ -161,7 +176,7 @@ export default {
 }
 
 .video-edit .player {
-  min-width: 250px;
+  min-width: 240px;
 }
 
 .video-edit .winner-section {
@@ -195,12 +210,50 @@ export default {
   border-radius: 3px;
 }
 
-.video-card label {
+.video-edit label {
   font-size: 11px;
-  font-weight: 600
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
 }
 
-.video-card .button-container {
+.video-edit .button-container {
   display: flex;
+}
+
+.video-edit .multiselect {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.video-edit .players-container {
+  display: block;
+  position: relative;
+}
+
+.video-edit .players-container strong.versus {
+  color: #fff;
+  font-size: 15px;
+  display: block;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.video-edit .player {
+    border: 1px solid #fff;
+    padding: 10px 20px;
+    position: relative;
+}
+
+.video-edit .player-label {
+  background: #515b89;
+  color: #fff;
+  max-width: 110px;
+  top: -9px;
+  left: 50%;
+  position: absolute;
+  margin-left: -55px;
+  padding: 0 20px;
+  font-weight: 600;
 }
 </style>

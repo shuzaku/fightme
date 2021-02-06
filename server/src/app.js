@@ -6,6 +6,9 @@ var Game = require("../models/games");
 var Player = require("../models/players");
 var Video = require("../models/videos");
 var Tag = require("../models/tags");
+var Account = require("../models/accounts");
+var Creator = require("../models/creators");
+var Tournament = require("../models/tournaments");
 var mongoose = require('mongoose');
 
 
@@ -21,17 +24,45 @@ db.once("open", function (callback) {
   console.log("Connection Succeeded");
 });
 
+// Add new Account
+app.post('/accounts', (req, res) => {
+  var db = req.db;
+  var DisplayName = req.body.DisplayName;
+  var Email = req.body.Email
+  var IsEmailVerified = req.body.IsEmailVerified;
+  var AccountType = req.body.AccountType;
+  var Uid = req.body.Uid;
+
+  var new_account = new Account({
+    DisplayName: DisplayName,
+    Email: Email,
+    IsEmailVerified: IsEmailVerified,
+    AccountType: AccountType,
+    Uid: Uid,
+  })
+
+  new_account.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Account saved successfully!'
+    })
+  })
+})
+
 // Add new post
 app.post('/games', (req, res) => {
   var db = req.db;
   var GameTitle = req.body.GameTitle;
   var Characters = req.body.Characters
-  var CreatedDate = req.body.CreatedDate;
+  var Logo = req.body.Logo;
   var UpdatedDate = req.body.UpdatedDate;
   var new_game = new Game({
     GameTitle: GameTitle,
     Characters: Characters,
-    CreatedDate: CreatedDate,
+    Logo: Logo,
     UpdatedDate: UpdatedDate
   })
 
@@ -48,7 +79,7 @@ app.post('/games', (req, res) => {
 
 // Fetch all games
 app.get('/games', (req, res) => {
-  Game.find({}, 'GameTitle Characters CreatedDate UpdatedDate', function (error, games) {
+  Game.find({}, 'GameTitle Characters Logo UpdatedDate', function (error, games) {
     if (error) { console.error(error); }
     res.send({
       games: games
@@ -59,7 +90,7 @@ app.get('/games', (req, res) => {
 // Fetch single game
 app.get('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'GameTitle Characters CreatedDate UpdatedDate', function (error, game) {
+  Game.findById(req.params.id, 'GameTitle Characters Logo UpdatedDate', function (error, game) {
     if (error) { console.error(error); }
     res.send(game)
   })
@@ -79,7 +110,7 @@ app.get('/gameQuery', (req, res) => {
   }
   
   if(queries.length > 1) {
-    Game.find({ $or: queries }, 'GameTitle Characters CreatedDate UpdatedDate', function (error, games) {
+    Game.find({ $or: queries }, 'GameTitle Characters Logo UpdatedDate', function (error, games) {
       if (error) { console.error(error); }
       res.send({
         games: games
@@ -87,7 +118,7 @@ app.get('/gameQuery', (req, res) => {
     }).sort({ _id: -1 })    
   }
   else {
-    Game.find(queries[0], 'GameTitle Characters CreatedDate UpdatedDate', function (error, games) {
+    Game.find(queries[0], 'GameTitle Characters Logo UpdatedDate', function (error, games) {
       if (error) { console.error(error); }
       res.send({
         games: games
@@ -99,12 +130,12 @@ app.get('/gameQuery', (req, res) => {
 // Update a game
 app.put('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'GameTitle Characters CreatedDate UpdatedDate', function (error, game) {
+  Game.findById(req.params.id, 'GameTitle Characters Logo UpdatedDate', function (error, game) {
     if (error) { console.error(error); }
 
     game.GameTitle = req.body.GameTitle;
     game.Characters = req.body.Characters
-    game.CreatedDate = req.body.CreatedDate;
+    game.Logo = req.body.Logo;
     game.UpdatedDate = req.body.UpdatedDate;
     game.save(function (error) {
       if (error) {
@@ -136,14 +167,14 @@ app.delete('/games/:id', (req, res) => {
 app.post('/players', (req, res) => {
   var db = req.db;
   var PlayerName = req.body.PlayerName;
-  var CreatedDate = req.body.CreatedDate;
+  var Logo = req.body.Logo;
   var GamesPlayed = req.body.GamesPlayed;
   var Region = req.body.PlayerRegion;
   var PlayerImg = req.body.PlayerImg;
 
   var new_player = new Player({
     PlayerName: PlayerName,
-    CreatedDate: CreatedDate,
+    Logo: Logo,
     UpdatedDate: null,
     GamesPlayed: GamesPlayed,
     Region: Region,
@@ -163,7 +194,7 @@ app.post('/players', (req, res) => {
 
 // Fetch all player
 app.get('/players', (req, res) => {
-  Player.find({}, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region', function (error, players) {
+  Player.find({}, 'PlayerName Logo UpdatedDate GamesPlayed Region', function (error, players) {
     if (error) { console.error(error); }
     res.send({
       players: players
@@ -174,7 +205,7 @@ app.get('/players', (req, res) => {
 // Fetch single player
 app.get('/players/:id', (req, res) => {
   var db = req.db;
-  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
+  Player.findById(req.params.id, 'PlayerName Logo UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
     if (error) { console.error(error); }
     res.send(player)
   })
@@ -183,11 +214,11 @@ app.get('/players/:id', (req, res) => {
 // Update a player
 app.put('/players/:id', (req, res) => {
   var db = req.db;
-  Player.findById(req.params.id, 'PlayerName CreatedDate UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
+  Player.findById(req.params.id, 'PlayerName Logo UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
     if (error) { console.error(error); }
 
     player.PlayerName = req.body.PlayerName;
-    player.CreatedDate = req.body.CreatedDate;
+    player.Logo = req.body.Logo;
     player.UpdatedDate = req.body.UpdatedDate;
     player.GamesPlayed = req.body.GamesPlayed,
     player.Region = req.body.Region
@@ -267,19 +298,31 @@ app.get('/videos', (req, res) => {
 // Query Videos
 app.get('/videoQuery', (req, res) => {
   var db = req.db;
-  var names = req.query.queryName.split(",");
-  var values = req.query.queryValue.split(",");
-  console.log(req.query)
-  var skip =  parseInt(req.query.skip);
   var queries = [];
 
-  for(var i = 0; i < names.length; i++){
-    var query = {};
-    query[names[i]] = values[i];
-    queries.push(query);
+  if(req.query.queryName || req.query.queryValue){
+    var names = req.query.queryName.split(",");
+    var values = req.query.queryValue.split(",");
+
+    for(var i = 0; i < names.length; i++){
+      var query = {};
+      query[names[i]] = values[i];
+      queries.push(query);
+    }
   }
+
+  var skip =  parseInt(req.query.skip);
   
-  if(queries.length > 1) {
+  
+  if(!req.query.queryValue) {
+    Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+      if (error) { console.error(error); }
+      res.send({
+        videos: videos
+      })
+    }).sort({ _id: -1 }).limit(10).skip(skip);    
+  }
+  else if(queries.length > 1) {
     Video.find({ $or: queries }, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
       if (error) { console.error(error); }
       res.send({
@@ -373,3 +416,154 @@ app.post('/tags', (req, res) => {
 })
 app.listen(process.env.PORT || 8081)
 
+// Add new creator
+app.post('/creators', (req, res) => {
+  var db = req.db;
+  var Name = req.body.Name;
+  var Logo = req.body.Logo;
+  var YoutubeUrl = req.body.YoutubeUrl;
+
+  var new_creator = new Creator({
+    Name: Name,
+    Logo: Logo,
+    YoutubeUrl: YoutubeUrl
+  })
+
+  new_creator.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
+
+// Fetch all creator
+app.get('/creators', (req, res) => {
+  Creator.find({}, 'Name Logo YoutubeUrl', function (error, creators) {
+    if (error) { console.error(error); }
+    res.send({
+      creators: creators
+    })
+  }).sort({ _id: -1 })
+})
+
+// Fetch single creator
+app.get('/creators/:id', (req, res) => {
+  var db = req.db;
+  Creator.findById(req.params.id, 'Name Logo YoutubeUrl', function (error, creator) {
+    if (error) { console.error(error); }
+    res.send(creator)
+  })
+})
+
+// Update a creator
+app.put('/creators/:id', (req, res) => {
+  var db = req.db;
+  Creator.findById(req.params.id, 'Name Logo YoutubeUrl', function (error, creator) {
+    if (error) { console.error(error); }
+
+    creator.Name = req.body.Name;
+    creator.Logo = req.body.Logo;
+    creator.YoutubeUrl = req.body.YoutubeUrl;
+
+    creator.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true
+      })
+    })
+  })
+})
+
+// Delete a creator
+app.delete('/creators/:id', (req, res) => {
+  var db = req.db;
+  Creator.remove({
+    _id: req.params.id
+  }, function (err, creator) {
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})
+// Add new tournament
+app.post('/tournaments', (req, res) => {
+  var db = req.db;
+  var Name = req.body.Name;
+  var Games = req.body.Games;
+
+  var new_tournament = new Tournament({
+    Name: Name,
+    Games: Games
+  })
+
+  new_tournament.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
+
+// Fetch all tournament
+app.get('/tournaments', (req, res) => {
+  Tournament.find({}, 'Name Games', function (error, tournaments) {
+    if (error) { console.error(error); }
+    res.send({
+      tournaments: tournaments
+    })
+  }).sort({ _id: -1 })
+})
+
+// Fetch single tournament
+app.get('/tournaments/:id', (req, res) => {
+  var db = req.db;
+  Tournament.findById(req.params.id, 'Name Games', function (error, tournament) {
+    if (error) { console.error(error); }
+    res.send(tournament)
+  })
+})
+
+// Update a tournament
+app.put('/tournaments/:id', (req, res) => {
+  var db = req.db;
+  Tournament.findById(req.params.id, 'Name Games', function (error, tournament) {
+    if (error) { console.error(error); }
+
+    tournament.Name = req.body.Name;
+    tournament.Games = req.body.Games;
+
+    tournament.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true
+      })
+    })
+  })
+})
+
+// Delete a tournament
+app.delete('/tournaments/:id', (req, res) => {
+  var db = req.db;
+  Tournament.remove({
+    _id: req.params.id
+  }, function (err, tournament) {
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})

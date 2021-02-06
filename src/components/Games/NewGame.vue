@@ -67,12 +67,7 @@ export default {
   computed: {
     timestamp: function() {
       return moment().format()
-    },
-
-    // characterList: function() {
-    //   let list = this.characters.split(',');
-    //   return list.map(character => character.trim());
-    // }
+    }
   }
 }
 </script>
