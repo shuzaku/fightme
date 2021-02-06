@@ -34,8 +34,6 @@ const configOptions = {
   appId: "1:1047017532667:web:67f9ee065d0b56909a545e"
 };
 
-
-
 const router = new VueRouter({
   mode: 'history',
   routes

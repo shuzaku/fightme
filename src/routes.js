@@ -16,7 +16,7 @@ const routes = [
     {path: '/players/new', name: 'NewPlayer', component: NewPlayer },
     {path: '/players/:id', name: 'EditPlayer', component: EditPlayer},
     {path: '/upload', name: 'Upload', component: PostVideo},
-    {path: '/videos', name: 'Videos', component: Videos}
+    {path: '/', name: 'Videos', component: Videos}
 ] 
 
 export default routes;   

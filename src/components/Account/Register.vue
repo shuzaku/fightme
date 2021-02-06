@@ -70,6 +70,7 @@
 
 <script>
 import firebase from "firebase";
+import AccountsService from '@/services/AccountsService'
 
 export default {
   data() {
@@ -93,13 +94,26 @@ export default {
               displayName: this.form.name
             })
             .then(() => {
+              var newUser = {
+                DisplayName: data.user.displayName,
+                Email: data.user.email,
+                IsEmailVerified: data.user.emailVerified,
+                Uid: data.user.uid,
+                AccountType: 'Standard User'
+              }
+              this.addAccount(newUser);
+
               this.$emit('register:success');
             });
         })
         .catch(err => {
           this.error = err.message;
         });
-    }
+    },
+
+    async addAccount (newUser) {
+        await AccountsService.addAccount(newUser)      
+    },
   }
 };
 </script> 
@@ -126,6 +140,7 @@ export default {
 
 .register-modal input{
   border: 1px solid #000; 
+  color: #000;
 }
 
 .register-modal label{

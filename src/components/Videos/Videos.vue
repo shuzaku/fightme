@@ -212,7 +212,29 @@ export default {
   .videos-view {
     display: flex;
     align-items: flex-start;
-    position: relative
+    position: relative;
+    overflow: auto;
+    justify-content: space-around;
+    padding-top: 30px;
+    height: 100%;
+    overflow: auto;
+  }
+
+  .videos-view::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    background-color: #1f1d2b;
+  }
+
+  .videos-view::-webkit-scrollbar {
+    width: 12px;
+    background-color: #1f1d2b;
+  }
+
+  .videos-view::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    background-color: #515b89;
   }
 
   .videos-view .videos-container {

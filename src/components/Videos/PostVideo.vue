@@ -23,8 +23,6 @@
         <v-radio-group v-model="videoOrigin" :mandatory="false">
           <v-radio label="From the web" value="web"></v-radio>
           <v-radio label="From my computer" value="computer"></v-radio>
-        </v-radio-group>
-
         <!--- video --->
         <div class="import-video-container" v-if="videoOrigin == 'web'">
           <v-text-field 
@@ -33,6 +31,12 @@
               @change="scrubVideoUrl($event)"
               placeholder="Video Url" 
               v-model="importVideoUrl"/>
+          <div class="startTime">
+
+          </div>
+          <div class="endTime">
+            
+          </div>
         </div>
         <div class="upload-video-container" v-else>
             <upload-video 
@@ -41,12 +45,31 @@
         </div>
       </v-col>
     </v-row>
+
+    <!--- tournament --->
+    <v-checkbox
+      v-model="video.isTournament"
+      :label="`Tournament Match?`"
+    ></v-checkbox>
+    <tournament-search
+      v-if="video.isTournament"
+      v-model="video.tournament" 
+      @update:tournament="setTournament($event)" />
+
+    <!--- creator --->
+    <div class="creator-container" >
+        <creator-search 
+          v-model="video.contentCreator" 
+          @update:creator="setCreator($event)" />
+    </div>
+
     <!--- game --->
     <div class="game-container" >
         <game-search 
           v-model="video.game.title" 
           @update:game="setGame($event)" />
     </div>
+
     <!--- players --->
     <v-btn  
         @click="isAddingPlayers = !isAddingPlayers"
@@ -93,6 +116,7 @@
     <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.comboCharacter">
         <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
     </div>
+
     <!--- tags --->
     <div class="tag-containers">
       <tag-search
@@ -112,6 +136,8 @@ import PlayerSearch from '@/components/Players/PlayerSearch'
 import CharacterSearch from '@/components/Games/CharacterSearch'
 import GameSearch from '@/components/Games/GameSearch'
 import TagSearch from '@/components/Tags/TagSearch'
+import CreatorSearch from '@/components/ContentCreator/CreatorSearch'
+import TournamentSearch from '@/components/Tournament/TournamentSearch'
 import { eventbus } from '@/main'
 
 export default {
@@ -119,9 +145,11 @@ export default {
   components:{
       'upload-video': UploadVideo,
       'player-search' : PlayerSearch,
+      'creator-search' : CreatorSearch,
       'game-search': GameSearch,
       'tag-search': TagSearch,
       'character-search': CharacterSearch,
+      'tournament-search': TournamentSearch,
   },
   provide() {
     return {
@@ -132,42 +160,54 @@ export default {
     return {
       winner: null,
       video: {
+        id: null,
+        contentType: null,
+        contentCreator: {
+          name: null,
+          logo: null,
+          youtubeUrl: null,
+        },
+        videoUrl: null,
+        startTime: null,
+        endTime: null,
+        videoType: null,
+        isTournament: false,
+        tournament: {
+          name: null,
+          tournamentImgUrl: null
+        },
+        game: {
           id: null,
-          contentType: null,
-          videoUrl: null,
-          videoType: null,
-          game: {
+          title: null,
+          characters: null
+        },
+        combo: {
+          character: {
+            name: null,
+            imageUrl: null,
+          }
+        },
+        players: { 
+          player1: {
             id: null,
-            title: null,
-            characters: null
-          },
-          combo: {
+            name: null,
             character: {
               name: null,
               imageUrl: null,
-            }
-          },
-          players: { 
-            player1: {
-              id: null,
-              name: null,
-              character: {
-                name: null,
-                imageUrl: null,
-              },
-              isWinner: false
             },
-            player2: {
-              id: null,
-              name: null,
-              character: {
-                name: null,
-                imageUrl: null,
-              },
-              isWinner: null
-            },
+            isWinner: false
           },
-          tags: null
+          player2: {
+            id: null,
+            name: null,
+            character: {
+              name: null,
+              imageUrl: null,
+            },
+            isWinner: null
+          },
+        },
+        tags: null
       },
       isAddingPlayers: false,
       isImportingVideo: true,
@@ -250,10 +290,17 @@ export default {
         },
         Tags: this.video.tags,
         ContentType: this.video.contentType,
+        ContentCreator: this.video.contentCreator,
         Combo: {
           ComboCharacter: this.video.combo.comboCharacter,
           ComboInput: this.video.combo.comboInput
-        }
+        },
+        Tournament: {
+          Name: this.video.tournament.name,
+          TournamentImgUrl: this.video.tournament.tournamentImgUrl
+        },
+        StartTime: this.video.startTime,
+        EndTime: this.video.endTime
       });
 
       this.$emit('closeModal');
@@ -286,6 +333,10 @@ export default {
       this.video.game.id = game._id
       this.video.game.title = game.GameTitle
       this.video.game.characters = game.Characters
+    },
+
+    setCreator(creator) {
+      this.video.contentCreator = creator;
     },
 
     setTags(tags) {
