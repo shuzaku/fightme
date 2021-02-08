@@ -567,3 +567,165 @@ app.delete('/tournaments/:id', (req, res) => {
     })
   })
 })
+
+
+// Add new post
+app.post('/characters', (req, res) => {
+  var db = req.db;
+  var Name = req.body.Name;
+  var GameId = req.body.GameId
+  var ImageUrl = req.body.ImageUrl;
+  var new_character = new Character({
+    Name: Name,
+    GameId: GameId,
+    ImageUrl: ImageUrl,
+  })
+
+  new_character.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
+
+// Fetch all characters
+app.get('/characters', (req, res) => {
+  Character.find({}, 'Name GameId ImageUrl ', function (error, characters) {
+    if (error) { console.error(error); }
+    res.send({
+      characters: characters
+    })
+  }).sort({ _id: -1 })
+})
+
+// Fetch single character
+app.get('/characters/:id', (req, res) => {
+  var db = req.db;
+  Character.findById(req.params.id, 'Name GameId ImageUrl', function (error, character) {
+    if (error) { console.error(error); }
+    res.send(character)
+  })
+})
+
+
+// Update a character
+app.put('/characters/:id', (req, res) => {
+  var db = req.db;
+  Character.findById(req.params.id, 'Name GameId ImageUrl', function (error, character) {
+    if (error) { console.error(error); }
+
+    character.Name = req.body.Name;
+    character.GameId = req.body.GameId
+    character.ImageUrl = req.body.ImageUrl;
+    character.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true
+      })
+    }) 
+  })
+})
+
+// Delete a character
+app.delete('/characters/:id', (req, res) => {
+  var db = req.db;
+  Character.remove({
+    _id: req.params.id
+  }, function (err, character) {
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})
+
+
+// Add new post
+app.post('/combos', (req, res) => {
+  var db = req.db;
+  var ComboCharacterId = req.body.ComboCharacterId;
+  var ComboInput = req.body.ComboInput
+  var ComboHits = req.body.ComboHits;
+  var ComboDamage = req.body.ComboDamage;
+
+  var new_combo = new Combo({
+    ComboCharacterId: ComboCharacterId,
+    ComboInput: ComboInput,
+    ComboHits: ComboHits,
+    ComboDamage: ComboDamage,
+  })
+
+  new_combo.save(function (error) {
+    if (error) {
+      console.log(error)
+    }
+    res.send({
+      success: true,
+      message: 'Post saved successfully!'
+    })
+  })
+})
+
+// Fetch all combos
+app.get('/combos', (req, res) => {
+  Combo.find({}, 'ComboCharacterId ComboInput ComboHits ComboDamage', function (error, combos) {
+    if (error) { console.error(error); }
+    res.send({
+      combos: combos
+    })
+  }).sort({ _id: -1 })
+})
+
+// Fetch single combo
+app.get('/combos/:id', (req, res) => {
+  var db = req.db;
+  Combo.findById(req.params.id, 'ComboCharacterId ComboInput ComboHits ComboDamage', function (error, combo) {
+    if (error) { console.error(error); }
+    res.send(combo)
+  })
+})
+
+
+// Update a combo
+app.put('/combos/:id', (req, res) => {
+  var db = req.db;
+  Combo.findById(req.params.id, 'ComboCharacterId ComboInput ComboHits ComboDamage', function (error, combo) {
+    if (error) { console.error(error); }
+
+    combo.ComboCharacterId = req.body.ComboCharacterId;
+    combo.ComboInput = req.body.ComboInput
+    combo.ComboHits = req.body.ComboHits;
+    combo.ComboDamage = req.body.ComboDamage;
+
+    combo.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true
+      })
+    }) 
+  })
+})
+
+// Delete a combo
+app.delete('/combos/:id', (req, res) => {
+  var db = req.db;
+  Combo.remove({
+    _id: req.params.id
+  }, function (err, combo) {
+    if (err)
+      res.send(err)
+    res.send({
+      success: true
+    })
+  })
+})
+

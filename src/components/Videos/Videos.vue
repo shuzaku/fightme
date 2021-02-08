@@ -125,8 +125,6 @@ export default {
           videoType: video.VideoType,
           game: {
             id: video.Game.Id,
-            title: video.Game.Title,
-            characters: video.Game.Characters
           },
           combo: video.Combo ? {
             character: {
@@ -140,7 +138,6 @@ export default {
           players: video.ContentType === 'Match' ? { 
             player1: {
               id: video.Players.Player1.Id,
-              name: video.Players.Player1.Name,
               character: {
                 name: video.Players.Player1.Character.Name,
                 imageUrl: video.Players.Player1.Character.ImageUrl,
@@ -148,7 +145,6 @@ export default {
             },
             player2: {
               id: video.Players.Player2.Id,
-              name: video.Players.Player2.Name,
               character: {
                 name: video.Players.Player2.Character.Name,
                 imageUrl: video.Players.Player2.Character.ImageUrl,

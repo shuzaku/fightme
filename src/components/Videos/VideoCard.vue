@@ -146,38 +146,31 @@ export default {
         id: this.video.id,
         VideoUrl: this.video.videoUrl,
         VideoType: this.video.videoType,
-        VideoStartTime: this.video.startTime,
-        VideoEndTime: this.video.endTime,
+        Match: {
+          startTime: this.video.match.startTime,
+          endTime: this.video.match.endTime,
+          winnerId: this.video.match.winnerId,
+        },
+        Tournament: {
+          tournamentId: this.video.tournament.id
+        },
         Players: this.video.contentType === 'Match' ? {
           Player1: {
             Id: this.video.players.player1.id,
-            Name: this.video.players.player1.name,
-            Character: {
-              Name: this.video.players.player1.character.name,
-              ImageUrl: this.video.players.player1.character.imageUrl
-            },
-            IsWinner: this.video.players.player1.isWinner
+            CharacterId: this.video.players.player1.charcterId     
           },
           Player2: {
             Id: this.video.players.player2.id,
-            Name: this.video.players.player2.name,
-            Character: {
-              Name: this.video.players.player2.character.name,
-              ImageUrl: this.video.players.player2.character.imageUrl
-            },
-            IsWinner: this.video.players.player2.isWinner
+            CharacterId: this.video.players.player2.charcterId 
           }
         } : null,
         Game: {
           Id: this.video.game.id,
-          Title: this.video.game.title
         },
         Tags: this.video.tags,
+        //ComboId
         Combo: this.video.combo ? {
-          ComboCharacter: {
-            Name: this.video.combo.character.name,
-            ImageUrl: this.video.combo.character.imageUrl
-          },
+          ComboCharacterId: this.video.combo.characterId,
           ComboInput: this.video.combo.comboInput,
           ComboHits: this.video.combo.comboHits,
           ComboDamage: this.video.combo.comboDamage

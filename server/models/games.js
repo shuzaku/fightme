@@ -5,9 +5,6 @@ var GameSchema = new Schema({
   GameTitle: {
     type: String,
     required: '{PATH} is required!'
-  },
-  Characters: {
-    type: Array
   }
 }, {
   timestamp: true

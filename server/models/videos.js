@@ -9,23 +9,23 @@ var VideoSchema = new Schema({
     VideoType: {
       type: String
     },
+    Match: {
+      type: Object
+    },
     Players: {
       type: Object
     },
-    Game: {
-      type: Object
+    GameId: {
+      type: Number
     },
-    Tags: {
+    TagsIds: {
       type: Array
     },
     ContentType: {
       type: String
     },
-    Combo: {
-      type: Object
-    },
-    IsInView: {
-      type: Boolean
+    ComboId: {
+      type: Number
     }
   }, {
   timestamp: true, 
