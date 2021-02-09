@@ -13,7 +13,7 @@
         placeholder="Search or add a Player"
         label="name" >
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Player
@@ -74,14 +74,14 @@ export default {
     },
 
     setPlayer() {
-      this.$emit('update:player' , this.selectedPlayer);
+      this.$emit('update:player' , this.selectedPlayer.id);
     }
   },
 
   mounted () {
-    if(this.video){
+    if(this.video.match.player1.id || this.video.match.player2.id){
       if(this.player === 1) {
-        this.selectedPlayer = this.video.players.player1;
+        this.selectedPlayer = this.video.n.player1;
       } 
       else if(this.player === 2) {
         this.selectedPlayer = this.video.players.player2;

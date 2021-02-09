@@ -9,6 +9,7 @@ var Tag = require("../models/tags");
 var Account = require("../models/accounts");
 var Creator = require("../models/creators");
 var Tournament = require("../models/tournaments");
+var Characters = require("../models/characters");
 var mongoose = require('mongoose');
 
 
@@ -17,7 +18,7 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
 
-mongoose.connect('mongodb+srv://mtchau:CSLNsZTp!pqf3cA@fightme.vdh52.mongodb.net/mongotest?retryWrites=true&w=majority');
+mongoose.connect('mongodb+srv://mtchau:CSLNsZTp!pqf3cA@fightme2.vdh52.mongodb.net/<dbname>?retryWrites=true&w=majority');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function (callback) {
@@ -55,15 +56,11 @@ app.post('/accounts', (req, res) => {
 // Add new post
 app.post('/games', (req, res) => {
   var db = req.db;
-  var GameTitle = req.body.GameTitle;
-  var Characters = req.body.Characters
+  var Title = req.body.Title;
   var Logo = req.body.Logo;
-  var UpdatedDate = req.body.UpdatedDate;
   var new_game = new Game({
-    GameTitle: GameTitle,
-    Characters: Characters,
+    Title: Title,
     Logo: Logo,
-    UpdatedDate: UpdatedDate
   })
 
   new_game.save(function (error) {
@@ -79,7 +76,7 @@ app.post('/games', (req, res) => {
 
 // Fetch all games
 app.get('/games', (req, res) => {
-  Game.find({}, 'GameTitle Characters Logo UpdatedDate', function (error, games) {
+  Game.find({}, 'Title Logo', function (error, games) {
     if (error) { console.error(error); }
     res.send({
       games: games
@@ -90,7 +87,7 @@ app.get('/games', (req, res) => {
 // Fetch single game
 app.get('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'GameTitle Characters Logo UpdatedDate', function (error, game) {
+  Game.findById(req.params.id, 'Title Logo', function (error, game) {
     if (error) { console.error(error); }
     res.send(game)
   })
@@ -110,7 +107,7 @@ app.get('/gameQuery', (req, res) => {
   }
   
   if(queries.length > 1) {
-    Game.find({ $or: queries }, 'GameTitle Characters Logo UpdatedDate', function (error, games) {
+    Game.find({ $or: queries }, 'Title Logo', function (error, games) {
       if (error) { console.error(error); }
       res.send({
         games: games
@@ -118,7 +115,7 @@ app.get('/gameQuery', (req, res) => {
     }).sort({ _id: -1 })    
   }
   else {
-    Game.find(queries[0], 'GameTitle Characters Logo UpdatedDate', function (error, games) {
+    Game.find(queries[0], 'Title Logo', function (error, games) {
       if (error) { console.error(error); }
       res.send({
         games: games
@@ -130,13 +127,11 @@ app.get('/gameQuery', (req, res) => {
 // Update a game
 app.put('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'GameTitle Characters Logo UpdatedDate', function (error, game) {
+  Game.findById(req.params.id, 'Title Logo', function (error, game) {
     if (error) { console.error(error); }
 
-    game.GameTitle = req.body.GameTitle;
-    game.Characters = req.body.Characters
+    game.Title = req.body.GameTitle;
     game.Logo = req.body.Logo;
-    game.UpdatedDate = req.body.UpdatedDate;
     game.save(function (error) {
       if (error) {
         console.log(error)
@@ -569,27 +564,38 @@ app.delete('/tournaments/:id', (req, res) => {
 })
 
 
-// Add new post
+// Add new character(s)
 app.post('/characters', (req, res) => {
   var db = req.db;
-  var Name = req.body.Name;
-  var GameId = req.body.GameId
-  var ImageUrl = req.body.ImageUrl;
-  var new_character = new Character({
-    Name: Name,
-    GameId: GameId,
-    ImageUrl: ImageUrl,
-  })
 
-  new_character.save(function (error) {
-    if (error) {
-      console.log(error)
-    }
-    res.send({
-      success: true,
-      message: 'Post saved successfully!'
+  console.log(req)
+  if(!req.query.bulk){
+    var Name = req.body.Name;
+    var GameId = req.body.GameId
+    var ImageUrl = req.body.ImageUrl;
+  
+    var new_character = new Character({
+      Name: Name,
+      GameId: GameId,
+      ImageUrl: ImageUrl,
     })
-  })
+  
+    new_character.save(function (error) {
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true,
+        message: 'Post saved successfully!'
+      })
+    })
+  }
+  else {
+    console.log(req.body)
+    console.log(db)
+    var bulk = db.characters.initializeOrderedBulkOp();
+  }
+
 })
 
 // Fetch all characters
@@ -617,7 +623,6 @@ app.put('/characters/:id', (req, res) => {
   var db = req.db;
   Character.findById(req.params.id, 'Name GameId ImageUrl', function (error, character) {
     if (error) { console.error(error); }
-
     character.Name = req.body.Name;
     character.GameId = req.body.GameId
     character.ImageUrl = req.body.ImageUrl;

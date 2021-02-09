@@ -14,7 +14,7 @@
         @input="setCharacter"
         placeholder="Search or add a Character">
         <template slot="selection" 
-          slot-scope="{ values, isOpen }">
+          slot-scope="{ values, search, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Character

@@ -27,7 +27,6 @@
 import CreatorsService from '@/services/CreatorsService'
 
 export default {
-  inject: ['video'],
   name: 'creators-search',
   props: {
     creator: {
@@ -41,12 +40,6 @@ export default {
     }
   }, 
 
-  watch: {
-    selectedCreator: function() {
-      this.video.creator = this.selectedCreator
-    }
-  },
-
   methods: {
     async addCreator (newCreator) {
       await CreatorsService.addCreator({
@@ -59,7 +52,6 @@ export default {
 
     async getCreators () {
       const response = await CreatorsService.fetchCreators();
-      console.log(response)
       this.creators = response.data.creators.map(creator => {
         return {
           id: creator._id,
@@ -71,7 +63,7 @@ export default {
     },
 
     setCreator() {
-      this.$emit('update:creator' , this.selectedCreator);
+      this.$emit('update:creator' , this.selectedCreator.id);
     }
   },
 

@@ -41,7 +41,6 @@ export default {
   },
 
   created() {
-    console.log(this.createType)
   }
 };
 </script>
@@ -58,6 +57,9 @@ export default {
     top: 0px;
     border-radius: 20px;
     padding: 40px;  
+    height: 650px;
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
 
   .modals .close-btn {

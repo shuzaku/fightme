@@ -14,7 +14,7 @@
         track-by="name" 
         v-if="!isLoading">
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Game

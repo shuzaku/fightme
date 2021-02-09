@@ -3,7 +3,7 @@
     <h1>Add Video</h1>
     <v-row>
       <multiselect 
-        v-model="video.contentType" 
+        v-model="video.type" 
         :options="contentTypes" 
         :multiple="false" 
         :close-on-select="true" 
@@ -20,17 +20,18 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-radio-group v-model="videoOrigin" :mandatory="false">
+        <v-radio-group v-model="video.origin" :mandatory="false">
           <v-radio label="From the web" value="web"></v-radio>
           <v-radio label="From my computer" value="computer"></v-radio>
+        </v-radio-group>
         <!--- video --->
-        <div class="import-video-container" v-if="videoOrigin == 'web'">
+        <div class="import-video-container" v-if="video.origin == 'web'">
           <v-text-field 
               id="import-video"
               type="text"
               @change="scrubVideoUrl($event)"
               placeholder="Video Url" 
-              v-model="importVideoUrl"/>
+              v-model="video.url"/>
           <div class="startTime">
 
           </div>
@@ -40,66 +41,65 @@
         </div>
         <div class="upload-video-container" v-else>
             <upload-video 
-            @upload:video="setUploadedVideo($event)"
-            ref="videoUploader" />
+              @upload:video="setUploadedVideo($event)"
+              ref="videoUploader" />
         </div>
       </v-col>
     </v-row>
 
     <!--- tournament --->
     <v-checkbox
-      v-model="video.isTournament"
+      v-model="isTournament"
       :label="`Tournament Match?`"
     ></v-checkbox>
     <tournament-search
-      v-if="video.isTournament"
-      v-model="video.tournament" 
-      @update:tournament="setTournament($event)" />
+      v-if="isTournament"
+      v-model="video.match.tournamentId" />
 
     <!--- creator --->
     <div class="creator-container" >
         <creator-search 
-          v-model="video.contentCreator" 
-          @update:creator="setCreator($event)" />
+          v-model="video.contentCreatorId" 
+          @update:creator="setCreator($event)"/>
     </div>
 
     <!--- game --->
     <div class="game-container" >
         <game-search 
-          v-model="video.game.title" 
-          @update:game="setGame($event)" />
+          v-model="video.gameId" 
+          @update:game="setGame($event)"/>
     </div>
 
     <!--- players --->
     <v-btn  
         @click="isAddingPlayers = !isAddingPlayers"
-        v-if="!isAddingPlayers && video.contentType == 'Match'"
+        v-if="!isAddingPlayers && video.type == 'Match'"
         class="players-btn"
         tile color="indigo">
         Add Player(s)
     </v-btn>
-    <div class="players-container" v-if="isAddingPlayers && video.contentType == 'Match'">
+    <div class="players-container" v-if="isAddingPlayers && video.type == 'Match'">
         <h2>Players</h2>
         <v-btn class="close-btn" rounded @click="isAddingPlayers = !isAddingPlayers" >X</v-btn>
         <player-search 
-          v-model="video.players.player1" 
+          v-model="video.match.player1.id" 
           :player=1
           @update:player="setPlayer1($event)" />
         <character-search 
-          v-model="video.players.player1.character"
-          v-if="video.game.title"
-          :game="video.game"
+          v-model="video.match.player1.characterId"
+          v-if="video.gameId"
+          :game="video.gameId"
           :player=1 
           @update:character="setPlayer1Character($event)" />
         <strong> VS. </strong>
         <player-search 
-          v-model="video.players.player2"
+          v-model="video.match.player2.id" 
           :player=2
           @update:player="setPlayer2($event)" />
         <character-search 
-          v-if="video.game.title"
-          v-model="video.players.player2.character"
-          :game="video.game"
+          v-if="video.gameId"
+          v-model="video.match.player2.characterId"
+          :game="video.gameId"
           :player=2 />
         <select v-model="winner">
           <option v-for="player in players" :key="player.id">
@@ -160,60 +160,43 @@ export default {
     return {
       winner: null,
       video: {
-        id: null,
-        contentType: null,
-        contentCreator: {
-          name: null,
-          logo: null,
-          youtubeUrl: null,
-        },
-        videoUrl: null,
-        startTime: null,
-        endTime: null,
-        videoType: null,
-        isTournament: false,
-        tournament: {
-          name: null,
-          tournamentImgUrl: null
-        },
-        game: {
-          id: null,
-          title: null,
-          characters: null
-        },
+        id: '',
+        contentType: '',
+        contentCreatorId: '',
+        type: '',
+        origin: '',
+        url: '',
+        startTime: '',
+        endTime: '',
+        gameId: '',
         combo: {
-          character: {
-            name: null,
-            imageUrl: null,
-          }
+          characterId: '',
+          input: '',
+          damage: '',
+          hits: ''
         },
-        players: { 
+        match: {
           player1: {
-            id: null,
-            name: null,
-            character: {
-              name: null,
-              imageUrl: null,
-            },
-            isWinner: false
+            id: '',
+            name: '',
+            characterId: ''
           },
           player2: {
-            id: null,
-            name: null,
-            character: {
-              name: null,
-              imageUrl: null,
-            },
-            isWinner: null
+            id: '',
+            name: '',
+            characterId: ''
           },
+          winner: '',
+          tournamentId: '',
         },
-        tags: null
+        tags: [],
       },
       isAddingPlayers: false,
       isImportingVideo: true,
       importVideoUrl: null,
       games: [],
-      videoOrigin: "web",
+      origin: "web",
+      isTournament: false,
       contentTypes: ['Match' , 'Combo' , 'Analysis']
     }
   },
@@ -225,42 +208,32 @@ export default {
 
     players: function() {
       var players = [];
-      players.push(this.video.players.player1, this.video.players.player2);
-      return players
+      players.push(this.video.match.player1);
+      players.push(this.video.match.player2);
+      return players;
     }
   },
 
   watch: {
-    winner: function() {
-      if(this.winner === this.video.players.player1.name) {
-        this.video.players.player1.isWinner = true;
-        this.video.players.player2.isWinner = false;
-      }
-      else if(this.winner === this.video.players.player2.name) {
-        this.video.players.player1.isWinner = false;
-        this.video.players.player2.isWinner = true;       
-      }
-    }
   },
 
   methods: {
     setUploadedVideo(uploadedVideo) {
-      this.$refs.videoUploader.upload();
       this.video.url = null
       this.video.url = uploadedVideo
-      this.video.videoType = 'uploaded'
+      this.video.type = 'uploaded'
       this.postVideo();
     },
 
     scrubVideoUrl(){
       if(this.importVideoUrl.includes('youtube')) {
         this.video.url = this.importVideoUrl.substr((this.importVideoUrl.indexOf("v=") + 2) , this.importVideoUrl.length);
-        this.videoType = 'youtube'
+        this.video.type = 'youtube'
       }
     },
 
     setUpVideo() {
-      if (this.video.contentType == 'Combo') {
+      if (this.video.type == 'Combo') {
         this.$refs.videoUploader.upload()
       } 
       else {
@@ -270,73 +243,68 @@ export default {
 
     async postVideo() {
       await VideosService.addVideo({
+        Type: this.video.type,
+        ContentCreatorId: this.video.contentCreatorId,
+        VideoType: this.video.type,
         VideoUrl: this.video.url,
-        VideoType: this.video.videoType,
-        Players: {
+        StartTime: this.video.startTime,
+        EndTime: this.video.endTime,
+        GameId: this.video.gameId,
+        ComboId: {
+          CharacterId: this.combo.characterId,
+          Input: this.combo.input,
+          Damage: this.combo.damage,
+          Hits: this.combo.hits
+        },
+        Match: {
           Player1: {
-            Id: this.video.player1.id,
-            Name: this.video.player1.name,
-            Character: this.video.player1.character
+            Id: this.video.match.player1.id,
+            CharacterId: this.video.player1.characterId
           },
           Player2: {
             Id: this.video.player2.id,
-            Name: this.video.player2.name,
-            Character: this.video.player2.character
-          }
-        },
-        Game: {
-          Id: this.video.game.id,
-          Title: this.video.game.title
+            CharacterId: this.video.player2.characterId
+          },
+          Winner: this.video.winner,
+          TournamentId: this.video.tournament.id,
         },
         Tags: this.video.tags,
-        ContentType: this.video.contentType,
-        ContentCreator: this.video.contentCreator,
-        Combo: {
-          ComboCharacter: this.video.combo.comboCharacter,
-          ComboInput: this.video.combo.comboInput
-        },
-        Tournament: {
-          Name: this.video.tournament.name,
-          TournamentImgUrl: this.video.tournament.tournamentImgUrl
-        },
-        StartTime: this.video.startTime,
-        EndTime: this.video.endTime
       });
 
       this.$emit('closeModal');
       eventbus.$emit('newVideoPosted');
     },
 
-    setPlayer1(player) {
-      this.video.player1.id = player._id
-      this.video.player1.name = player.PlayerName
+    setPlayer1(playerId) {
+      this.video.match.player1.id = playerId;
     },
 
-    setPlayer2(player) {
-      this.video.player2.id = player._id
-      this.video.player2.name = player.PlayerName
+    setPlayer2(playerId) {
+      this.video.match.player2.id = playerId;
     },
 
     setPlayer1Character(character) {
-      this.video.player1.character = character
+      this.video.match.player1.characterId = character._id
     },
   
     setPlayer2Character(character) {
-      this.video.player2.character = character
+      this.video.match.player2.characterId = character._id
     },
 
     setComboCharacter(character) {
-      this.video.combo.comboCharacter = character
+      this.video.combo.characterId = character._id
     },
 
-    setGame(game) {
-      this.video.game.id = game._id
-      this.video.game.title = game.GameTitle
-      this.video.game.characters = game.Characters
+    setGame(gameId) {
+      this.video.gameId = gameId
     },
 
-    setCreator(creator) {
-      this.video.contentCreator = creator;
+    setTournament(tournament) {
+      this.video.match.tournamentId = tournament._id
+    },
+
+    setCreator(creatorId) {
+      this.video.contentCreatorId = creatorId;
     },
 
     setTags(tags) {

@@ -27,6 +27,7 @@
 import GamesService from '@/services/GamesService'
 
 export default {
+  inject: ['video'],
   name: 'games-search',
   props: {
     taggable: {
@@ -39,6 +40,12 @@ export default {
     return {
       games: [],
       selectedGame: null
+    }
+  }, 
+
+  watch: {
+    selectedGame: function() {
+      this.video.game = this.selectedGame
     }
   },
 
@@ -62,7 +69,7 @@ export default {
     },
 
     setGame() {
-      this.$emit('update:game' , this.selectedGame.id);
+      this.$emit('update:game' , this.selectedGame);
     }
   },
 

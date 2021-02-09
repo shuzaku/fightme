@@ -2,9 +2,12 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var GameSchema = new Schema({
-  GameTitle: {
+  Title: {
     type: String,
     required: '{PATH} is required!'
+  },
+  Logo: {
+    type: String
   }
 }, {
   timestamp: true

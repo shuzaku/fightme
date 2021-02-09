@@ -1,4 +1,3 @@
-const { intersection } = require("lodash");
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
@@ -7,14 +6,17 @@ var CharacterSchema = new Schema({
     type: String,
     required: '{PATH} is required!'
   },
+  ImageUrl: {
+    type: String
+  },
   GameId: {
     type: Number,
-    required: '{Path} is required'
+    required: '{PATH} is required!'
   }
 }, {
   timestamp: true
 });
 
-var Character = mongoose.model("Character", CharacterSchema);
+var Characters = mongoose.model("Characters", CharacterSchema);
 
-module.exports = Character; 
+module.exports = Characters; 
