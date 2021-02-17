@@ -10,7 +10,7 @@ var CharacterSchema = new Schema({
     type: String
   },
   GameId: {
-    type: Number,
+    type: String,
     required: '{PATH} is required!'
   }
 }, {

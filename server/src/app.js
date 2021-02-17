@@ -9,7 +9,7 @@ var Tag = require("../models/tags");
 var Account = require("../models/accounts");
 var Creator = require("../models/creators");
 var Tournament = require("../models/tournaments");
-var Characters = require("../models/characters");
+var Character = require("../models/characters");
 var mongoose = require('mongoose');
 
 
@@ -18,7 +18,7 @@ app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
 
-mongoose.connect('mongodb+srv://mtchau:CSLNsZTp!pqf3cA@fightme2.vdh52.mongodb.net/<dbname>?retryWrites=true&w=majority');
+mongoose.connect('mongodb+srv://mtchau:CSLNsZTp!pqf3cA@fightme2.vdh52.mongodb.net/%3Cdbname%3E?retryWrites=true&w=majority');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function (callback) {
@@ -53,14 +53,14 @@ app.post('/accounts', (req, res) => {
   })
 })
 
-// Add new post
+// Add new game
 app.post('/games', (req, res) => {
   var db = req.db;
   var Title = req.body.Title;
-  var Logo = req.body.Logo;
+  var LogoUrl = req.body.LogoUrl;
   var new_game = new Game({
     Title: Title,
-    Logo: Logo,
+    LogoUrl: LogoUrl,
   })
 
   new_game.save(function (error) {
@@ -76,7 +76,7 @@ app.post('/games', (req, res) => {
 
 // Fetch all games
 app.get('/games', (req, res) => {
-  Game.find({}, 'Title Logo', function (error, games) {
+  Game.find({}, 'Title LogoUrl', function (error, games) {
     if (error) { console.error(error); }
     res.send({
       games: games
@@ -87,7 +87,7 @@ app.get('/games', (req, res) => {
 // Fetch single game
 app.get('/games/:id', (req, res) => {
   var db = req.db;
-  Game.findById(req.params.id, 'Title Logo', function (error, game) {
+  Game.findById(req.params.id, 'Title LogoUrl', function (error, game) {
     if (error) { console.error(error); }
     res.send(game)
   })
@@ -415,12 +415,12 @@ app.listen(process.env.PORT || 8081)
 app.post('/creators', (req, res) => {
   var db = req.db;
   var Name = req.body.Name;
-  var Logo = req.body.Logo;
+  var LogoUrl = req.body.LogoUrl;
   var YoutubeUrl = req.body.YoutubeUrl;
 
   var new_creator = new Creator({
     Name: Name,
-    Logo: Logo,
+    LogoUrl: LogoUrl,
     YoutubeUrl: YoutubeUrl
   })
 
@@ -437,7 +437,7 @@ app.post('/creators', (req, res) => {
 
 // Fetch all creator
 app.get('/creators', (req, res) => {
-  Creator.find({}, 'Name Logo YoutubeUrl', function (error, creators) {
+  Creator.find({}, 'Name LogoUrl YoutubeUrl', function (error, creators) {
     if (error) { console.error(error); }
     res.send({
       creators: creators
@@ -448,7 +448,7 @@ app.get('/creators', (req, res) => {
 // Fetch single creator
 app.get('/creators/:id', (req, res) => {
   var db = req.db;
-  Creator.findById(req.params.id, 'Name Logo YoutubeUrl', function (error, creator) {
+  Creator.findById(req.params.id, 'Name LogoUrl YoutubeUrl', function (error, creator) {
     if (error) { console.error(error); }
     res.send(creator)
   })
@@ -457,11 +457,11 @@ app.get('/creators/:id', (req, res) => {
 // Update a creator
 app.put('/creators/:id', (req, res) => {
   var db = req.db;
-  Creator.findById(req.params.id, 'Name Logo YoutubeUrl', function (error, creator) {
+  Creator.findById(req.params.id, 'Name LogoUrl YoutubeUrl', function (error, creator) {
     if (error) { console.error(error); }
 
     creator.Name = req.body.Name;
-    creator.Logo = req.body.Logo;
+    creator.LogoUrl = req.body.LogoUrl;
     creator.YoutubeUrl = req.body.YoutubeUrl;
 
     creator.save(function (error) {
@@ -566,9 +566,6 @@ app.delete('/tournaments/:id', (req, res) => {
 
 // Add new character(s)
 app.post('/characters', (req, res) => {
-  var db = req.db;
-
-  console.log(req)
   if(!req.query.bulk){
     var Name = req.body.Name;
     var GameId = req.body.GameId
@@ -586,15 +583,22 @@ app.post('/characters', (req, res) => {
       }
       res.send({
         success: true,
-        message: 'Post saved successfully!'
+        message: 'Character saved successfully!'
       })
     })
   }
   else {
-    console.log(req.body)
-    console.log(db)
-    var bulk = db.characters.initializeOrderedBulkOp();
+    Character.insertMany(req.body, function(error, docs){
+      if (error) {
+        console.log(error)
+      }
+      res.send({
+        success: true,
+        message: 'Characters saved successfully!'
+      })      
+    })
   }
+
 
 })
 

@@ -97,6 +97,14 @@ export default {
     {
       name: 'Player',
       value: 'player'
+    },
+    {
+      name: 'Creator',
+      value: 'creator'
+    },
+    {
+      name: 'Tournament',
+      value: 'tournament'
     }],
     queryValue: null,
     video: null,

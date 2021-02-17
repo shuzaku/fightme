@@ -3,18 +3,34 @@
         <v-btn color="error" fab large dark class="close-btn" @click="closeModal()">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <new-game v-if="createType === 'game'"/>
-        <!-- <new-player /> -->
+        <new-game 
+          v-if="createType === 'game'"
+          @closeModal="closeModal()"/>
+
+        <new-creator 
+          v-if="createType === 'creator'"
+          @closeModal="closeModal()"/>
+
+        <new-player 
+          v-if="createType === 'player'"
+          @closeModal="closeModal()"/>
+
         <new-video 
-        v-if="createType === 'video'" 
-        @closeModal="closeModal()"/>
+          v-if="createType === 'video'" 
+          @closeModal="closeModal()"/>
+
+        <new-tournament 
+          v-if="createType === 'tournament'" 
+          @closeModal="closeModal()"/>
       </div>
 </template>
 
 <script>
 import newGame from '@/components/Games/NewGame'
-// import newPlayer from '@/components/Players/NewPlayer'
+import newCreator from '@/components/ContentCreator/NewCreator'
+import newPlayer from '@/components/Players/NewPlayer'
 import newVideo from '@/components/Videos/PostVideo'
+import newTournament from '@/components/Tournament/NewTournament'
 
 export default {
   name: 'TopNav',
@@ -28,7 +44,9 @@ export default {
   components: {
     'new-game': newGame,
     'new-video': newVideo,
-    // 'new-player': newPlayer,
+    'new-creator': newCreator,
+    'new-player': newPlayer,
+    'new-tournament': newTournament,
   },
 
   data: () => ({

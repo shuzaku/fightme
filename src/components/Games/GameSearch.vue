@@ -56,7 +56,8 @@ export default {
       this.games = response.data.games.map(game => {
         return {
             id: game._id,
-            title: game.GameTitle
+            title: game.Title,
+            logoUrl: game.LogoUrl
         }
       })
     },

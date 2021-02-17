@@ -6,7 +6,7 @@ var GameSchema = new Schema({
     type: String,
     required: '{PATH} is required!'
   },
-  Logo: {
+  LogoUrl: {
     type: String
   }
 }, {

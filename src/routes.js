@@ -4,7 +4,8 @@ import NewPlayer from './components/Players/NewPlayer.vue';
 import EditPlayer from './components/Players/EditPlayer.vue';
 import PostVideo from './components/Videos/PostVideo.vue';
 import Videos from './components/Videos/Videos.vue';
-
+import Games from './components/Games/Games.vue';
+import Creators from './components/ContentCreator/ContentCreator.vue';
 
 const routes = [
     {path: '/games/new', name: 'NewGame', component: NewGame },
@@ -12,7 +13,9 @@ const routes = [
     {path: '/players/new', name: 'NewPlayer', component: NewPlayer },
     {path: '/players/:id', name: 'EditPlayer', component: EditPlayer},
     {path: '/upload', name: 'Upload', component: PostVideo},
-    {path: '/', name: 'Videos', component: Videos}
+    {path: '/', name: 'Videos', component: Videos},
+    {path: '/games', name: 'games', component: Games},
+    {path: '/content-creator', name: 'content-creator', component: Creators}
 ] 
 
 export default routes;   

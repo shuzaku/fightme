@@ -1,30 +1,49 @@
 <template>
   <div class="games">
-    <h1>Add Character</h1>
-      <div class="form">
-        <div class="game-title-container">
-          <input type="text" name="title" placeholder="TITLE" v-model="game.title">
+    <div class="add-game-container" v-if="step==='new-game'">
+      <h1>Add Game</h1>
+        <div class="form">
+          <div class="logo-img-container" v-if="game.logoUrl">
+            <img  :src="game.logoUrl" class="logo"/>
+            <v-btn class="remove-image-btn" @click="game.logoUrl=''">X</v-btn>
+          </div>
+          <div class="game-title-container">
+            <input type="text" name="title" placeholder="TITLE" v-model="game.title">
+          </div>
+          <input type="text"  
+              v-if="!game.logoUrl"
+              id="import-image"
+              v-model="game.logoUrl"
+              placeholder="logo Url"/>
+          <div class="bulk-add-characters">
+            <textarea name="character" v-model="unfilteredCharacters" placeholder="Character Names (separated by commas)"/> 
+          </div>
+          <div>
+            <v-btn class="submit-btn" rounded @click="nextStep()">next</v-btn>
+          </div>
         </div>
-        <div class="bulk-add-characters">
-          <textarea name="character" v-model="unfilteredCharacters" placeholder="Character Names (separated by commas)"/> 
+      </div>
+      <div class="character-detail-container" v-else>          
+        <div class="game-characters-lists-container" v-if="characterList">
+            <label>Character Count: ({{characterList.length}})</label>
+            <ul class="character-list">
+              <li v-for="(character, index) in characterList" :key="character.name">
+                <div class="player-img-container" v-if="character.imageUrl">
+                  <img  :src="character.imageUrl" class="player-img"/>
+                  <v-btn class="remove-image-btn" @click="character.imageUrl=''">X</v-btn>
+                </div>
+                <p class="character-name">{{character.name}}</p>
+                <v-text-field 
+                    id="import-image"
+                    type="text"
+                    v-model="character.imageUrl"
+                    placeholder="image Url"
+                    v-if="!character.imageUrl" />
+                <v-btn class="remove-character-btn" @click="removeCharacter(index)">X</v-btn>
+              </li>
+            </ul>
         </div>
-        <div class="game-characters-lists-container" v-if="unfilteredCharacters">
-          <label>Character Count: ({{characters.length}})</label>
-          <ul class="character-list">
-            <li v-for="character in characters" :key="character.name">
-              {{character.name}}
-              <v-btn>Add Image</v-btn>
-            </li>
-          </ul>
-        </div>
-        <!-- <div class="new-characters-container">
-          <input type="text" name="character" v-model="newCharacter.name" placeholder="Character Name"/> 
-          <input type="text" name="characterImage" v-model="newCharacter.imageUrl" placeholder="Image URL"/>
-          <v-btn class="submit-btn" rounded @click="addCharacter()">Add Character</v-btn>
-        </div> -->
-        <div>
-          <v-btn class="submit-btn" rounded @click="addGame()">Submit</v-btn>
-        </div>
+        <v-btn class="submit-btn" rounded @click="addGame()">Save Game</v-btn>
       </div>
   </div>
 </template>
@@ -40,15 +59,24 @@ export default {
     return {
       game: {
         title: '',
-        id: ''
+        id: '',
+        logoUrl: ''
       },
-      unfilteredCharacters: ''
+      unfilteredCharacters: '',
+      characterList: [],
+      step: 'new-game'
     }
   },
   methods: {
+    nextStep() {
+      this.characterList = this.characters;
+      this.step = 'character-list'
+    },
+
     async addGame () {
       await GamesService.addGame({
-        Title: this.game.title
+        Title: this.game.title,
+        LogoUrl: this.game.logoUrl
       });
       this.getGameId();
     },
@@ -71,6 +99,15 @@ export default {
           GameId: this.game.id
         }
       }));
+      this.$emit('closeModal');
+    },
+
+    removeCharacter(index) {
+      this.characterList.splice(index, 1);
+    },
+
+    removeLogo(){
+      this.game.logoUrl = '';
     }
   },
   computed: {
@@ -93,8 +130,8 @@ export default {
 }
 </script>
 <style type="text/css">
-.games .game-title-container {
-  margin-bottom: 40px;
+.games input{
+  margin-bottom: 10px;
 }
 
 .games .game-characters-lists-container label {
@@ -115,11 +152,45 @@ export default {
 .games .character-list li{
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding: 10px;
+}
+
+.games .character-list  .character-name {
+  width: 250px;
+}
+
+.games .character-list .v-input {
+  max-width: 300px;
+  margin-left: 30px;
+  float: right;
 }
 
 .games .character-list li:nth-child(even){
   background: #eee;
+}
+
+.games .player-img-container {
+  position: relative;
+  margin-right: 20px;
+}
+
+.games .player-img-container img{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.games .character-list .player-img-container .remove-image-btn {
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  background-color: transparent!important;
+  color: red;
+  padding: 5px;
+  position: absolute;
+  top: 0;
+  font-size: 8px;
+  right: 0;
 }
 </style>

@@ -3,24 +3,24 @@
     <h1>Add Player</h1>
       <div class="form">
         <div>
-          <v-text-field 
+          <input
               id="import-image"
               type="text"
-              v-model="playerImgUrl"
-              placeholder="image Url"
-              v-if="!playerImgUrl" />
-          <div class="player-img-container" v-if="playerImgUrl">
-            <img  :src="playerImgUrl" class="player-img"/>
-            <v-btn @click="playerImgUrl=''">X</v-btn>
+              v-model="player.imageUrl"
+              placeholder="Player Image Url"
+              v-if="!player.imageUrl" />
+          <div class="player-img-container" v-if="player.imageUrl">
+            <img  :src="player.imageUrl" class="player-img"/>
+            <v-btn @click="player.imageUrl=''">X</v-btn>
           </div>
-          <input type="text" name="name" placeholder="PLAYER NAME" v-model="name">
-          <input type="text" name="region" placeholder="REGION" v-model="region">
+          <input type="text" name="name" placeholder="Player Name" v-model="player.name">
+          <input type="text" name="region" placeholder="Region" v-model="player.region">
           <game-search 
-            v-model="game" 
+            v-model="player.games" 
             :taggable="true"
             @update:game="setGame($event)" />
           <ul class="list-of-games">
-            <li v-for = "game in player.selectedGames" class="player-games" :key="game._id">
+            <li v-for = "game in player.games" class="player-games" :key="game._id">
                 {{game.GameTitle}}
             </li>
           </ul>
@@ -35,7 +35,6 @@
 
 <script>
 import PlayersService from '@/services/PlayersService'
-import GamesService from '@/services/GamesService'
 import moment from 'moment'
 
 
@@ -46,31 +45,23 @@ export default {
   name: 'NewPlayer',
   data () {
     return {
-      games: [],
-      name: '',
-      region: '',
-      selectedGames: [],
-      gameIds: '',
-      playerImgUrl: null
+      player: {
+        name: '',
+        region: '',
+        games: '',
+        imageUrl: ''
+      }
     }
   },
   methods: {
     async addPlayer () {
-      this.collectGameIds()
       await PlayersService.addPlayer({
-        PlayerName: this.name,
-        CreatedDate: this.timestamp,
-        UpdatedDate: null,
-        PlayerRegion: this.region,
-        GamesPlayed: this.gameIds,
-        PlayerImg: this.playerImgUrl
+        PlayerName: this.player.name,
+        PlayerRegion: this.player.region,
+        GamesPlayed: this.player.games,
+        PlayerImg: this.player.imageUrl
       })
-      this.$router.push({ name: 'Players' })
-    },
-
-    async getGames () {
-      const response = await GamesService.fetchGames()
-      this.games = response.data.games
+      this.$emit('closeModal');
     },
 
     collectGameIds () {
@@ -83,7 +74,6 @@ export default {
     }
   },
   mounted () {
-    this.getGames()
   }
 }
 </script>
@@ -115,9 +105,9 @@ export default {
 }
 
 .add-player .player-img-container .player-img {
-  max-width: 175px;
+  max-width: 100px;
+  height: auto;
   border-radius: 50%;
   margin: 0 auto;
-  border: 5px solid #000;
 }
 </style>
