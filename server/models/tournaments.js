@@ -8,6 +8,12 @@ var TournamentsSchema = new Schema({
   },
   GameIds: {
     type: Array,
+  },
+  LogoUrl: {
+    type: String
+  },
+  Date: {
+    type: String
   }
 }, {
   timestamp: true

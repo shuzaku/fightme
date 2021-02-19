@@ -492,11 +492,15 @@ app.delete('/creators/:id', (req, res) => {
 app.post('/tournaments', (req, res) => {
   var db = req.db;
   var Name = req.body.Name;
-  var Games = req.body.Games;
+  var GameIds = req.body.GameIds;
+  var LogoUrl = req.body.LogoUrl;
+  var Date = req.body.Date;
 
   var new_tournament = new Tournament({
     Name: Name,
-    Games: Games
+    GameIds: GameIds,
+    LogoUrl: LogoUrl,
+    Date: Date
   })
 
   new_tournament.save(function (error) {
@@ -512,7 +516,7 @@ app.post('/tournaments', (req, res) => {
 
 // Fetch all tournament
 app.get('/tournaments', (req, res) => {
-  Tournament.find({}, 'Name Games', function (error, tournaments) {
+  Tournament.find({}, 'Name GameIds LogoUrl Date', function (error, tournaments) {
     if (error) { console.error(error); }
     res.send({
       tournaments: tournaments
@@ -523,7 +527,7 @@ app.get('/tournaments', (req, res) => {
 // Fetch single tournament
 app.get('/tournaments/:id', (req, res) => {
   var db = req.db;
-  Tournament.findById(req.params.id, 'Name Games', function (error, tournament) {
+  Tournament.findById(req.params.id, 'Name GameIds LogoUrl Date', function (error, tournament) {
     if (error) { console.error(error); }
     res.send(tournament)
   })
@@ -532,11 +536,13 @@ app.get('/tournaments/:id', (req, res) => {
 // Update a tournament
 app.put('/tournaments/:id', (req, res) => {
   var db = req.db;
-  Tournament.findById(req.params.id, 'Name Games', function (error, tournament) {
+  Tournament.findById(req.params.id, 'Name GameIds LogoUrl Date', function (error, tournament) {
     if (error) { console.error(error); }
 
     tournament.Name = req.body.Name;
-    tournament.Games = req.body.Games;
+    tournament.GameIds = req.body.GameIds;
+    tournament.LogoUrl = req.body.LogoUrl;
+    tournament.Date = req.body.Date;
 
     tournament.save(function (error) {
       if (error) {

@@ -63,7 +63,7 @@ export default {
     },
 
     setGame() {
-      this.$emit('update:game' , this.selectedGame.id);
+      this.$emit('update:game' , this.selectedGame);
     }
   },
 

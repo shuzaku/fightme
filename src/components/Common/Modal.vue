@@ -33,7 +33,7 @@ import newVideo from '@/components/Videos/PostVideo'
 import newTournament from '@/components/Tournament/NewTournament'
 
 export default {
-  name: 'TopNav',
+  name: 'Modal',
 
   props: {
     createType: {
