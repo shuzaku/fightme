@@ -14,7 +14,7 @@
         track-by="name" 
         v-if="!isLoading">
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Game
@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import GamesService from '@/services/GamesService'
-import PlayersService from '@/services/PlayersService'
+import GamesService from '@/services/games-service';
+import PlayersService from '@/services/players-service';
 
 export default {
   name: 'overall-search',

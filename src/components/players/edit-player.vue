@@ -36,9 +36,9 @@
 </template>
 
 <script>
-import PlayersService from '@/services/PlayersService'
-import moment from 'moment'
-import GameSearch from '@/components/Games/GameSearch'
+import PlayersService from '@/services/players-service';
+import moment from 'moment';
+import GameSearch from '@/components/games/game-search';
 
 export default {
   name: 'EditPlayer',

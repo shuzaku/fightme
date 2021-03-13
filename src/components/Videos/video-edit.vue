@@ -49,7 +49,7 @@
         label="name"
         placeholder="Select Winner">
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Winner
@@ -95,10 +95,10 @@
 </template>
 
 <script>
-import PlayerSearch from '@/components/Players/PlayerSearch'
-import CharacterSearch from '@/components/Games/CharacterSearch'
-import GameSearch from '@/components/Games/GameSearch'
-import TagSearch from '@/components/Tags/TagSearch'
+import PlayerSearch from '@/components/players/player-search';
+import CharacterSearch from '@/components/character/character-search';
+import GameSearch from '@/components/games/game-search';
+import TagSearch from '@/components/tags/tag-search';
 
 export default {
   inject: ['video'],

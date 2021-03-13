@@ -6,11 +6,11 @@ var CreatorsSchema = new Schema({
     type: String,
     required: '{PATH} is required!'
   },
-  Logo: {
+  LogoUrl: {
     type: String,
   },
   YoutubeUrl: {
-    type: Boolean
+    type: String
   }
 }, {
   timestamp: true

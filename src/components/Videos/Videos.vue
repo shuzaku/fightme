@@ -8,6 +8,7 @@
           v-waypoint="{ active: true, callback: onWaypoint, options: intersectionOptions }"
           v-model="video.isPlaying"
           @video:delete="spliceVideo($event)"
+          @query="queryVideos($event)"
           :id="video.id"
           :video="video" />
       </div>
@@ -16,8 +17,8 @@
 </template>
 
 <script>
-import VideosService from '@/services/VideosService';
-import VideoCard from '@/components/Videos/VideoCard';
+import VideosService from '@/services/videos-service';
+import VideoCard from '@/components/videos/video-card';
 import { eventbus } from '@/main'
 
 
@@ -58,8 +59,8 @@ export default {
     async queryVideos(query) {
       var searchQuery = null;
       if(query != this.savedQuery) {
-        
         this.savedQuery = query;
+        this.videos = [];
       }
       
       if(query){
@@ -71,11 +72,11 @@ export default {
         }
         if(query.queryName === 'Player') {
           searchQuery = [{
-            queryName : 'Players.Player1.Name',
-            queryValue : query.queryValue.name
+            queryName : 'Player1Id',
+            queryValue : query.queryValue
           },{
-            queryName : 'Players.Player2.Name',
-            queryValue : query.queryValue.name
+            queryName : 'Player2Id',
+            queryValue : query.queryValue
           }]
         }
         if(query.queryName === 'Character') {
@@ -102,8 +103,8 @@ export default {
         skip: this.skip,
         searchQuery: searchQuery
       }
+
       const response = await VideosService.queryVideos(queryParameter);
-      this.videos = [];
       this.hydrateVideos(response);
       this.playFirstVideo();
     },
@@ -121,40 +122,33 @@ export default {
         this.videos.push({
           id: video._id,
           contentType: video.ContentType,
-          videoUrl: video.VideoUrl,
+          contentCreatorId: video.ContentCreatorId,
           videoType: video.VideoType,
-          game: {
-            id: video.Game.Id,
-            title: video.Game.Title,
-            characters: video.Game.Characters
-          },
-          combo: video.Combo ? {
-            character: {
-              name: video.Combo.ComboCharacter.Name,
-              imageUrl: video.Combo.ComboCharacter.ImageUrl,
-            },
-            comboDamage: video.Combo.ComboDamage || null,
-            comboHits: video.Combo.ComboHits || null,
-            comboInput: video.Combo.ComboInput
-          } : null,
-          players: video.ContentType === 'Match' ? { 
+          url: video.Url,
+          startTime: video.StartTime,
+          endTime: video.EndTime,
+          gameId: video.GameId,
+          comboId: video.ComboId,
+          match: {
             player1: {
-              id: video.Players.Player1.Id,
-              name: video.Players.Player1.Name,
+              id: video.Player1Id,
+              name: video.Player1.Name,
               character: {
-                name: video.Players.Player1.Character.Name,
-                imageUrl: video.Players.Player1.Character.ImageUrl,
+                name: video.Player1Character.Name,
+                imageUrl: video.Player1Character.ImageUrl,
               }
             },
             player2: {
-              id: video.Players.Player2.Id,
-              name: video.Players.Player2.Name,
+              id: video.Player2Id,
+              name: video.Player2.Name,
               character: {
-                name: video.Players.Player2.Character.Name,
-                imageUrl: video.Players.Player2.Character.ImageUrl,
+                name: video.Player2Character.Name,
+                imageUrl: video.Player2Character.ImageUrl,
               }
             },
-          } : null,
+            // winner: video.Match.Winner,
+            // tournamentId: video.Match.TournamentId,
+          },      
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -164,7 +158,7 @@ export default {
           inview: false,
           isPlaying: false,
           isEditing: false
-        })
+        });
       });
     },
 
@@ -190,20 +184,23 @@ export default {
 
     spliceVideo(video) {
       this.videos.splice(this.videos.indexOf(video),1);
+    },
+
+    addedNewVideo() {
+      this.videos = [];
+      this.queryVideos();
     }
   },
 
   mounted() {
     this.queryVideos();
     window.addEventListener('scroll', this.handleScroll);
-    eventbus.$on('query:update', (data) => { this.queryVideos(data) });
-    eventbus.$on('newVideoPosted' , () => {this.getVideos()});
+    eventbus.$on('newVideoPosted' , this.addedNewVideo);
   },
 
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
-    eventbus.$off('query:update', (data) => { this.queryVideos(data) });
-    eventbus.$off('newVideoPosted' , () => {this.getVideos()});
+    eventbus.$off('newVideoPosted' , this.addedNewVideo);
   }
 }
 </script>

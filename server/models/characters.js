@@ -1,18 +1,22 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-var PlayerSchema = new Schema({
+var CharacterSchema = new Schema({
   Name: {
     type: String,
     required: '{PATH} is required!'
   },
   ImageUrl: {
     type: String
+  },
+  GameId: {
+    type: String,
+    required: '{PATH} is required!'
   }
 }, {
   timestamp: true
 });
 
-var Players = mongoose.model("Players", PlayerSchema);
+var Characters = mongoose.model("Characters", CharacterSchema);
 
-module.exports = Players; 
+module.exports = Characters; 

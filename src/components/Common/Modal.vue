@@ -3,21 +3,37 @@
         <v-btn color="error" fab large dark class="close-btn" @click="closeModal()">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <new-game v-if="createType === 'game'"/>
-        <!-- <new-player /> -->
+        <new-game 
+          v-if="createType === 'game'"
+          @closeModal="closeModal()"/>
+
+        <new-creator 
+          v-if="createType === 'creator'"
+          @closeModal="closeModal()"/>
+
+        <new-player 
+          v-if="createType === 'player'"
+          @closeModal="closeModal()"/>
+
         <new-video 
-        v-if="createType === 'video'" 
-        @closeModal="closeModal()"/>
+          v-if="createType === 'video'" 
+          @closeModal="closeModal()"/>
+
+        <new-tournament 
+          v-if="createType === 'tournament'" 
+          @closeModal="closeModal()"/>
       </div>
 </template>
 
 <script>
-import newGame from '@/components/Games/NewGame'
-// import newPlayer from '@/components/Players/NewPlayer'
-import newVideo from '@/components/Videos/PostVideo'
+import newGame from '@/components/games/new-game';
+import newCreator from '@/components/content-creator/new-creator';
+import newPlayer from '@/components/players/new-player';
+import newVideo from '@/components/videos/post-video';
+import newTournament from '@/components/tournament/new-tournament';
 
 export default {
-  name: 'TopNav',
+  name: 'Modal',
 
   props: {
     createType: {
@@ -28,7 +44,9 @@ export default {
   components: {
     'new-game': newGame,
     'new-video': newVideo,
-    // 'new-player': newPlayer,
+    'new-creator': newCreator,
+    'new-player': newPlayer,
+    'new-tournament': newTournament,
   },
 
   data: () => ({
@@ -41,7 +59,6 @@ export default {
   },
 
   created() {
-    console.log(this.createType)
   }
 };
 </script>
@@ -58,6 +75,9 @@ export default {
     top: 0px;
     border-radius: 20px;
     padding: 40px;  
+    height: 650px;
+    overflow-y: scroll;
+    overflow-x: hidden;
   }
 
   .modals .close-btn {

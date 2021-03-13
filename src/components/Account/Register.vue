@@ -70,7 +70,7 @@
 
 <script>
 import firebase from "firebase";
-import AccountsService from '@/services/AccountsService'
+import AccountsService from '@/services/accounts-service'
 
 export default {
   data() {

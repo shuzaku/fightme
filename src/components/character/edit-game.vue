@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import GamesService from '@/services/GamesService'
+import GamesService from '@/services/games-service'
 
 import moment from 'moment'
 

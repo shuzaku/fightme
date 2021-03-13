@@ -6,8 +6,14 @@ var TournamentsSchema = new Schema({
     type: String,
     required: '{PATH} is required!'
   },
-  Games: {
-    type: String,
+  GameIds: {
+    type: Array,
+  },
+  LogoUrl: {
+    type: String
+  },
+  Date: {
+    type: String
   }
 }, {
   timestamp: true

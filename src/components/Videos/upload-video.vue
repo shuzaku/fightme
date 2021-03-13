@@ -3,7 +3,7 @@
     <div v-show="showProgress">
       <progress-bar :options="options" :value="progress" />
     </div>
-    <form v-on:submit.prevent="upload">
+    <form>
       <v-file-input 
           id="file-input"
           type="file"
@@ -19,7 +19,7 @@ import axios from "axios"
 import ProgressBar from "vuejs-progress-bar"
 
 export default {
-  name: 'NewPost',
+  name: 'UploadVideo',
   components: {
       ProgressBar
   },
@@ -117,5 +117,9 @@ export default {
 .upload-media .submit-btn {
   display: block;
   margin: 0 auto;
+}
+
+.upload-media form .v-btn {
+  background-color: #1ab097 !important;
 }
 </style>

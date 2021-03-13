@@ -54,14 +54,14 @@
 
 <script>
 // import SearchAll from '@/components/Common/SearchAll'
-import { eventbus } from '@/main'
-import GameSearch from '@/components/Games/GameSearch'
-import PlayerSearch from '@/components/Players/PlayerSearch'
-import TagSearch from '@/components/Tags/TagSearch'
-import CharacterSearch from '@/components/Games/CharacterSearch'
-import VideoTypeSearch from '@/components/Videos/VideoTypeSearch'
-import Register from '@/components/Account/Register'
-import Login from '@/components/Account/Login'
+import { eventbus } from '@/main';
+import GameSearch from '@/components/games/game-search';
+import PlayerSearch from '@/components/players/player-search';
+import TagSearch from '@/components/tags/tag-search';
+import CharacterSearch from '@/components/character/character-search';
+import VideoTypeSearch from '@/components/videos/video-type-search';
+import Register from '@/components/account/register';
+import Login from '@/components/account/login';
 
 export default {
   name: 'TopNav',
@@ -97,6 +97,14 @@ export default {
     {
       name: 'Player',
       value: 'player'
+    },
+    {
+      name: 'Creator',
+      value: 'creator'
+    },
+    {
+      name: 'Tournament',
+      value: 'tournament'
     }],
     queryValue: null,
     video: null,

@@ -13,7 +13,7 @@
         placeholder="Search or add a Creator"
         label="name" >
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Creator
@@ -24,10 +24,9 @@
 </template>
 
 <script>
-import CreatorsService from '@/services/CreatorsService'
+import CreatorsService from '@/services/creators-service'
 
 export default {
-  inject: ['video'],
   name: 'creators-search',
   props: {
     creator: {
@@ -41,12 +40,6 @@ export default {
     }
   }, 
 
-  watch: {
-    selectedCreator: function() {
-      this.video.creator = this.selectedCreator
-    }
-  },
-
   methods: {
     async addCreator (newCreator) {
       await CreatorsService.addCreator({
@@ -59,7 +52,6 @@ export default {
 
     async getCreators () {
       const response = await CreatorsService.fetchCreators();
-      console.log(response)
       this.creators = response.data.creators.map(creator => {
         return {
           id: creator._id,
@@ -71,7 +63,7 @@ export default {
     },
 
     setCreator() {
-      this.$emit('update:creator' , this.selectedCreator);
+      this.$emit('update:creator' , this.selectedCreator.id);
     }
   },
 

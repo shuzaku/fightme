@@ -2,30 +2,48 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var VideoSchema = new Schema({
-    VideoUrl: {
+    Url: {
       type: String,
       required: '{PATH} is required!'
-    },
-    VideoType: {
-      type: String
-    },
-    Players: {
-      type: Object
-    },
-    Game: {
-      type: Object
-    },
-    Tags: {
-      type: Array
     },
     ContentType: {
       type: String
     },
-    Combo: {
-      type: Object
+    ContentCreatorId: {
+      type: Schema.Types.ObjectId
     },
-    IsInView: {
-      type: Boolean
+    VideoType: {
+      type: String
+    },
+    StartTime: {
+      type: String
+    },
+    EndTime: {
+      type: String
+    },
+    GameId: {
+      type: Schema.Types.ObjectId
+    },
+    // ComboId: {
+    //   type: Schema.Types.ObjectId
+    // },
+    Player1Id: {
+      type: Schema.Types.ObjectId
+    },
+    Player2Id: {
+      type: Schema.Types.ObjectId
+    },
+    Player1CharacterId: {
+      type: Schema.Types.ObjectId
+    },
+    Player2CharacterId: {
+      type: Schema.Types.ObjectId
+    },
+    WinnerId: {
+      type: Schema.Types.ObjectId
+    },
+    Tags: {
+      type: Array
     }
   }, {
   timestamp: true, 
