@@ -15,9 +15,9 @@
 </template>
 
 <script>
-import TopNav from '@/components/Common/TopNav'
-import SideNav from '@/components/Common/SideNav'
-import Modal from '@/components/Common/Modal'
+import TopNav from '@/components/common/top-nav';
+import SideNav from '@/components/common/side-nav';
+import Modal from '@/components/common/modal';
 
 export default {
   name: 'App',
@@ -70,9 +70,6 @@ export default {
 
 #app .content {
   background: rgba(31,29,43,.95);
-  max-width: 1240px;
-  max-height: 900px;
-  height: 95vh;
   display: flex;
   overflow: auto;
   width: 100%;

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import TagsService from '@/services/TagsService'
+import TagsService from '@/services/tags-service'
 
 export default {
   name: 'tags-search',

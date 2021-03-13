@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import CreatorsService from '@/services/CreatorsService'
+import CreatorsService from '@/services/creators-service';
 
 export default {
   name: 'creators',

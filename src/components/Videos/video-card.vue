@@ -39,29 +39,29 @@
       </div>
       <div class="match-card card" v-if="video.contentType === 'Match'">
         <youtube-media
-        v-if="video.videoType === 'youtube'"
-        ref="youtubeRef"
-        @ready="ready"
-        :video-id="video.videoUrl"
-        :player-width='556'
-        :player-height='313'
-        :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
-        :mute="true" />
+          v-if="video.videoType === 'youtube'"
+          ref="youtubeRef"
+          @ready="ready"
+          :video-id="video.url"
+          :player-width='556'
+          :player-height='313'
+          :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
+          :mute="true" />
         <div class="card-label">{{video.contentType}}</div>
-        <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.players.player1.character.imageUrl}')` }" />
-        <div class="character-bubble player2" :style="{ 'backgroundImage': `url('${video.players.player2.character.imageUrl}')` }" />
+        <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.match.player1.character.imageUrl}')` }" />
+        <div class="character-bubble player2" :style="{ 'backgroundImage': `url('${video.match.player2.character.imageUrl}')` }" />
         <div class="characters" v-if="!video.isEditing">
           <div class="player1" >
-            <div class="heavy-weight player-name"><p>{{video.players.player1.name}}</p></div>
-            <div class="character-name"><p>{{video.players.player1.character.name}}</p></div>
+            <div class="heavy-weight player-name" @click="queryPlayer(video.match.player1.id)"><p>{{video.match.player1.name}}</p></div>
+            <div class="character-name"><p>{{video.match.player1.character.name}}</p></div>
           </div>
           <div class="versus heavy-weight">vs.</div>
           <div class="player2">
-            <div class="heavy-weight player-name"><p>{{video.players.player2.name}}</p></div>
-            <div class="character-name"><p>{{video.players.player2.character.name}}</p></div>
+            <div class="heavy-weight player-name" @click="queryPlayer(video.match.player2.id)"><p>{{video.match.player2.name}}</p></div>
+            <div class="character-name"><p>{{video.match.player2.character.name}}</p></div>
           </div>
         </div>
-        <v-btn 
+        <!-- <v-btn 
           v-if="!video.isEditing"
           @click="video.isEditing = true">
           <v-icon dark>
@@ -72,15 +72,15 @@
           v-if="video.isEditing"
           :video="video"
           @update="patchVideo()"
-          @delete="deleteVideo()" />
+          @delete="deleteVideo()" /> -->
       </div>
 
   </div>
 </template>
 
 <script>
-import VideoEdit from '@/components/Videos/VideoEdit'
-import VideosService from '@/services/VideosService';
+import VideoEdit from '@/components/videos/video-edit';
+import VideosService from '@/services/videos-service';
 
 export default {
   components: {
@@ -139,6 +139,10 @@ export default {
     async deleteVideo() {
       await VideosService.deleteVideo(this.video.id);
       this.$emit('video:delete' , this.video);
+    },
+
+    queryPlayer(playerId) {
+      this.$emit('query' , {queryName: 'Player', queryValue: playerId});
     },
 
     async patchVideo() {

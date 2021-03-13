@@ -49,8 +49,8 @@
 </template>
 
 <script>
-import GamesService from '@/services/GamesService'
-import CharactersService from '@/services/CharactersService'
+import GamesService from '@/services/games-service';
+import CharactersService from '@/services/characters-service';
 import moment from 'moment'
 
 export default {

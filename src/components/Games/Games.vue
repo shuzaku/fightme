@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import GamesService from '@/services/GamesService'
+import GamesService from '@/services/games-service';
 
 export default {
   name: 'games',

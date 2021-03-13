@@ -36,9 +36,9 @@
 </template>
 
 <script>
-import TournamentsService from '@/services/TournamentsService'
-import moment from 'moment'
-import GameSearch from '@/components/Games/GameSearch'
+import TournamentsService from '@/services/TournamentsService';
+import moment from 'moment';
+import GameSearch from '@/components/games/game-search';
 
 export default {
   name: 'EditTournament',

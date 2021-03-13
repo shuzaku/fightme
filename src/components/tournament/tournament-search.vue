@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import TournamentsService from '@/services/TournamentsService'
+import TournamentsService from '@/services/tournaments-service'
 
 export default {
   inject: ['video'],

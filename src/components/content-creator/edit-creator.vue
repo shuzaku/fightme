@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import CreatorsService from '@/services/CreatorsService'
+import CreatorsService from '@/services/creators-service'
 import moment from 'moment'
 
 export default {

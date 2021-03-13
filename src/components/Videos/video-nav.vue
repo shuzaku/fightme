@@ -21,10 +21,10 @@
 </template>
 
 <script>
-import PlayerSearch from '@/components/Players/PlayerSearch'
-import CharacterSearch from '@/components/Games/CharacterSearch'
-import GameSearch from '@/components/Games/GameSearch'
-import TagSearch from '@/components/Tags/TagSearch'
+import PlayerSearch from '@/components/players/player-search';
+import CharacterSearch from '@/components/character/character-search';
+import GameSearch from '@/components/games/game-search';
+import TagSearch from '@/components/tags/tag-search';
 
 export default {
   name: 'post-video',

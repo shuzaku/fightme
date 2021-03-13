@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import TournamentsService from '@/services/TournamentsService'
-import GameSearch from '@/components/Games/GameSearch'
+import TournamentsService from '@/services/tournaments-service';
+import GameSearch from '@/components/games/game-search';
 
 export default {
   components: {

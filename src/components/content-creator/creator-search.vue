@@ -13,7 +13,7 @@
         placeholder="Search or add a Creator"
         label="name" >
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Creator
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import CreatorsService from '@/services/CreatorsService'
+import CreatorsService from '@/services/creators-service'
 
 export default {
   name: 'creators-search',

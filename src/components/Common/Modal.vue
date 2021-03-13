@@ -26,11 +26,11 @@
 </template>
 
 <script>
-import newGame from '@/components/Games/NewGame'
-import newCreator from '@/components/ContentCreator/NewCreator'
-import newPlayer from '@/components/Players/NewPlayer'
-import newVideo from '@/components/Videos/PostVideo'
-import newTournament from '@/components/Tournament/NewTournament'
+import newGame from '@/components/games/new-game';
+import newCreator from '@/components/content-creator/new-creator';
+import newPlayer from '@/components/players/new-player';
+import newVideo from '@/components/videos/post-video';
+import newTournament from '@/components/tournament/new-tournament';
 
 export default {
   name: 'Modal',

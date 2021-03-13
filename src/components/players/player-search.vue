@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import PlayersService from '@/services/PlayersService'
+import PlayersService from '@/services/players-service'
 
 export default {
   inject: ['video'],
@@ -42,23 +42,12 @@ export default {
   }, 
 
   watch: {
-    selectedPlayer: function() {
-      if(this.player === 1) {
-        this.video.players.player1.id = this.selectedPlayer.id;
-        this.video.players.player1.name = this.selectedPlayer.name;
-      } 
-      else if(this.player === 2) {
-        this.video.players.player2.id = this.selectedPlayer.id;
-        this.video.players.player2.name = this.selectedPlayer.name;      }
-    }
   },
 
   methods: {
     async addPlayer (newPlayer) {
       await PlayersService.addPlayer({
-        PlayerName: newPlayer,
-        CreatedDate: this.timestamp,
-        UpdatedDate: null,
+        Name: newPlayer
       })
       this.getPlayers();
     },
@@ -68,26 +57,17 @@ export default {
       this.players = response.data.players.map(player => {
         return {
           id: player._id,
-          name: player.PlayerName         
+          name: player.Name         
         }
       });
     },
 
     setPlayer() {
-      this.$emit('update:player' , this.selectedPlayer.id);
+      this.$emit('update:player' , this.selectedPlayer);
     }
   },
 
   mounted () {
-    if(this.video.match.player1.id || this.video.match.player2.id){
-      if(this.player === 1) {
-        this.selectedPlayer = this.video.n.player1;
-      } 
-      else if(this.player === 2) {
-        this.selectedPlayer = this.video.players.player2;
-      }
-    }
-
     this.getPlayers();
   },
 }

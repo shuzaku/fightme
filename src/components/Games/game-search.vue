@@ -24,10 +24,9 @@
 </template>
 
 <script>
-import GamesService from '@/services/GamesService'
+import GamesService from '@/services/games-service';
 
 export default {
-  inject: ['video'],
   name: 'games-search',
   props: {
     taggable: {
@@ -40,12 +39,6 @@ export default {
     return {
       games: [],
       selectedGame: null
-    }
-  }, 
-
-  watch: {
-    selectedGame: function() {
-      this.video.game = this.selectedGame
     }
   },
 
@@ -63,7 +56,8 @@ export default {
       this.games = response.data.games.map(game => {
         return {
             id: game._id,
-            title: game.GameTitle
+            title: game.Title,
+            logoUrl: game.LogoUrl
         }
       })
     },

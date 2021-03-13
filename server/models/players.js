@@ -2,17 +2,11 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var PlayerSchema = new Schema({
-  PlayerName: {
+  Name: {
     type: String,
     required: '{PATH} is required!'
   },
-  GamesPlayed: {
-    type: Array
-  },
-  Region: {
-    type: String
-  },
-  PlayerImg: {
+  ImageUrl: {
     type: String
   }
 }, {

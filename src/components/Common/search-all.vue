@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import GamesService from '@/services/GamesService'
-import PlayersService from '@/services/PlayersService'
+import GamesService from '@/services/games-service';
+import PlayersService from '@/services/players-service';
 
 export default {
   name: 'overall-search',

@@ -161,19 +161,12 @@ app.delete('/games/:id', (req, res) => {
 // Add new player
 app.post('/players', (req, res) => {
   var db = req.db;
-  var PlayerName = req.body.PlayerName;
-  var Logo = req.body.Logo;
-  var GamesPlayed = req.body.GamesPlayed;
-  var Region = req.body.PlayerRegion;
-  var PlayerImg = req.body.PlayerImg;
+  var Name = req.body.Name;
+  var ImageUrl = req.body.ImageUrl;
 
   var new_player = new Player({
-    PlayerName: PlayerName,
-    Logo: Logo,
-    UpdatedDate: null,
-    GamesPlayed: GamesPlayed,
-    Region: Region,
-    PlayerImg: PlayerImg
+    Name: Name,
+    ImageUrl: ImageUrl,
   })
 
   new_player.save(function (error) {
@@ -189,7 +182,7 @@ app.post('/players', (req, res) => {
 
 // Fetch all player
 app.get('/players', (req, res) => {
-  Player.find({}, 'PlayerName Logo UpdatedDate GamesPlayed Region', function (error, players) {
+  Player.find({}, 'Name ImageUrl', function (error, players) {
     if (error) { console.error(error); }
     res.send({
       players: players
@@ -200,7 +193,7 @@ app.get('/players', (req, res) => {
 // Fetch single player
 app.get('/players/:id', (req, res) => {
   var db = req.db;
-  Player.findById(req.params.id, 'PlayerName Logo UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
+  Player.findById(req.params.id, 'Name ImageUrl', function (error, player) {
     if (error) { console.error(error); }
     res.send(player)
   })
@@ -209,15 +202,11 @@ app.get('/players/:id', (req, res) => {
 // Update a player
 app.put('/players/:id', (req, res) => {
   var db = req.db;
-  Player.findById(req.params.id, 'PlayerName Logo UpdatedDate GamesPlayed Region PlayerImg', function (error, player) {
+  Player.findById(req.params.id, 'Name ImageUrl', function (error, player) {
     if (error) { console.error(error); }
 
-    player.PlayerName = req.body.PlayerName;
-    player.Logo = req.body.Logo;
-    player.UpdatedDate = req.body.UpdatedDate;
-    player.GamesPlayed = req.body.GamesPlayed,
-    player.Region = req.body.Region
-    player.PlayerImg = req.body.PlayerImg
+    player.Name = req.body.Name;
+    player.ImageUrl = req.body.ImageUrl;
 
     player.save(function (error) {
       if (error) {
@@ -247,24 +236,36 @@ app.delete('/players/:id', (req, res) => {
 // Add new Video
 app.post('/videos', (req, res) => {
   var db = req.db;
-  var VideoUrl = req.body.VideoUrl;
-  var VideoType = req.body.VideoType
-  var Players = req.body.Players;
-  var Game = req.body.Game;
+  var Url = req.body.Url;
+  var ContentType = req.body.ContentType
+  var ContentCreatorId = req.body.ContentCreatorId;
+  var VideoType = req.body.VideoType;
+  var StartTime = req.body.StartTime;
+  var EndTime = req.body.EndTime;
+  var GameId = req.body.GameId;
+  var ComboId = req.body.ComboId;
+  var Player1Id = req.body.Player1Id;
+  var Player2Id = req.body.Player2Id;
+  var Player1CharacterId = req.body.Player1CharacterId;
+  var Player2CharacterId = req.body.Player2CharacterId;
+  var WinnerId = req.body.WinnerId;
   var Tags = req.body.Tags;
-  var ContentType = req.body.ContentType;
-  var Combo = req.body.Combo;
-  var IsInView = req.body.IsInView;
 
   var new_video = new Video({
-    VideoUrl: VideoUrl,
-    VideoType: VideoType,
-    Players: Players,
-    Game: Game,
-    Tags: Tags,
+    Url: Url,
     ContentType: ContentType,
-    Combo: Combo,
-    IsInView: IsInView
+    ContentCreatorId: ContentCreatorId,
+    VideoType: VideoType,
+    StartTime: StartTime,
+    EndTime: EndTime,
+    GameId: GameId,
+    ComboId: ComboId,
+    Player1Id: Player1Id,
+    Player2Id: Player2Id,
+    Player1CharacterId: Player1CharacterId,
+    Player2CharacterId: Player2CharacterId,
+    WinnerId: WinnerId,
+    Tags: Tags
   })
 
   new_video.save(function (error) {
@@ -282,63 +283,238 @@ app.post('/videos', (req, res) => {
 app.get('/videos', (req, res) => {
   var query = req.query;
   var skip = parseInt(req.query.skip);
-    Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+    Video.find({}, 'Url Type ContentCreatorId VideoType StartTime EndTime GameId ComboId Match Tags', function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 }).limit(10).skip(skip);
+    }).sort({ _id: -1 }).limit(5).skip(skip);
 })
 
 // Query Videos
 app.get('/videoQuery', (req, res) => {
   var db = req.db;
   var queries = [];
+  var ObjectId = mongoose.Types.ObjectId;
 
   if(req.query.queryName || req.query.queryValue){
     var names = req.query.queryName.split(",");
     var values = req.query.queryValue.split(",");
-
+    
     for(var i = 0; i < names.length; i++){
       var query = {};
-      query[names[i]] = values[i];
+      query[names[i]] = ObjectId(values[i]);
       queries.push(query);
     }
+    console.log(queries);
   }
 
   var skip =  parseInt(req.query.skip);
   
   
   if(!req.query.queryValue) {
-    Video.find({}, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+    Video.aggregate([
+      {$skip: skip},
+      {$limit: 5},
+      {$set: {GameId: {$toObjectId: "$GameId"} }},
+      {$lookup: {
+        from: "games",
+        localField: "GameId",
+        foreignField: "_id",
+        as: "Game"
+        }
+      },
+      {$unwind: '$Game'},
+      {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
+      {$lookup: {
+        from: "creators",
+        localField: "ContentCreatorId",
+        foreignField: "_id",
+        as: "ContentCreator"
+        }
+      },
+      {$unwind: '$ContentCreator'},
+      {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
+      {$lookup: {
+        from: "players",
+        localField: "Player1Id",
+        foreignField: "_id",
+        as: "Player1"
+        }
+      },
+      {$unwind: '$Player1'},
+      {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
+      {$lookup: {
+        from: "players",
+        localField: "Player2Id",
+        foreignField: "_id",
+        as: "Player2"
+        }
+      },
+      {$unwind: '$Player2'},
+      {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Player1CharacterId",
+        foreignField: "_id",
+        as: "Player1Character"
+        }
+      },
+      {$unwind: '$Player1Character'},
+      {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Player2CharacterId",
+        foreignField: "_id",
+        as: "Player2Character"
+        }
+      },
+      {$unwind: '$Player2Character'}
+    ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 }).limit(10).skip(skip);    
+    }).sort({ _id: -1 })
   }
   else if(queries.length > 1) {
-    Video.find({ $or: queries }, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+    Video.aggregate([
+      {$skip: skip},
+      {$limit: 5},
+      {$set: {GameId: {$toObjectId: "$GameId"} }},
+      {$lookup: {
+        from: "games",
+        localField: "GameId",
+        foreignField: "_id",
+        as: "Game"
+        }
+      },
+      {$unwind: '$Game'},
+      {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
+      {$lookup: {
+        from: "creators",
+        localField: "ContentCreatorId",
+        foreignField: "_id",
+        as: "ContentCreator"
+        }
+      },
+      {$unwind: '$ContentCreator'},
+      {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
+      {$lookup: {
+        from: "players",
+        localField: "Player1Id",
+        foreignField: "_id",
+        as: "Player1"
+        }
+      },
+      {$unwind: '$Player1'},
+      {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
+      {$lookup: {
+        from: "players",
+        localField: "Player2Id",
+        foreignField: "_id",
+        as: "Player2"
+        }
+      },
+      {$unwind: '$Player2'},
+      {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Player1CharacterId",
+        foreignField: "_id",
+        as: "Player1Character"
+        }
+      },
+      {$unwind: '$Player1Character'},
+      {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Player2CharacterId",
+        foreignField: "_id",
+        as: "Player2Character"
+        }
+      },
+      {$unwind: '$Player2Character'},
+      {$match : {$or: queries} },
+    ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 }).limit(10).skip(skip);
+    }).sort({ _id: -1 })
   }
   else {
-    Video.find(queries[0], 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, videos) {
+    Video.aggregate([
+      {$skip: skip},
+      {$limit: 5},
+      {$set: {GameId: {$toObjectId: "$GameId"} }},
+      {$lookup: {
+        from: "games",
+        localField: "GameId",
+        foreignField: "_id",
+        as: "Game"
+        }
+      },
+      {$unwind: '$Game'},
+      {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
+      {$lookup: {
+        from: "creators",
+        localField: "ContentCreatorId",
+        foreignField: "_id",
+        as: "ContentCreator"
+        }
+      },
+      {$unwind: '$ContentCreator'},
+      {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
+      {$lookup: {
+        from: "players",
+        localField: "Player1Id",
+        foreignField: "_id",
+        as: "Player1"
+        }
+      },
+      {$unwind: '$Player1'},
+      {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
+      {$lookup: {
+        from: "players",
+        localField: "Player2Id",
+        foreignField: "_id",
+        as: "Player2"
+        }
+      },
+      {$unwind: '$Player2'},
+      {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Player1CharacterId",
+        foreignField: "_id",
+        as: "Player1Character"
+        }
+      },
+      {$unwind: '$Player1Character'},
+      {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Player2CharacterId",
+        foreignField: "_id",
+        as: "Player2Character"
+        }
+      },
+      {$unwind: '$Player2Character'},
+      { $match :  queries },
+    ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 }).limit(10).skip(skip); 
+    }).sort({ _id: -1 })
   }
 })
 
 // Fetch single Video
 app.get('/videos/:id', (req, res) => {
   var db = req.db;
-  Videos.findById(req.params.id, 'VideoUrl VideoType Players Game Tags ContentType Combo IsInView', function (error, video) {
+  Videos.findById(req.params.id, 'Url ContentType ContentCreatorId VideoType StartTime EndTime GameId ComboId Match Tags', function (error, video) {
     if (error) { console.error(error); }
     res.send(video)
   })
@@ -347,13 +523,19 @@ app.get('/videos/:id', (req, res) => {
 // Update a Video
 app.put('/videos/:id', (req, res) => {
   var db = req.db;
-  Video.findById(req.params.id, 'VideoUrl VideoType Players Game Tags ContentType Combo', function (error, video) {
+  Video.findById(req.params.id, 'Url ContentType ContentCreatorId VideoType StartTime EndTime GameId ComboId Match Tags', function (error, video) {
     if (error) { console.error(error); }
 
-    video.VideoUrl = req.body.VideoUrl;
-    video.Players = req.body.Players;
-    video.Game = req.body.Game;
-    video.Combo = req.body.Combo;
+    video.Url = req.body.Url;
+    video.ContentType = req.body.ContentType;
+    video.ContentCreatorId = req.body.ContentCreatorId;
+    video.VideoType = req.body.VideoType;
+    video.StartTime = req.body.StartTime;
+    video.EndTime = req.body.EndTime;
+    video.GameId = req.body.GameId;
+    video.ComboId = req.body.ComboId;
+    video.Match = req.body.Match;
+    video.Tags = req.body.Tags;
 
     video.save(function (error) {
       if (error) {
@@ -606,6 +788,37 @@ app.post('/characters', (req, res) => {
   }
 
 
+})
+
+// Query Characters
+app.get('/characterQuery', (req, res) => {
+  var db = req.db;
+  var names = req.query.queryName.split(",");
+  var values = req.query.queryValue.split(",");
+  var queries = [];
+
+  for(var i = 0; i < names.length; i++){
+    var query = {};
+    query[names[i]] = values[i];
+    queries.push(query);
+  }
+  
+  if(queries.length > 1) {
+    Character.find({ $or: queries }, 'Name ImageUrl', function (error, characters) {
+      if (error) { console.error(error); }
+      res.send({
+        characters: characters
+      })
+    }).sort({ Name: 1 })    
+  }
+  else {
+    Character.find(queries[0], 'Name ImageUrl', function (error, characters) {
+      if (error) { console.error(error); }
+      res.send({
+        characters: characters
+      })
+    }).sort({ Name: 1 })    
+  }
 })
 
 // Fetch all characters
