@@ -8,7 +8,6 @@
           v-waypoint="{ active: true, callback: onWaypoint, options: intersectionOptions }"
           v-model="video.isPlaying"
           @video:delete="spliceVideo($event)"
-          @query="queryVideos($event)"
           :id="video.id"
           :video="video" />
       </div>
@@ -23,7 +22,7 @@ import { eventbus } from '@/main'
 
 
 export default {
-  name: 'videos',
+  name: 'characters',
 
   components: {
     'video-card': VideoCard,
@@ -33,8 +32,6 @@ export default {
     return {
       videos: [],
       loading: true,
-      query: null,
-      savedQuery: null,
       intersectionOptions: {
         root: null,
         rootMargin: '0px 0px 0px 0px',
@@ -46,58 +43,31 @@ export default {
   computed: {
     skip: function() {
       return this.videos.length;
+    },
+
+    characterId: function() {
+      return this.$route.params.id
+    }
+  },
+
+  watch: {
+    characterId: function() {
+      this.videos= [];
+      this.queryVideos();
     }
   },
 
   methods: {
-    async getVideos() {
-      const response = await VideosService.fetchVideos(this.skip);
-      this.hydrateVideos(response);
-      this.playFirstVideo();
-    },
-
-    async queryVideos(query) {
+    async queryVideos() {
       var searchQuery = null;
-      if(query != this.savedQuery) {
-        this.savedQuery = query;
-        this.videos = [];
-      }
-      
-      if(query){
-        if(query.queryName === 'Game') {
-          searchQuery = [{
-            queryName : 'Game.Title',
-            queryValue : query.queryValue.title
-          }]
-        }
-        if(query.queryName === 'Player') {
-          searchQuery = [{
-            queryName : 'Player1Id',
-            queryValue : query.queryValue
-          },{
-            queryName : 'Player2Id',
-            queryValue : query.queryValue
-          }]
-        }
-        if(query.queryName === 'Character') {
-          searchQuery = [{
-            queryName : 'Players.Player1.Character.Name',
-            queryValue : query.queryValue.name
-          },{
-            queryName : 'Players.Player2.Character.Name',
-            queryValue : query.queryValue.name
-          },{
-            queryName : 'Combo.ComboCharacter.Name',
-            queryValue : query.queryValue.name
-          }]
-        }
-        if(query.queryName === 'Video Type') {
-          searchQuery = [{
-            queryName : 'ContentType',
-            queryValue : query.queryValue
-          }]
-        }
-      }
+
+      searchQuery = [{
+        queryName : 'Player1CharacterId',
+        queryValue : this.characterId
+      },{
+        queryName : 'Player2CharacterId',
+        queryValue : this.characterId
+      }]
 
       var queryParameter = {
         skip: this.skip,
@@ -106,11 +76,16 @@ export default {
 
       const response = await VideosService.queryVideos(queryParameter);
       this.hydrateVideos(response);
-      this.playFirstVideo();
+      
+      if(this.videos.length < 5){
+        this.playFirstVideo();
+      }
+      
     },
 
     playFirstVideo() {
-      for(var i = 0; i < 3; i++){
+      var count = this.videos.length < 4 ? this.videos.length - 1 : 3;
+      for(var i = 0; i <= count; i++){
         this.videos[i].inview = true;
       }
       this.videos[0].isPlaying = true;
@@ -134,6 +109,7 @@ export default {
               id: video.Player1Id,
               name: video.Player1.Name,
               character: {
+                id: video.Player1CharacterId,
                 name: video.Player1Character.Name,
                 imageUrl: video.Player1Character.ImageUrl,
               }
@@ -142,6 +118,7 @@ export default {
               id: video.Player2Id,
               name: video.Player2.Name,
               character: {
+                id: video.Player2CharacterId,
                 name: video.Player2Character.Name,
                 imageUrl: video.Player2Character.ImageUrl,
               }
@@ -159,7 +136,7 @@ export default {
           isPlaying: false,
           isEditing: false
         });
-      });
+      })
     },
 
     onWaypoint ({ el, going, direction }) {
@@ -176,9 +153,11 @@ export default {
     },
 
     handleScroll() {
-      var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
-      if (bottomOfWindow) {
-        this.queryVideos();
+      if(this.videos.length > 0){
+        var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+        if (bottomOfWindow) {
+          this.queryVideos();
+        }
       }
     },
 

@@ -306,7 +306,7 @@ app.get('/videoQuery', (req, res) => {
       query[names[i]] = ObjectId(values[i]);
       queries.push(query);
     }
-    console.log(queries);
+    console.log(queries)
   }
 
   var skip =  parseInt(req.query.skip);
@@ -316,6 +316,7 @@ app.get('/videoQuery', (req, res) => {
     Video.aggregate([
       {$skip: skip},
       {$limit: 5},
+
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -325,6 +326,7 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Game'},
+
       {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
       {$lookup: {
         from: "creators",
@@ -334,6 +336,7 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$ContentCreator'},
+
       {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
       {$lookup: {
         from: "players",
@@ -343,6 +346,7 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player1'},
+
       {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
       {$lookup: {
         from: "players",
@@ -352,6 +356,7 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player2'},
+
       {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
       {$lookup: {
         from: "characters",
@@ -361,6 +366,7 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player1Character'},
+
       {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
       {$lookup: {
         from: "characters",
@@ -370,6 +376,7 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player2Character'}
+
     ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
@@ -379,8 +386,7 @@ app.get('/videoQuery', (req, res) => {
   }
   else if(queries.length > 1) {
     Video.aggregate([
-      {$skip: skip},
-      {$limit: 5},
+      {$match: {$or: queries}},
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -435,18 +441,19 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player2Character'},
-      {$match : {$or: queries} },
+      {$skip: skip},
+      {$limit: 5},
+      {$sort: {_id: -1}}
     ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 })
+    })
   }
   else {
     Video.aggregate([
-      {$skip: skip},
-      {$limit: 5},
+      {$match: {$or: queries}},
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -501,7 +508,8 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player2Character'},
-      { $match :  queries },
+      {$skip: skip},
+      {$limit: 5},
     ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
