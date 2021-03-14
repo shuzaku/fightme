@@ -53,12 +53,12 @@
         <div class="characters" v-if="!video.isEditing">
           <div class="player1" >
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player1.id)"><p>{{video.match.player1.name}}</p></div>
-            <div class="character-name"><p>{{video.match.player1.character.name}}</p></div>
+            <div class="character-name" @click="queryCharacter(video.match.player1.character.id)"><p>{{video.match.player1.character.name}}</p></div>
           </div>
           <div class="versus heavy-weight">vs.</div>
           <div class="player2">
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player2.id)"><p>{{video.match.player2.name}}</p></div>
-            <div class="character-name"><p>{{video.match.player2.character.name}}</p></div>
+            <div class="character-name" @click="queryCharacter(video.match.player2.character.id)"><p>{{video.match.player2.character.name}}</p></div>
           </div>
         </div>
         <!-- <v-btn 
@@ -134,6 +134,9 @@ export default {
   methods: {
     ready (event) {
       this.player = event.target
+      if(this.video.isPlaying){
+        this.player.playVideo();
+      }
     },
     
     async deleteVideo() {
@@ -142,7 +145,11 @@ export default {
     },
 
     queryPlayer(playerId) {
-      this.$emit('query' , {queryName: 'Player', queryValue: playerId});
+      this.$router.push(`/players/${playerId}`);
+    },
+
+    queryCharacter(characterId) {
+      this.$router.push(`/characters/${characterId}`);
     },
 
     async patchVideo() {
@@ -185,6 +192,16 @@ export default {
   },
 
   mounted() {
+      if(this.video.videoType === 'uploaded'){
+        if (this.video.isPlaying){
+          this.$refs.videoRef.play();
+        }
+      }
+      else if(this.video.videoType === 'youtube'){
+        if(this.video.isPlaying){
+          this.player.playVideo();
+        }
+      }
   }
 }
 </script>
