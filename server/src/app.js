@@ -10,6 +10,7 @@ var Account = require("../models/accounts");
 var Creator = require("../models/creators");
 var Tournament = require("../models/tournaments");
 var Character = require("../models/characters");
+var Combo = require("../models/combos");
 var mongoose = require('mongoose');
 
 
@@ -297,16 +298,17 @@ app.get('/videoQuery', (req, res) => {
   var queries = [];
   var ObjectId = mongoose.Types.ObjectId;
 
+  var aggregate = []
+
   if(req.query.queryName || req.query.queryValue){
     var names = req.query.queryName.split(",");
     var values = req.query.queryValue.split(",");
     
     for(var i = 0; i < names.length; i++){
       var query = {};
-      query[names[i]] = ObjectId(values[i]);
+      query[names[i]] = values[i];
       queries.push(query);
     }
-    console.log(queries)
   }
 
   var skip =  parseInt(req.query.skip);
@@ -314,9 +316,6 @@ app.get('/videoQuery', (req, res) => {
   
   if(!req.query.queryValue) {
     Video.aggregate([
-      {$skip: skip},
-      {$limit: 5},
-
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -326,7 +325,6 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Game'},
-
       {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
       {$lookup: {
         from: "creators",
@@ -336,7 +334,6 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$ContentCreator'},
-
       {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
       {$lookup: {
         from: "players",
@@ -346,7 +343,6 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player1'},
-
       {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
       {$lookup: {
         from: "players",
@@ -356,7 +352,6 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player2'},
-
       {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
       {$lookup: {
         from: "characters",
@@ -366,7 +361,6 @@ app.get('/videoQuery', (req, res) => {
         }
       },
       {$unwind: '$Player1Character'},
-
       {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
       {$lookup: {
         from: "characters",
@@ -375,14 +369,34 @@ app.get('/videoQuery', (req, res) => {
         as: "Player2Character"
         }
       },
-      {$unwind: '$Player2Character'}
-
+      {$unwind: '$Player2Character'},
+      {$set: {'ComboId': {$toObjectId: "$ComboId"} }},
+      {$lookup: {
+        from: "combos",
+        localField: "ComboId",
+        foreignField: "_id",
+        as: "Combo"
+        }
+      },
+      {$unwind: '$Combo'},
+      {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Combo.CharacterId",
+        foreignField: "_id",
+        as: "ComboCharacter"
+        }
+      },
+      {$unwind: '$ComboCharacter'},
+      {$skip: skip},
+      {$limit: 5},
+      {$sort: {_id: -1}}
     ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
         videos: videos
       })
-    }).sort({ _id: -1 })
+    })
   }
   else if(queries.length > 1) {
     Video.aggregate([
@@ -883,85 +897,26 @@ app.delete('/characters/:id', (req, res) => {
 })
 
 
-// Add new post
+// Add new Combo
 app.post('/combos', (req, res) => {
-  var db = req.db;
-  var ComboCharacterId = req.body.ComboCharacterId;
-  var ComboInput = req.body.ComboInput
-  var ComboHits = req.body.ComboHits;
-  var ComboDamage = req.body.ComboDamage;
+  var GameId = req.body.GameId;
+  var CharacterId = req.body.CharacterId;
+  var Inputs = req.body.Inputs;
 
   var new_combo = new Combo({
-    ComboCharacterId: ComboCharacterId,
-    ComboInput: ComboInput,
-    ComboHits: ComboHits,
-    ComboDamage: ComboDamage,
+    GameId: GameId,
+    CharacterId: CharacterId,
+    Inputs: Inputs,
   })
 
-  new_combo.save(function (error) {
+  new_combo.save(function (error,combo) {
     if (error) {
       console.log(error)
     }
     res.send({
       success: true,
-      message: 'Post saved successfully!'
+      message: 'Post saved successfully!',
+      id: combo.id
     })
   })
 })
-
-// Fetch all combos
-app.get('/combos', (req, res) => {
-  Combo.find({}, 'ComboCharacterId ComboInput ComboHits ComboDamage', function (error, combos) {
-    if (error) { console.error(error); }
-    res.send({
-      combos: combos
-    })
-  }).sort({ _id: -1 })
-})
-
-// Fetch single combo
-app.get('/combos/:id', (req, res) => {
-  var db = req.db;
-  Combo.findById(req.params.id, 'ComboCharacterId ComboInput ComboHits ComboDamage', function (error, combo) {
-    if (error) { console.error(error); }
-    res.send(combo)
-  })
-})
-
-
-// Update a combo
-app.put('/combos/:id', (req, res) => {
-  var db = req.db;
-  Combo.findById(req.params.id, 'ComboCharacterId ComboInput ComboHits ComboDamage', function (error, combo) {
-    if (error) { console.error(error); }
-
-    combo.ComboCharacterId = req.body.ComboCharacterId;
-    combo.ComboInput = req.body.ComboInput
-    combo.ComboHits = req.body.ComboHits;
-    combo.ComboDamage = req.body.ComboDamage;
-
-    combo.save(function (error) {
-      if (error) {
-        console.log(error)
-      }
-      res.send({
-        success: true
-      })
-    }) 
-  })
-})
-
-// Delete a combo
-app.delete('/combos/:id', (req, res) => {
-  var db = req.db;
-  Combo.remove({
-    _id: req.params.id
-  }, function (err, combo) {
-    if (err)
-      res.send(err)
-    res.send({
-      success: true
-    })
-  })
-})
-

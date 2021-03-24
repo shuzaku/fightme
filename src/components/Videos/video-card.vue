@@ -8,7 +8,7 @@
             loop
             controls 
             muted >
-            <source :src="video.videoUrl" type="video/mp4">
+            <source :src="video.url" type="video/mp4">
           </video>
         </div>
         <div class="card-label">{{video.contentType}}</div>
@@ -19,23 +19,8 @@
           <p v-if="video.combo.comboDamage">{{video.combo.comboDamage}} Damage</p>
         </div>
         <div class="combo-input">
-          <p class="inputs">{{video.combo.comboInput}}</p>
+          <p class="inputs">{{formattedInputs}}</p>
         </div>
-        <div class="edit-btn-container">
-          <v-btn 
-            class="edit-btn"
-            v-if="!video.isEditing"
-            @click="video.isEditing = true">
-            <v-icon dark>
-              mdi-wrench
-            </v-icon>
-          </v-btn>
-        </div>
-        <video-edit
-          v-if="video.isEditing"
-          :video="video"
-          @update="patchVideo()"
-          @delete="deleteVideo()" />
       </div>
       <div class="match-card card" v-if="video.contentType === 'Match'">
         <youtube-media
@@ -79,12 +64,12 @@
 </template>
 
 <script>
-import VideoEdit from '@/components/videos/video-edit';
+// import VideoEdit from '@/components/videos/video-edit';
 import VideosService from '@/services/videos-service';
 
 export default {
   components: {
-    'video-edit' : VideoEdit
+    // 'video-edit' : VideoEdit
   },
   name: 'video-card',
 
@@ -130,7 +115,11 @@ export default {
       }
     } 
   },
-
+  computed: {
+    formattedInputs: function() {
+      return this.video.combo.inputs.join(' > ');
+    }
+  },
   methods: {
     ready (event) {
       this.player = event.target
@@ -152,43 +141,7 @@ export default {
       this.$router.push(`/characters/${characterId}`);
     },
 
-    async patchVideo() {
-      await VideosService.updateVideo({
-        id: this.video.id,
-        VideoUrl: this.video.videoUrl,
-        VideoType: this.video.videoType,
-        Match: {
-          startTime: this.video.match.startTime,
-          endTime: this.video.match.endTime,
-          winnerId: this.video.match.winnerId,
-        },
-        Tournament: {
-          tournamentId: this.video.tournament.id
-        },
-        Players: this.video.contentType === 'Match' ? {
-          Player1: {
-            Id: this.video.players.player1.id,
-            CharacterId: this.video.players.player1.charcterId     
-          },
-          Player2: {
-            Id: this.video.players.player2.id,
-            CharacterId: this.video.players.player2.charcterId 
-          }
-        } : null,
-        Game: {
-          Id: this.video.game.id,
-        },
-        Tags: this.video.tags,
-        //ComboId
-        Combo: this.video.combo ? {
-          ComboCharacterId: this.video.combo.characterId,
-          ComboInput: this.video.combo.comboInput,
-          ComboHits: this.video.combo.comboHits,
-          ComboDamage: this.video.combo.comboDamage
-        } : null
-      });
-      this.video.isEditing = false;
-    }
+
   },
 
   mounted() {
