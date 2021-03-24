@@ -1,7 +1,7 @@
 <template>
   <div class="post-video">
     <h1>Add Video</h1>
-    <v-row>
+    <div class="video-step" v-show="currentStep==='Video'">
       <multiselect 
         v-model="video.contentType" 
         :options="contentTypes" 
@@ -17,69 +17,71 @@
           </span>
         </template>
       </multiselect>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-radio-group v-model="video.origin" :mandatory="false">
-          <v-radio label="From the web" value="web"></v-radio>
-          <v-radio label="From my computer" value="computer"></v-radio>
-        </v-radio-group>
-        <!--- video --->
-        <div class="import-video-container" v-if="video.origin == 'web'">
-          <v-text-field 
-              id="import-video"
-              type="text"
-              placeholder="Video Url" 
-              v-model="importVideoUrl"/>
-          <div class="startTime">
-
-          </div>
-          <div class="endTime">
-            
-          </div>
-        </div>
-        <div class="upload-video-container" v-else>
-            <upload-video 
-              @upload:video="setUploadedVideo($event)"
-              ref="videoUploader" />
-        </div>
-      </v-col>
-    </v-row>
-
-    <!--- tournament --->
-    <v-checkbox
-      v-model="isTournament"
-      :label="`Tournament Match?`"
-    ></v-checkbox>
-    <tournament-search
-      v-if="isTournament"
-      v-model="video.match.tournamentId" />
-
-    <!--- creator --->
-    <div class="creator-container" >
-        <creator-search 
-          v-model="video.contentCreatorId" 
-          @update:creator="setCreator($event)"/>
-    </div>
-
-    <!--- game --->
-    <div class="game-container" >
+      <!--- game --->
+      <div class="game-container" >
         <game-search 
           v-model="video.gameId" 
           @update:game="setGame($event)"/>
+      </div>
+      <v-radio-group v-model="video.origin" :mandatory="false">
+        <v-radio label="From the web" value="web"></v-radio>
+        <v-radio label="From my computer" value="computer"></v-radio>
+      </v-radio-group>
+      <!--- video --->
+      <div class="import-video-container" v-if="video.origin == 'web'">
+        <v-text-field 
+            id="import-video"
+            type="text"
+            placeholder="Video Url" 
+            v-model="importVideoUrl"/>
+        <v-btn  
+          @click="isVideoClipped = !isVideoClipped"
+          v-if="!isVideoClipped && video.type==='youtube'"
+          class="players-btn"
+          tile color="indigo">
+          Clip Video
+        </v-btn>
+        <div class="video-clip-container" v-if="isVideoClipped">
+          <div class="startTime">
+            <v-text-field 
+                type="Number"
+                placeholder="Start Time" 
+                v-model="video.startTime"/>
+          </div>
+          <div class="endTime">
+            <v-text-field 
+                type="Number"
+                placeholder="End Time" 
+                v-model="video.endTime"/>
+          </div>
+        </div>
+      </div>
+      <div class="upload-video-container" v-else>
+          <upload-video 
+            @upload:video="setUploadedVideo($event)"
+            ref="videoUploader" />
+      </div>
     </div>
+    <div class="match-step" v-if="currentStep === 'Match'">
+      <!--- tournament --->
+      <v-checkbox
+        v-model="isTournament"
+        :label="`Tournament Match?`"
+      ></v-checkbox>
+      <tournament-search
+        v-if="isTournament"
+        v-model="video.match.tournamentId" />
 
-    <!--- players --->
-    <v-btn  
-        @click="isAddingPlayers = !isAddingPlayers"
-        v-if="!isAddingPlayers && video.contentType == 'Match'"
-        class="players-btn"
-        tile color="indigo">
-        Add Player(s)
-    </v-btn>
-    <div class="players-container" v-if="isAddingPlayers && video.contentType == 'Match'">
+      <!--- creator --->
+      <div class="creator-container" >
+          <creator-search 
+            v-model="video.contentCreatorId" 
+            @update:creator="setCreator($event)"/>
+      </div>
+
+      <!--- players --->
+      <div class="players-container">
         <h2>Players</h2>
-        <v-btn class="close-btn" rounded @click="isAddingPlayers = !isAddingPlayers" >X</v-btn>
         <player-search 
           v-model="video.match.player1.id" 
           :player=1
@@ -125,26 +127,21 @@
             </option>
           </select>          
         </div>
-
+      </div>
     </div>
-    <div class="character-container" v-if="video.contentType == 'Combo' && video.game.title">
-        <character-search 
-          v-if="video.game.title"
-          v-model="video.combo.comboCharacter"
-          :game="video.game" />
+    <div class="match-step" v-if="currentStep === 'Combo'">
+      <div class="character-container" v-if="video.gameId">
+          <character-search 
+            v-model="combo.characterId"
+            :gameId="video.gameId"
+            @update:character="setComboCharacter($event)" />
+      </div>
+      <div class="inputs-container" >
+          <v-textarea v-model="comboInputsRaw" placeholder="Combo Inputs"/>
+      </div>
     </div>
-    <div class="inputs-container" v-if="video.contentType == 'Combo' && video.combo.comboCharacter">
-        <v-textarea v-model="video.combo.comboInput" placeholder="Combo Inputs"/>
-    </div>
-
-    <!--- tags --->
-    <div class="tag-containers">
-      <tag-search
-        v-model="video.tags"
-        :taggable = true
-        @update:tags="setTags($event)" />
-    </div>
-    <v-btn class="submit-btn" rounded @click="setUpVideo()">Submit</v-btn>
+    <v-btn class="video-btn" v-if="currentStep === 'Video'" rounded @click="nextStep()">Next</v-btn>
+    <v-btn class="submit-btn" v-else rounded @click="setUpVideo()">Submit</v-btn>
   </div>
 </template>
 
@@ -152,10 +149,10 @@
 import moment from 'moment';
 import UploadVideo from '@/components/videos/upload-video';
 import VideosService from '@/services/videos-service';
+import CombosService from '@/services/combos-service';
 import PlayerSearch from '@/components/players/player-search';
 import CharacterSearch from '@/components/character/character-search';
 import GameSearch from '@/components/games/game-search';
-import TagSearch from '@/components/tags/tag-search';
 import CreatorSearch from '@/components/content-creator/creator-search';
 import TournamentSearch from '@/components/tournament/tournament-search';
 import { eventbus } from '@/main';
@@ -167,7 +164,6 @@ export default {
       'player-search' : PlayerSearch,
       'creator-search' : CreatorSearch,
       'game-search': GameSearch,
-      'tag-search': TagSearch,
       'character-search': CharacterSearch,
       'tournament-search': TournamentSearch,
   }, 
@@ -179,6 +175,13 @@ export default {
   data () {
     return {
       winner: null,
+      isVideoClipped: false,
+      currentStep: 'Video',
+      comboInputsRaw: '',
+      combo: {
+        inputs: [],
+        characterId: ''
+      },
       video: {
         id: '',
         contentType: '',
@@ -238,10 +241,23 @@ export default {
         this.video.url = this.importVideoUrl.substring((this.importVideoUrl.indexOf("v=") + 2) , (this.importVideoUrl.indexOf("&ab_channel")));
         this.video.type = 'youtube'
       }    
+    },
+
+    comboInputsRaw() {
+      this.combo.inputs = this.comboInputsRaw.split('>');
     }
   },
 
   methods: {
+    nextStep(){
+      if(this.video.contentType === 'Combo'){
+        this.currentStep = 'Combo'
+      } 
+      else if(this.video.contentType === 'Match'){
+        this.currentStep = 'Match'
+      }
+    },
+
     setUploadedVideo(uploadedVideo) {
       this.video.url = null
       this.video.url = uploadedVideo
@@ -249,9 +265,15 @@ export default {
       this.postVideo();
     },
     
-    setUpVideo() {
-      if (this.video.type == 'Combo') {
-        this.$refs.videoUploader.upload()
+    async setUpVideo() {
+      if (this.video.contentType == 'Combo') {
+        const response = await CombosService.addCombo({
+          CharacterId: this.combo.characterId,
+          Inputs: this.combo.inputs
+        });
+        this.video.comboId = response.data.id
+
+        this.$refs.videoUploader.upload();
       } 
       else {
         this.postVideo();
@@ -307,7 +329,7 @@ export default {
     },
 
     setComboCharacter(characterId) {
-      this.video.combo.characterId = characterId;
+      this.combo.characterId = characterId;
     },
 
     setGame(game) {

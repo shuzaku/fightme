@@ -119,6 +119,7 @@ export default {
     },
 
     hydrateVideos(response){
+      console.log(response)
        response.data.videos.forEach(video => {
         this.videos.push({
           id: video._id,
@@ -129,7 +130,14 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          comboId: video.ComboId,
+          combo: {
+            character:{
+              id: video.ComboCharacter._id,
+              name: video.ComboCharacter.Name,
+              imageUrl: video.ComboCharacter.ImageUrl
+            },
+            inputs: video.Combo.Inputs
+          },
           match: {
             player1: {
               id: video.Player1Id,

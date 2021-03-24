@@ -10,7 +10,7 @@ var VideoSchema = new Schema({
       type: String
     },
     ContentCreatorId: {
-      type: Schema.Types.ObjectId
+      type: String
     },
     VideoType: {
       type: String
@@ -22,25 +22,25 @@ var VideoSchema = new Schema({
       type: String
     },
     GameId: {
-      type: Schema.Types.ObjectId
+      type: String
     },
-    // ComboId: {
-    //   type: Schema.Types.ObjectId
-    // },
+    ComboId: {
+      type: String
+    },
     Player1Id: {
-      type: Schema.Types.ObjectId
+      type: String
     },
     Player2Id: {
-      type: Schema.Types.ObjectId
+      type: String
     },
     Player1CharacterId: {
-      type: Schema.Types.ObjectId
+      type: String
     },
     Player2CharacterId: {
-      type: Schema.Types.ObjectId
+      type: String
     },
     WinnerId: {
-      type: Schema.Types.ObjectId
+      type: String
     },
     Tags: {
       type: Array
