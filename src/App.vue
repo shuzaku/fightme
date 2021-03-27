@@ -1,14 +1,23 @@
 <template>
   <div id="app">
     <div class="content">
-      <side-nav />
+      <div class="side-panel">
+        <side-nav />
+      </div>
       <div class="main-panel">
-        <top-nav 
-          @open:createWidget="openModal($event)"/>
         <modal v-if="isWidgetOpen"
           :createType = createType
           @closeModal = "closeModal()" />
-        <router-view />
+        <div class="content-container">
+          <div class="main-content-container">
+            <top-nav 
+              @open:createWidget="openModal($event)"/>
+            <router-view />
+          </div>
+          <div class="trending-container">
+            <h1>Trending</h1>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -55,7 +64,6 @@ export default {
   overflow: hidden;
   align-items: center;
   justify-content: center;
-  background: url('https://www.pdvg.it/wp-content/uploads/2018/02/EVO-2018.jpg');
 }
 
 #app h1 {
@@ -69,24 +77,17 @@ export default {
 }
 
 #app .content {
-  background: rgba(31,29,43,.95);
+  background: #333333;
   display: flex;
   overflow: auto;
   width: 100%;
-  border-radius: 20px;
   font-size: 15px;
   font-weight: 500;
   box-shadow: 0 20px 50px rgb(0 0 0 / 30%);
   position: relative;
   align-content: center;
   overflow: hidden;
-}
-
-#app .v-navigation-drawer {
-  position: fixed;
-  z-index: 100;
-  min-height: 100vh;
-  margin-top: 0px;
+  flex-basis: auto;
 }
 
 #app .top-nav {
@@ -102,5 +103,39 @@ export default {
 
 #app .heavy-weight {
   font-weight: 600;
+}
+
+#app .content-container {
+  display: flex;
+}
+
+#app .side-panel {
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  position: relative;
+  width: 50vw;
+  min-width: 255px; 
+  border-right: 1px dashed #3EB489; 
+}
+
+#app .main-panel {
+  flex-grow: 1;
+  display: flex;
+}
+
+#app .main-content-container {
+  max-width: 700px;
+  border-right: 1px dashed #3EB489; 
+  margin-right: 50px;
+  padding: 0 40px;
+  position: relative;
+}
+
+#app .trending-container{
+  max-width: 350px;
+  padding-top: 100px;
+  margin-left: 40px;
 }
 </style>

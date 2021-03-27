@@ -40,7 +40,7 @@
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player1.id)"><p>{{video.match.player1.name}}</p></div>
             <div class="character-name" @click="queryCharacter(video.match.player1.character.id)"><p>{{video.match.player1.character.name}}</p></div>
           </div>
-          <div class="versus heavy-weight">vs.</div>
+          <div class="versus heavy-weight">vs</div>
           <div class="player2">
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player2.id)"><p>{{video.match.player2.name}}</p></div>
             <div class="character-name" @click="queryCharacter(video.match.player2.character.id)"><p>{{video.match.player2.character.name}}</p></div>
@@ -169,7 +169,7 @@ export default {
   width: 50px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid #1ab097 ;
+  border: 2px solid #3EB489 ;
   background-size: 150%;
   background-position: top center;
   position: absolute;
@@ -185,22 +185,18 @@ export default {
 .video-card .combo-card,
 .video-card .match-card {
   /* background-image: linear-gradient(#515b89, #171b33); */
-  background: #515b89;
+  background: #444;
+  border: 5px solid #444;
   border-radius: 15px;
   margin-bottom: 30px;
   position: relative;
-  border: 2px solid #4a5689;
   cursor: pointer;
 }
+
 .video-card .card {
   width: 100%;
-  max-width: 560px;
-  box-shadow: 0px 0px 15px 0px rgb(0 0 0 / 54%);
-}
-
-.video-card .combo-card:hover,
-.video-card .selected .card{
-  border: 2px solid #1ab097 ;
+  max-width: 570px;
+  box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
 .video-card .combo-card .combo-stats {
@@ -226,6 +222,8 @@ export default {
 
 .video-card .match-card .versus {
   font-size: 25px;
+  color: #FFFF00;
+  text-transform: uppercase;
 }
 
 .video-card .card-label {
@@ -235,7 +233,7 @@ export default {
   top: -15px;
   left: 50%;
   margin-left: -35px;
-  background: green;
+  background: #db8c10;
   text-align: center;
   padding: 5px;
   color: #fff;
@@ -244,7 +242,7 @@ export default {
 }
 
 .video-card .match-card .card-label {
-  background: blue;
+  background: #3c73a8;
 }
 
 .video-card video {
@@ -271,9 +269,9 @@ export default {
 
 .video-card .match-card .character-name p{
   font-size: 14px;
-  color: #1ab097;
-  font-weight: 600;
-  margin-top: 5px;
+  color: #3EB489;
+  font-weight: 300;
+  margin-top: 3px;
 }
 
 .video-card .match-card .player2 .character-name p{
@@ -285,7 +283,7 @@ export default {
 }
 
 .video-card .characters {
-  padding: 5px 10px 5px;
+  padding: 10px 10px 15px;
 }
 
 .video-card .video-ghost {
