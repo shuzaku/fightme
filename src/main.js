@@ -1,5 +1,4 @@
 import Vue from 'vue';
-
 import App from './App.vue';
 import VueRouter from 'vue-router';
 
@@ -13,18 +12,38 @@ import vuetify from '@/plugins/vuetify' // path to vuetify export
 import _ from 'lodash';    
 import firebase from 'firebase/app'
 
-Vue.config.productionTip = false;
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faFontAwesome } from '@fortawesome/free-brands-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+import { faRss } from '@fortawesome/free-solid-svg-icons'
+import { faGamepad } from '@fortawesome/free-solid-svg-icons'
+import { faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faMeteor } from '@fortawesome/free-solid-svg-icons'
+import { faNetworkWired } from '@fortawesome/free-solid-svg-icons'
+import { faVideo } from '@fortawesome/free-solid-svg-icons'
+import { faYinYang } from '@fortawesome/free-solid-svg-icons'
+
+
+library.add(faRss)
+library.add(faFontAwesome)
+library.add(faGamepad)
+library.add(faUsers)
+library.add(faMeteor)
+library.add(faNetworkWired)
+library.add(faVideo)
+library.add(faYinYang)
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
-
-Vue.config.productionTip = false;
 
 Vue.use(VueWaypoint)
 Vue.use(VueRouter);
 Vue.use(moment);
 Vue.component('multiselect', Multiselect)
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })
 
+Vue.config.productionTip = false;
 const configOptions = {
   apiKey: "AIzaSyCBxK55DQsogeGPMEr2TEWw5xsG6_HZtrg",
   authDomain: "fightmelogin.firebaseapp.com",
@@ -45,5 +64,6 @@ firebase.initializeApp(configOptions);
 new Vue({
   router,
   vuetify,
+  comonents: { App },
   render: h => h(App)
 }).$mount('#app');

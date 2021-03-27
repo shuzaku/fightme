@@ -28,7 +28,7 @@
           Search
         </v-btn>
       </div>
-      <div class="account-btns">
+      <!-- <div class="account-btns">
         <v-btn class="register-btn" @click="openRegisterModal()">Register</v-btn>
         <register 
         v-if="isRegisterModalOpen"
@@ -38,7 +38,7 @@
         <login 
         v-if="isLoginModalOpen"
         @register:success="closeLoginModal()" />
-      </div>
+      </div> -->
       <v-btn class="mx-2 add-btn" fab dark color="cyan" @click="toggleDropDown()" >
         <v-icon dark>mdi-plus</v-icon>
       </v-btn>
@@ -60,8 +60,8 @@ import PlayerSearch from '@/components/players/player-search';
 import TagSearch from '@/components/tags/tag-search';
 import CharacterSearch from '@/components/character/character-search';
 import VideoTypeSearch from '@/components/videos/video-type-search';
-import Register from '@/components/account/register';
-import Login from '@/components/account/login';
+// import Register from '@/components/account/register';
+// import Login from '@/components/account/login';
 
 export default {
   name: 'TopNav',
@@ -73,8 +73,8 @@ export default {
     'tag-search': TagSearch,
     'character-search': CharacterSearch,
     'video-type-search': VideoTypeSearch,
-    'register': Register,
-    'login': Login
+    // 'register': Register,
+    // 'login': Login
   },
   provide() {
     return {
