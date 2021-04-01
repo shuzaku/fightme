@@ -8,7 +8,7 @@ let playerController = require("../controller/players");
 let tagController = require("../controller/tags");
 let tournamentController = require("../controller/tournaments");
 let videoController = require("../controller/videos");
-
+let searchController = require("../controller/searches");
 
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -87,3 +87,6 @@ app.get('/videos', (req, res) => videoController.getVideos(req,res));
 app.get('/videos/:id', (req, res) => videoController.getVideo(req,res));
 app.put('/videos/:id', (req, res) => videoController.updateVideo(req,res));
 app.delete('/videos/:id', (req, res) => videoController.deleteVideo(req,res));
+
+//Search
+app.get('/search', (req, res) => searchController.getSearchValues(req,res));

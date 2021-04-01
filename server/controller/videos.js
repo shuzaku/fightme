@@ -1,5 +1,5 @@
 var Video = require("../models/videos");
-
+var ObjectId = require('mongodb').ObjectId;
 
 // Add new Video
 function addVideo(req, res) {
@@ -61,19 +61,25 @@ function getVideos(req, res) {
 // Query Videos
 function queryVideo(req, res) {
   var queries = [];
-
-  var aggregate = []
-
-  if(req.query.queryName || req.query.queryValue){
+  var query = null;
+  if (req.query.queryName || req.query.queryValue){
     var names = req.query.queryName.split(",");
     var values = req.query.queryValue.split(",");
-    
-    for(var i = 0; i < names.length; i++){
-      var query = {};
-      query[names[i]] = values[i];
-      queries.push(query);
+
+    if (names.length > 0){
+      for(var i = 0; i < names.length; i++){
+        var query = {};
+        if (names[i].includes('Id')) {
+          query[names[i]] =  {'$eq': ObjectId(values[i])}
+        }
+        else {
+          query[names[i]] =  {'$eq': values[i]}
+        }
+        queries.push(query);
+      }
     }
   }
+
   var skip =  parseInt(req.query.skip);
   
   if(!req.query.queryValue) {
@@ -160,9 +166,8 @@ function queryVideo(req, res) {
       })
     })
   }
-  else if(queries.length > 1) {
+  else if(queries.length > 0) {
     Video.aggregate([
-      {$match: {$or: queries}},
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -217,6 +222,25 @@ function queryVideo(req, res) {
         }
       },
       {$unwind: '$Player2Character'},
+      {$set: {'ComboId': {$toObjectId: "$ComboId"} }},
+      {$lookup: {
+        from: "combos",
+        localField: "ComboId",
+        foreignField: "_id",
+        as: "Combo"
+        }
+      },
+      {$unwind: '$Combo'},
+      {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Combo.CharacterId",
+        foreignField: "_id",
+        as: "ComboCharacter"
+        }
+      },
+      {$unwind: '$ComboCharacter'},
+      {$match: {$or: queries}},
       {$skip: skip},
       {$limit: 5},
       {$sort: {_id: -1}}
@@ -228,8 +252,14 @@ function queryVideo(req, res) {
     })
   }
   else {
+    names = names[0];
+    values = values[0].toString();
     Video.aggregate([
-      {$match: {$or: queries}},
+      {$match: {  
+        GameId: {
+          $eq: '6024b01a0b99842b68eb9e32'
+        }
+      }},
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -284,6 +314,24 @@ function queryVideo(req, res) {
         }
       },
       {$unwind: '$Player2Character'},
+      {$set: {'ComboId': {$toObjectId: "$ComboId"} }},
+      {$lookup: {
+        from: "combos",
+        localField: "ComboId",
+        foreignField: "_id",
+        as: "Combo"
+        }
+      },
+      {$unwind: '$Combo'},
+      {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
+      {$lookup: {
+        from: "characters",
+        localField: "Combo.CharacterId",
+        foreignField: "_id",
+        as: "ComboCharacter"
+        }
+      },
+      {$unwind: '$ComboCharacter'},
       {$skip: skip},
       {$limit: 5},
     ], function (error, videos) {

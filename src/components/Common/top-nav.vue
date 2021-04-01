@@ -1,32 +1,27 @@
 <template>
     <div class="top-nav">
       <div class="search-container" placeholder="Search Category">
-        <select name="queryName" v-model="queryName" class="search-category">
-          <option disabled selected>Search Category</option>
-          <option v-for="name in queryNames" :key="name" :value="name">{{name}}</option>
-        </select>
-        <game-search
-          v-if="queryName === 'Game'"
-          @update:game="setQueryInput($event)" />
-        <player-search
-          v-if="queryName === 'Player'"
-          @update:player="setQueryInput($event)" />
-        <tag-search
-          v-if="queryName === 'Tag'"
-          @update:tag="setQueryInput($event)" />
-        <character-search
-          v-if="queryName === 'Character'"
-          @update:character="setQueryInput($event)" />
-        <video-type-search
-          v-if="queryName === 'Video Type'"
-          @update:type="setQueryInput($event)" />
-        <v-btn
-          class="search-btn"
-          dark color="cyan"
-          v-if="queryName && queryValue"
-          @click="submitQuery">
-          Search
-        </v-btn>
+        <multiselect 
+          v-model="searchValue" 
+          :options="searchValues" 
+          :close-on-select="true"
+          :clear-on-select="true" 
+          :preserve-search="true" 
+          @input="setSearch()"
+          placeholder="Search..."
+          group-label="category"
+          group-values="values"
+          label="value" 
+          track-by="value" 
+          v-if="!isLoading">
+          <template slot="selection" 
+            slot-scope="{ values, isOpen }">
+            <span class="multiselect__single" 
+              v-if="values.length &amp;&amp; !isOpen">
+              Select Game
+            </span>
+          </template>
+        </multiselect>
       </div>
       <!-- <div class="account-btns">
         <v-btn class="register-btn" @click="openRegisterModal()">Register</v-btn>
@@ -53,26 +48,17 @@
 </template>
 
 <script>
-// import SearchAll from '@/components/Common/SearchAll'
 import { eventbus } from '@/main';
-import GameSearch from '@/components/games/game-search';
-import PlayerSearch from '@/components/players/player-search';
-import TagSearch from '@/components/tags/tag-search';
-import CharacterSearch from '@/components/character/character-search';
-import VideoTypeSearch from '@/components/videos/video-type-search';
+
+// import SearchAll from '@/components/Common/SearchAll'
 // import Register from '@/components/account/register';
 // import Login from '@/components/account/login';
-
+import GeneralService from '@/services/general-service';
 export default {
   name: 'TopNav',
 
   components: {
     // 'search-all': SearchAll,
-    'game-search': GameSearch,
-    'player-search': PlayerSearch,
-    'tag-search': TagSearch,
-    'character-search': CharacterSearch,
-    'video-type-search': VideoTypeSearch,
     // 'register': Register,
     // 'login': Login
   },
@@ -84,54 +70,68 @@ export default {
   data: () => ({
     search: null,
     isDropDownOpen: false,
-    queryName: '',
-    queryNames:['Player', 'Game' , 'Character' , 'Video Type' , 'Tag'],
-    createOptions:[{
-      name: 'Video',
-      value: 'video'
-    },
-    {
-      name: 'Game',
-      value: 'game'
-    },
-    {
-      name: 'Player',
-      value: 'player'
-    },
-    {
-      name: 'Creator',
-      value: 'creator'
-    },
-    {
-      name: 'Tournament',
-      value: 'tournament'
-    }],
-    queryValue: null,
-    video: null,
     isRegisterModalOpen: false,
-    isLoginModalOpen: false
+    isLoginModalOpen: false,
+    searchValue: null,
+    searchValues: [],
   }),
 
   methods: {
-    setSearch(searchInput) {
-      eventbus.$emit('search:update', searchInput);
+    async getSearch() {
+      const response = await GeneralService.fetchForSearch();
+      var searchValues = response.data.searchValues.map(value => {
+        var searchValue = {
+          id: value._id,
+          value: '',
+          valueType: '',
+        }
+        if(value.GamesPlayed){
+            searchValue.value = value.Name,
+            searchValue.valueType = 'Player'
+        }
+        else if(value.GameId){
+            searchValue.value = value.Name,
+            searchValue.valueType = 'Character'
+        }
+        else if(value.YoutubeUrl){
+            searchValue.value = value.Name,
+            searchValue.valueType = 'ContentCreator'
+        }
+        else if(value.Title){
+            searchValue.value = value.Title,
+            searchValue.valueType = 'Game'
+        }
+
+        return searchValue;
+      });
+
+      this.searchValues = [
+        {
+          category: 'Player',
+          values: searchValues.filter(value => value.valueType === 'Player')
+        },
+        {
+          category: 'Character',
+          values: searchValues.filter(value => value.valueType === 'Character')
+        },
+        {
+          category: 'Content Creator',
+          values: searchValues.filter(value => value.valueType === 'ContentCreator')
+        },
+        {
+          category: 'Game',
+          values: searchValues.filter(value => value.valueType === 'Game')
+        }
+      ]
     },
 
-    openCreateWidget(createType) {
-      this.$emit('open:createWidget' , createType);
-      this.toggleDropDown();
-    },
-    
-    toggleDropDown() {
-      this.isDropDownOpen = !this.isDropDownOpen;
-    },
-
-    submitQuery() {
-      eventbus.$emit('query:update' , {'queryName' : this.queryName, 'queryValue' : this.queryValue})
-    },
-
-    setQueryInput(input) {
-      this.queryValue = input;
+    setSearch() {
+        var query = {
+          queryName: this.searchValue.valueType,
+          queryValue: this.searchValue.id
+        }
+        
+        eventbus.$emit('search' , query);
     },
 
     openRegisterModal() {
@@ -151,7 +151,11 @@ export default {
     closeLoginModal() {
       this.isLoginModalOpen = false;
     }
-  }
+  },
+
+  mounted () {    
+    this.getSearch();
+  },
 };
 </script>
 

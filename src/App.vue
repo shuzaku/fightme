@@ -20,6 +20,8 @@
         </div>
       </div>
     </div>
+    <div class="svg-container">
+    </div>
   </div>
 </template>
 
