@@ -19,6 +19,10 @@
           v-if="createType === 'video'" 
           @closeModal="closeModal()"/>
 
+        <new-character 
+          v-if="createType === 'character'" 
+          @closeModal="closeModal()"/>
+
         <new-tournament 
           v-if="createType === 'tournament'" 
           @closeModal="closeModal()"/>
@@ -31,6 +35,7 @@ import newCreator from '@/components/content-creator/new-creator';
 import newPlayer from '@/components/players/new-player';
 import newVideo from '@/components/videos/post-video';
 import newTournament from '@/components/tournament/new-tournament';
+import newCharacter from '@/components/character/new-character';
 
 export default {
   name: 'Modal',
@@ -47,6 +52,7 @@ export default {
     'new-creator': newCreator,
     'new-player': newPlayer,
     'new-tournament': newTournament,
+    'new-character': newCharacter
   },
 
   data: () => ({

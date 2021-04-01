@@ -1,4 +1,5 @@
 var Game = require("../models/games");
+var ObjectId = require('mongodb').ObjectId;
 
 // Add new game
 function addgame(req, res) {
@@ -23,12 +24,17 @@ function addgame(req, res) {
 
 // Fetch all games
 function getGames(req, res) {
-  Game.find({}, 'Title LogoUrl', function (error, games) {
+  Game.aggregate([{$match: {
+    _id: {
+      $ne: ObjectId("000000000000000000000000")
+    }
+  }
+  }], function (error, games) {
     if (error) { console.error(error); }
     res.send({
       games: games
     })
-  }).sort({ _id: -1 })
+  })
 }
 
 // Fetch single game
