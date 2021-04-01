@@ -3,11 +3,17 @@
     <div class="logo">
       <font-awesome-icon icon="yin-yang" /> 
     </div>
-    <div class="menu-item">
-      <div class="menu-heading"><font-awesome-icon icon="rss" />Feed</div>
+    <div class="menu-item">      
+      <router-link
+        to="/">
+        <div class="menu-heading"><font-awesome-icon icon="rss" />Feed</div>
+      </router-link>
     </div>
     <div class="menu-item">
-      <div class="menu-heading"><font-awesome-icon icon="gamepad" />Combos</div>
+      <router-link
+        to="/combos">
+        <div class="menu-heading"><font-awesome-icon icon="gamepad" />Combos</div>
+      </router-link>
     </div>
     <div class="menu-item">
       <div class="menu-heading"><font-awesome-icon icon="users" />Players</div>
@@ -33,6 +39,10 @@ export default {
 
   },
 
+  methods: {
+
+  }
+
 };
 </script>
 
@@ -50,7 +60,7 @@ export default {
     margin-bottom: 20px;
   }
 
-  .side-nav .menu-item {
+  .side-nav .menu-item .menu-heading{
     font-size: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -58,6 +68,7 @@ export default {
     margin-bottom: 20px;
     line-height: 1.2em;
     font-weight: 300;
+    text-decoration: none;
   }
 
   .side-nav .menu-item:hover {

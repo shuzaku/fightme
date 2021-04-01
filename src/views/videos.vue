@@ -56,43 +56,45 @@ export default {
 
     async queryVideos(query) {
       var searchQuery = null;
-      if(query != this.savedQuery) {
-        this.savedQuery = query;
+      var searchParameter = query || this.savedQuery;
+
+      if(this.savedQuery !== searchParameter) {
         this.videos = [];
-      }
-      
-      if(query){
-        if(query.queryName === 'Game') {
+        this.savedQuery = query;
+      } 
+
+      if(searchParameter){
+        if(searchParameter.queryName === 'Game') {
           searchQuery = [{
-            queryName : 'Game.Title',
-            queryValue : query.queryValue.title
+            queryName : 'GameId',
+            queryValue : searchParameter.queryValue
           }]
         }
-        if(query.queryName === 'Player') {
+        if(searchParameter.queryName === 'Player') {
           searchQuery = [{
             queryName : 'Player1Id',
-            queryValue : query.queryValue
+            queryValue : searchParameter.queryValue
           },{
             queryName : 'Player2Id',
-            queryValue : query.queryValue
+            queryValue : searchParameter.queryValue
           }]
         }
-        if(query.queryName === 'Character') {
+        if(searchParameter.queryName === 'Character') {
           searchQuery = [{
-            queryName : 'Players.Player1.Character.Name',
-            queryValue : query.queryValue.name
+            queryName : 'Player1CharacterId',
+            queryValue : searchParameter.queryValue
           },{
-            queryName : 'Players.Player2.Character.Name',
-            queryValue : query.queryValue.name
+            queryName : 'Player2CharacterId',
+            queryValue : searchParameter.queryValue
           },{
-            queryName : 'Combo.ComboCharacter.Name',
-            queryValue : query.queryValue.name
+            queryName : 'Combo.CharacterId',
+            queryValue : searchParameter.queryValue
           }]
         }
-        if(query.queryName === 'Video Type') {
+        if(searchParameter.queryName === 'Video Type') {
           searchQuery = [{
             queryName : 'ContentType',
-            queryValue : query.queryValue
+            queryValue : searchParameter.queryValue
           }]
         }
       }
@@ -103,6 +105,7 @@ export default {
       }
 
       const response = await VideosService.queryVideos(queryParameter);
+      console.log(response)
       this.hydrateVideos(response);
       if(this.videos.length < 6){
         this.playFirstVideo();
@@ -119,7 +122,6 @@ export default {
     },
 
     hydrateVideos(response){
-      console.log(response)
        response.data.videos.forEach(video => {
         this.videos.push({
           id: video._id,
@@ -207,11 +209,13 @@ export default {
     this.queryVideos();
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('newVideoPosted' , this.addedNewVideo);
+    eventbus.$on('search' , this.queryVideos);
   },
 
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
     eventbus.$off('newVideoPosted' , this.addedNewVideo);
+    eventbus.$off('search' , this.queryVideos);
   }
 }
 </script>

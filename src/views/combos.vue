@@ -55,7 +55,7 @@ export default {
     },
 
     async queryVideos(query) {
-      var searchQuery = null;
+      var searchQuery = [];
       var searchParameter = query || this.savedQuery;
 
       if(this.savedQuery !== searchParameter) {
@@ -91,13 +91,12 @@ export default {
             queryValue : searchParameter.queryValue
           }]
         }
-        if(searchParameter.queryName === 'Video Type') {
-          searchQuery = [{
-            queryName : 'ContentType',
-            queryValue : searchParameter.queryValue
-          }]
-        }
       }
+
+      searchQuery.push({
+        queryName : 'ContentType',
+        queryValue : 'Combo'
+      })
 
       var queryParameter = {
         skip: this.skip,
@@ -105,7 +104,6 @@ export default {
       }
 
       const response = await VideosService.queryVideos(queryParameter);
-      console.log(response)
       this.hydrateVideos(response);
       if(this.videos.length < 6){
         this.playFirstVideo();
