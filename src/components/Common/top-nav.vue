@@ -74,6 +74,30 @@ export default {
     isLoginModalOpen: false,
     searchValue: null,
     searchValues: [],
+    createOptions:[{
+      name: 'Video',
+      value: 'video'
+    },
+    {
+      name: 'Game',
+      value: 'game'
+    },
+    {
+      name: 'Player',
+      value: 'player'
+    },
+    {
+      name: 'Creator',
+      value: 'creator'
+    },
+    {
+      name: 'Character',
+      value: 'character'
+    },
+    {
+      name: 'Tournament',
+      value: 'tournament'
+    }],
   }),
 
   methods: {
@@ -150,7 +174,16 @@ export default {
 
     closeLoginModal() {
       this.isLoginModalOpen = false;
-    }
+    },
+
+    openCreateWidget(createType) {
+      this.$emit('open:createWidget' , createType);
+      this.toggleDropDown();
+    },
+
+    toggleDropDown() {
+      this.isDropDownOpen = !this.isDropDownOpen;
+    },
   },
 
   mounted () {    
