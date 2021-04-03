@@ -8,8 +8,8 @@
         :clear-on-select="false" 
         :preserve-search="true" 
         :taggable="true" 
-        @tag="addCreator"
-        @input="setCreator"
+        @tag="addCreator($event)"
+        @input="setCreator()"
         placeholder="Search or add a Creator"
         label="name" >
         <template slot="selection" 
@@ -41,11 +41,11 @@ export default {
   }, 
 
   methods: {
-    async addCreator (newCreator) {
+    async addCreator(newCreator) { 
       await CreatorsService.addCreator({
         Name: newCreator,
-        CreatedDate: this.timestamp,
-        UpdatedDate: null,
+        Logo: null,
+        youtubeChannel: null
       })
       this.getCreators();
     },
@@ -63,7 +63,7 @@ export default {
     },
 
     setCreator() {
-      this.$emit('update:creator' , this.selectedCreator.id);
+      this.$emit('update:creator' , this.selectedCreator);
     }
   },
 

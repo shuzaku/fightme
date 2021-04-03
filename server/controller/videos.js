@@ -10,7 +10,7 @@ function addVideo(req, res) {
   var StartTime = req.body.StartTime;
   var EndTime = req.body.EndTime;
   var GameId = req.body.GameId;
-  var ComboId = req.body.ComboId;
+  var ComboId = req.body.ComboId || "000000000000000000000000";
   var Player1Id = req.body.Player1Id;
   var Player2Id = req.body.Player2Id;
   var Player1CharacterId = req.body.Player1CharacterId;

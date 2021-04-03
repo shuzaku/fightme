@@ -1,4 +1,5 @@
 var Creator = require("../models/creators");
+var ObjectId = require('mongodb').ObjectId;
 
 // Add new creator
 function addCreator(req, res) {
@@ -26,12 +27,17 @@ function addCreator(req, res) {
 
 // Fetch all creator
 function getCreators(req, res) {
-  Creator.find({}, 'Name LogoUrl YoutubeUrl', function (error, creators) {
+  Creator.aggregate([{$match: {
+    _id: {
+      $ne: ObjectId("000000000000000000000000")
+    }
+  }
+  }], function (error, creators) {
     if (error) { console.error(error); }
     res.send({
       creators: creators
     })
-  }).sort({ _id: -1 })
+  })
 }
 
 // Fetch single creator

@@ -341,7 +341,7 @@ export default {
     },
 
     setCreator(creatorId) {
-      this.video.contentCreatorId = creatorId;
+      this.video.contentCreatorId = creatorId.id;
     },
 
     setTags(tags) {

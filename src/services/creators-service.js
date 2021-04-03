@@ -8,7 +8,7 @@ export default {
   },
 
   addCreator (params) {
-    return Api().post('creators', params)
+    return Api().post('creator', params)
   },
 
   queryCreators (params) {
