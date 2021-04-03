@@ -65,39 +65,41 @@ export default {
         'video': this.video,
     };
   },
-  data: () => ({
-    isLoading: true,
-    search: null,
-    isDropDownOpen: false,
-    isRegisterModalOpen: false,
-    isLoginModalOpen: false,
-    searchValue: null,
-    searchValues: [],
-    createOptions:[{
-      name: 'Video',
-      value: 'video'
-    },
-    {
-      name: 'Game',
-      value: 'game'
-    },
-    {
-      name: 'Player',
-      value: 'player'
-    },
-    {
-      name: 'Creator',
-      value: 'creator'
-    },
-    {
-      name: 'Character',
-      value: 'character'
-    },
-    {
-      name: 'Tournament',
-      value: 'tournament'
-    }],
-  }),
+  data () {
+    return {
+      isLoading: true,
+      search: null,
+      isDropDownOpen: false,
+      isRegisterModalOpen: false,
+      isLoginModalOpen: false,
+      searchValue: null,
+      searchValues: [],
+      createOptions:[{
+        name: 'Video',
+        value: 'video'
+      },
+      {
+        name: 'Game',
+        value: 'game'
+      },
+      {
+        name: 'Player',
+        value: 'player'
+      },
+      {
+        name: 'Creator',
+        value: 'creator'
+      },
+      {
+        name: 'Character',
+        value: 'character'
+      },
+      {
+        name: 'Tournament',
+        value: 'tournament'
+      }],
+    }
+  },
 
   methods: {
     async getSearch() {
@@ -177,14 +179,7 @@ export default {
       this.isLoginModalOpen = false;
     },
 
-    openCreateWidget(createType) {
-      this.$emit('open:createWidget' , createType);
-      this.toggleDropDown();
-    },
 
-    toggleDropDown() {
-      this.isDropDownOpen = !this.isDropDownOpen;
-    },
   },
 
   mounted () {    
@@ -224,31 +219,6 @@ export default {
     justify-content: center;
     padding: 0 56px 0 56px;
     position: relative;
-  }
-
-  .top-nav .add-btn {
-    position: absolute;
-    top: 0;
-    right: 56px;
-    background: #1ab097 !important;
-  }
-
-  .top-nav .add-content-dropdown {
-    position: absolute;
-    top: 100%;
-    margin-top: 20px;
-    right: 35px;
-  }
-
-  .top-nav .add-content-dropdown li {
-    list-style: none;
-    font-size: 40px;
-    margin-bottom: 20px;
-    cursor: pointer;
-  }
-
-  .top-nav .add-content-dropdown li:hover {
-    opacity: .7;
   }
 
   .top-nav .search-container fieldset {

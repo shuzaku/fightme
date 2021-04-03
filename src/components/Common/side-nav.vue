@@ -27,20 +27,63 @@
     <div class="menu-item">
       <div class="menu-heading"><font-awesome-icon icon="video" />Creators</div>
     </div>
+    <div class="menu-item" >
+      <div class="menu-heading" @click="toggleDropDown()"><font-awesome-icon icon="video" />Add</div>
+    </div>
+    <div class="add-content-dropdown" v-if="isDropDownOpen">
+      <ul>
+        <li v-for="create in createOptions" :key="create.value" @click="openCreateWidget(create.value)">
+          {{create.name}}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
+import { eventbus } from '@/main';
 
 export default {
   name: 'SideNav',
-
-  props: {
-
+  data() {
+    return {
+      isDropDownOpen: false,
+      createOptions:[{
+        name: 'Video',
+        value: 'video'
+      },
+      {
+        name: 'Game',
+        value: 'game'
+      },
+      {
+        name: 'Player',
+        value: 'player'
+      },
+      {
+        name: 'Creator',
+        value: 'creator'
+      },
+      {
+        name: 'Character',
+        value: 'character'
+      },
+      {
+        name: 'Tournament',
+        value: 'tournament'
+      }],
+    }
   },
 
   methods: {
+    openCreateWidget(createType) {
+      eventbus.$emit('open:createWidget' , createType);
+      this.toggleDropDown();
+    },
 
+    toggleDropDown() {
+      this.isDropDownOpen = !this.isDropDownOpen;
+    },
   }
 
 };
@@ -104,5 +147,20 @@ export default {
   }
   .side-nav .logo svg path {
     fill: #3EB489;
+  }
+
+  .side-nav .add-content-dropdown li {
+    list-style: none;
+    margin-bottom: 15px;
+    cursor: pointer;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 300;
+    margin-left: 40px
+  }
+
+  .side-nav .add-content-dropdown li:hover {
+    opacity: .7;
   }
 </style>

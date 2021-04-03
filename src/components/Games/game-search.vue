@@ -13,7 +13,7 @@
         placeholder="Search or add a Game"
         label="title" >
         <template slot="selection" 
-          slot-scope="{ values, search, isOpen }">
+          slot-scope="{ values, isOpen }">
           <span class="multiselect__single" 
             v-if="values.length &amp;&amp; !isOpen">
             Select Game
