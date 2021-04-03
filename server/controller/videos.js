@@ -84,6 +84,7 @@ function queryVideo(req, res) {
   
   if(!req.query.queryValue) {
     Video.aggregate([
+      {$sort: {_id: -1}},
       {$set: {GameId: {$toObjectId: "$GameId"} }},
       {$lookup: {
         from: "games",
@@ -158,7 +159,6 @@ function queryVideo(req, res) {
       {$unwind: '$ComboCharacter'},
       {$skip: skip},
       {$limit: 5},
-      {$sort: {_id: -1}}
     ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({
@@ -334,6 +334,7 @@ function queryVideo(req, res) {
       {$unwind: '$ComboCharacter'},
       {$skip: skip},
       {$limit: 5},
+      {$sort: {_id: -1}}
     ], function (error, videos) {
       if (error) { console.error(error); }
       res.send({

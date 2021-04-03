@@ -10,8 +10,7 @@
           @closeModal = "closeModal()" />
         <div class="content-container">
           <div class="main-content-container">
-            <top-nav 
-              @open:createWidget="openModal($event)"/>
+            <top-nav />
             <router-view />
           </div>
           <div class="trending-container">
@@ -26,6 +25,7 @@
 </template>
 
 <script>
+import { eventbus } from '@/main';
 import TopNav from '@/components/common/top-nav';
 import SideNav from '@/components/common/side-nav';
 import Modal from '@/components/common/modal';
@@ -39,10 +39,12 @@ export default {
     'modal': Modal,
   },
 
-  data: () => ({
-    createType: null,
-    isWidgetOpen: false,
-  }),
+  data() {
+    return {
+      createType: null,
+      isWidgetOpen: false,
+    }
+  },
 
   methods: {
     openModal(createType) {
@@ -53,7 +55,15 @@ export default {
     closeModal() {
       this.isWidgetOpen = false;
     }
-  }
+  },
+
+  created() {
+    eventbus.$on('open:createWidget', this.openModal);
+  },
+
+  beforeDestroy() {
+    eventbus.$off('open:createWidget', this.openModal);
+  },
 };
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
@@ -97,6 +107,7 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
+    margin-top: 15px;
 }
 
 #app .text-center {
@@ -148,9 +159,15 @@ export default {
   padding: 10px 15px;
   border-radius: 5px;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 #app .multiselect input {
   border: none;
+  margin-bottom: 0;
+}
+
+#app .multiselect {
+  margin-bottom: 20px;
 }
 </style>

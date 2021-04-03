@@ -2,6 +2,7 @@
   <div class="post-video">
     <h1>Add Video</h1>
     <div class="video-step" v-show="currentStep==='Video'">
+      <p v-show="showErrorMessage && !video.contentType" class="error-msg" >Please select content type</p>
       <multiselect 
         v-model="video.contentType" 
         :options="contentTypes" 
@@ -18,6 +19,7 @@
         </template>
       </multiselect>
       <!--- game --->
+      <p v-show="showErrorMessage && !video.gameId" class="error-msg" >Please Game</p>
       <div class="game-container" >
         <game-search 
           v-model="video.gameId" 
@@ -82,10 +84,12 @@
       <!--- players --->
       <div class="players-container">
         <h2>Players</h2>
+        <p v-show="showErrorMessage && !video.match.player1.id" class="error-msg" >Please select player 1</p>
         <player-search 
           v-model="video.match.player1.id" 
           :player=1
           @update:player="setPlayer1($event)" />
+          <p v-show="showErrorMessage && !video.match.player1.characterId" class="error-msg" >Please select player 1's character</p>
         <character-search 
           v-if="video.gameId"
           v-model="video.match.player1.characterId"
@@ -93,10 +97,12 @@
           :player=1 
           @update:character="setPlayer1Character($event)" />
         <strong> VS. </strong>
+        <p v-show="showErrorMessage && !video.match.player2.id" class="error-msg" >Please select player 2</p>
         <player-search 
           v-model="video.match.player2.id" 
           :player=2
           @update:player="setPlayer2($event)" />
+          <p v-show="showErrorMessage && !video.match.player2.characterId" class="error-msg" >Please select player 2's character</p>
         <character-search 
           v-if="video.gameId"
           v-model="video.match.player2.characterId"
@@ -182,6 +188,7 @@ export default {
         inputs: [],
         characterId: ''
       },
+      showErrorMessage: false,
       video: {
         id: '',
         contentType: '',
@@ -232,6 +239,20 @@ export default {
       players.push(this.video.match.player1);
       players.push(this.video.match.player2);
       return players;
+    },
+
+    isValidated: function() {
+      var setMatchPlayers = this.video.match.player1.characterId && this.video.match.player2.characterId;
+      var setMatchCharacters = this.video.match.player1.id && this.video.match.player2.id;
+      var matchSettingsValidated = this.video.contentType === "Match" && setMatchPlayers  && setMatchCharacters;
+      var comboSettingsValidated = this.video.contentType === "Combo" && this.video.comboId
+
+      if (this.video.url && this.video.gameId) {
+        return matchSettingsValidated || comboSettingsValidated;
+      }
+      else {
+        return false
+      }
     }
   },
 
@@ -250,12 +271,19 @@ export default {
 
   methods: {
     nextStep(){
-      if(this.video.contentType === 'Combo'){
-        this.currentStep = 'Combo'
-      } 
-      else if(this.video.contentType === 'Match'){
-        this.currentStep = 'Match'
+      if(this.video.gameId && this.video.url && this.video.contentType) {
+        this.showErrorMessage = false;
+        if(this.video.contentType === 'Combo'){
+          this.currentStep = 'Combo'
+        } 
+        else if(this.video.contentType === 'Match'){
+          this.currentStep = 'Match'
+        }
       }
+      else {
+        this.showErrorMessage = true;
+      }
+
     },
 
     setUploadedVideo(uploadedVideo) {
@@ -281,27 +309,34 @@ export default {
     },
 
     async postVideo() {
-      await VideosService.addVideo({
-        Url: this.video.url,
-        ContentType: this.video.contentType,
-        ContentCreatorId: this.video.contentCreatorId,
-        VideoType: this.video.type,
-        VideoUrl: this.video.url,
-        StartTime: this.video.startTime,
-        EndTime: this.video.endTime,
-        GameId: this.video.gameId,
-        ComboId: this.video.comboId,
-        Player1Id:this.video.match.player1.id,
-        Player1CharacterId: this.video.match.player1.characterId,
-        Player2Id:this.video.match.player2.id,
-        Player2CharacterId: this.video.match.player2.characterId,
-        Winner: this.video.match.winner.id,
-        // TournamentId: this.video.match.tournamentId,
-        Tags: this.video.tags,
-      });
+      if(this.isValidated){
+        await VideosService.addVideo({
+          Url: this.video.url,
+          ContentType: this.video.contentType,
+          ContentCreatorId: this.video.contentCreatorId,
+          VideoType: this.video.type,
+          VideoUrl: this.video.url,
+          StartTime: this.video.startTime,
+          EndTime: this.video.endTime,
+          GameId: this.video.gameId,
+          ComboId: this.video.comboId,
+          Player1Id:this.video.match.player1.id,
+          Player1CharacterId: this.video.match.player1.characterId,
+          Player2Id:this.video.match.player2.id,
+          Player2CharacterId: this.video.match.player2.characterId,
+          WinnerId: this.video.match.winner.id,
+          // TournamentId: this.video.match.tournamentId,
+          Tags: this.video.tags,
+        });
 
-      this.$emit('closeModal');
-      eventbus.$emit('newVideoPosted');
+        this.$emit('closeModal');
+        eventbus.$emit('newVideoPosted');
+      }
+      else {
+        this.showErrorMessage = true;
+      }
+
+
     },
 
     setPlayer1(player) {
@@ -312,7 +347,6 @@ export default {
     setPlayer2(player) {
       this.video.match.player2.id = player.id;
       this.video.match.player2.name = player.name;
-
     },
 
     setWinner(player) {
@@ -396,10 +430,18 @@ export default {
 }
 
 .post-video .players-container .multiselect {
-  margin: 20px 0;
+  margin: 10px 0 20px;
 }
 
 .post-video .players-container h2 {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.post-video .error-msg {
+  color: red;
+  font-weight: 300;
+  font-style: italics;
   text-align: left;
 }
 </style>
