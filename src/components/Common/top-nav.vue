@@ -221,31 +221,6 @@ export default {
     position: relative;
   }
 
-  .top-nav .add-btn {
-    position: absolute;
-    top: 0;
-    right: 56px;
-    background: #1ab097 !important;
-  }
-
-  .top-nav .add-content-dropdown {
-    position: absolute;
-    top: 100%;
-    margin-top: 20px;
-    right: 35px;
-  }
-
-  .top-nav .add-content-dropdown li {
-    list-style: none;
-    font-size: 40px;
-    margin-bottom: 20px;
-    cursor: pointer;
-  }
-
-  .top-nav .add-content-dropdown li:hover {
-    opacity: .7;
-  }
-
   .top-nav .search-container fieldset {
     background: #fff;
   }
