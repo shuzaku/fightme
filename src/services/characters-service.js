@@ -8,7 +8,7 @@ export default {
   },
 
   addCharacter (params) {
-    return Api().post('character', params)
+    return Api().post('characters', params)
   },
 
   addBulkCharacters (params) {

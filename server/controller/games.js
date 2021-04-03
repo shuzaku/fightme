@@ -2,8 +2,7 @@ var Game = require("../models/games");
 var ObjectId = require('mongodb').ObjectId;
 
 // Add new game
-function addgame(req, res) {
-  var db = req.db;
+function addGame(req, res) {
   var Title = req.body.Title;
   var LogoUrl = req.body.LogoUrl;
   var new_game = new Game({
@@ -110,4 +109,4 @@ function deleteGame(req, res) {
   })
 }
 
-module.exports = { addgame, getGames, getGame, queryGame, updateGame, deleteGame}
+module.exports = { addGame, getGames, getGame, queryGame, updateGame, deleteGame}

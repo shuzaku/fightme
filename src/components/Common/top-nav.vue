@@ -49,16 +49,14 @@
 
 <script>
 import { eventbus } from '@/main';
-
-// import SearchAll from '@/components/Common/SearchAll'
 // import Register from '@/components/account/register';
 // import Login from '@/components/account/login';
 import GeneralService from '@/services/general-service';
+
 export default {
   name: 'TopNav',
 
   components: {
-    // 'search-all': SearchAll,
     // 'register': Register,
     // 'login': Login
   },
@@ -68,6 +66,7 @@ export default {
     };
   },
   data: () => ({
+    isLoading: true,
     search: null,
     isDropDownOpen: false,
     isRegisterModalOpen: false,
@@ -147,15 +146,17 @@ export default {
           values: searchValues.filter(value => value.valueType === 'Game')
         }
       ]
+      
+      this.isLoading = false;
     },
 
     setSearch() {
-        var query = {
-          queryName: this.searchValue.valueType,
-          queryValue: this.searchValue.id
-        }
-        
-        eventbus.$emit('search' , query);
+      var query = {
+        queryName: this.searchValue.valueType,
+        queryValue: this.searchValue.id
+      }
+      
+      eventbus.$emit('search' , query);
     },
 
     openRegisterModal() {
@@ -188,6 +189,14 @@ export default {
 
   mounted () {    
     this.getSearch();
+  },
+
+  created() {
+      eventbus.$on('updateSearch', this.getSearch);
+  },
+
+  beforeDestroy() {
+      eventbus.$off('updateSearch', this.getSearch);
   },
 };
 </script>

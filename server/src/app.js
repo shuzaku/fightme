@@ -35,7 +35,7 @@ app.listen(process.env.PORT || 8081)
 app.post('/accounts', (req, res) => accountController.addAccount(req,res));
 
 //Characters
-app.post('/character', (req, res) => characterController.addCharacter(req,res));
+app.post('/characters', (req, res) => characterController.addCharacter(req,res));
 app.get('/characterQuery', (req, res) => characterController.queryCharacter(req,res));
 app.get('/characters', (req, res) => characterController.getCharacters(req,res));
 app.get('/characters/:id', (req, res) => characterController.getCharacter(req,res));
@@ -53,7 +53,7 @@ app.put('/creators/:id', (req, res) => creatorController.updateCreator(req,res))
 app.delete('/creators/:id', (req, res) => creatorController.deleteCreator(req,res));
 
 //Games
-app.post('/game', (req, res) => gameController.addGame(req,res));
+app.post('/games', (req, res) => gameController.addGame(req,res));
 app.get('/gameQuery', (req, res) => gameController.queryGame(req,res));
 app.get('/games', (req, res) => gameController.getGames(req,res));
 app.get('/games/:id', (req, res) => gameController.getGame(req,res));
