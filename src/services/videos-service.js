@@ -7,7 +7,7 @@ export default {
   },
 
   addVideo (params) {
-    return Api().post('videos', params)
+    return Api().post('video', params)
   },
   
   queryVideos (params) {
