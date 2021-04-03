@@ -7,14 +7,12 @@
             <img  :src="game.logoUrl" class="logo"/>
             <v-btn class="remove-image-btn" @click="game.logoUrl=''">X</v-btn>
           </div>
-          <div class="game-title-container">
-            <input type="text" name="title" placeholder="TITLE" v-model="game.title">
-          </div>
+          <input type="text" name="title" placeholder="Title" v-model="game.title">
           <input type="text"  
               v-if="!game.logoUrl"
               id="import-image"
               v-model="game.logoUrl"
-              placeholder="logo Url"/>
+              placeholder="Logo Url"/>
           <div class="bulk-add-characters">
             <textarea name="character" v-model="unfilteredCharacters" placeholder="Character Names (separated by commas)"/> 
           </div>
@@ -49,6 +47,7 @@
 </template>
 
 <script>
+import { eventbus } from '@/main';
 import GamesService from '@/services/games-service';
 import CharactersService from '@/services/characters-service';
 import moment from 'moment'
@@ -99,6 +98,8 @@ export default {
           GameId: this.game.id
         }
       }));
+
+      eventbus.$emit('updateSearch');
       this.$emit('closeModal');
     },
 
@@ -177,7 +178,7 @@ export default {
 
 .games .player-img-container img{
   width: 50px;
-  height: 50px;
+  height: auto;
   border-radius: 50%;
 }
 
@@ -192,5 +193,19 @@ export default {
   top: 0;
   font-size: 8px;
   right: 0;
+}
+
+.games .submit-btn {
+  margin-top: 20px;
+}
+
+.games .logo-img-container img{
+  width: 200px;
+  height: auto;
+  margin: 0 auto;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 20px;
+  justify-content: space-around;
 }
 </style>

@@ -105,7 +105,6 @@ export default {
       }
 
       const response = await VideosService.queryVideos(queryParameter);
-      console.log(response)
       this.hydrateVideos(response);
       if(this.videos.length < 6){
         this.playFirstVideo();

@@ -140,4 +140,17 @@ export default {
   padding-top: 100px;
   margin-left: 40px;
 }
+
+#app input,
+#app textarea {
+  display: block;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+#app .multiselect input {
+  border: none;
+}
 </style>
