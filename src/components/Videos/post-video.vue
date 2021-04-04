@@ -321,9 +321,9 @@ export default {
           GameId: this.video.gameId,
           ComboId: this.video.comboId,
           Player1Id:this.video.match.player1.id,
-          Player1CharacterId: this.video.match.player1.characterId,
+          Player1CharacterIds: this.video.match.player1.characterId,
           Player2Id:this.video.match.player2.id,
-          Player2CharacterId: this.video.match.player2.characterId,
+          Player2CharacterIds: this.video.match.player2.characterId,
           WinnerId: this.video.match.winner.id,
           // TournamentId: this.video.match.tournamentId,
           Tags: this.video.tags,
@@ -335,8 +335,6 @@ export default {
       else {
         this.showErrorMessage = true;
       }
-
-
     },
 
     setPlayer1(player) {

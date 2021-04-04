@@ -10,11 +10,15 @@ function addVideo(req, res) {
   var StartTime = req.body.StartTime;
   var EndTime = req.body.EndTime;
   var GameId = req.body.GameId;
-  var ComboId = req.body.ComboId || "000000000000000000000000";
+  var ComboId = req.body.ComboId;
   var Player1Id = req.body.Player1Id;
   var Player2Id = req.body.Player2Id;
   var Player1CharacterId = req.body.Player1CharacterId;
+  var Player1Character2Id = req.body.Player1Character2Id;
+  var Player1Character3Id = req.body.Player1Character3Id;
   var Player2CharacterId = req.body.Player2CharacterId;
+  var Player2Character2Id = req.body.Player2Character2Id;
+  var Player2Character3Id = req.body.Player2Character3Id;
   var WinnerId = req.body.WinnerId;
   var Tags = req.body.Tags;
 
@@ -30,7 +34,11 @@ function addVideo(req, res) {
     Player1Id: Player1Id,
     Player2Id: Player2Id,
     Player1CharacterId: Player1CharacterId,
+    Player1Character2Id:Player1Character2Id,
+    Player1Character3Id:Player1Character3Id,
     Player2CharacterId: Player2CharacterId,
+    Player2Character2Id:Player2Character2Id,
+    Player2Character3Id:Player2Character3Id,
     WinnerId: WinnerId,
     Tags: Tags
   })
@@ -82,266 +90,122 @@ function queryVideo(req, res) {
 
   var skip =  parseInt(req.query.skip);
   
-  if(!req.query.queryValue) {
-    Video.aggregate([
-      {$sort: {_id: -1}},
-      {$set: {GameId: {$toObjectId: "$GameId"} }},
-      {$lookup: {
-        from: "games",
-        localField: "GameId",
-        foreignField: "_id",
-        as: "Game"
-        }
-      },
-      {$unwind: '$Game'},
-      {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
-      {$lookup: {
-        from: "creators",
-        localField: "ContentCreatorId",
-        foreignField: "_id",
-        as: "ContentCreator"
-        }
-      },
-      {$unwind: '$ContentCreator'},
-      {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
-      {$lookup: {
-        from: "players",
-        localField: "Player1Id",
-        foreignField: "_id",
-        as: "Player1"
-        }
-      },
-      {$unwind: '$Player1'},
-      {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
-      {$lookup: {
-        from: "players",
-        localField: "Player2Id",
-        foreignField: "_id",
-        as: "Player2"
-        }
-      },
-      {$unwind: '$Player2'},
-      {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Player1CharacterId",
-        foreignField: "_id",
-        as: "Player1Character"
-        }
-      },
-      {$unwind: '$Player1Character'},
-      {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Player2CharacterId",
-        foreignField: "_id",
-        as: "Player2Character"
-        }
-      },
-      {$unwind: '$Player2Character'},
-      {$set: {'ComboId': {$toObjectId: "$ComboId"} }},
-      {$lookup: {
-        from: "combos",
-        localField: "ComboId",
-        foreignField: "_id",
-        as: "Combo"
-        }
-      },
-      {$unwind: '$Combo'},
-      {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Combo.CharacterId",
-        foreignField: "_id",
-        as: "ComboCharacter"
-        }
-      },
-      {$unwind: '$ComboCharacter'},
-      {$skip: skip},
-      {$limit: 5},
-    ], function (error, videos) {
-      if (error) { console.error(error); }
-      res.send({
-        videos: videos
-      })
+  var aggregate = [    
+    {$sort: {_id: -1}},
+    {$lookup: {
+      from: "games",
+      localField: "GameId",
+      foreignField: "_id",
+      as: "Game"
+      }
+    },
+    {$unwind: '$Game'},
+    {$lookup: {
+      from: "creators",
+      localField: "ContentCreatorId",
+      foreignField: "_id",
+      as: "ContentCreator"
+      }
+    },
+    {$unwind: {path:'$ContentCreator', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "players",
+      localField: "Player1Id",
+      foreignField: "_id",
+      as: "Player1"
+      }
+    },
+    {$unwind: {path:'$Player1', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "players",
+      localField: "Player2Id",
+      foreignField: "_id",
+      as: "Player2"
+      }
+    },
+    {$unwind: {path:'$Player2', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player1CharacterId",
+      foreignField: "_id",
+      as: "Player1Character"
+      }
+    },
+    {$unwind: {path:'$Player1Character', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player1Character2Id",
+      foreignField: "_id",
+      as: "Player1Character2"
+      }
+    },
+    {$unwind: {path:'$Player1Character2', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player1Character3Id",
+      foreignField: "_id",
+      as: "Player1Character3"
+      }
+    },
+    {$unwind: {path:'$Player1Character3', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player2CharacterId",
+      foreignField: "_id",
+      as: "Player2Character"
+      }
+    },
+    {$unwind: {path:'$Player2Character', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player2Character2Id",
+      foreignField: "_id",
+      as: "Player2Character2"
+      }
+    },
+    {$unwind: {path:'$Player2Character2', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player2Character3Id",
+      foreignField: "_id",
+      as: "Player2Character3"
+      }
+    },
+    {$unwind: {path:'$Player2Character3', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "combos",
+      localField: "ComboId",
+      foreignField: "_id",
+      as: "Combo"
+      }
+    },
+    {$unwind: {path:'$Combo', preserveNullAndEmptyArrays: true}},
+    {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
+    {$lookup: {
+      from: "characters",
+      localField: "Combo.CharacterId",
+      foreignField: "_id",
+      as: "ComboCharacter"
+      }
+    },
+    {$unwind: {path:'$ComboCharacter', preserveNullAndEmptyArrays: true}}
+  ];
+
+  if(queries.length > 0) {
+    aggregate.push({$match: {$or: queries}});
+  }
+
+  aggregate.push({$skip: skip});
+  aggregate.push({$limit: 5});  
+
+  console.log(aggregate);
+
+  Video.aggregate(aggregate, function (error, videos) {
+    if (error) { console.error(error); }
+    res.send({
+      videos: videos
     })
-  }
-  else if(queries.length > 0) {
-    Video.aggregate([
-      {$set: {GameId: {$toObjectId: "$GameId"} }},
-      {$lookup: {
-        from: "games",
-        localField: "GameId",
-        foreignField: "_id",
-        as: "Game"
-        }
-      },
-      {$unwind: '$Game'},
-      {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
-      {$lookup: {
-        from: "creators",
-        localField: "ContentCreatorId",
-        foreignField: "_id",
-        as: "ContentCreator"
-        }
-      },
-      {$unwind: '$ContentCreator'},
-      {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
-      {$lookup: {
-        from: "players",
-        localField: "Player1Id",
-        foreignField: "_id",
-        as: "Player1"
-        }
-      },
-      {$unwind: '$Player1'},
-      {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
-      {$lookup: {
-        from: "players",
-        localField: "Player2Id",
-        foreignField: "_id",
-        as: "Player2"
-        }
-      },
-      {$unwind: '$Player2'},
-      {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Player1CharacterId",
-        foreignField: "_id",
-        as: "Player1Character"
-        }
-      },
-      {$unwind: '$Player1Character'},
-      {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Player2CharacterId",
-        foreignField: "_id",
-        as: "Player2Character"
-        }
-      },
-      {$unwind: '$Player2Character'},
-      {$set: {'ComboId': {$toObjectId: "$ComboId"} }},
-      {$lookup: {
-        from: "combos",
-        localField: "ComboId",
-        foreignField: "_id",
-        as: "Combo"
-        }
-      },
-      {$unwind: '$Combo'},
-      {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Combo.CharacterId",
-        foreignField: "_id",
-        as: "ComboCharacter"
-        }
-      },
-      {$unwind: '$ComboCharacter'},
-      {$match: {$or: queries}},
-      {$skip: skip},
-      {$limit: 5},
-      {$sort: {_id: -1}}
-    ], function (error, videos) {
-      if (error) { console.error(error); }
-      res.send({
-        videos: videos
-      })
-    })
-  }
-  else {
-    names = names[0];
-    values = values[0].toString();
-    Video.aggregate([
-      {$match: {  
-        GameId: {
-          $eq: '6024b01a0b99842b68eb9e32'
-        }
-      }},
-      {$set: {GameId: {$toObjectId: "$GameId"} }},
-      {$lookup: {
-        from: "games",
-        localField: "GameId",
-        foreignField: "_id",
-        as: "Game"
-        }
-      },
-      {$unwind: '$Game'},
-      {$set: {ContentCreatorId: {$toObjectId: "$ContentCreatorId"} }},
-      {$lookup: {
-        from: "creators",
-        localField: "ContentCreatorId",
-        foreignField: "_id",
-        as: "ContentCreator"
-        }
-      },
-      {$unwind: '$ContentCreator'},
-      {$set: {Player1Id: {$toObjectId: "$Player1Id"} }},
-      {$lookup: {
-        from: "players",
-        localField: "Player1Id",
-        foreignField: "_id",
-        as: "Player1"
-        }
-      },
-      {$unwind: '$Player1'},
-      {$set: {Player2Id: {$toObjectId: "$Player2Id"} }},
-      {$lookup: {
-        from: "players",
-        localField: "Player2Id",
-        foreignField: "_id",
-        as: "Player2"
-        }
-      },
-      {$unwind: '$Player2'},
-      {$set: {'Player1CharacterId': {$toObjectId: "$Player1CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Player1CharacterId",
-        foreignField: "_id",
-        as: "Player1Character"
-        }
-      },
-      {$unwind: '$Player1Character'},
-      {$set: {'Player2CharacterId': {$toObjectId: "$Player2CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Player2CharacterId",
-        foreignField: "_id",
-        as: "Player2Character"
-        }
-      },
-      {$unwind: '$Player2Character'},
-      {$set: {'ComboId': {$toObjectId: "$ComboId"} }},
-      {$lookup: {
-        from: "combos",
-        localField: "ComboId",
-        foreignField: "_id",
-        as: "Combo"
-        }
-      },
-      {$unwind: '$Combo'},
-      {$set: {'Combo.CharacterId': {$toObjectId: "$Combo.CharacterId"} }},
-      {$lookup: {
-        from: "characters",
-        localField: "Combo.CharacterId",
-        foreignField: "_id",
-        as: "ComboCharacter"
-        }
-      },
-      {$unwind: '$ComboCharacter'},
-      {$skip: skip},
-      {$limit: 5},
-      {$sort: {_id: -1}}
-    ], function (error, videos) {
-      if (error) { console.error(error); }
-      res.send({
-        videos: videos
-      })
-    }).sort({ _id: -1 })
-  }
+  })
 }
 
 // Fetch single Video

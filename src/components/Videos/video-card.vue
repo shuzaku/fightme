@@ -174,7 +174,8 @@ export default {
   background-position: top center;
   position: absolute;
   top: -15px;
-  left: -25px
+  left: -25px;
+  background-color: #e8e8e8;
 }
 
 .video-card .character-bubble.player2 {

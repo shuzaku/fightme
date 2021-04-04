@@ -1,5 +1,5 @@
 <template>
-  <div class="characters-view" ref="videoViewRef">
+  <div class="matches-view" ref="videoViewRef">
     <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
@@ -22,7 +22,7 @@ import { eventbus } from '@/main'
 
 
 export default {
-  name: 'characters',
+  name: 'videos',
 
   components: {
     'video-card': VideoCard,
@@ -32,6 +32,8 @@ export default {
     return {
       videos: [],
       loading: true,
+      query: null,
+      savedQuery: null,
       intersectionOptions: {
         root: null,
         rootMargin: '0px 0px 0px 0px',
@@ -43,31 +45,58 @@ export default {
   computed: {
     skip: function() {
       return this.videos.length;
-    },
-
-    characterId: function() {
-      return this.$route.params.id
-    }
-  },
-
-  watch: {
-    characterId: function() {
-      this.videos= [];
-      this.queryVideos();
     }
   },
 
   methods: {
-    async queryVideos() {
-      var searchQuery = null;
+    async getVideos() {
+      const response = await VideosService.fetchVideos(this.skip);
+      this.hydrateVideos(response);
+    },
 
-      searchQuery = [{
-        queryName : 'Player1CharacterId',
-        queryValue : this.characterId
-      },{
-        queryName : 'Player2CharacterId',
-        queryValue : this.characterId
-      }]
+    async queryVideos(query) {
+      var searchQuery = [];
+      var searchParameter = query || this.savedQuery;
+
+      if(this.savedQuery !== searchParameter) {
+        this.videos = [];
+        this.savedQuery = query;
+      } 
+
+      if(searchParameter){
+        if(searchParameter.queryName === 'Game') {
+          searchQuery = [{
+            queryName : 'GameId',
+            queryValue : searchParameter.queryValue
+          }]
+        }
+        if(searchParameter.queryName === 'Player') {
+          searchQuery = [{
+            queryName : 'Player1Id',
+            queryValue : searchParameter.queryValue
+          },{
+            queryName : 'Player2Id',
+            queryValue : searchParameter.queryValue
+          }]
+        }
+        if(searchParameter.queryName === 'Character') {
+          searchQuery = [{
+            queryName : 'Player1CharacterId',
+            queryValue : searchParameter.queryValue
+          },{
+            queryName : 'Player2CharacterId',
+            queryValue : searchParameter.queryValue
+          },{
+            queryName : 'Combo.CharacterId',
+            queryValue : searchParameter.queryValue
+          }]
+        }
+      }
+
+      searchQuery.push({
+        queryName : 'ContentType',
+        queryValue : 'Match'
+      })
 
       var queryParameter = {
         skip: this.skip,
@@ -76,11 +105,9 @@ export default {
 
       const response = await VideosService.queryVideos(queryParameter);
       this.hydrateVideos(response);
-      
-      if(this.videos.length < 5){
+      if(this.videos.length < 6){
         this.playFirstVideo();
       }
-      
     },
 
     playFirstVideo() {
@@ -103,7 +130,6 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          comboId: video.ComboId,
           match: {
             player1: {
               id: video.Player1Id,
@@ -136,7 +162,7 @@ export default {
           isPlaying: false,
           isEditing: false
         });
-      })
+      });
     },
 
     onWaypoint ({ el, going, direction }) {
@@ -153,11 +179,9 @@ export default {
     },
 
     handleScroll() {
-      if(this.videos.length > 0){
-        var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
-        if (bottomOfWindow) {
-          this.queryVideos();
-        }
+      var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+      if (bottomOfWindow) {
+        this.queryVideos();
       }
     },
 
@@ -185,39 +209,39 @@ export default {
 </script>
 
 <style>
-  .characters-view {
+  .matches-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: hidden;
     justify-content: space-around;
     padding-top: 30px;
     height: 100%;
+    overflow: hidden;
   }
 
-  .characters-view::-webkit-scrollbar-track {
+  .matches-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
 
-  .characters-view::-webkit-scrollbar {
+  .matches-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
   }
 
-  .characters-view::-webkit-scrollbar-thumb {
+  .matches-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 
-  .characters-view .videos-container {
+  .matches-view .videos-container {
     position: relative;
     padding: 0 40px;
   }
 
-  .characters-view .videos-container video {
+  .matches-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

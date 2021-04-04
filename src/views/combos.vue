@@ -1,5 +1,5 @@
 <template>
-  <div class="videos-view" ref="videoViewRef">
+  <div class="combos-view" ref="videoViewRef">
     <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
@@ -119,7 +119,8 @@ export default {
       this.isLoading = false;
     },
 
-    hydrateVideos(response){
+        hydrateVideos(response){
+      console.log(response)
        response.data.videos.forEach(video => {
         this.videos.push({
           id: video._id,
@@ -130,36 +131,14 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: {
+          combo: video.ComboCharacter ? {
             character:{
               id: video.ComboCharacter._id,
               name: video.ComboCharacter.Name,
               imageUrl: video.ComboCharacter.ImageUrl
             },
             inputs: video.Combo.Inputs
-          },
-          match: {
-            player1: {
-              id: video.Player1Id,
-              name: video.Player1.Name,
-              character: {
-                id: video.Player1CharacterId,
-                name: video.Player1Character.Name,
-                imageUrl: video.Player1Character.ImageUrl,
-              }
-            },
-            player2: {
-              id: video.Player2Id,
-              name: video.Player2.Name,
-              character: {
-                id: video.Player2CharacterId,
-                name: video.Player2Character.Name,
-                imageUrl: video.Player2Character.ImageUrl,
-              }
-            },
-            // winner: video.Match.Winner,
-            // tournamentId: video.Match.TournamentId,
-          },      
+          }: null,   
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -219,40 +198,40 @@ export default {
 </script>
 
 <style>
-  .videos-view {
+  .combos-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: auto;
     justify-content: space-around;
     padding-top: 30px;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
+    
   }
 
-  .videos-view::-webkit-scrollbar-track {
+  .combos-view::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
 
-  .videos-view::-webkit-scrollbar {
+  .combos-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
   }
 
-  .videos-view::-webkit-scrollbar-thumb {
+  .combos-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 
-  .videos-view .videos-container {
+  .combos-view .videos-container {
     position: relative;
     padding: 0 40px;
   }
 
-  .videos-view .videos-container video {
+  .combos-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

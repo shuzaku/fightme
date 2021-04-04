@@ -121,6 +121,7 @@ export default {
     },
 
     hydrateVideos(response){
+      console.log(response)
        response.data.videos.forEach(video => {
         this.videos.push({
           id: video._id,
@@ -131,15 +132,15 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: {
+          combo: video.ComboCharacter ? {
             character:{
               id: video.ComboCharacter._id,
               name: video.ComboCharacter.Name,
               imageUrl: video.ComboCharacter.ImageUrl
             },
             inputs: video.Combo.Inputs
-          },
-          match: {
+          }: null,
+          match: video.Player1Id && video.Player2Id ? {
             player1: {
               id: video.Player1Id,
               name: video.Player1.Name,
@@ -160,7 +161,7 @@ export default {
             },
             // winner: video.Match.Winner,
             // tournamentId: video.Match.TournamentId,
-          },      
+          } : null,      
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -205,7 +206,7 @@ export default {
   },
 
   mounted() {
-    this.queryVideos();
+    this.queryVideos(this.$route.params);
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('newVideoPosted' , this.addedNewVideo);
     eventbus.$on('search' , this.queryVideos);
@@ -224,15 +225,14 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: auto;
     justify-content: space-around;
     padding-top: 30px;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
   }
 
   .videos-view::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
@@ -244,7 +244,7 @@ export default {
 
   .videos-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 

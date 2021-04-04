@@ -1,7 +1,7 @@
 <template>
   <div class="side-nav">
     <div class="logo">
-      <font-awesome-icon icon="yin-yang" /> 
+      <h2><span>🥊</span> Fight.Me</h2>
     </div>
     <div class="menu-item">      
       <router-link
@@ -15,20 +15,23 @@
         <div class="menu-heading"><font-awesome-icon icon="gamepad" />Combos</div>
       </router-link>
     </div>
-    <div class="menu-item">
+    <!-- <div class="menu-item">
       <div class="menu-heading"><font-awesome-icon icon="users" />Players</div>
-    </div>
+    </div> -->
     <div class="menu-item">
+      <router-link
+        to="/matches">
       <div class="menu-heading"><font-awesome-icon icon="meteor" />Matches</div>
+      </router-link>
     </div>
-    <div class="menu-item">
+    <!-- <div class="menu-item">
       <div class="menu-heading"><font-awesome-icon icon="network-wired" />Tournaments</div>
     </div>
     <div class="menu-item">
       <div class="menu-heading"><font-awesome-icon icon="video" />Creators</div>
-    </div>
+    </div> -->
     <div class="menu-item" >
-      <div class="menu-heading" @click="toggleDropDown()"><font-awesome-icon icon="video" />Add</div>
+      <div class="menu-heading" @click="toggleDropDown()"><font-awesome-icon icon="plus-circle" />Add</div>
     </div>
     <div class="add-content-dropdown" v-if="isDropDownOpen">
       <ul>
@@ -91,8 +94,9 @@ export default {
 
 <style type="text/css">
   .side-nav {
-    width: 300px;
+    width: 400px;
     padding: 80px 30px;
+    position: fixed;
     -webkit-box-pack: justify;
     justify-content: space-between;
   }
@@ -114,8 +118,9 @@ export default {
     text-decoration: none;
   }
 
-  .side-nav .menu-item:hover {
+  .side-nav .menu-item .menu-heading:hover {
     color: #fff;
+    opacity: .7;
     cursor: pointer;
   }
 
@@ -132,7 +137,7 @@ export default {
   .side-nav .logo {
     display: flex;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 0px;
     color: #3EB489;
     text-transform: uppercase;
     font-size: 20px;
@@ -162,5 +167,27 @@ export default {
 
   .side-nav .add-content-dropdown li:hover {
     opacity: .7;
+  }
+
+  .side-nav .menu-item {
+    margin-left: 40px;
+  }
+
+  .side-nav .menu-item a {
+    text-decoration: none;
+  }
+
+  .side-nav h2 {
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 3px;
+    display: flex;
+    align-items: center;
+  }
+
+  .side-nav h2 span {
+    position: relative;
+    top: -3px;
+    margin-right: 5px;
   }
 </style>

@@ -33,11 +33,11 @@ var VideoSchema = new Schema({
     Player2Id: {
       type: String
     },
-    Player1CharacterId: {
-      type: String
+    Player1CharacterIds: {
+      type: Array
     },
-    Player2CharacterId: {
-      type: String
+    Player2CharacterIds: {
+      type: Array
     },
     WinnerId: {
       type: String

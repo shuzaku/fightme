@@ -14,7 +14,7 @@
             <router-view />
           </div>
           <div class="trending-container">
-            <h1>Trending</h1>
+            <h2>Trending</h2>
           </div>
         </div>
       </div>
@@ -100,6 +100,8 @@ export default {
   align-content: center;
   overflow: hidden;
   flex-basis: auto;
+  height: 100%;
+  min-height: 100%;
 }
 
 #app .top-nav {
@@ -107,7 +109,6 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-    margin-top: 15px;
 }
 
 #app .text-center {
@@ -148,12 +149,23 @@ export default {
 
 #app .trending-container{
   max-width: 350px;
-  padding-top: 100px;
+  padding-top: 80px;
   margin-left: 40px;
 }
 
-#app input,
-#app textarea {
+#app .trending-container h2{
+  color: #fff;
+  letter-spacing: 3px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+#app .videos-container {
+  margin-top: 30px;
+}
+
+input,
+textarea {
   display: block;
   border: 1px solid #eee;
   padding: 10px 15px;
@@ -162,12 +174,12 @@ export default {
   margin-bottom: 20px;
 }
 
-#app .multiselect input {
+.multiselect input {
   border: none;
   margin-bottom: 0;
 }
 
-#app .multiselect {
+.multiselect {
   margin-bottom: 20px;
 }
 </style>
