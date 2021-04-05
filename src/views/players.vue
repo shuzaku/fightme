@@ -104,14 +104,6 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: {
-            character:{
-              id: video.ComboCharacter._id,
-              name: video.ComboCharacter.Name,
-              imageUrl: video.ComboCharacter.ImageUrl
-            },
-            inputs: video.Combo.Inputs
-          },
           match: {
             player1: {
               id: video.Player1Id,

@@ -1,5 +1,6 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+const ObjectId = Schema.Types.ObjectId;
 
 var VideoSchema = new Schema({
     Url: {
@@ -10,7 +11,7 @@ var VideoSchema = new Schema({
       type: String
     },
     ContentCreatorId: {
-      type: String
+      type: ObjectId
     },
     VideoType: {
       type: String
@@ -22,25 +23,37 @@ var VideoSchema = new Schema({
       type: String
     },
     GameId: {
-      type: String
+      type: ObjectId
     },
     ComboId: {
-      type: String
+      type: ObjectId
     },
     Player1Id: {
-      type: String
+      type: ObjectId
     },
     Player2Id: {
-      type: String
+      type: ObjectId
     },
-    Player1CharacterIds: {
-      type: Array
+    Player1CharacterId: {
+      type: ObjectId
     },
-    Player2CharacterIds: {
-      type: Array
+    Player2CharacterId: {
+      type: ObjectId
+    },
+    Player1Character2Id: {
+      type: ObjectId
+    },
+    Player2Character2Id: {
+      type: ObjectId
+    },
+    Player1Character3Id: {
+      type: ObjectId
+    },
+    Player2Character3Id: {
+      type: ObjectId
     },
     WinnerId: {
-      type: String
+      type: ObjectId
     },
     Tags: {
       type: Array

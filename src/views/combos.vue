@@ -119,7 +119,7 @@ export default {
       this.isLoading = false;
     },
 
-        hydrateVideos(response){
+    hydrateVideos(response){
       console.log(response)
        response.data.videos.forEach(video => {
         this.videos.push({
