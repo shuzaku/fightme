@@ -80,18 +80,6 @@ function addVideo(req, res) {
   })
 }
 
-// Fetch all Video
-function getVideos(req, res) {
-  var query = req.query;
-  var skip = parseInt(req.query.skip);
-    Video.find({}, 'Url Type ContentCreatorId VideoType StartTime EndTime GameId ComboId Match Tags', function (error, videos) {
-      if (error) { console.error(error); }
-      res.send({
-        videos: videos
-      })
-    }).sort({ _id: -1 }).limit(5).skip(skip);
-}
-
 // Query Videos
 function queryVideo(req, res) {
   var queries = [];
@@ -279,4 +267,4 @@ function deleteVideo(req, res) {
   })
 }
 
-module.exports = { addVideo, getVideos, queryVideo, getVideo, updateVideo, deleteVideo}
+module.exports = { addVideo, queryVideo, getVideo, updateVideo, deleteVideo}

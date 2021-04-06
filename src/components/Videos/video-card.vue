@@ -34,7 +34,11 @@
           :mute="true" />
         <div class="card-label">{{video.contentType}}</div>
         <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.match.player1.character.imageUrl}')` }" />
+        <div v-if="video.match.player1.character2" class="character-bubble character-2" :style="{ 'backgroundImage': `url('${video.match.player1.character2.imageUrl}')` }" />
+        <div v-if="video.match.player1.character3" class="character-bubble character-3" :style="{ 'backgroundImage': `url('${video.match.player1.character3.imageUrl}')` }" />
         <div class="character-bubble player2" :style="{ 'backgroundImage': `url('${video.match.player2.character.imageUrl}')` }" />
+        <div v-if="video.match.player2.character2" class="character-bubble player2 character-2" :style="{ 'backgroundImage': `url('${video.match.player2.character2.imageUrl}')` }" />
+        <div v-if="video.match.player2.character3" class="character-bubble player2 character-3" :style="{ 'backgroundImage': `url('${video.match.player2.character3.imageUrl}')` }" />
         <div class="characters" v-if="!video.isEditing">
           <div class="player1" >
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player1.id)"><p>{{video.match.player1.name}}</p></div>
@@ -322,5 +326,11 @@ export default {
   border-top-left-radius: 15px;
 }
 
+.video-card .character-2 {
+  top: 40px;
+}
 
+.video-card .character-3 {
+  top: 120px;
+}
 </style>

@@ -96,6 +96,32 @@
           :gameId="video.gameId"
           :player=1 
           @update:character="setPlayer1Character($event)" />
+        <v-btn  
+          @click="player1Has2Characters = !player1Has2Characters"
+          v-if="!player1Has2Characters && video.match.player1.characterId"
+          class="add-more-characters"
+          tile color="indigo">
+          Add another character
+        </v-btn>        
+        <character-search 
+          v-if="video.gameId && player1Has2Characters"
+          v-model="video.match.player1.characterId2"
+          :gameId="video.gameId"
+          :player=2
+          @update:character="setPlayer1Character2($event)" />
+        <v-btn  
+          @click="player1Has3Characters = !player1Has3Characters"
+          v-if="!player1Has3Characters && video.match.player1.character2Id"
+          class="add-more-characters"
+          tile color="indigo">
+          Add another character
+        </v-btn>  
+        <character-search 
+          v-if="video.gameId && player1Has3Characters"
+          v-model="video.match.player1.characterId3"
+          :gameId="video.gameId"
+          :player=2
+          @update:character="setPlayer1Character3($event)" />
         <strong> VS. </strong>
         <p v-show="showErrorMessage && !video.match.player2.id" class="error-msg" >Please select player 2</p>
         <player-search 
@@ -105,10 +131,36 @@
           <p v-show="showErrorMessage && !video.match.player2.characterId" class="error-msg" >Please select player 2's character</p>
         <character-search 
           v-if="video.gameId"
-          v-model="video.match.player2.characterId"
+          v-model="video.match.player2.characterId2"
           :gameId="video.gameId"
           :player=2
           @update:character="setPlayer2Character($event)" />
+        <v-btn  
+          @click="player2Has2Characters = !player2Has2Characters"
+          v-if="!player2Has2Characters && video.match.player2.characterId"
+          class="add-more-characters"
+          tile color="indigo">
+          Add another character
+        </v-btn>  
+        <character-search 
+          v-if="video.gameId && player2Has2Characters"
+          v-model="video.match.player2.characterId3"
+          :gameId="video.gameId"
+          :player=2
+          @update:character="setPlayer2Character2($event)" />
+        <v-btn  
+          @click="player2Has3Characters = !player2Has3Characters"
+          v-if="!player2Has3Characters && video.match.player2.character2Id"
+          class="add-more-characters"
+          tile color="indigo">
+          Add another character
+        </v-btn>  
+        <character-search 
+          v-if="video.gameId && player3Has3Characters"
+          v-model="video.match.player2.characterId"
+          :gameId="video.gameId"
+          :player=2
+          @update:character="setPlayer2Character3($event)" />
         <div class="winner" v-if="video.match.player1.id && video.match.player2.id">
           <multiselect 
             v-model="video.match.winner" 
@@ -225,7 +277,11 @@ export default {
       games: [],
       origin: "web",
       isTournament: false,
-      contentTypes: ['Match' , 'Combo' , 'Analysis']
+      contentTypes: ['Match' , 'Combo' , 'Analysis'],
+      player1Has2Characters: false,
+      player1Has3Characters: false,
+      player2Has2Characters: false,
+      player2Has3Characters: false
     }
   },
 
@@ -322,8 +378,12 @@ export default {
           ComboId: this.video.comboId,
           Player1Id:this.video.match.player1.id,
           Player1CharacterId: this.video.match.player1.characterId,
+          Player1Character2Id: this.video.match.player1.character2Id,
+          Player1Character3Id: this.video.match.player1.character3Id,
           Player2Id:this.video.match.player2.id,
           Player2CharacterId: this.video.match.player2.characterId,
+          Player2Character2Id: this.video.match.player2.character2Id,
+          Player2Character3Id: this.video.match.player2.character3Id,
           WinnerId: this.video.match.winner.id,
           // TournamentId: this.video.match.tournamentId,
           Tags: this.video.tags,
@@ -355,9 +415,25 @@ export default {
     setPlayer1Character(characterId) {
       this.video.match.player1.characterId = characterId;
     },
+
+    setPlayer1Character2(characterId) {
+      this.video.match.player1.character2Id = characterId;
+    },
+
+    setPlayer1Character3(characterId) {
+      this.video.match.player1.character3Id = characterId;
+    },
   
     setPlayer2Character(characterId) {
       this.video.match.player2.characterId = characterId;
+    },
+
+    setPlayer2Character2(characterId) {
+      this.video.match.player2.character2Id = characterId;
+    },
+
+    setPlayer2Character3(characterId) {
+      this.video.match.player2.character3Id = characterId;
     },
 
     setComboCharacter(characterId) {

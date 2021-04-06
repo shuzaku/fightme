@@ -148,7 +148,17 @@ export default {
                 id: video.Player1CharacterId,
                 name: video.Player1Character.Name,
                 imageUrl: video.Player1Character.ImageUrl,
-              }
+              },
+              character2: video.Player1Character2Id ? {
+                id: video.Player1Character2Id,
+                name: video.Player1Character2.Name,
+                imageUrl: video.Player1Character2.ImageUrl,
+              }: null,
+              character3: video.Player1Character3Id ? {
+                id: video.Player1Character3Id,
+                name: video.Player1Character3.Name,
+                imageUrl: video.Player1Character3.ImageUrl,
+              }: null,
             },
             player2: {
               id: video.Player2Id,
@@ -157,7 +167,17 @@ export default {
                 id: video.Player2CharacterId,
                 name: video.Player2Character.Name,
                 imageUrl: video.Player2Character.ImageUrl,
-              }
+              },
+              character2: video.Player2Character2Id ? {
+                id: video.Player2Character2Id,
+                name: video.Player2Character2.Name,
+                imageUrl: video.Player2Character2.ImageUrl,
+              }: null,
+              character3: video.Player2Character3Id ? { 
+                id: video.Player2Character3Id,
+                name: video.Player2Character3.Name,
+                imageUrl: video.Player2Character3.ImageUrl,
+              }: null
             },
             // winner: video.Match.Winner,
             // tournamentId: video.Match.TournamentId,
