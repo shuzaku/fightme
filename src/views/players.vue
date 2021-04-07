@@ -123,8 +123,6 @@ export default {
                 imageUrl: video.Player2Character.ImageUrl,
               }
             },
-            // winner: video.Match.Winner,
-            // tournamentId: video.Match.TournamentId,
           },      
           tags: video.Tags.map(tag => {
             return {

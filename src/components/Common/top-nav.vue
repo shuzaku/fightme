@@ -57,11 +57,7 @@ export default {
     // 'register': Register,
     // 'login': Login
   },
-  provide() {
-    return {
-        'video': this.video,
-    };
-  },
+
   data () {
     return {
       isLoading: true,
@@ -95,6 +91,12 @@ export default {
         name: 'Tournament',
         value: 'tournament'
       }],
+    }
+  },
+
+  computed: {
+    characters: function() {
+      return  this.searchValues[1].values.filter(value => value.valueType === 'Character').map(character => { return character.value});
     }
   },
 

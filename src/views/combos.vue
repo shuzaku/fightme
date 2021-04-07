@@ -49,11 +49,6 @@ export default {
   },
 
   methods: {
-    async getVideos() {
-      const response = await VideosService.fetchVideos(this.skip);
-      this.hydrateVideos(response);
-    },
-
     async queryVideos(query) {
       var searchQuery = [];
       var searchParameter = query || this.savedQuery;
@@ -120,7 +115,6 @@ export default {
     },
 
     hydrateVideos(response){
-      console.log(response)
        response.data.videos.forEach(video => {
         this.videos.push({
           id: video._id,
@@ -137,8 +131,10 @@ export default {
               name: video.ComboCharacter.Name,
               imageUrl: video.ComboCharacter.ImageUrl
             },
-            inputs: video.Combo.Inputs
-          }: null,   
+            inputs: video.Combo.Inputs,
+            hits: video.Combo.Hits,
+            damage: video.Combo.Damage
+          }: null,  
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -186,13 +182,11 @@ export default {
     this.queryVideos();
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('newVideoPosted' , this.addedNewVideo);
-    eventbus.$on('search' , this.queryVideos);
   },
 
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
     eventbus.$off('newVideoPosted' , this.addedNewVideo);
-    eventbus.$off('search' , this.queryVideos);
   }
 }
 </script>
@@ -206,11 +200,10 @@ export default {
     padding-top: 30px;
     height: 100%;
     overflow: hidden;
-    
   }
 
   .combos-view::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
@@ -222,7 +215,7 @@ export default {
 
   .combos-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 

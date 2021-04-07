@@ -187,12 +187,22 @@
         </div>
       </div>
     </div>
-    <div class="match-step" v-if="currentStep === 'Combo'">
+    <div class="combo-step" v-if="currentStep === 'Combo'">
       <div class="character-container" v-if="video.gameId">
           <character-search 
             v-model="combo.characterId"
             :gameId="video.gameId"
             @update:character="setComboCharacter($event)" />
+      </div>
+      <div class="combo-details-container" >
+        <v-text-field 
+          label="Combo Hits"
+          type="Number"
+          v-model="combo.hits"/>
+        <v-text-field 
+          type="Number"
+          label="Combo Damage"  
+          v-model="combo.damage"/>
       </div>
       <div class="inputs-container" >
           <v-textarea v-model="comboInputsRaw" placeholder="Combo Inputs"/>
@@ -238,7 +248,9 @@ export default {
       comboInputsRaw: '',
       combo: {
         inputs: [],
-        characterId: ''
+        characterId: '',
+          hits: 0,
+          damage: 0 
       },
       showErrorMessage: false,
       video: {
@@ -314,10 +326,13 @@ export default {
 
   watch: {
     importVideoUrl() {
-        if(this.importVideoUrl.includes('youtube')) {
+      if(this.importVideoUrl.includes('youtube')) {
         this.video.url = this.importVideoUrl.substring((this.importVideoUrl.indexOf("v=") + 2) , (this.importVideoUrl.indexOf("&ab_channel")));
         this.video.type = 'youtube'
-      }    
+      }
+      else {
+        this.video.url = this.importVideoUrl;
+      }
     },
 
     comboInputsRaw() {
@@ -353,11 +368,19 @@ export default {
       if (this.video.contentType == 'Combo') {
         const response = await CombosService.addCombo({
           CharacterId: this.combo.characterId,
-          Inputs: this.combo.inputs
+          Inputs: this.combo.inputs,
+          Damage: this.combo.damage,
+          Hits: this.combo.hits
         });
+
         this.video.comboId = response.data.id
 
-        this.$refs.videoUploader.upload();
+        if (this.video.type === 'uploaded') {
+          this.$refs.videoUploader.upload();
+        }
+        else {
+          this.postVideo();
+        }
       } 
       else {
         this.postVideo();
@@ -517,5 +540,13 @@ export default {
   font-weight: 300;
   font-style: italics;
   text-align: left;
+}
+
+.post-video .v-label--active {
+      transform: translateY(-18px) scale(0.75) translateX(-20px);
+}
+
+.post-video .v-input input {
+  margin: 15px 5px 5px;
 }
 </style>

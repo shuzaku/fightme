@@ -1,15 +1,19 @@
 var Combo = require("../models/combos");
 
 // Add new Combo
-function addCombos(req, res) {
+function addCombo(req, res) {
   var GameId = req.body.GameId;
   var CharacterId = req.body.CharacterId;
   var Inputs = req.body.Inputs;
+  var Hits = req.body.Hits;
+  var Damage = req.body.Damage;
 
   var new_combo = new Combo({
     GameId: GameId,
     CharacterId: CharacterId,
     Inputs: Inputs,
+    Hits: Hits,
+    Damage: Damage
   })
 
   new_combo.save(function (error,combo) {
@@ -24,4 +28,4 @@ function addCombos(req, res) {
   })
 }
 
-module.exports = { addCombos }
+module.exports = { addCombo }

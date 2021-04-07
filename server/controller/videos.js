@@ -25,7 +25,6 @@ function addVideo(req, res) {
   var new_video = new Video({
     Url: Url,
     ContentType: ContentType,
-    ContentCreatorId: ContentCreatorId,
     VideoType: VideoType,
     StartTime: StartTime,
     EndTime: EndTime,

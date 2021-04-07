@@ -117,7 +117,7 @@ export default {
         .split(',')
         .map(character => {
           return {
-            name: character,
+            name: character.trim(),
             imageUrl: '' 
           } 
         });

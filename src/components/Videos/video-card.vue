@@ -4,7 +4,6 @@
         <div class="video-container">
           <video 
             ref="videoRef"
-            v-if="video.videoType === 'uploaded'"
             loop
             controls 
             muted >
@@ -15,8 +14,8 @@
         <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.combo.character.imageUrl}')` }" />
         <div class="heavy-weight character-name"><p>{{video.combo.character.name}}</p></div>
         <div class="combo-stats">
-          <p v-if="video.combo.comboHits">{{video.combo.comboHits}} Hits</p>
-          <p v-if="video.combo.comboDamage">{{video.combo.comboDamage}} Damage</p>
+          <p v-if="video.combo.hits">{{video.combo.hits}} Hits</p>
+          <p v-if="video.combo.damage">{{video.combo.damage}} Damage</p>
         </div>
         <div class="combo-input">
           <p class="inputs">{{formattedInputs}}</p>
