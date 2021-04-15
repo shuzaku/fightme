@@ -32,21 +32,54 @@
           :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
           :mute="true" />
         <div class="card-label">{{video.contentType}}</div>
-        <div class="character-bubble" :style="{ 'backgroundImage': `url('${video.match.player1.character.imageUrl}')` }" />
-        <div v-if="video.match.player1.character2" class="character-bubble character-2" :style="{ 'backgroundImage': `url('${video.match.player1.character2.imageUrl}')` }" />
-        <div v-if="video.match.player1.character3" class="character-bubble character-3" :style="{ 'backgroundImage': `url('${video.match.player1.character3.imageUrl}')` }" />
-        <div class="character-bubble player2" :style="{ 'backgroundImage': `url('${video.match.player2.character.imageUrl}')` }" />
-        <div v-if="video.match.player2.character2" class="character-bubble player2 character-2" :style="{ 'backgroundImage': `url('${video.match.player2.character2.imageUrl}')` }" />
-        <div v-if="video.match.player2.character3" class="character-bubble player2 character-3" :style="{ 'backgroundImage': `url('${video.match.player2.character3.imageUrl}')` }" />
+        <div 
+          :class="['character-bubble', video.match.player1.character.name.toLowerCase()]" 
+          :style="{ 'backgroundImage': `url('${video.match.player1.character.imageUrl}')` }" 
+          />
+        <div 
+          v-if="video.match.player1.character2" 
+          :class="['character-bubble' , 'character-2' , video.match.player1.character2.name.toLowerCase()]" 
+          :style="{ 'backgroundImage': `url('${video.match.player1.character2.imageUrl}')` }" 
+          />
+        <div 
+          v-if="video.match.player1.character3" 
+          :class="['character-bubble' , 'character-3' , video.match.player1.character3.name.toLowerCase()]" 
+          :style="{ 'backgroundImage': `url('${video.match.player1.character3.imageUrl}')` }" 
+          />
+        <div 
+          :class="['character-bubble', 'player2', video.match.player2.character.name.toLowerCase()]" 
+          :style="{ 'backgroundImage': `url('${video.match.player2.character.imageUrl}')` }" />
+        <div 
+          v-if="video.match.player2.character2" 
+          :class="['character-bubble' , 'player2' , 'character-2' , video.match.player2.character2.name.toLowerCase()]" 
+          :style="{ 'backgroundImage': `url('${video.match.player2.character2.imageUrl}')` }" 
+          />
+        <div 
+          v-if="video.match.player2.character3" 
+          :class="['character-bubble', 'player2' , 'character-3' , video.match.player2.character3.name.toLowerCase()]" 
+          :style="{ 'backgroundImage': `url('${video.match.player2.character3.imageUrl}')` }" 
+          />
         <div class="characters" v-if="!video.isEditing">
           <div class="player1" >
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player1.id)"><p>{{video.match.player1.name}}</p></div>
-            <div class="character-name" @click="queryCharacter(video.match.player1.character.id)"><p>{{video.match.player1.character.name}}</p></div>
+            <div class="character-name" @click="queryCharacter(video.match.player1.character.id)">
+              <p>
+                <span>{{video.match.player1.character.name}}</span>
+                <span v-if="video.match.player1.character2" >{{video.match.player1.character2.name}}</span>
+                <span v-if="video.match.player1.character3">{{video.match.player1.character3.name}}</span>
+              </p>
+            </div>
           </div>
           <div class="versus heavy-weight">vs</div>
           <div class="player2">
             <div class="heavy-weight player-name" @click="queryPlayer(video.match.player2.id)"><p>{{video.match.player2.name}}</p></div>
-            <div class="character-name" @click="queryCharacter(video.match.player2.character.id)"><p>{{video.match.player2.character.name}}</p></div>
+            <div class="character-name" @click="queryCharacter(video.match.player2.character.id)">
+              <p>
+                <span>{{video.match.player2.character.name}}</span>
+                <span v-if="video.match.player2.character2" > / {{video.match.player2.character2.name}}</span>
+                <span v-if="video.match.player2.character3"> / {{video.match.player2.character3.name}}</span>
+              </p>
+            </div>
           </div>
         </div>
         <!-- <v-btn 
@@ -173,7 +206,7 @@ export default {
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid #3EB489 ;
-  background-size: 150%;
+  background-size: 200%;
   background-position: top center;
   position: absolute;
   top: -15px;
@@ -331,5 +364,19 @@ export default {
 
 .video-card .character-3 {
   top: 120px;
+}
+
+
+.video-card .character-bubble.narmaya,
+.video-card .character-bubble.vaseraga,
+.video-card .character-bubble.charlotta,
+.video-card .character-bubble.anre,
+.video-card .character-bubble.arizona,
+.video-card .character-bubble.jacqui {
+  background-position-y: 25%;
+}
+
+.video-card .character-bubble.arizona {
+  background-position-y: 65%;  
 }
 </style>

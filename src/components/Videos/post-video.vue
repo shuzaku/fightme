@@ -144,7 +144,7 @@
         </v-btn>  
         <character-search 
           v-if="video.gameId && player2Has2Characters"
-          v-model="video.match.player2.characterId3"
+          v-model="video.match.player2.characterId2"
           :gameId="video.gameId"
           :player=2
           @update:character="setPlayer2Character2($event)" />
@@ -156,8 +156,8 @@
           Add another character
         </v-btn>  
         <character-search 
-          v-if="video.gameId && player3Has3Characters"
-          v-model="video.match.player2.characterId"
+          v-if="video.gameId && player2Has3Characters"
+          v-model="video.match.player2.characterId3"
           :gameId="video.gameId"
           :player=2
           @update:character="setPlayer2Character3($event)" />

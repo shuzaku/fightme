@@ -157,8 +157,13 @@ export default {
         queryValue: this.searchValue.id
       }
       
-      this.$router.push({ name: 'Videos' , params: query});
-      // eventbus.$emit('search' , query);
+      if (this.$route.name !== "Videos"){
+        this.$router.push({ name: 'Videos' , params: query});
+      }
+      else {
+        eventbus.$emit('search' , query);
+      }
+
     },
 
     openRegisterModal() {
