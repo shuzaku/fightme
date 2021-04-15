@@ -34,9 +34,6 @@
         v-if="isLoginModalOpen"
         @register:success="closeLoginModal()" />
       </div> -->
-      <v-btn class="mx-2 add-btn" fab dark color="cyan" @click="toggleDropDown()" >
-        <v-icon dark>mdi-plus</v-icon>
-      </v-btn>
       <div class="add-content-dropdown" v-if="isDropDownOpen">
         <ul>
           <li v-for="create in createOptions" :key="create.value" @click="openCreateWidget(create.value)">
@@ -60,11 +57,7 @@ export default {
     // 'register': Register,
     // 'login': Login
   },
-  provide() {
-    return {
-        'video': this.video,
-    };
-  },
+
   data () {
     return {
       isLoading: true,
@@ -98,6 +91,12 @@ export default {
         name: 'Tournament',
         value: 'tournament'
       }],
+    }
+  },
+
+  computed: {
+    characters: function() {
+      return  this.searchValues[1].values.filter(value => value.valueType === 'Character').map(character => { return character.value});
     }
   },
 
@@ -158,7 +157,13 @@ export default {
         queryValue: this.searchValue.id
       }
       
-      eventbus.$emit('search' , query);
+      if (this.$route.name !== "Videos"){
+        this.$router.push({ name: 'Videos' , params: query});
+      }
+      else {
+        eventbus.$emit('search' , query);
+      }
+
     },
 
     openRegisterModal() {
@@ -197,29 +202,33 @@ export default {
 </script>
 
 <style type="text/css">
-  .top-nav .search-container {
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .top-nav .search-container .multiselect {
-    margin: 0 auto;
-    width: 400px;
-  }
-
   .top-nav {
-    height: 50px;
     width: 100%;
     color: #fff;
     text-align: center;
     background: transparent;
     display: flex;
     justify-content: center;
-    padding: 0 56px 0 56px;
+    padding: 5px 56px 5px 56px;
     position: relative;
   }
+
+  .top-nav .search-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: #444;
+    padding: 10px 10px;
+    max-width: 570px;
+    border-radius: 15px;
+  }
+
+  .top-nav .search-container .multiselect {
+    margin: 0 auto;
+    width: 100%;
+  }
+
 
   .top-nav .search-container fieldset {
     background: #fff;

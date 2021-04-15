@@ -1,5 +1,5 @@
 <template>
-  <div class="videos-view" ref="videoViewRef">
+  <div class="players-view" ref="videoViewRef">
     <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
@@ -45,59 +45,31 @@ export default {
   computed: {
     skip: function() {
       return this.videos.length;
+    },
+
+    playerId: function() {
+      return this.$route.params.id
+    }
+  },
+
+  watch: {
+    playerId: function() {
+      this.videos= [];
+      this.queryVideos();
     }
   },
 
   methods: {
-    async getVideos() {
-      const response = await VideosService.fetchVideos(this.skip);
-      this.hydrateVideos(response);
-    },
-
-    async queryVideos(query) {
+    async queryVideos() {
       var searchQuery = null;
-      var searchParameter = query || this.savedQuery;
 
-      if(this.savedQuery !== searchParameter) {
-        this.videos = [];
-        this.savedQuery = query;
-      } 
-
-      if(searchParameter){
-        if(searchParameter.queryName === 'Game') {
-          searchQuery = [{
-            queryName : 'GameId',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-        if(searchParameter.queryName === 'Player') {
-          searchQuery = [{
-            queryName : 'Player1Id',
-            queryValue : searchParameter.queryValue
-          },{
-            queryName : 'Player2Id',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-        if(searchParameter.queryName === 'Character') {
-          searchQuery = [{
-            queryName : 'Player1CharacterId',
-            queryValue : searchParameter.queryValue
-          },{
-            queryName : 'Player2CharacterId',
-            queryValue : searchParameter.queryValue
-          },{
-            queryName : 'Combo.CharacterId',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-        if(searchParameter.queryName === 'Video Type') {
-          searchQuery = [{
-            queryName : 'ContentType',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-      }
+      searchQuery = [{
+        queryName : 'Player1Id',
+        queryValue : this.playerId
+      },{
+        queryName : 'Player2Id',
+        queryValue : this.playerId
+      }]
 
       var queryParameter = {
         skip: this.skip,
@@ -106,7 +78,8 @@ export default {
 
       const response = await VideosService.queryVideos(queryParameter);
       this.hydrateVideos(response);
-      if(this.videos.length < 6){
+      
+      if(this.videos.length < 5){
         this.playFirstVideo();
       }
     },
@@ -131,14 +104,6 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: {
-            character:{
-              id: video.ComboCharacter._id,
-              name: video.ComboCharacter.Name,
-              imageUrl: video.ComboCharacter.ImageUrl
-            },
-            inputs: video.Combo.Inputs
-          },
           match: {
             player1: {
               id: video.Player1Id,
@@ -158,8 +123,6 @@ export default {
                 imageUrl: video.Player2Character.ImageUrl,
               }
             },
-            // winner: video.Match.Winner,
-            // tournamentId: video.Match.TournamentId,
           },      
           tags: video.Tags.map(tag => {
             return {
@@ -188,9 +151,11 @@ export default {
     },
 
     handleScroll() {
-      var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
-      if (bottomOfWindow) {
-        this.queryVideos();
+      if(this.videos.length > 0){
+        var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+        if (bottomOfWindow) {
+          this.queryVideos();
+        }
       }
     },
 
@@ -208,52 +173,49 @@ export default {
     this.queryVideos();
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('newVideoPosted' , this.addedNewVideo);
-    eventbus.$on('search' , this.queryVideos);
   },
 
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll);
     eventbus.$off('newVideoPosted' , this.addedNewVideo);
-    eventbus.$off('search' , this.queryVideos);
   }
 }
 </script>
 
 <style>
-  .videos-view {
+  .players-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: auto;
     justify-content: space-around;
     padding-top: 30px;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
   }
 
-  .videos-view::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+  .players-view::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
 
-  .videos-view::-webkit-scrollbar {
+  .players-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
   }
 
-  .videos-view::-webkit-scrollbar-thumb {
+  .players-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 
-  .videos-view .videos-container {
+  .players-view .videos-container {
     position: relative;
     padding: 0 40px;
   }
 
-  .videos-view .videos-container video {
+  .players-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

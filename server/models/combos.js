@@ -1,15 +1,22 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+const ObjectId = Schema.Types.ObjectId;
 
 var ComboSchema = new Schema({
   GameId: {
     type: String
   },
   CharacterId: {
-    type: String
+    type: ObjectId
   },
   Inputs: {
     type: Array
+  },
+  Hits: {
+    type: Number
+  },
+  Damage: {
+    type: Number
   }
 }, {
   timestamp: true

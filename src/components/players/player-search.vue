@@ -25,6 +25,7 @@
 
 <script>
 import PlayersService from '@/services/players-service'
+import { eventbus } from '@/main';
 
 export default {
   inject: ['video'],
@@ -47,12 +48,13 @@ export default {
   methods: {
     async addPlayer (newPlayer) {
       await PlayersService.addPlayer({
-        Name: newPlayer
+        Name: newPlayer.trim()
       })
-      this.getPlayers();
+      eventbus.$emit('add:new-player');
+      this.getPlayers(newPlayer);
     },
 
-    async getPlayers () {
+    async getPlayers (newPlayer) {
       const response = await PlayersService.fetchPlayers()
       this.players = response.data.players.map(player => {
         return {
@@ -60,6 +62,11 @@ export default {
           name: player.Name         
         }
       });
+
+      if(newPlayer){
+        this.selectedPlayer = this.players.filter(player => player.name === newPlayer.trim())[0];
+        this.setPlayer();
+      }
     },
 
     setPlayer() {
@@ -69,6 +76,14 @@ export default {
 
   mounted () {
     this.getPlayers();
+  },
+
+  created() {
+    eventbus.$on('add:new-player', this.getPlayers);
+  },
+
+  beforeDestroy() {
+    eventbus.$off('add:new-player', this.getPlayers);
   },
 }
 </script>

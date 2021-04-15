@@ -1,5 +1,5 @@
 <template>
-  <div class="combos-view" ref="videoViewRef">
+  <div class="matches-view" ref="videoViewRef">
     <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
@@ -49,6 +49,11 @@ export default {
   },
 
   methods: {
+    async getVideos() {
+      const response = await VideosService.fetchVideos(this.skip);
+      this.hydrateVideos(response);
+    },
+
     async queryVideos(query) {
       var searchQuery = [];
       var searchParameter = query || this.savedQuery;
@@ -90,7 +95,7 @@ export default {
 
       searchQuery.push({
         queryName : 'ContentType',
-        queryValue : 'Combo'
+        queryValue : 'Match'
       })
 
       var queryParameter = {
@@ -125,16 +130,28 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: video.ComboCharacter ? {
-            character:{
-              id: video.ComboCharacter._id,
-              name: video.ComboCharacter.Name,
-              imageUrl: video.ComboCharacter.ImageUrl
+          match: {
+            player1: {
+              id: video.Player1Id,
+              name: video.Player1.Name,
+              character: {
+                id: video.Player1CharacterId,
+                name: video.Player1Character.Name,
+                imageUrl: video.Player1Character.ImageUrl,
+              }
             },
-            inputs: video.Combo.Inputs,
-            hits: video.Combo.Hits,
-            damage: video.Combo.Damage
-          }: null,  
+            player2: {
+              id: video.Player2Id,
+              name: video.Player2.Name,
+              character: {
+                id: video.Player2CharacterId,
+                name: video.Player2Character.Name,
+                imageUrl: video.Player2Character.ImageUrl,
+              }
+            },
+            // winner: video.Match.Winner,
+            // tournamentId: video.Match.TournamentId,
+          },      
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -192,7 +209,7 @@ export default {
 </script>
 
 <style>
-  .combos-view {
+  .matches-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -202,29 +219,29 @@ export default {
     overflow: hidden;
   }
 
-  .combos-view::-webkit-scrollbar-track {
+  .matches-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
 
-  .combos-view::-webkit-scrollbar {
+  .matches-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
   }
 
-  .combos-view::-webkit-scrollbar-thumb {
+  .matches-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 
-  .combos-view .videos-container {
+  .matches-view .videos-container {
     position: relative;
     padding: 0 40px;
   }
 
-  .combos-view .videos-container video {
+  .matches-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

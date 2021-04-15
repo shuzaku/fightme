@@ -1,5 +1,5 @@
 <template>
-  <div class="combos-view" ref="videoViewRef">
+  <div class="players-view" ref="videoViewRef">
     <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
@@ -30,7 +30,7 @@ export default {
 
   data () {
     return {
-      videos: [],
+      games: [],
       loading: true,
       query: null,
       savedQuery: null,
@@ -45,53 +45,28 @@ export default {
   computed: {
     skip: function() {
       return this.videos.length;
+    },
+
+    playerId: function() {
+      return this.$route.params.id
+    }
+  },
+
+  watch: {
+    gameId: function() {
+      this.videos= [];
+      this.queryVideos();
     }
   },
 
   methods: {
-    async queryVideos(query) {
-      var searchQuery = [];
-      var searchParameter = query || this.savedQuery;
+    async queryVideos() {
+      var searchQuery = null;
 
-      if(this.savedQuery !== searchParameter) {
-        this.videos = [];
-        this.savedQuery = query;
-      } 
-
-      if(searchParameter){
-        if(searchParameter.queryName === 'Game') {
-          searchQuery = [{
-            queryName : 'GameId',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-        if(searchParameter.queryName === 'Player') {
-          searchQuery = [{
-            queryName : 'Player1Id',
-            queryValue : searchParameter.queryValue
-          },{
-            queryName : 'Player2Id',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-        if(searchParameter.queryName === 'Character') {
-          searchQuery = [{
-            queryName : 'Player1CharacterId',
-            queryValue : searchParameter.queryValue
-          },{
-            queryName : 'Player2CharacterId',
-            queryValue : searchParameter.queryValue
-          },{
-            queryName : 'Combo.CharacterId',
-            queryValue : searchParameter.queryValue
-          }]
-        }
-      }
-
-      searchQuery.push({
-        queryName : 'ContentType',
-        queryValue : 'Combo'
-      })
+      searchQuery = [{
+        queryName : 'GameId',
+        queryValue : this.gameId
+      }]
 
       var queryParameter = {
         skip: this.skip,
@@ -100,7 +75,8 @@ export default {
 
       const response = await VideosService.queryVideos(queryParameter);
       this.hydrateVideos(response);
-      if(this.videos.length < 6){
+      
+      if(this.videos.length < 5){
         this.playFirstVideo();
       }
     },
@@ -125,16 +101,26 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: video.ComboCharacter ? {
-            character:{
-              id: video.ComboCharacter._id,
-              name: video.ComboCharacter.Name,
-              imageUrl: video.ComboCharacter.ImageUrl
+          match: {
+            player1: {
+              id: video.Player1Id,
+              name: video.Player1.Name,
+              character: {
+                id: video.Player1CharacterId,
+                name: video.Player1Character.Name,
+                imageUrl: video.Player1Character.ImageUrl,
+              }
             },
-            inputs: video.Combo.Inputs,
-            hits: video.Combo.Hits,
-            damage: video.Combo.Damage
-          }: null,  
+            player2: {
+              id: video.Player2Id,
+              name: video.Player2.Name,
+              character: {
+                id: video.Player2CharacterId,
+                name: video.Player2Character.Name,
+                imageUrl: video.Player2Character.ImageUrl,
+              }
+            },
+          },      
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -162,9 +148,11 @@ export default {
     },
 
     handleScroll() {
-      var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
-      if (bottomOfWindow) {
-        this.queryVideos();
+      if(this.videos.length > 0){
+        var bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+        if (bottomOfWindow) {
+          this.queryVideos();
+        }
       }
     },
 
@@ -192,7 +180,7 @@ export default {
 </script>
 
 <style>
-  .combos-view {
+  .players-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -202,29 +190,29 @@ export default {
     overflow: hidden;
   }
 
-  .combos-view::-webkit-scrollbar-track {
+  .players-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
 
-  .combos-view::-webkit-scrollbar {
+  .players-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
   }
 
-  .combos-view::-webkit-scrollbar-thumb {
+  .players-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 
-  .combos-view .videos-container {
+  .players-view .videos-container {
     position: relative;
     padding: 0 40px;
   }
 
-  .combos-view .videos-container video {
+  .players-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

@@ -131,15 +131,17 @@ export default {
           startTime: video.StartTime,
           endTime: video.EndTime,
           gameId: video.GameId,
-          combo: {
+          combo: video.ComboCharacter ? {
             character:{
               id: video.ComboCharacter._id,
               name: video.ComboCharacter.Name,
               imageUrl: video.ComboCharacter.ImageUrl
             },
-            inputs: video.Combo.Inputs
-          },
-          match: {
+            inputs: video.Combo.Inputs,
+            hits: video.Combo.Hits,
+            damage: video.Combo.Damage
+          }: null,
+          match: video.Player1Id && video.Player2Id ? {
             player1: {
               id: video.Player1Id,
               name: video.Player1.Name,
@@ -147,7 +149,17 @@ export default {
                 id: video.Player1CharacterId,
                 name: video.Player1Character.Name,
                 imageUrl: video.Player1Character.ImageUrl,
-              }
+              },
+              character2: video.Player1Character2Id ? {
+                id: video.Player1Character2Id,
+                name: video.Player1Character2.Name,
+                imageUrl: video.Player1Character2.ImageUrl,
+              }: null,
+              character3: video.Player1Character3Id ? {
+                id: video.Player1Character3Id,
+                name: video.Player1Character3.Name,
+                imageUrl: video.Player1Character3.ImageUrl,
+              }: null,
             },
             player2: {
               id: video.Player2Id,
@@ -156,11 +168,21 @@ export default {
                 id: video.Player2CharacterId,
                 name: video.Player2Character.Name,
                 imageUrl: video.Player2Character.ImageUrl,
-              }
+              },
+              character2: video.Player2Character2Id ? {
+                id: video.Player2Character2Id,
+                name: video.Player2Character2.Name,
+                imageUrl: video.Player2Character2.ImageUrl,
+              }: null,
+              character3: video.Player2Character3Id ? { 
+                id: video.Player2Character3Id,
+                name: video.Player2Character3.Name,
+                imageUrl: video.Player2Character3.ImageUrl,
+              }: null
             },
             // winner: video.Match.Winner,
             // tournamentId: video.Match.TournamentId,
-          },      
+          } : null,      
           tags: video.Tags.map(tag => {
             return {
               id:tag._id,
@@ -205,7 +227,7 @@ export default {
   },
 
   mounted() {
-    this.queryVideos();
+    this.queryVideos(this.$route.params);
     window.addEventListener('scroll', this.handleScroll);
     eventbus.$on('newVideoPosted' , this.addedNewVideo);
     eventbus.$on('search' , this.queryVideos);
@@ -224,15 +246,14 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: auto;
     justify-content: space-around;
     padding-top: 30px;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
   }
 
   .videos-view::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
@@ -244,7 +265,7 @@ export default {
 
   .videos-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 

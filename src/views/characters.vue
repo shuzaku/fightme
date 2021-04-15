@@ -1,5 +1,5 @@
 <template>
-  <div class="videos-view" ref="videoViewRef">
+  <div class="characters-view" ref="videoViewRef">
     <div class="videos-container" v-if="videos.length > 0">
       <div 
         v-for="video in videos" :key="video.id" 
@@ -185,40 +185,39 @@ export default {
 </script>
 
 <style>
-  .videos-view {
+  .characters-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: auto;
+    overflow: hidden;
     justify-content: space-around;
     padding-top: 30px;
     height: 100%;
-    overflow: auto;
   }
 
-  .videos-view::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+  .characters-view::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
   }
 
-  .videos-view::-webkit-scrollbar {
+  .characters-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
   }
 
-  .videos-view::-webkit-scrollbar-thumb {
+  .characters-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.2);
+    box-shadow: inset 0 0 6px rgba(0,0,0,.2);
     background-color: #515b89;
   }
 
-  .videos-view .videos-container {
+  .characters-view .videos-container {
     position: relative;
     padding: 0 40px;
   }
 
-  .videos-view .videos-container video {
+  .characters-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

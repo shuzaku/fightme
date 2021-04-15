@@ -23,7 +23,7 @@ import { faMeteor } from '@fortawesome/free-solid-svg-icons'
 import { faNetworkWired } from '@fortawesome/free-solid-svg-icons'
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
 import { faYinYang } from '@fortawesome/free-solid-svg-icons'
-
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faRss)
 library.add(faFontAwesome)
@@ -33,6 +33,7 @@ library.add(faMeteor)
 library.add(faNetworkWired)
 library.add(faVideo)
 library.add(faYinYang)
+library.add(faPlusCircle)
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
