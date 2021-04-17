@@ -25,7 +25,7 @@ app.use(cors())
 mongoose.connect('mongodb+srv://mtchau:CSLNsZTp!pqf3cA@fightme2.vdh52.mongodb.net/%3Cdbname%3E?retryWrites=true&w=majority');
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function (callback) {
+db.once("open", function () {
   console.log("Connection Succeeded");
 });
 
@@ -44,6 +44,7 @@ app.delete('/characters/:id', (req, res) => characterController.deleteCharacter(
 
 //Combos
 app.post('/combos', (req, res) => comboController.addCombo(req,res));
+app.put('/combo/:id', (req, res) => comboController.patchCombo(req,res));
 
 //Creators
 app.post('/creator', (req, res) => creatorController.addCreator(req,res));
@@ -84,8 +85,8 @@ app.delete('/tournaments/:id', (req, res) => tournamentController.deleteTourname
 app.post('/video', (req, res) => videoController.addVideo(req,res));
 app.get('/videoQuery', (req, res) => videoController.queryVideo(req,res));
 app.get('/videos', (req, res) => videoController.getVideos(req,res));
-app.get('/videos/:id', (req, res) => videoController.getVideo(req,res));
-app.put('/videos/:id', (req, res) => videoController.updateVideo(req,res));
+app.get('/video/:id', (req, res) => videoController.getVideo(req,res));
+app.put('/video/:id', (req, res) => videoController.patchVideo(req,res));
 app.delete('/videos/:id', (req, res) => videoController.deleteVideo(req,res));
 
 //Search

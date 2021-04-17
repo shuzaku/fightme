@@ -204,7 +204,6 @@ function queryVideo(req, res) {
 
   if(queries.length > 0) {
     aggregate.push({$match: {$or: queries}});
-    console.log(queries);
   }
 
   aggregate.push({$skip: skip});
@@ -220,26 +219,135 @@ function queryVideo(req, res) {
 
 // Fetch single Video
 function getVideo(req, res) {
-  Videos.findById(req.params.id, 'Url ContentType ContentCreatorId VideoType StartTime EndTime GameId ComboId Match Tags', function (error, video) {
+  var aggregate = [    
+    {$sort: {_id: -1}},
+    {$lookup: {
+      from: "games",
+      localField: "GameId",
+      foreignField: "_id",
+      as: "Game"
+      }
+    },
+    {$unwind: '$Game'},
+    {$lookup: {
+      from: "creators",
+      localField: "ContentCreatorId",
+      foreignField: "_id",
+      as: "ContentCreator"
+      }
+    },
+    {$unwind: {path:'$ContentCreator', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "players",
+      localField: "Player1Id",
+      foreignField: "_id",
+      as: "Player1"
+      }
+    },
+    {$unwind: {path:'$Player1', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "players",
+      localField: "Player2Id",
+      foreignField: "_id",
+      as: "Player2"
+      }
+    },
+    {$unwind: {path:'$Player2', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player1CharacterId",
+      foreignField: "_id",
+      as: "Player1Character"
+      }
+    },
+    {$unwind: {path:'$Player1Character', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player1Character2Id",
+      foreignField: "_id",
+      as: "Player1Character2"
+      }
+    },
+    {$unwind: {path:'$Player1Character2', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player1Character3Id",
+      foreignField: "_id",
+      as: "Player1Character3"
+      }
+    },
+    {$unwind: {path:'$Player1Character3', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player2CharacterId",
+      foreignField: "_id",
+      as: "Player2Character"
+      }
+    },
+    {$unwind: {path:'$Player2Character', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player2Character2Id",
+      foreignField: "_id",
+      as: "Player2Character2"
+      }
+    },
+    {$unwind: {path:'$Player2Character2', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Player2Character3Id",
+      foreignField: "_id",
+      as: "Player2Character3"
+      }
+    },
+    {$unwind: {path:'$Player2Character3', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "combos",
+      localField: "ComboId",
+      foreignField: "_id",
+      as: "Combo"
+      }
+    },
+    {$unwind: {path:'$Combo', preserveNullAndEmptyArrays: true}},
+    {$lookup: {
+      from: "characters",
+      localField: "Combo.CharacterId",
+      foreignField: "_id",
+      as: "ComboCharacter"
+      }
+    },
+    {$unwind: {path:'$ComboCharacter', preserveNullAndEmptyArrays: true}}
+  ];
+  
+  var videoId = req.params.id;
+  aggregate.unshift({$match: {'_id': {'$eq': ObjectId(videoId)}}});
+  Video.aggregate(aggregate, function (error, video) {
     if (error) { console.error(error); }
-    res.send(video)
+    res.send({
+      video: video
+    })
+    aggregate = [];
   })
+  
 }
 
 // Update a Video
-function updateVideo(req, res) {
-  Video.findById(req.params.id, 'Url ContentType ContentCreatorId VideoType StartTime EndTime GameId ComboId Match Tags', function (error, video) {
+function patchVideo(req, res) {
+  Video.findById(req.params.id, 'ContentCreatorId GameId Player1Id Player2Id Player1CharacterId Player1Character2Id Player1Character3Id Player2CharacterId Player2Character2Id Player2Character3Id ComboId WinnerId Tags', function (error, video) {
     if (error) { console.error(error); }
 
-    video.Url = req.body.Url;
-    video.ContentType = req.body.ContentType;
     video.ContentCreatorId = req.body.ContentCreatorId;
-    video.VideoType = req.body.VideoType;
-    video.StartTime = req.body.StartTime;
-    video.EndTime = req.body.EndTime;
     video.GameId = req.body.GameId;
     video.ComboId = req.body.ComboId;
-    video.Match = req.body.Match;
+    video.Player1Id = req.body.Player1Id;
+    video.Player2Id = req.body.Player2Id;
+    video.Player1CharacterId = req.body.Player1CharacterId;
+    video.Player1Character2Id = req.body.Player1Character2Id;
+    video.Player1Character3Id = req.body.Player1Character3Id;
+    video.Player2CharacterId = req.body.Player2CharacterId;
+    video.Player2Character2Id = req.body.Player2Character2Id;
+    video.Player2Character3Id = req.body.Player2Character3Id;
+    video.WinnerId = req.body.WinnerId;
     video.Tags = req.body.Tags;
 
     video.save(function (error) {
@@ -257,7 +365,7 @@ function updateVideo(req, res) {
 function deleteVideo(req, res) {
   Video.remove({
     _id: req.params.id
-  }, function (err, video) {
+  }, function (err) {
     if (err)
       res.send(err)
     res.send({
@@ -266,4 +374,4 @@ function deleteVideo(req, res) {
   })
 }
 
-module.exports = { addVideo, queryVideo, getVideo, updateVideo, deleteVideo}
+module.exports = { addVideo, queryVideo, getVideo, patchVideo, deleteVideo}

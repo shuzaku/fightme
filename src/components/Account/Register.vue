@@ -1,155 +1,161 @@
+<!-- @format -->
 <template>
-  <div class="register-modal">
-    <div class="row">
-        <div class="card">
-          <div class="card-header">Register</div>
-          <div class="card-body">
-            <div v-if="error" class="alert alert-danger">{{error}}</div>
-            <form action="#" @submit.prevent="submit">
-              <div class="form-group row">
-                <label for="name" class="col-md-4 col-form-label text-md-right">Name</label>
+    <div class="register-modal">
+        <div class="row">
+            <div class="card">
+                <div class="card-header">Register</div>
+                <div class="card-body">
+                    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+                    <form action="#" @submit.prevent="submit">
+                        <div class="form-group row">
+                            <label for="name" class="col-md-4 col-form-label text-md-right"
+                                >Name</label
+                            >
 
-                <div class="col-md-6">
-                  <input
-                    id="name"
-                    type="name"
-                    class="form-control"
-                    name="name"
-                    value
-                    required
-                    autofocus
-                    v-model="form.name"
-                  />
+                            <div class="col-md-6">
+                                <input
+                                    id="name"
+                                    v-model="form.name"
+                                    type="name"
+                                    class="form-control"
+                                    name="name"
+                                    value
+                                    required
+                                    autofocus
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 col-form-label text-md-right"
+                                >Email</label
+                            >
+
+                            <div class="col-md-6">
+                                <input
+                                    id="email"
+                                    v-model="form.email"
+                                    type="email"
+                                    class="form-control"
+                                    name="email"
+                                    value
+                                    required
+                                    autofocus
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password" class="col-md-4 col-form-label text-md-right"
+                                >Password</label
+                            >
+
+                            <div class="col-md-6">
+                                <input
+                                    id="password"
+                                    v-model="form.password"
+                                    type="password"
+                                    class="form-control"
+                                    name="password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-8 offset-md-4">
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-              </div>
-
-              <div class="form-group row">
-                <label for="email" class="col-md-4 col-form-label text-md-right">Email</label>
-
-                <div class="col-md-6">
-                  <input
-                    id="email"
-                    type="email"
-                    class="form-control"
-                    name="email"
-                    value
-                    required
-                    autofocus
-                    v-model="form.email"
-                  />
-                </div>
-              </div>
-
-              <div class="form-group row">
-                <label for="password" class="col-md-4 col-form-label text-md-right">Password</label>
-
-                <div class="col-md-6">
-                  <input
-                    id="password"
-                    type="password"
-                    class="form-control"
-                    name="password"
-                    required
-                    v-model="form.password"
-                  />
-                </div>
-              </div>
-
-              <div class="form-group row mb-0">
-                <div class="col-md-8 offset-md-4">
-                  <button type="submit" class="btn btn-primary">Register</button>
-                </div>
-              </div>
-            </form>
-          </div>
+            </div>
         </div>
     </div>
-  </div>
 </template>
 
-
 <script>
-import firebase from "firebase";
-import AccountsService from '@/services/accounts-service'
+import firebase from 'firebase';
+import AccountsService from '@/services/accounts-service';
 
 export default {
-  data() {
-    return {
-      form: {
-        name: "",
-        email: "",
-        password: ""
-      },
-      error: null
-    };
-  },
-  methods: {
-    submit() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.form.email, this.form.password)
-        .then(data => {
-          data.user
-            .updateProfile({
-              displayName: this.form.name
-            })
-            .then(() => {
-              var newUser = {
-                DisplayName: data.user.displayName,
-                Email: data.user.email,
-                IsEmailVerified: data.user.emailVerified,
-                Uid: data.user.uid,
-                AccountType: 'Standard User'
-              }
-              this.addAccount(newUser);
-
-              this.$emit('register:success');
-            });
-        })
-        .catch(err => {
-          this.error = err.message;
-        });
+    data() {
+        return {
+            form: {
+                name: '',
+                email: '',
+                password: ''
+            },
+            error: null
+        };
     },
+    methods: {
+        submit() {
+            firebase
+                .auth()
+                .createUserWithEmailAndPassword(this.form.email, this.form.password)
+                .then(data => {
+                    data.user
+                        .updateProfile({
+                            displayName: this.form.name
+                        })
+                        .then(() => {
+                            var newUser = {
+                                DisplayName: data.user.displayName,
+                                Email: data.user.email,
+                                IsEmailVerified: data.user.emailVerified,
+                                Uid: data.user.uid,
+                                AccountType: 'Standard User'
+                            };
+                            this.addAccount(newUser);
 
-    async addAccount (newUser) {
-        await AccountsService.addAccount(newUser)      
-    },
-  }
+                            this.$emit('register:success');
+                        });
+                })
+                .catch(err => {
+                    this.error = err.message;
+                });
+        },
+
+        async addAccount(newUser) {
+            await AccountsService.addAccount(newUser);
+        }
+    }
 };
-</script> 
+</script>
 <style>
 .register-modal {
-  background:#fff;
-  position: absolute;
-  top: 0;
-  left: 0;
-  max-width: 300px;
-  width: 100%;
-  border-radius: 30px;
+    background: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: 300px;
+    width: 100%;
+    border-radius: 30px;
 }
 
 .register-modal .card {
-  max-width: 200px;
-  margin: 0 auto;
+    max-width: 200px;
+    margin: 0 auto;
 }
 
 .register-modal .form-group.row {
-  display: block;
-  text-align: left;
+    display: block;
+    text-align: left;
 }
 
-.register-modal input{
-  border: 1px solid #000; 
-  color: #000;
+.register-modal input {
+    border: 1px solid #000;
+    color: #000;
 }
 
-.register-modal label{
-  color: #000;
+.register-modal label {
+    color: #000;
 }
 
-.register-modal .btn{
-  background: #1ab097;
-  color: #fff;
-  padding: 5px 20px;
+.register-modal .btn {
+    background: #1ab097;
+    color: #fff;
+    padding: 5px 20px;
 }
 </style>
