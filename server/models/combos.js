@@ -3,9 +3,6 @@ var Schema = mongoose.Schema;
 const ObjectId = Schema.Types.ObjectId;
 
 var ComboSchema = new Schema({
-  GameId: {
-    type: String
-  },
   CharacterId: {
     type: ObjectId
   },

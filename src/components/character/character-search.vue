@@ -10,12 +10,12 @@
         :preserve-search="true" 
         :taggable= taggable 
         label="name"
-        @input="setCharacter"
-        placeholder="Search or add a Character">
+        placeholder="Search or add a Character"
+        @input="setCharacter">
         <template slot="selection" 
           slot-scope="{ values, search, isOpen }">
-          <span class="multiselect__single" 
-            v-if="values.length &amp;&amp; !isOpen">
+          <span v-if="values.length &amp;&amp; !isOpen" 
+            class="multiselect__single">
             Select Character
           </span>
         </template>
@@ -28,21 +28,19 @@
 import CharactersService from '@/services/characters-service'
 
 export default {
-  name: 'character-search',
-  inject: ['video'],
+  name: 'CharacterSearch',
   props: {
     taggable: {
       type: Boolean,
       default: false
     },
     gameId: {
-      type: String
-    },
-    player: {
-      type: Number
+      type: String,
+      default: null
     },
     value: {
-      type: String
+      type: String,
+      default: null
     }
   },
 
@@ -51,11 +49,15 @@ export default {
       selectedCharacter: null,
       games: [],
       characterList: [],
-      characters: []
+      characters: [],
     }
   }, 
 
   watch: {
+  },
+
+  mounted() {
+    this.getCharacters();
   },
   
   methods: {
@@ -76,11 +78,12 @@ export default {
           imageUrl: character.ImageUrl
         }
       });
-    }
-  },
 
-  mounted() {
-    this.getCharacters();
+      if (this.value) {
+          this.selectedCharacter = this.characters.filter(character => character.id === this.value);
+      }
+
+    }
   }
 }
 </script>

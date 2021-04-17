@@ -1,27 +1,25 @@
+<!-- @format -->
 <template>
-  <div id="app">
-    <div class="content">
-      <div class="side-panel">
-        <side-nav />
-      </div>
-      <div class="main-panel">
-        <modal v-if="isWidgetOpen"
-          :createType = createType
-          @closeModal = "closeModal()" />
-        <div class="content-container">
-          <div class="main-content-container">
-            <top-nav />
-            <router-view />
-          </div>
-          <div class="trending-container">
-            <h2>Trending</h2>
-          </div>
+    <div id="app">
+        <div class="content">
+            <div class="side-panel">
+                <side-nav />
+            </div>
+            <div class="main-panel">
+                <modal v-if="isWidgetOpen" :options="options" @closeModal="closeModal()" />
+                <div class="content-container">
+                    <div class="main-content-container">
+                        <top-nav />
+                        <router-view />
+                    </div>
+                    <div class="trending-container">
+                        <h2>Trending</h2>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+        <div class="svg-container"></div>
     </div>
-    <div class="svg-container">
-    </div>
-  </div>
 </template>
 
 <script>
@@ -31,77 +29,77 @@ import SideNav from '@/components/common/side-nav';
 import Modal from '@/components/common/modal';
 
 export default {
-  name: 'App',
+    name: 'App',
 
-  components: {
-    'top-nav' : TopNav,
-    'side-nav': SideNav,
-    'modal': Modal,
-  },
-
-  data() {
-    return {
-      createType: null,
-      isWidgetOpen: false,
-    }
-  },
-
-  methods: {
-    openModal(createType) {
-      this.createType = createType;
-      this.isWidgetOpen = true;
+    components: {
+        'top-nav': TopNav,
+        'side-nav': SideNav,
+        modal: Modal
     },
 
-    closeModal() {
-      this.isWidgetOpen = false;
+    data() {
+        return {
+            options: null,
+            isWidgetOpen: false
+        };
+    },
+
+    created() {
+        eventbus.$on('open:videoWidget', this.openModal);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('open:videoWidget', this.openModal);
+    },
+
+    methods: {
+        openModal(options) {
+            this.options = options;
+            this.isWidgetOpen = true;
+        },
+
+        closeModal() {
+            this.isWidgetOpen = false;
+        }
     }
-  },
-
-  created() {
-    eventbus.$on('open:createWidget', this.openModal);
-  },
-
-  beforeDestroy() {
-    eventbus.$off('open:createWidget', this.openModal);
-  },
 };
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
 #app {
-  font-family: "Roboto";
-  min-height: 100vh;
-  background: #171733;
-  display: flex;
-  overflow: hidden;
-  align-items: center;
-  justify-content: center;
+    font-family: 'Roboto';
+    min-height: 100vh;
+    background: #171733;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
 }
 
 #app h1 {
-  margin-bottom: 40px;
+    margin-bottom: 40px;
 }
 
 #app .main-panel {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
 }
 
 #app .content {
-  background: #333333;
-  display: flex;
-  overflow: auto;
-  width: 100%;
-  font-size: 15px;
-  font-weight: 500;
-  box-shadow: 0 20px 50px rgb(0 0 0 / 30%);
-  position: relative;
-  align-content: center;
-  overflow: hidden;
-  flex-basis: auto;
-  height: 100%;
-  min-height: 100%;
+    background: #333333;
+    display: flex;
+    overflow: auto;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0 20px 50px rgb(0 0 0 / 30%);
+    position: relative;
+    align-content: center;
+    overflow: hidden;
+    flex-basis: auto;
+    height: 100%;
+    min-height: 100%;
 }
 
 #app .top-nav {
@@ -112,74 +110,74 @@ export default {
 }
 
 #app .text-center {
-  text-align: center;
+    text-align: center;
 }
 
 #app .heavy-weight {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 #app .content-container {
-  display: flex;
+    display: flex;
 }
 
 #app .side-panel {
-  flex-grow: 1;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-  position: relative;
-  width: 50vw;
-  min-width: 255px; 
-  border-right: 1px dashed #3EB489; 
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    position: relative;
+    width: 50vw;
+    min-width: 255px;
+    border-right: 1px dashed #3eb489;
 }
 
 #app .main-panel {
-  flex-grow: 1;
-  display: flex;
+    flex-grow: 1;
+    display: flex;
 }
 
 #app .main-content-container {
-  max-width: 700px;
-  border-right: 1px dashed #3EB489; 
-  margin-right: 50px;
-  padding: 0 40px;
-  position: relative;
+    max-width: 700px;
+    border-right: 1px dashed #3eb489;
+    margin-right: 50px;
+    padding: 0 40px;
+    position: relative;
 }
 
-#app .trending-container{
-  max-width: 350px;
-  padding-top: 80px;
-  margin-left: 40px;
+#app .trending-container {
+    max-width: 350px;
+    padding-top: 80px;
+    margin-left: 40px;
 }
 
-#app .trending-container h2{
-  color: #fff;
-  letter-spacing: 3px;
-  font-weight: 400;
-  text-transform: uppercase;
+#app .trending-container h2 {
+    color: #fff;
+    letter-spacing: 3px;
+    font-weight: 400;
+    text-transform: uppercase;
 }
 
 #app .videos-container {
-  margin-top: 30px;
+    margin-top: 30px;
 }
 
 input,
 textarea {
-  display: block;
-  border: 1px solid #eee;
-  padding: 10px 15px;
-  border-radius: 5px;
-  width: 100%;
-  margin-bottom: 20px;
+    display: block;
+    border: 1px solid #eee;
+    padding: 10px 15px;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 .multiselect input {
-  border: none;
-  margin-bottom: 0;
+    border: none;
+    margin-bottom: 0;
 }
 
 .multiselect {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 </style>

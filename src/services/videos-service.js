@@ -22,12 +22,12 @@ export default {
     return Api().get(`videoQuery?${queryParams.join('&')}`, params)
   },
 
-  updateVideo (params) {
-    return Api().put('videos/' + params.id, params)
+  patchVideo (params) {
+    return Api().put('video/' + params.id, params)
   },
 
-  getVideo (params) {
-    return Api().get('videos/' + params.id) 
+  getVideo (id) {
+    return Api().get('video/' + id) 
   },
 
   deleteVideo (id) {
