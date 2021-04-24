@@ -24,7 +24,7 @@ function addCharacter(req, res) {
       })
     }
     else {
-      Character.insertMany(req.body, function(error, docs){
+      Character.insertMany(req.body, function(error){
         if (error) {
           console.log(error)
         }
@@ -119,4 +119,4 @@ function deleteCharacter(req, res) {
     })
   }
 
-module.exports = { addCharacter, queryCharacter, getCharacters, updateCharacter, deleteCharacter}
+module.exports = { addCharacter, queryCharacter, getCharacters, getCharacter, updateCharacter, deleteCharacter}

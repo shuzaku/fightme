@@ -3,7 +3,7 @@
     <div ref="videoViewRef" class="characters-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div v-for="video in videos" :key="video.id" :class="{ selected: video.selected }">
-                <video-card
+                <match-video-card
                     :id="video.id"
                     v-model="video.isPlaying"
                     v-waypoint="{
@@ -21,14 +21,14 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import VideoCard from '@/components/videos/video-card';
+import MatchVideoCard from '@/components/videos/match-video-card';
 import { eventbus } from '@/main';
 
 export default {
     name: 'Characters',
 
     components: {
-        'video-card': VideoCard
+        'match-video-card': MatchVideoCard
     },
 
     data() {

@@ -47,7 +47,6 @@ function getGame(req, res) {
 
 // Query Games
 function queryGame(req, res) {
-  var db = req.db;
   var names = req.query.queryName.split(",");
   var values = req.query.queryValue.split(",");
   var queries = [];

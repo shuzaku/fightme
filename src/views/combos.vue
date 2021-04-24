@@ -2,8 +2,12 @@
 <template>
     <div ref="videoViewRef" class="combos-view">
         <div v-if="videos.length > 0" class="videos-container">
-            <div v-for="video in videos" :key="video.id" :class="{ selected: video.selected }">
-                <video-card
+            <div
+                v-for="(video, index) in videos"
+                :key="index"
+                :class="{ selected: video.selected }"
+            >
+                <combo-video-card
                     :id="video.id"
                     v-model="video.isPlaying"
                     v-waypoint="{
@@ -21,14 +25,14 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import VideoCard from '@/components/videos/video-card';
+import ComboVideoCard from '@/components/videos/combo-video-card';
 import { eventbus } from '@/main';
 
 export default {
     name: 'Videos',
 
     components: {
-        'video-card': VideoCard
+        'combo-video-card': ComboVideoCard
     },
 
     data() {
@@ -138,6 +142,7 @@ export default {
         },
 
         hydrateVideos(response) {
+            console.log(response);
             response.data.videos.forEach(video => {
                 this.videos.push({
                     id: video._id,
@@ -148,29 +153,21 @@ export default {
                     startTime: video.StartTime,
                     endTime: video.EndTime,
                     gameId: video.GameId,
-                    combo: video.ComboCharacter
-                        ? {
-                              character: {
-                                  id: video.ComboCharacter._id,
-                                  name: video.ComboCharacter.Name,
-                                  imageUrl: video.ComboCharacter.ImageUrl
-                              },
-                              inputs: video.Combo.Inputs,
-                              hits: video.Combo.Hits,
-                              damage: video.Combo.Damage
-                          }
-                        : null,
-                    tags: video.Tags.map(tag => {
-                        return {
-                            id: tag._id,
-                            name: tag.TagName
-                        };
-                    }),
+                    combo: this.getCombos(video.Combo),
                     inview: false,
                     isPlaying: false,
                     isEditing: false
                 });
             });
+        },
+
+        getCombos(combosResponse) {
+            return {
+                id: combosResponse._id,
+                inputs: combosResponse.Inputs,
+                hits: combosResponse.Hits,
+                damage: combosResponse.Damage
+            };
         },
 
         onWaypoint({ el, going, direction }) {

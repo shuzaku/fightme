@@ -3,7 +3,20 @@
     <div ref="videoViewRef" class="videos-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div v-for="video in videos" :key="video.id" :class="{ selected: video.selected }">
-                <video-card
+                <match-video-card
+                    v-if="video.contentType === 'Match'"
+                    :id="video.id"
+                    v-model="video.isPlaying"
+                    v-waypoint="{
+                        active: true,
+                        callback: onWaypoint,
+                        options: intersectionOptions
+                    }"
+                    :video="video"
+                    @video:delete="spliceVideo($event)"
+                />
+                <combo-video-card
+                    v-if="video.contentType === 'Combo'"
                     :id="video.id"
                     v-model="video.isPlaying"
                     v-waypoint="{
@@ -21,14 +34,16 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import VideoCard from '@/components/videos/video-card';
+import MatchVideoCard from '@/components/videos/match-video-card';
+import ComboVideoCard from '@/components/videos/combo-video-card';
 import { eventbus } from '@/main';
 
 export default {
     name: 'Videos',
 
     components: {
-        'video-card': VideoCard
+        'match-video-card': MatchVideoCard,
+        'combo-video-card': ComboVideoCard
     },
 
     data() {
@@ -148,6 +163,7 @@ export default {
         },
 
         hydrateVideos(response) {
+            console.log(response);
             response.data.videos.forEach(video => {
                 this.videos.push({
                     id: video._id,
@@ -158,18 +174,7 @@ export default {
                     startTime: video.StartTime,
                     endTime: video.EndTime,
                     gameId: video.GameId,
-                    combo: video.ComboCharacter
-                        ? {
-                              character: {
-                                  id: video.ComboCharacter._id,
-                                  name: video.ComboCharacter.Name,
-                                  imageUrl: video.ComboCharacter.ImageUrl
-                              },
-                              inputs: video.Combo.Inputs,
-                              hits: video.Combo.Hits,
-                              damage: video.Combo.Damage
-                          }
-                        : null,
+                    combo: this.getCombos(video.Combo),
                     match:
                         video.Player1Id && video.Player2Id
                             ? {
@@ -234,6 +239,15 @@ export default {
                     isEditing: false
                 });
             });
+        },
+
+        getCombos(combosResponse) {
+            return {
+                id: combosResponse._id,
+                inputs: combosResponse.Inputs,
+                hits: combosResponse.Hits,
+                damage: combosResponse.Damage
+            };
         },
 
         onWaypoint({ el, going, direction }) {

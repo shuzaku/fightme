@@ -226,19 +226,73 @@
                 </div>
             </div>
             <div v-if="currentStep === 'Combo'" class="combo-step">
-                <div v-if="video.gameId" class="character-container">
-                    <character-search
-                        v-model="video.combo.characterId"
-                        :gameId="video.gameId"
-                        @update:character="setComboCharacter($event)"
+                <div class="combo-container">
+                    <youtube-media
+                        v-if="video.type === 'youtube'"
+                        :video-id="video.url"
+                        :player-width="400"
+                        :player-height="225"
+                        :player-vars="{ rel: 0 }"
                     />
-                </div>
-                <div class="combo-details-container">
-                    <v-text-field v-model="video.combo.hits" label="Combo Hits" type="Number" />
-                    <v-text-field v-model="video.combo.damage" type="Number" label="Combo Damage" />
-                </div>
-                <div class="inputs-container">
-                    <v-textarea v-model="comboInputsRaw" placeholder="Combo Inputs" />
+                    <div v-for="(combo, index) in video.combos" :key="index" class="combo">
+                        <div class="combo-title" @click="expandCombo(index)">
+                            <h3>Combo {{ index + 1 }}</h3>
+                        </div>
+                        <div v-show="combo.isExpanded" class="combo-container">
+                            <div v-if="showErrorMessage" class="error-container">
+                                <p class="error-msg">
+                                    Please finish this combo before adding a new one.
+                                </p>
+                            </div>
+                            <div v-if="video.gameId" class="character-container">
+                                <character-search
+                                    v-model="combo.characterId"
+                                    :gameId="video.gameId"
+                                    @update:character="setComboCharacter($event, combo)"
+                                />
+                            </div>
+                            <div class="combo-stats">
+                                <div class="hits">
+                                    <v-text-field
+                                        v-model="combo.hits"
+                                        class="hits"
+                                        label="Combo Hits"
+                                        type="Number"
+                                    />
+                                </div>
+                                <div class="damage">
+                                    <v-text-field
+                                        v-model="combo.damage"
+                                        class="damage"
+                                        type="Number"
+                                        label="Combo Damage"
+                                    />
+                                </div>
+                            </div>
+                            <div class="video-clip">
+                                <div class="startTime">
+                                    <v-text-field
+                                        v-model="combo.startTime"
+                                        type="Number"
+                                        placeholder="Start Time"
+                                    />
+                                </div>
+                                <div class="endTime">
+                                    <v-text-field
+                                        v-model="combo.endTime"
+                                        type="Number"
+                                        placeholder="End Time"
+                                    />
+                                </div>
+                            </div>
+                            <div class="inputs-container">
+                                <v-textarea v-model="combo.inputs" placeholder="Combo Inputs" />
+                            </div>
+                            <v-btn class="add-combo-btn" rounded @click="addCombo(index)"
+                                >AddCombo</v-btn
+                            >
+                        </div>
+                    </div>
                 </div>
             </div>
             <v-btn v-if="currentStep === 'Video'" class="video-btn" rounded @click="nextStep()"
@@ -297,7 +351,19 @@ export default {
                 startTime: '',
                 endTime: '',
                 gameId: '',
-                comboId: '',
+                combos: [
+                    {
+                        id: '',
+                        characterId: '',
+                        damage: '',
+                        hits: '',
+                        inputs: '',
+                        startTime: '',
+                        endTime: '',
+                        note: '',
+                        isExpanded: true
+                    }
+                ],
                 match: {
                     player1: {
                         id: '',
@@ -354,7 +420,7 @@ export default {
                     this.video.match.player2.id
                 ) {
                     return true;
-                } else if (this.video.contentType === 'Combo' && this.video.combo.id) {
+                } else if (this.video.contentType === 'Combo' && this.video.combos[0].id) {
                     return true;
                 } else {
                     return false;
@@ -415,20 +481,7 @@ export default {
         async setUpVideo() {
             if (this.video.contentType === 'Combo') {
                 if (!this.videoId) {
-                    const response = await CombosService.addCombo({
-                        CharacterId: this.video.combo.characterId,
-                        Inputs: this.video.combo.inputs,
-                        Damage: this.video.combo.damage,
-                        Hits: this.video.combo.hits
-                    });
-
-                    this.video.comboId = response.data.id;
-
-                    if (this.video.type === 'uploaded') {
-                        this.$refs.videoUploader.upload();
-                    } else {
-                        this.postVideo();
-                    }
+                    this.addCombos();
                 } else {
                     await CombosService.patchCombo({
                         id: this.video.combo.id,
@@ -448,6 +501,31 @@ export default {
             }
         },
 
+        async addCombos() {
+            var combos = this.video.combos;
+            const response = await CombosService.addBulkCombos(
+                combos.map(combo => {
+                    return {
+                        CharacterId: combo.characterId,
+                        Inputs: combo.inputs,
+                        Damage: combo.damage,
+                        Hits: combo.hits
+                    };
+                })
+            );
+
+            for (var i = 0; i < this.video.combos.length; i++) {
+                let combo = this.video.combos[i];
+                combo.id = response.data.combos[i]._id;
+            }
+
+            if (this.video.type === 'uploaded') {
+                this.$refs.videoUploader.upload();
+            } else {
+                this.postVideo();
+            }
+        },
+
         async postVideo() {
             if (this.isValidated) {
                 await VideosService.addVideo({
@@ -459,7 +537,9 @@ export default {
                     StartTime: this.video.startTime,
                     EndTime: this.video.endTime,
                     GameId: this.video.gameId,
-                    ComboId: this.video.comboId,
+                    ComboIds: this.video.combos.map(combo => {
+                        return combo.id;
+                    }),
                     Player1Id: this.video.match.player1.id,
                     Player1CharacterId: this.video.match.player1.characterId,
                     Player1Character2Id: this.video.match.player1.character2Id,
@@ -519,8 +599,8 @@ export default {
             this.video.match.player2.character3Id = characterId;
         },
 
-        setComboCharacter(characterId) {
-            this.video.combo.characterId = characterId;
+        setComboCharacter(characterId, target) {
+            target.characterId = characterId;
         },
 
         setGame(game) {
@@ -542,7 +622,6 @@ export default {
         async getVideo() {
             const response = await VideosService.getVideo(this.videoId);
             var videoResponse = response.data.video;
-            console.log(videoResponse);
             this.video = videoResponse.map(video => {
                 return {
                     url: video.Url,
@@ -628,7 +707,9 @@ export default {
                     request.Player2Character3Id = this.video.match.player2.character3Id;
                     request.WinnerId = this.video.match.winner.id;
                 } else {
-                    request.ComboId = this.video.combo.id;
+                    request.ComboIds = this.video.combos.map(combo => {
+                        return combo.id;
+                    });
                 }
 
                 await VideosService.patchVideo(request);
@@ -638,6 +719,29 @@ export default {
             } else {
                 this.showErrorMessage = true;
             }
+        },
+
+        addCombo(index) {
+            if (!this.video.combos[index].inputs) {
+                this.showErrorMessage = true;
+            } else {
+                this.video.combos[index].isExpanded = false;
+                this.video.combos.push({
+                    id: '',
+                    characterId: '',
+                    damage: '',
+                    hits: '',
+                    inputs: '',
+                    startTime: '',
+                    endTime: '',
+                    isExpanded: true
+                });
+            }
+        },
+
+        expandCombo(index) {
+            this.video.combos.forEach(combo => (combo.isExpanded = false));
+            this.video.combos[index].isExpanded = true;
         }
     }
 };
@@ -709,5 +813,15 @@ export default {
 
 .post-video .v-input input {
     margin: 15px 5px 5px;
+}
+
+.post-video .combo-stats,
+.post-video .video-clip {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-video .inputs-container textarea {
+    height: 75px;
 }
 </style>

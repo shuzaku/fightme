@@ -10,7 +10,7 @@ function addVideo(req, res) {
   var StartTime = req.body.StartTime;
   var EndTime = req.body.EndTime;
   var GameId = req.body.GameId;
-  var ComboId = req.body.ComboId;
+  var ComboIds = req.body.ComboIds.map(combo => {return ObjectId(combo)});
   var Player1Id = req.body.Player1Id;
   var Player2Id = req.body.Player2Id;
   var Player1CharacterId = req.body.Player1CharacterId;
@@ -22,6 +22,7 @@ function addVideo(req, res) {
   var WinnerId = req.body.WinnerId;
   var Tags = req.body.Tags;
   
+  console.log(ComboIds)
   var new_video = new Video({
     Url: Url,
     ContentType: ContentType,
@@ -35,8 +36,8 @@ function addVideo(req, res) {
   if(ContentCreatorId) {
     new_video.ContentCreatorId = ContentCreatorId;
   }
-  if(ComboId) {
-    new_video.ComboId = ComboId;
+  if(ComboIds.length > 0) {
+    new_video.ComboIds = ComboIds;
   }
   if(Player1Id) {
     new_video.Player1Id = Player1Id;
@@ -185,21 +186,23 @@ function queryVideo(req, res) {
     },
     {$unwind: {path:'$Player2Character3', preserveNullAndEmptyArrays: true}},
     {$lookup: {
-      from: "combos",
-      localField: "ComboId",
-      foreignField: "_id",
-      as: "Combo"
+      from: 'combos',
+      localField: 'ComboIds',
+      foreignField: '_id',
+      as: 'Combo'
+    }}, 
+    {
+      $unwind: {
+        path: "$Combo",
+        preserveNullAndEmptyArrays: true
       }
     },
-    {$unwind: {path:'$Combo', preserveNullAndEmptyArrays: true}},
     {$lookup: {
-      from: "characters",
-      localField: "Combo.CharacterId",
-      foreignField: "_id",
-      as: "ComboCharacter"
-      }
-    },
-    {$unwind: {path:'$ComboCharacter', preserveNullAndEmptyArrays: true}}
+      from: 'characters',
+      localField: 'Combo.CharacterId',
+      foreignField: '_id',
+      as: 'Combo.Character'
+    }}, 
   ];
 
   if(queries.length > 0) {
@@ -208,6 +211,7 @@ function queryVideo(req, res) {
 
   aggregate.push({$skip: skip});
   aggregate.push({$limit: 5});  
+
 
   Video.aggregate(aggregate, function (error, videos) {
     if (error) { console.error(error); }
@@ -308,15 +312,6 @@ function getVideo(req, res) {
       as: "Combo"
       }
     },
-    {$unwind: {path:'$Combo', preserveNullAndEmptyArrays: true}},
-    {$lookup: {
-      from: "characters",
-      localField: "Combo.CharacterId",
-      foreignField: "_id",
-      as: "ComboCharacter"
-      }
-    },
-    {$unwind: {path:'$ComboCharacter', preserveNullAndEmptyArrays: true}}
   ];
   
   var videoId = req.params.id;
