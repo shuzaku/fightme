@@ -1,39 +1,7 @@
 <!-- @format -->
 <template>
     <div ref="videoList" class="video-card">
-        <div v-if="video.contentType === 'Combo'" class="combo-card card">
-            <div class="video-container">
-                <youtube-media
-                    v-if="video.videoType === 'youtube'"
-                    ref="youtubeRef"
-                    :video-id="video.url"
-                    :player-width="556"
-                    :player-height="313"
-                    :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
-                    :mute="true"
-                    @ready="ready"
-                />
-                <video v-else ref="videoRef" loop controls muted>
-                    <source :src="video.url" type="video/mp4" />
-                </video>
-            </div>
-            <div class="card-label">{{ video.contentType }}</div>
-            <div
-                class="character-bubble"
-                :style="{ backgroundImage: `url('${video.combo.character.imageUrl}')` }"
-            />
-            <div class="heavy-weight character-name">
-                <p>{{ video.combo.character.name }}</p>
-            </div>
-            <div class="combo-stats">
-                <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
-                <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
-            </div>
-            <div class="combo-input">
-                <p class="inputs">{{ formattedInputs }}</p>
-            </div>
-        </div>
-        <div v-if="video.contentType === 'Match'" class="match-card card">
+        <div class="match-card card">
             <youtube-media
                 v-if="video.videoType === 'youtube'"
                 ref="youtubeRef"

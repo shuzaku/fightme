@@ -68,12 +68,11 @@ export default {
     z-index: 999;
     max-width: 600px;
     background: #fff;
-    left: 50%;
-    margin-left: -310px;
+    right: 0;
     top: 0px;
     border-radius: 20px;
     padding: 40px;
-    height: 650px;
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
 }

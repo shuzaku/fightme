@@ -25,8 +25,8 @@ var VideoSchema = new Schema({
     GameId: {
       type: ObjectId
     },
-    ComboId: {
-      type: ObjectId
+    ComboIds: {
+      type: Array
     },
     Player1Id: {
       type: ObjectId
