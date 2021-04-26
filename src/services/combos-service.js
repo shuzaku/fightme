@@ -10,8 +10,12 @@ export default {
     return Api().post('combos', params)
   },
 
-  updateCombo(params) {
-    return Api().put('combos/' + params.id, params)
+  addBulkCombos (params) {
+    return Api().post('combos?bulk=true', params)
+  },
+
+  patchCombo(params) {
+    return Api().put('combo/' + params.id, params)
   },
 
   getCombo() {

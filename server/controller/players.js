@@ -1,4 +1,5 @@
 var Player = require("../models/players");
+var ObjectId = require('mongodb').ObjectId;
 
 // Add new player
 function addPlayer(req, res) {
@@ -24,7 +25,12 @@ function addPlayer(req, res) {
 
 // Fetch all player
 function getPlayers(req, res) {
-  Player.find({}, 'Name ImageUrl', function (error, players) {
+  Player.aggregate([{$match: {
+    _id: {
+      $ne: ObjectId("000000000000000000000000")
+    }
+  }
+  }], function (error, players) {
     if (error) { console.error(error); }
     res.send({
       players: players
@@ -75,4 +81,4 @@ function deletePlayer(req, res) {
   })
 }
 
-module.exports = { getPlayer, updatePlayer, deletePlayer}
+module.exports = {addPlayer, getPlayer, getPlayers, updatePlayer, deletePlayer}

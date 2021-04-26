@@ -8,7 +8,7 @@ export default {
   },
 
   addPlayer(params) {
-    return Api().post('players', params)
+    return Api().post('player', params)
   },
 
   updatePlayer(params) {
