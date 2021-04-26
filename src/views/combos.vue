@@ -29,7 +29,7 @@ import ComboVideoCard from '@/components/videos/combo-video-card';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Videos',
+    name: 'Combos',
 
     components: {
         'combo-video-card': ComboVideoCard
