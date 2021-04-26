@@ -2,7 +2,11 @@
 <template>
     <div ref="videoViewRef" class="videos-view">
         <div v-if="videos.length > 0" class="videos-container">
-            <div v-for="video in videos" :key="video.id" :class="{ selected: video.selected }">
+            <div
+                v-for="(video, index) in videos"
+                :key="index"
+                :class="{ selected: video.selected }"
+            >
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     :id="video.id"
