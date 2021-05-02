@@ -226,7 +226,7 @@
                 </div>
             </div>
             <div v-if="currentStep === 'Combo'" class="combo-step">
-                <div class="combo-container">
+                <div class="combos-container">
                     <youtube-media
                         v-if="video.type === 'youtube'"
                         :video-id="video.url"
@@ -244,52 +244,51 @@
                                     Please finish this combo before adding a new one.
                                 </p>
                             </div>
-                            <div v-if="video.gameId" class="character-container">
+                            <div class="character-container">
                                 <character-search
                                     v-model="combo.characterId"
                                     :gameId="video.gameId"
                                     @update:character="setComboCharacter($event, combo)"
                                 />
                             </div>
-                            <div class="combo-stats">
-                                <div class="hits">
-                                    <v-text-field
-                                        v-model="combo.hits"
-                                        class="hits"
-                                        label="Combo Hits"
-                                        type="Number"
-                                    />
-                                </div>
-                                <div class="damage">
-                                    <v-text-field
-                                        v-model="combo.damage"
-                                        class="damage"
-                                        type="Number"
-                                        label="Combo Damage"
-                                    />
-                                </div>
+                            <div class="inputs-container">
+                                <v-textarea v-model="combo.inputs" placeholder="Combo Inputs" />
                             </div>
-                            <div class="video-clip">
-                                <div class="startTime">
+                            <div class="combo-stats ">
+                                <div class="startTime input-container">
                                     <v-text-field
                                         v-model="combo.startTime"
                                         type="Number"
                                         placeholder="Start Time"
                                     />
                                 </div>
-                                <div class="endTime">
+                                <div class="endTime input-container">
                                     <v-text-field
                                         v-model="combo.endTime"
                                         type="Number"
                                         placeholder="End Time"
                                     />
                                 </div>
+                                <div class="damage input-container">
+                                    <v-text-field
+                                        v-model="combo.damage"
+                                        class="damage"
+                                        type="Number"
+                                        placeholder="Damage"
+                                    />
+                                </div>
+                                <div class="hits input-container">
+                                    <v-text-field
+                                        v-model="combo.hits"
+                                        class="hits"
+                                        placeholder="Hits"
+                                        type="Number"
+                                    />
+                                </div>
                             </div>
-                            <div class="inputs-container">
-                                <v-textarea v-model="combo.inputs" placeholder="Combo Inputs" />
-                            </div>
+
                             <v-btn class="add-combo-btn" rounded @click="addCombo(index)"
-                                >AddCombo</v-btn
+                                >Add More Combo</v-btn
                             >
                         </div>
                     </div>
@@ -509,7 +508,9 @@ export default {
                         CharacterId: combo.characterId,
                         Inputs: combo.inputs,
                         Damage: combo.damage,
-                        Hits: combo.hits
+                        Hits: combo.hits,
+                        StartTime: combo.startTime,
+                        EndTime: combo.endTime
                     };
                 })
             );
@@ -537,8 +538,12 @@ export default {
                     StartTime: this.video.startTime,
                     EndTime: this.video.endTime,
                     GameId: this.video.gameId,
-                    ComboIds: this.video.combos.map(combo => {
-                        return combo.id;
+                    Combos: this.video.combos.map(combo => {
+                        return {
+                            Id: combo.id,
+                            StartTime: combo.startTime,
+                            EndTime: combo.endTime
+                        };
                     }),
                     Player1Id: this.video.match.player1.id,
                     Player1CharacterId: this.video.match.player1.characterId,
@@ -812,16 +817,54 @@ export default {
 }
 
 .post-video .v-input input {
-    margin: 15px 5px 5px;
+    margin: 5px 5px 5px;
 }
 
 .post-video .combo-stats,
 .post-video .video-clip {
     display: flex;
     justify-content: space-between;
+    padding: 5px;
+}
+
+.post-video .combo-stats,
+.post-video .inputs-container {
+    padding: 0 2px;
 }
 
 .post-video .inputs-container textarea {
     height: 75px;
+}
+
+.post-video .input-container {
+    padding: 0 5px;
+}
+
+.post-video .input-container input {
+    font-size: 12px;
+}
+
+.post-video .inputs-container .v-input {
+    padding-top: 0;
+    margin-top: 0px;
+}
+
+.post-video .inputs-container .v-input__slot,
+.post-video .input-container .v-input__slot {
+    background: #fff;
+}
+
+.post-video .inputs-container .v-input__slot {
+    padding: 10px;
+}
+
+.post-video .combo-title {
+    margin: 20px 0 10px;
+}
+
+.post-video .combo-container {
+    border: 1px solid #eee;
+    padding: 20px 10px;
+    background: #eee;
 }
 </style>

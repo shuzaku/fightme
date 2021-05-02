@@ -9,7 +9,11 @@
                     :video-id="video.url"
                     :player-width="556"
                     :player-height="313"
-                    :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
+                    :player-vars="{
+                        rel: 0,
+                        start: video.combo.startTime,
+                        end: video.combo.endTime
+                    }"
                     :mute="true"
                     @ready="ready"
                 />
@@ -18,13 +22,15 @@
                 </video>
             </div>
             <div class="card-label">{{ video.contentType }}</div>
-            <!-- <div
+            <div
                 class="character-bubble"
                 :style="{ backgroundImage: `url('${video.combo.character.imageUrl}')` }"
             />
             <div class="heavy-weight character-name">
-                <p>{{ video.combo.character.name }}</p>
-            </div> -->
+                <p @click="queryCharacter(video.combo.character.id)">
+                    {{ video.combo.character.name }}
+                </p>
+            </div>
             <div class="combo-stats">
                 <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
                 <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
@@ -75,7 +81,6 @@ export default {
 
     data() {
         return {
-            startTime: null,
             videoCurrentTime: 0
         };
     },
@@ -98,13 +103,13 @@ export default {
         },
 
         videoCurrentTime() {
-            if (this.videoCurrentTime > parseInt(this.video.endTime)) {
-                this.$refs.youtubeRef.player.seekTo(this.video.startTime);
+            if (this.videoCurrentTime > parseInt(this.video.combo.endTime)) {
+                this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
             }
         },
 
         'video.isPlaying'() {
-            if (this.video.isPlaying && this.video.startTime) {
+            if (this.video.isPlaying && this.video.combo.startTime) {
                 this.setTimer();
             }
         }
@@ -127,7 +132,7 @@ export default {
             this.player = event.target;
             if (this.video.isPlaying) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.isPlaying && this.video.combo.startTime) {
                     this.setTimer();
                 }
             }
