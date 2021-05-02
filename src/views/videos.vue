@@ -21,11 +21,11 @@
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
-                    :id="video.id"
+                    :id="video.combo.id"
                     v-model="video.isPlaying"
                     v-waypoint="{
                         active: true,
-                        callback: onWaypoint,
+                        callback: onComboWaypoint,
                         options: intersectionOptions
                     }"
                     :video="video"
@@ -244,18 +244,40 @@ export default {
             });
         },
 
-        getCombos(combosResponse) {
+        getCombos(comboResponse) {
             return {
-                id: combosResponse._id,
-                inputs: combosResponse.Inputs,
-                hits: combosResponse.Hits,
-                damage: combosResponse.Damage
+                id: comboResponse._id,
+                inputs: comboResponse.Inputs,
+                hits: comboResponse.Hits,
+                damage: comboResponse.Damage,
+                startTime: comboResponse.StartTime,
+                endTime: comboResponse.EndTime,
+                character: comboResponse.CharacterId
+                    ? {
+                          name: comboResponse.Character.Name,
+                          imageUrl: comboResponse.Character.ImageUrl,
+                          id: comboResponse.Character._id
+                      }
+                    : null
             };
         },
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.id == objectId);
+            var featuredVideo = this.videos.find(video => video.id === objectId);
+            if (going === this.$waypointMap.GOING_IN && direction) {
+                featuredVideo.inview = true;
+                featuredVideo.isPlaying = true;
+            }
+
+            if (going === this.$waypointMap.GOING_OUT && direction) {
+                featuredVideo.isPlaying = false;
+            }
+        },
+
+        onComboWaypoint({ el, going, direction }) {
+            var objectId = el.id;
+            var featuredVideo = this.videos.find(video => video.combo.id === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.inview = true;
                 featuredVideo.isPlaying = true;
