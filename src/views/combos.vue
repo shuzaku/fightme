@@ -160,12 +160,22 @@ export default {
             });
         },
 
-        getCombos(combosResponse) {
+        getCombos(comboResponse) {
+            console.log(comboResponse);
             return {
-                id: combosResponse._id,
-                inputs: combosResponse.Inputs,
-                hits: combosResponse.Hits,
-                damage: combosResponse.Damage
+                id: comboResponse._id,
+                inputs: comboResponse.Inputs,
+                hits: comboResponse.Hits,
+                damage: comboResponse.Damage,
+                startTime: comboResponse.StartTime,
+                endTime: comboResponse.EndTime,
+                character: comboResponse.CharacterId
+                    ? {
+                          name: comboResponse.Character.Name,
+                          imageUrl: comboResponse.Character.ImageUrl,
+                          id: comboResponse.Character._id
+                      }
+                    : null
             };
         },
 
