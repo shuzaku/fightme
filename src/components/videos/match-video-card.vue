@@ -111,7 +111,7 @@
                 </div>
             </div>
         </div>
-        <div class="admin-controls">
+        <!-- <div class="admin-controls">
             <v-btn @click="editVideo()">
                 <v-icon dark>
                     mdi-wrench
@@ -122,7 +122,7 @@
                     mdi-delete
                 </v-icon>
             </v-btn>
-        </div>
+        </div> -->
     </div>
 </template>
 
