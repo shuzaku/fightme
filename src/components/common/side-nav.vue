@@ -28,11 +28,11 @@
     <div class="menu-item">
       <div class="menu-heading"><font-awesome-icon icon="video" />Creators</div>
     </div> -->
-        <div class="menu-item">
+        <!-- <div class="menu-item">
             <div class="menu-heading" @click="toggleDropDown()">
                 <font-awesome-icon icon="plus-circle" />Add
             </div>
-        </div>
+        </div> -->
         <div v-if="isDropDownOpen" class="add-content-dropdown">
             <ul>
                 <li
