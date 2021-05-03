@@ -12,7 +12,7 @@
                     v-model="video.isPlaying"
                     v-waypoint="{
                         active: true,
-                        callback: onWaypoint,
+                        callback: onComboWaypoint,
                         options: intersectionOptions
                     }"
                     :video="video"
@@ -187,6 +187,18 @@ export default {
                 featuredVideo.isPlaying = true;
             }
 
+            if (going === this.$waypointMap.GOING_OUT && direction) {
+                featuredVideo.isPlaying = false;
+            }
+        },
+
+        onComboWaypoint({ el, going, direction }) {
+            var objectId = el.id;
+            var featuredVideo = this.videos.find(video => video.combo.id === objectId);
+            if (going === this.$waypointMap.GOING_IN && direction) {
+                featuredVideo.inview = true;
+                featuredVideo.isPlaying = true;
+            }
             if (going === this.$waypointMap.GOING_OUT && direction) {
                 featuredVideo.isPlaying = false;
             }
