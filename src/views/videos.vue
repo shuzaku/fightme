@@ -167,6 +167,7 @@ export default {
         },
 
         hydrateVideos(response) {
+            console.log(response);
             response.data.videos.forEach(video => {
                 this.videos.push({
                     id: video._id,
@@ -245,6 +246,7 @@ export default {
         },
 
         getCombos(comboResponse) {
+            console.log(comboResponse);
             return {
                 id: comboResponse._id,
                 inputs: comboResponse.Inputs,
