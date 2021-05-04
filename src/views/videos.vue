@@ -242,10 +242,11 @@ export default {
                     isEditing: false
                 });
             });
+
+            this.videos = this.videos.sort(() => Math.random() - 0.5);
         },
 
         getCombos(comboResponse) {
-            console.log(comboResponse);
             return {
                 id: comboResponse._id,
                 inputs: comboResponse.Inputs,

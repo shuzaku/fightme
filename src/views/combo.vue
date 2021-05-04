@@ -29,7 +29,7 @@ import ComboVideoCard from '@/components/videos/combo-video-card';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Combos',
+    name: 'Combo',
 
     components: {
         'combo-video-card': ComboVideoCard
@@ -52,6 +52,10 @@ export default {
     computed: {
         skip: function() {
             return this.videos.length;
+        },
+
+        videoId: function() {
+            return this.$route.params.id;
         }
     },
 
@@ -116,8 +120,8 @@ export default {
             }
 
             searchQuery.push({
-                queryName: 'ContentType',
-                queryValue: 'Combo'
+                queryName: 'VideoId',
+                queryValue: this.videoId
             });
 
             var queryParameter = {
@@ -219,6 +223,12 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
+        },
+
+        copyLink() {
+            this.$copyText(`https://fighters-edge.com/combo/${this.combo.id}`).then(() => {
+                alert('match copied');
+            });
         }
     }
 };

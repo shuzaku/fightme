@@ -38,8 +38,8 @@
             <div class="combo-input">
                 <p class="inputs">{{ video.combo.inputs.join(' > ') }}</p>
             </div>
-            <!-- <div class="admin-controls">
-                <v-btn @click="editVideo()">
+            <div class="admin-controls">
+                <!-- <v-btn @click="editVideo()">
                     <v-icon dark>
                         mdi-wrench
                     </v-icon>
@@ -48,8 +48,13 @@
                     <v-icon dark>
                         mdi-delete
                     </v-icon>
+                </v-btn> -->
+                <v-btn @click="copyLink()">
+                    <v-icon dark>
+                        mdi-link
+                    </v-icon>
                 </v-btn>
-            </div> -->
+            </div>
         </div>
     </div>
 </template>
@@ -181,6 +186,12 @@ export default {
             eventbus.$emit('open:videoWidget', {
                 name: 'video',
                 videoId: this.video.id
+            });
+        },
+
+        copyLink() {
+            this.$copyText(`https://fighters-edge.com/combo/${this.video.id}`).then(() => {
+                alert('combo copied');
             });
         }
     }

@@ -8,6 +8,7 @@ import VueWaypoint from 'vue-waypoint'
 import Multiselect from 'vue-multiselect'
 import VueYouTubeEmbed from 'vue-youtube-embed'
 import vuetify from '@/plugins/vuetify' // path to vuetify export
+import VueClipboard from 'vue-clipboard2'
 
 import _ from 'lodash';    
 import firebase from 'firebase/app'
@@ -43,6 +44,7 @@ Vue.use(moment);
 Vue.component('multiselect', Multiselect)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })
+Vue.use(VueClipboard)
 
 Vue.config.productionTip = false;
 const configOptions = {
