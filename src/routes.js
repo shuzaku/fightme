@@ -10,6 +10,8 @@ import Games from './views/games.vue';
 
 const routes = [
     {path: '/', name: 'Videos', component: Videos},
+    {path: '/* ', name: 'Videos', component: Videos},
+    {path: '/  200', name: 'Videos', component: Videos},
     {path: '/combos', name: 'Combos', component: Combos},
     {path: '/matches', name: 'Matches', component: Matches},
     {path: '/games', name: 'Games', component: Games},
