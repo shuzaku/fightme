@@ -223,12 +223,6 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        },
-
-        copyLink() {
-            this.$copyText(`https://fighters-edge.com/combo/${this.combo.id}`).then(() => {
-                alert('match copied');
-            });
         }
     }
 };

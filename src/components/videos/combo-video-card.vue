@@ -190,7 +190,7 @@ export default {
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/combo/${this.video.id}`).then(() => {
+            this.$copyText(`https://fighters-edge.com/combo/${this.video.combo.id}`).then(() => {
                 alert('combo copied');
             });
         }
