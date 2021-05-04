@@ -54,7 +54,7 @@ export default {
             return this.videos.length;
         },
 
-        videoId: function() {
+        comboId: function() {
             return this.$route.params.id;
         }
     },
@@ -120,8 +120,8 @@ export default {
             }
 
             searchQuery.push({
-                queryName: 'VideoId',
-                queryValue: this.videoId
+                queryName: 'ComboId',
+                queryValue: this.comboId
             });
 
             var queryParameter = {
