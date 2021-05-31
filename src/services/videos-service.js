@@ -19,6 +19,12 @@ export default {
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
+    if(params.sortOption){
+      queryParams.push(`sort=${params.sortOption}`)
+    }
+    if(params.filter){
+      queryParams.push(`filter=${params.filter}`)
+    }
     return Api().get(`videoQuery?${queryParams.join('&')}`, params)
   },
 
@@ -32,5 +38,13 @@ export default {
 
   deleteVideo (id) {
     return Api().delete('videos/' + id)
+  },
+
+  bulkDeleteVideos() {
+    return Api().post('bulkVideos/')
+  },
+
+  test() {
+    return Api().post('videostest/')
   }
 } 

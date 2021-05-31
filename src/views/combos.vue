@@ -76,45 +76,6 @@ export default {
                 this.savedQuery = query;
             }
 
-            if (searchParameter) {
-                if (searchParameter.queryName === 'Game') {
-                    searchQuery = [
-                        {
-                            queryName: 'GameId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Player') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1Id',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2Id',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Character') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Combo.CharacterId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-            }
-
             searchQuery.push({
                 queryName: 'ContentType',
                 queryValue: 'Combo'
@@ -146,16 +107,17 @@ export default {
                 this.videos.push({
                     id: video._id,
                     contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
                     videoType: video.VideoType,
-                    url: video.Url,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
-                    gameId: video.GameId,
-                    combo: this.getCombos(video.Combo),
                     inview: false,
+                    isEditing: false,
                     isPlaying: false,
-                    isEditing: false
+                    url: video.Url,
+                    combo: this.getCombos(video.Combo),
+                    game: {
+                        id: video.Game._id,
+                        Title: video.Game.Title,
+                        LogoUrl: video.Game.LogoUrl
+                    }
                 });
             });
         },
@@ -176,19 +138,6 @@ export default {
                       }
                     : null
             };
-        },
-
-        onWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.id == objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
-            }
         },
 
         onComboWaypoint({ el, going, direction }) {

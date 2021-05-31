@@ -79,11 +79,7 @@ export default {
 
             searchQuery = [
                 {
-                    queryName: 'Player1Id',
-                    queryValue: this.playerId
-                },
-                {
-                    queryName: 'Player2Id',
+                    queryName: 'PlayerId',
                     queryValue: this.playerId
                 }
             ];
@@ -115,43 +111,61 @@ export default {
                 this.videos.push({
                     id: video._id,
                     contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
                     videoType: video.VideoType,
-                    url: video.Url,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
-                    gameId: video.GameId,
-                    match: {
-                        player1: {
-                            id: video.Player1Id,
-                            name: video.Player1.Name,
-                            character: {
-                                id: video.Player1CharacterId,
-                                name: video.Player1Character.Name,
-                                imageUrl: video.Player1Character.ImageUrl
-                            }
-                        },
-                        player2: {
-                            id: video.Player2Id,
-                            name: video.Player2.Name,
-                            character: {
-                                id: video.Player2CharacterId,
-                                name: video.Player2Character.Name,
-                                imageUrl: video.Player2Character.ImageUrl
-                            }
-                        }
-                    },
-                    tags: video.Tags.map(tag => {
-                        return {
-                            id: tag._id,
-                            name: tag.TagName
-                        };
-                    }),
                     inview: false,
+                    isEditing: false,
                     isPlaying: false,
-                    isEditing: false
+                    url: video.Url,
+                    game: {
+                        id: video.Game._id,
+                        Title: video.Game.Title,
+                        LogoUrl: video.Game.LogoUrl
+                    },
+                    match: {
+                        id: video.Match._id,
+                        team1Players: video.Match.Team1Players.map(player => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Match.Team1Player.filter(
+                                    searchPlayer => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Match.Team1PlayerCharacters
+                                )
+                            };
+                        }),
+                        team2Players: video.Match.Team2Players.map(player => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Match.Team2Player.filter(
+                                    searchPlayer => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Match.Team2PlayerCharacters
+                                )
+                            };
+                        })
+                    }
                 });
             });
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach(id => {
+                var filteredCharacter = characters.filter(character => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].ImageUrl
+                });
+            });
+            return playerCharacters;
         },
 
         onWaypoint({ el, going, direction }) {

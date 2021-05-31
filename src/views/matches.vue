@@ -2,7 +2,11 @@
 <template>
     <div ref="videoViewRef" class="matches-view">
         <div v-if="videos.length > 0" class="videos-container">
-            <div v-for="video in videos" :key="video.id" :class="{ selected: video.selected }">
+            <div
+                v-for="video in videos"
+                :key="video.match.id"
+                :class="{ selected: video.selected }"
+            >
                 <match-video-card
                     :id="video.id"
                     v-model="video.isPlaying"
@@ -63,11 +67,6 @@ export default {
     },
 
     methods: {
-        async getVideos() {
-            const response = await VideosService.fetchVideos(this.skip);
-            this.hydrateVideos(response);
-        },
-
         async queryVideos(query) {
             var searchQuery = [];
             var searchParameter = query || this.savedQuery;
@@ -75,45 +74,6 @@ export default {
             if (this.savedQuery !== searchParameter) {
                 this.videos = [];
                 this.savedQuery = query;
-            }
-
-            if (searchParameter) {
-                if (searchParameter.queryName === 'Game') {
-                    searchQuery = [
-                        {
-                            queryName: 'GameId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Player') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1Id',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2Id',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Character') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Combo.CharacterId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
             }
 
             searchQuery.push({
@@ -147,45 +107,61 @@ export default {
                 this.videos.push({
                     id: video._id,
                     contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
                     videoType: video.VideoType,
-                    url: video.Url,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
-                    gameId: video.GameId,
-                    match: {
-                        player1: {
-                            id: video.Player1Id,
-                            name: video.Player1.Name,
-                            character: {
-                                id: video.Player1CharacterId,
-                                name: video.Player1Character.Name,
-                                imageUrl: video.Player1Character.ImageUrl
-                            }
-                        },
-                        player2: {
-                            id: video.Player2Id,
-                            name: video.Player2.Name,
-                            character: {
-                                id: video.Player2CharacterId,
-                                name: video.Player2Character.Name,
-                                imageUrl: video.Player2Character.ImageUrl
-                            }
-                        }
-                        // winner: video.Match.Winner,
-                        // tournamentId: video.Match.TournamentId,
-                    },
-                    tags: video.Tags.map(tag => {
-                        return {
-                            id: tag._id,
-                            name: tag.TagName
-                        };
-                    }),
                     inview: false,
+                    isEditing: false,
                     isPlaying: false,
-                    isEditing: false
+                    url: video.Url,
+                    game: {
+                        id: video.Game._id,
+                        Title: video.Game.Title,
+                        LogoUrl: video.Game.LogoUrl
+                    },
+                    match: {
+                        id: video.Match._id,
+                        team1Players: video.Match.Team1Players.map(player => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Match.Team1Player.filter(
+                                    searchPlayer => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Match.Team1PlayerCharacters
+                                )
+                            };
+                        }),
+                        team2Players: video.Match.Team2Players.map(player => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Match.Team2Player.filter(
+                                    searchPlayer => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Match.Team2PlayerCharacters
+                                )
+                            };
+                        })
+                    }
                 });
             });
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach(id => {
+                var filteredCharacter = characters.filter(character => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].ImageUrl
+                });
+            });
+            return playerCharacters;
         },
 
         onWaypoint({ el, going, direction }) {

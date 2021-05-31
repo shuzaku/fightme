@@ -150,76 +150,63 @@ export default {
                 this.videos.push({
                     id: video._id,
                     contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
                     videoType: video.VideoType,
-                    url: video.Url,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
-                    gameId: video.GameId,
-                    match:
-                        video.Player1Id && video.Player2Id
-                            ? {
-                                  player1: {
-                                      id: video.Player1Id,
-                                      name: video.Player1.Name,
-                                      character: {
-                                          id: video.Player1CharacterId,
-                                          name: video.Player1Character.Name,
-                                          imageUrl: video.Player1Character.ImageUrl
-                                      },
-                                      character2: video.Player1Character2Id
-                                          ? {
-                                                id: video.Player1Character2Id,
-                                                name: video.Player1Character2.Name,
-                                                imageUrl: video.Player1Character2.ImageUrl
-                                            }
-                                          : null,
-                                      character3: video.Player1Character3Id
-                                          ? {
-                                                id: video.Player1Character3Id,
-                                                name: video.Player1Character3.Name,
-                                                imageUrl: video.Player1Character3.ImageUrl
-                                            }
-                                          : null
-                                  },
-                                  player2: {
-                                      id: video.Player2Id,
-                                      name: video.Player2.Name,
-                                      character: {
-                                          id: video.Player2CharacterId,
-                                          name: video.Player2Character.Name,
-                                          imageUrl: video.Player2Character.ImageUrl
-                                      },
-                                      character2: video.Player2Character2Id
-                                          ? {
-                                                id: video.Player2Character2Id,
-                                                name: video.Player2Character2.Name,
-                                                imageUrl: video.Player2Character2.ImageUrl
-                                            }
-                                          : null,
-                                      character3: video.Player2Character3Id
-                                          ? {
-                                                id: video.Player2Character3Id,
-                                                name: video.Player2Character3.Name,
-                                                imageUrl: video.Player2Character3.ImageUrl
-                                            }
-                                          : null
-                                  }
-                                  // winner: video.Match.Winner,
-                                  // tournamentId: video.Match.TournamentId,
-                              }
-                            : null,
-                    tags: video.Tags.map(tag => {
-                        return {
-                            id: tag._id,
-                            name: tag.TagName
-                        };
-                    }),
                     inview: false,
+                    isEditing: false,
                     isPlaying: false,
-                    isEditing: false
+                    url: video.Url,
+                    game: {
+                        id: video.Game._id,
+                        Title: video.Game.Title,
+                        LogoUrl: video.Game.LogoUrl
+                    },
+                    match: video.Match._id
+                        ? {
+                              id: video.Match._id,
+                              team1Players: video.Match.Team1Players.map(player => {
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: video.Match.Team1Player.filter(
+                                          searchPlayer => searchPlayer._id === player.Id
+                                      )[0].Name,
+                                      characters: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team1PlayerCharacters
+                                      )
+                                  };
+                              }),
+                              team2Players: video.Match.Team2Players.map(player => {
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: video.Match.Team2Player.filter(
+                                          searchPlayer => searchPlayer._id === player.Id
+                                      )[0].Name,
+                                      characters: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team2PlayerCharacters
+                                      )
+                                  };
+                              })
+                          }
+                        : null
                 });
             });
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach(id => {
+                var filteredCharacter = characters.filter(character => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].ImageUrl
+                });
+            });
+            return playerCharacters;
         },
 
         onWaypoint({ el, going, direction }) {

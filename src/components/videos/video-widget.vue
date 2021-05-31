@@ -90,138 +90,46 @@
                 <!--- players --->
                 <div class="players-container">
                     <h2>Players</h2>
-                    <p v-show="showErrorMessage && !video.match.player1.id" class="error-msg">
-                        Please select player 1
-                    </p>
-                    <player-search
-                        v-model="video.match.player1.id"
-                        :player="1"
-                        @update:player="setPlayer1($event)"
-                    />
-                    <p
-                        v-show="showErrorMessage && !video.match.player1.characterId"
-                        class="error-msg"
-                    >
-                        Please select player 1's character
-                    </p>
-                    <character-search
-                        v-if="video.gameId"
-                        v-model="video.match.player1.characterId"
-                        :gameId="video.gameId"
-                        :player="1"
-                        @update:character="setPlayer1Character($event)"
-                    />
-                    <v-btn
-                        v-if="!player1Has2Characters && video.match.player1.characterId"
-                        class="add-more-characters"
-                        tile
-                        color="indigo"
-                        @click="player1Has2Characters = !player1Has2Characters"
-                    >
-                        Add another character
-                    </v-btn>
-                    <character-search
-                        v-if="video.gameId && player1Has2Characters"
-                        v-model="video.match.player1.characterId2"
-                        :gameId="video.gameId"
-                        :player="2"
-                        @update:character="setPlayer1Character2($event)"
-                    />
-                    <v-btn
-                        v-if="!player1Has3Characters && video.match.player1.character2Id"
-                        class="add-more-characters"
-                        tile
-                        color="indigo"
-                        @click="player1Has3Characters = !player1Has3Characters"
-                    >
-                        Add another character
-                    </v-btn>
-                    <character-search
-                        v-if="video.gameId && player1Has3Characters"
-                        v-model="video.match.player1.characterId3"
-                        :gameId="video.gameId"
-                        :player="2"
-                        @update:character="setPlayer1Character3($event)"
-                    />
-                    <strong> VS. </strong>
-                    <p v-show="showErrorMessage && !video.match.player2.id" class="error-msg">
-                        Please select player 2
-                    </p>
-                    <player-search
-                        v-model="video.match.player2.id"
-                        :player="2"
-                        @update:player="setPlayer2($event)"
-                    />
-                    <p
-                        v-show="showErrorMessage && !video.match.player2.characterId"
-                        class="error-msg"
-                    >
-                        Please select player 2's character
-                    </p>
-                    <character-search
-                        v-if="video.gameId"
-                        v-model="video.match.player2.characterId"
-                        :gameId="video.gameId"
-                        :player="2"
-                        @update:character="setPlayer2Character($event)"
-                    />
-                    <v-btn
-                        v-if="!player2Has2Characters && video.match.player2.characterId"
-                        class="add-more-characters"
-                        tile
-                        color="indigo"
-                        @click="player2Has2Characters = !player2Has2Characters"
-                    >
-                        Add another character
-                    </v-btn>
-                    <character-search
-                        v-if="video.gameId && player2Has2Characters"
-                        v-model="video.match.player2.characterId2"
-                        :gameId="video.gameId"
-                        :player="2"
-                        @update:character="setPlayer2Character2($event)"
-                    />
-                    <v-btn
-                        v-if="!player2Has3Characters && video.match.player2.character2Id"
-                        class="add-more-characters"
-                        tile
-                        color="indigo"
-                        @click="player2Has3Characters = !player2Has3Characters"
-                    >
-                        Add another character
-                    </v-btn>
-                    <character-search
-                        v-if="video.gameId && player2Has3Characters"
-                        v-model="video.match.player2.characterId3"
-                        :gameId="video.gameId"
-                        :player="2"
-                        @update:character="setPlayer2Character3($event)"
-                    />
-                    <div v-if="video.match.player1.id && video.match.player2.id" class="winner">
-                        <multiselect
-                            v-model="video.match.winner"
-                            :options="players"
-                            :multiple="false"
-                            :close-on-select="true"
-                            :clear-on-select="false"
-                            placeholder="Match Winner"
-                            label="name"
-                            @input="setWinner"
-                        >
-                            <template slot="selection" slot-scope="{ values, isOpen }">
-                                <span
-                                    v-if="values.length &amp;&amp; !isOpen"
-                                    class="multiselect__single"
-                                >
-                                    Select Winner
-                                </span>
-                            </template>
-                        </multiselect>
-                        <select v-model="video.match.winner">
-                            <option v-for="player in players" :key="player.id">
-                                {{ player.name }}
-                            </option>
-                        </select>
+                    <div class="team1">
+                        <div v-for="(player, index) in video.match.team1Players" :key="index">
+                            <player-search
+                                v-model="player.id"
+                                @update:player="addPlayerToTeam1($event)"
+                            />
+                            <div class="character-container">
+                                <h3>Characters</h3>
+                                <div v-for="character in player.characterCount" :key="character">
+                                    <character-search
+                                        v-model="player.characterIds"
+                                        :gameId="video.gameId"
+                                        @update:character="addCharacterToPlayer($event, player)"
+                                    />
+                                </div>
+                                <v-btn @click="addCharacter(player)">addCharacter</v-btn>
+                            </div>
+                        </div>
+                        <v-btn @click="addToTeam1()">AddPlayers</v-btn>
+                    </div>
+                    <div class="versus">Vs.</div>
+                    <div class="team2">
+                        <div v-for="(player, index) in video.match.team2Players" :key="index">
+                            <player-search
+                                v-model="video.match.team2Players[index].id"
+                                @update:player="addPlayerToTeam2($event)"
+                            />
+                            <div class="character-container">
+                                <h3>Characters</h3>
+                                <div v-for="character in player.characterCount" :key="character">
+                                    <character-search
+                                        v-model="player.characterIds"
+                                        :gameId="video.gameId"
+                                        @update:character="addCharacterToPlayer($event, player)"
+                                    />
+                                </div>
+                                <v-btn @click="addCharacter(player)">addCharacter</v-btn>
+                            </div>
+                        </div>
+                        <v-btn @click="addToTeam2()">AddPlayers</v-btn>
                     </div>
                 </div>
             </div>
@@ -235,7 +143,7 @@
                         :player-vars="{ rel: 0 }"
                     />
                     <div v-for="(combo, index) in video.combos" :key="index" class="combo">
-                        <div class="combo-title" @click="expandCombo(index)">
+                        <div class="combo-title" @click="expandComboMenu(index)">
                             <h3>Combo {{ index + 1 }}</h3>
                         </div>
                         <div v-show="combo.isExpanded" class="combo-container">
@@ -337,7 +245,7 @@ export default {
         return {
             winner: null,
             isVideoClipped: false,
-            currentStep: 'Video',
+            currentStep: 'Match',
             comboInputsRaw: '',
             showErrorMessage: false,
             video: {
@@ -364,21 +272,22 @@ export default {
                     }
                 ],
                 match: {
-                    player1: {
-                        id: '',
-                        name: '',
-                        characterId: ''
-                    },
-                    player2: {
-                        id: '',
-                        name: '',
-                        characterId: ''
-                    },
-                    winner: {
-                        name: '',
-                        id: ''
-                    },
-                    tournamentId: ''
+                    team1Players: [
+                        {
+                            id: null,
+                            characterIds: [],
+                            slot: null,
+                            characterCount: 1
+                        }
+                    ],
+                    team2Players: [
+                        {
+                            id: null,
+                            characterIds: [],
+                            slot: null,
+                            characterCount: 1
+                        }
+                    ]
                 },
                 tags: []
             },
@@ -389,10 +298,8 @@ export default {
             origin: 'web',
             isTournament: false,
             contentTypes: ['Match', 'Combo', 'Analysis'],
-            player1Has2Characters: false,
-            player1Has3Characters: false,
-            player2Has2Characters: false,
-            player2Has3Characters: false,
+            team1Players: [],
+            team2Players: [],
             isLoading: true
         };
     },
@@ -493,7 +400,7 @@ export default {
                 }
             } else {
                 if (!this.videoId) {
-                    this.postVideo();
+                    this.addMatch();
                 } else {
                     this.patchVideo();
                 }
@@ -527,6 +434,38 @@ export default {
             }
         },
 
+        async addMatches() {
+            const response = await CombosService.addMatch({
+                Team1: [
+                    {
+                        Id: null,
+                        CharacterIds: [],
+                        Slot: null
+                    }
+                ],
+                Team2: [
+                    {
+                        Id: null,
+                        CharacterIds: [],
+                        Slot: null
+                    }
+                ],
+                VideoUrl: null,
+                GameId: this.gameId
+            });
+
+            for (var i = 0; i < this.video.combos.length; i++) {
+                let combo = this.video.combos[i];
+                combo.id = response.data.combos[i]._id;
+            }
+
+            if (this.video.type === 'uploaded') {
+                this.$refs.videoUploader.upload();
+            } else {
+                this.postVideo();
+            }
+        },
+
         async postVideo() {
             if (this.isValidated) {
                 await VideosService.addVideo({
@@ -545,16 +484,6 @@ export default {
                             EndTime: combo.endTime
                         };
                     }),
-                    Player1Id: this.video.match.player1.id,
-                    Player1CharacterId: this.video.match.player1.characterId,
-                    Player1Character2Id: this.video.match.player1.character2Id,
-                    Player1Character3Id: this.video.match.player1.character3Id,
-                    Player2Id: this.video.match.player2.id,
-                    Player2CharacterId: this.video.match.player2.characterId,
-                    Player2Character2Id: this.video.match.player2.character2Id,
-                    Player2Character3Id: this.video.match.player2.character3Id,
-                    WinnerId: this.video.match.winner.id,
-                    // TournamentId: this.video.match.tournamentId,
                     Tags: this.video.tags
                 });
 
@@ -563,45 +492,6 @@ export default {
             } else {
                 this.showErrorMessage = true;
             }
-        },
-
-        setPlayer1(player) {
-            this.video.match.player1.id = player.id;
-            this.video.match.player1.name = player.name;
-        },
-
-        setPlayer2(player) {
-            this.video.match.player2.id = player.id;
-            this.video.match.player2.name = player.name;
-        },
-
-        setWinner(player) {
-            this.video.match.winner.name = player.name;
-            this.video.match.winner.id = player.id;
-        },
-
-        setPlayer1Character(characterId) {
-            this.video.match.player1.characterId = characterId;
-        },
-
-        setPlayer1Character2(characterId) {
-            this.video.match.player1.character2Id = characterId;
-        },
-
-        setPlayer1Character3(characterId) {
-            this.video.match.player1.character3Id = characterId;
-        },
-
-        setPlayer2Character(characterId) {
-            this.video.match.player2.characterId = characterId;
-        },
-
-        setPlayer2Character2(characterId) {
-            this.video.match.player2.character2Id = characterId;
-        },
-
-        setPlayer2Character3(characterId) {
-            this.video.match.player2.character3Id = characterId;
         },
 
         setComboCharacter(characterId, target) {
@@ -618,10 +508,6 @@ export default {
 
         setCreator(creatorId) {
             this.video.contentCreatorId = creatorId.id;
-        },
-
-        setTags(tags) {
-            this.video.tags = tags;
         },
 
         async getVideo() {
@@ -645,28 +531,6 @@ export default {
                               inputs: video.Combo.Inputs.join('>')
                           }
                         : null,
-                    match: !video.Combo
-                        ? {
-                              player1: {
-                                  id: video.Player1Id,
-                                  name: video.Player1.Name,
-                                  characterId: video.Player1CharacterId,
-                                  character2Id: video.Player1Character2Id,
-                                  character3Id: video.Player1Character3Id
-                              },
-                              player2: {
-                                  id: video.Player2Id,
-                                  name: video.Player2.Name,
-                                  characterId: video.Player2CharacterId,
-                                  character2Id: video.Player2Character2Id,
-                                  character3Id: video.Player2Character3Id
-                              },
-                              winner: {
-                                  id: video.WinnerId
-                              }
-                          }
-                        : null,
-                    tags: video.Tags,
                     origin: video.Type === 'youtube' ? 'web' : 'computer'
                 };
             })[0];
@@ -674,12 +538,6 @@ export default {
             this.comboInputsRaw = videoResponse[0].Combo
                 ? videoResponse[0].Combo.Inputs.join('>')
                 : null;
-
-            if (videoResponse[0].WinnerId) {
-                this.video.match.winner = this.players.filter(
-                    player => player.id === videoResponse[0].WinnerId
-                );
-            }
 
             if (!videoResponse[0].Combo) {
                 this.player1Has2Characters = this.video.match.player1.character2Id ? true : false;
@@ -744,9 +602,35 @@ export default {
             }
         },
 
-        expandCombo(index) {
+        expandComboMenu(index) {
             this.video.combos.forEach(combo => (combo.isExpanded = false));
             this.video.combos[index].isExpanded = true;
+        },
+
+        addToTeam1() {
+            this.video.match.team1Players.push({
+                id: null,
+                characterIds: [],
+                slot: null,
+                characterCount: 1
+            });
+        },
+
+        addToTeam2() {
+            this.video.match.team1Players.push({
+                id: null,
+                characterIds: [],
+                slot: null,
+                characterCount: 1
+            });
+        },
+
+        addCharacterToPlayer(character, player) {
+            player.characterIds.push(character);
+        },
+
+        addCharacter(player) {
+            player.characterCount++;
         }
     }
 };
@@ -866,5 +750,17 @@ export default {
     border: 1px solid #eee;
     padding: 20px 10px;
     background: #eee;
+}
+
+.post-video .character-container h3 {
+    text-align: left;
+}
+
+.post-video .character-container {
+    border: 1px solid #eee;
+    text-align: center;
+    padding: 10px 20px 20px;
+    background: #eee;
+    margin-bottom: 10px;
 }
 </style>

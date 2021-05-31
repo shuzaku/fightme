@@ -1,11 +1,11 @@
 <!-- @format -->
 <template>
-    <div id="app">
+    <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <div class="content">
             <div class="side-panel">
                 <side-nav />
             </div>
-            <div class="main-panel">
+            <div ref="mainPanel" class="main-panel">
                 <modal v-if="isWidgetOpen" :options="options" @closeModal="closeModal()" />
                 <div class="content-container">
                     <div class="main-content-container">
@@ -40,16 +40,25 @@ export default {
     data() {
         return {
             options: null,
-            isWidgetOpen: false
+            isWidgetOpen: false,
+            screenWidth: 0,
+            isMobile: false,
+            isSmallMobile: false
         };
     },
 
     created() {
         eventbus.$on('open:videoWidget', this.openModal);
+        window.addEventListener('resize', this.calculateScreenWidth);
     },
 
     beforeDestroy() {
         eventbus.$off('open:videoWidget', this.openModal);
+        window.removeEventListener('resize', this.calculateScreenWidth);
+    },
+
+    mounted() {
+        this.calculateScreenWidth();
     },
 
     methods: {
@@ -60,6 +69,21 @@ export default {
 
         closeModal() {
             this.isWidgetOpen = false;
+        },
+
+        calculateScreenWidth() {
+            this.screenWidth = this.$refs.mainPanel.clientWidth;
+            if (this.screenWidth < 425) {
+                this.isSmallMobile = true;
+                this.isMobile = true;
+            } else if (this.screenWidth < 755) {
+                this.isMobile = true;
+                this.isSmallMobile = false;
+            } else {
+                this.isMobile = false;
+                this.isSmallMobile = false;
+            }
+            // eventbus.$emit('screen-size:update', this.screenWidth);
         }
     }
 };
@@ -143,6 +167,8 @@ export default {
     margin-right: 50px;
     padding: 0 40px;
     position: relative;
+    min-height: 100vh;
+    min-width: 600px;
 }
 
 #app .trending-container {
@@ -156,10 +182,6 @@ export default {
     letter-spacing: 3px;
     font-weight: 400;
     text-transform: uppercase;
-}
-
-#app .videos-container {
-    margin-top: 30px;
 }
 
 input,
@@ -179,5 +201,89 @@ textarea {
 
 .multiselect {
     margin-bottom: 20px;
+}
+
+#app.mobile .main-content-container {
+    padding: 0;
+}
+
+#app.mobile .side-panel {
+    display: none;
+}
+
+#app.mobile .videos-container {
+    padding: 0 28px;
+}
+
+#app.mobile .content-container,
+#app.mobile .videos-container,
+#app.mobile .videos-view,
+#app.mobile .video-card,
+#app.mobile .main-content-container {
+    width: 100%;
+    max-width: initial;
+    min-width: 0;
+    border: 0;
+}
+
+#app.mobile .main-content-container {
+    margin-right: 0;
+}
+
+#app.mobile .video-card {
+    max-width: 369px;
+    margin: 30px auto 30px;
+}
+
+#app.mobile .video-card:first-child {
+    margin-top: 60px;
+}
+
+#app.mobile .video-card iframe {
+    width: 369px !important;
+    height: 209px;
+}
+
+#app.mobile.small-mobile .video-card {
+    max-width: 264px;
+    margin: 30px auto 30px;
+}
+
+#app.mobile.small-mobile .video-card:first-child {
+    margin-top: 60px;
+}
+
+#app.mobile.small-mobile .video-card iframe {
+    width: 264px !important;
+    height: 150px;
+}
+
+@media only screen and (max-width: 1125px) {
+    #app .side-panel {
+        width: 70px;
+        min-width: 70px;
+    }
+
+    #app .side-nav {
+        width: 70px;
+        padding: 20px;
+    }
+
+    #app .side-nav .menu-item span,
+    #app .side-nav .title {
+        display: none;
+    }
+
+    #app .side-nav .logo span {
+        right: 5px;
+    }
+
+    #app .side-nav .menu-item {
+        margin-left: 0px;
+    }
+
+    #app .trending-container {
+        display: none;
+    }
 }
 </style>

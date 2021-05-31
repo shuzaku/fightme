@@ -14,99 +14,68 @@
             />
             <div class="card-label">{{ video.contentType }}</div>
             <div
-                :class="['character-bubble', video.match.player1.character.name.toLowerCase()]"
-                :style="{ backgroundImage: `url('${video.match.player1.character.imageUrl}')` }"
-            />
+                v-for="(character, index) in video.match.team1Players[0].characters"
+                :key="character.id"
+            >
+                <div
+                    :class="[
+                        'character-bubble',
+                        `character-${index}`,
+                        character.name.toLowerCase()
+                    ]"
+                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
+                />
+            </div>
             <div
-                v-if="video.match.player1.character2"
-                :class="[
-                    'character-bubble',
-                    'character-2',
-                    video.match.player1.character2.name.toLowerCase()
-                ]"
-                :style="{ backgroundImage: `url('${video.match.player1.character2.imageUrl}')` }"
-            />
-            <div
-                v-if="video.match.player1.character3"
-                :class="[
-                    'character-bubble',
-                    'character-3',
-                    video.match.player1.character3.name.toLowerCase()
-                ]"
-                :style="{ backgroundImage: `url('${video.match.player1.character3.imageUrl}')` }"
-            />
-            <div
-                :class="[
-                    'character-bubble',
-                    'player2',
-                    video.match.player2.character.name.toLowerCase()
-                ]"
-                :style="{ backgroundImage: `url('${video.match.player2.character.imageUrl}')` }"
-            />
-            <div
-                v-if="video.match.player2.character2"
-                :class="[
-                    'character-bubble',
-                    'player2',
-                    'character-2',
-                    video.match.player2.character2.name.toLowerCase()
-                ]"
-                :style="{ backgroundImage: `url('${video.match.player2.character2.imageUrl}')` }"
-            />
-            <div
-                v-if="video.match.player2.character3"
-                :class="[
-                    'character-bubble',
-                    'player2',
-                    'character-3',
-                    video.match.player2.character3.name.toLowerCase()
-                ]"
-                :style="{ backgroundImage: `url('${video.match.player2.character3.imageUrl}')` }"
-            />
+                v-for="(character, index) in video.match.team2Players[0].characters"
+                :key="character.id"
+            >
+                <div
+                    :class="[
+                        'character-bubble',
+                        'player2',
+                        `character-${index}`,
+                        character.name.toLowerCase()
+                    ]"
+                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
+                />
+            </div>
             <div v-if="!video.isEditing" class="characters">
                 <div class="player1">
                     <div
                         class="heavy-weight player-name"
-                        @click="queryPlayer(video.match.player1.id)"
+                        @click="queryPlayer(video.match.team1Players[0].id)"
                     >
-                        <p>{{ video.match.player1.name }}</p>
+                        <p>{{ video.match.team1Players[0].name }}</p>
                     </div>
                     <div
-                        class="character-name"
-                        @click="queryCharacter(video.match.player1.character.id)"
+                        v-for="(character, index) in video.match.team1Players[0].characters"
+                        :key="index"
                     >
-                        <p>
-                            <span>{{ video.match.player1.character.name }}</span>
-                            <span v-if="video.match.player1.character2">{{
-                                video.match.player1.character2.name
-                            }}</span>
-                            <span v-if="video.match.player1.character3">{{
-                                video.match.player1.character3.name
-                            }}</span>
-                        </p>
+                        <div class="character-name" @click="queryCharacter(character.id)">
+                            <p>
+                                <span>{{ character.name }}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div class="versus heavy-weight">vs</div>
                 <div class="player2">
                     <div
                         class="heavy-weight player-name"
-                        @click="queryPlayer(video.match.player2.id)"
+                        @click="queryPlayer(video.match.team2Players[0].id)"
                     >
-                        <p>{{ video.match.player2.name }}</p>
+                        <p>{{ video.match.team2Players[0].name }}</p>
                     </div>
                     <div
-                        class="character-name"
-                        @click="queryCharacter(video.match.player2.character.id)"
+                        v-for="(character, index) in video.match.team2Players[0].characters"
+                        :key="index"
                     >
-                        <p>
-                            <span>{{ video.match.player2.character.name }}</span>
-                            <span v-if="video.match.player2.character2">
-                                / {{ video.match.player2.character2.name }}</span
-                            >
-                            <span v-if="video.match.player2.character3">
-                                / {{ video.match.player2.character3.name }}</span
-                            >
-                        </p>
+                        <div class="character-name" @click="queryCharacter(character.id)">
+                            <p>
+                                <span>{{ character.name }}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

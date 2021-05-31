@@ -1,6 +1,11 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="characters-view">
+        <character-nav
+            :characterId="characterId"
+            @character-sort:update="applySort($event)"
+            @character-filter:update="applyFilter($event)"
+        />
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -40,6 +45,7 @@
 import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
+import CharacterNav from '@/components/character/character-nav';
 import { eventbus } from '@/main';
 
 export default {
@@ -47,7 +53,8 @@ export default {
 
     components: {
         'match-video-card': MatchVideoCard,
-        'combo-video-card': ComboVideoCard
+        'combo-video-card': ComboVideoCard,
+        'character-nav': CharacterNav
     },
 
     data() {
@@ -58,7 +65,9 @@ export default {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
                 threshold: 1
-            }
+            },
+            sort: null,
+            filter: null
         };
     },
 
@@ -91,26 +100,32 @@ export default {
     },
 
     methods: {
+        applySort(sort) {
+            this.videos = [];
+            this.sort = sort;
+            this.queryVideos();
+        },
+
+        applyFilter(filter) {
+            this.videos = [];
+            this.filter = filter;
+            this.queryVideos();
+        },
+
         async queryVideos() {
             var searchQuery = null;
 
             searchQuery = [
                 {
-                    queryName: 'Player1CharacterId',
-                    queryValue: this.characterId
-                },
-                {
-                    queryName: 'Player2CharacterId',
-                    queryValue: this.characterId
-                },
-                {
-                    queryName: 'Combo.CharacterId',
+                    queryName: 'CharacterId',
                     queryValue: this.characterId
                 }
             ];
 
             var queryParameter = {
                 skip: this.skip,
+                sortOption: this.sort,
+                filter: this.filter,
                 searchQuery: searchQuery
             };
 
@@ -136,77 +151,64 @@ export default {
                 this.videos.push({
                     id: video._id,
                     contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
                     videoType: video.VideoType,
-                    url: video.Url,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
-                    gameId: video.GameId,
-                    combo: this.getCombos(video.Combo),
-                    match:
-                        video.Player1Id && video.Player2Id
-                            ? {
-                                  player1: {
-                                      id: video.Player1Id,
-                                      name: video.Player1.Name,
-                                      character: {
-                                          id: video.Player1CharacterId,
-                                          name: video.Player1Character.Name,
-                                          imageUrl: video.Player1Character.ImageUrl
-                                      },
-                                      character2: video.Player1Character2Id
-                                          ? {
-                                                id: video.Player1Character2Id,
-                                                name: video.Player1Character2.Name,
-                                                imageUrl: video.Player1Character2.ImageUrl
-                                            }
-                                          : null,
-                                      character3: video.Player1Character3Id
-                                          ? {
-                                                id: video.Player1Character3Id,
-                                                name: video.Player1Character3.Name,
-                                                imageUrl: video.Player1Character3.ImageUrl
-                                            }
-                                          : null
-                                  },
-                                  player2: {
-                                      id: video.Player2Id,
-                                      name: video.Player2.Name,
-                                      character: {
-                                          id: video.Player2CharacterId,
-                                          name: video.Player2Character.Name,
-                                          imageUrl: video.Player2Character.ImageUrl
-                                      },
-                                      character2: video.Player2Character2Id
-                                          ? {
-                                                id: video.Player2Character2Id,
-                                                name: video.Player2Character2.Name,
-                                                imageUrl: video.Player2Character2.ImageUrl
-                                            }
-                                          : null,
-                                      character3: video.Player2Character3Id
-                                          ? {
-                                                id: video.Player2Character3Id,
-                                                name: video.Player2Character3.Name,
-                                                imageUrl: video.Player2Character3.ImageUrl
-                                            }
-                                          : null
-                                  }
-                                  // winner: video.Match.Winner,
-                                  // tournamentId: video.Match.TournamentId,
-                              }
-                            : null,
-                    tags: video.Tags.map(tag => {
-                        return {
-                            id: tag._id,
-                            name: tag.TagName
-                        };
-                    }),
                     inview: false,
+                    isEditing: false,
                     isPlaying: false,
-                    isEditing: false
+                    url: video.Url,
+                    combo: this.getCombos(video.Combo),
+                    game: {
+                        id: video.Game._id,
+                        Title: video.Game.Title,
+                        LogoUrl: video.Game.LogoUrl
+                    },
+                    match: video.Match._id
+                        ? {
+                              id: video.Match._id,
+                              team1Players: video.Match.Team1Players.map(player => {
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: video.Match.Team1Player.filter(
+                                          searchPlayer => searchPlayer._id === player.Id
+                                      )[0].Name,
+                                      characters: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team1PlayerCharacters
+                                      )
+                                  };
+                              }),
+                              team2Players: video.Match.Team2Players.map(player => {
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: video.Match.Team2Player.filter(
+                                          searchPlayer => searchPlayer._id === player.Id
+                                      )[0].Name,
+                                      characters: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team2PlayerCharacters
+                                      )
+                                  };
+                              })
+                          }
+                        : null
                 });
             });
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach(id => {
+                var filteredCharacter = characters.filter(character => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].ImageUrl
+                });
+            });
+            return playerCharacters;
         },
 
         getCombos(comboResponse) {
@@ -281,10 +283,10 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    overflow: hidden;
     justify-content: space-around;
-    padding-top: 30px;
+    padding-top: 100px;
     height: 100%;
+    flex-direction: column;
 }
 
 .characters-view::-webkit-scrollbar-track {
@@ -306,12 +308,16 @@ export default {
 
 .characters-view .videos-container {
     position: relative;
-    padding: 0 40px;
+    margin-top: 0;
 }
 
 .characters-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
+}
+
+.characters-view .combo-card:first-child {
+    margin-top: 30px;
 }
 </style>

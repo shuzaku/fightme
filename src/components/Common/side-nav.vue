@@ -2,37 +2,35 @@
 <template>
     <div class="side-nav">
         <div class="logo">
-            <h2><span>🥊</span> Fight.Me</h2>
+            <h2><span>🥊</span><span class="title">Fight.Me</span></h2>
         </div>
         <div class="menu-item">
             <router-link to="/">
-                <div class="menu-heading"><font-awesome-icon icon="rss" />Feed</div>
+                <div class="menu-heading"><font-awesome-icon icon="rss" /><span>Feed</span></div>
             </router-link>
         </div>
         <div class="menu-item">
             <router-link to="/combos">
-                <div class="menu-heading"><font-awesome-icon icon="gamepad" />Combos</div>
+                <div class="menu-heading">
+                    <font-awesome-icon icon="gamepad" /><span>Combos</span>
+                </div>
             </router-link>
         </div>
         <!-- <div class="menu-item">
-      <div class="menu-heading"><font-awesome-icon icon="users" />Players</div>
+      <div class="menu-heading"><font-awesome-icon icon="users" /><span>Players</span></div>
     </div> -->
         <div class="menu-item">
             <router-link to="/matches">
-                <div class="menu-heading"><font-awesome-icon icon="meteor" />Matches</div>
+                <div class="menu-heading">
+                    <font-awesome-icon icon="meteor" /><span>Matches</span>
+                </div>
             </router-link>
         </div>
-        <!-- <div class="menu-item">
-      <div class="menu-heading"><font-awesome-icon icon="network-wired" />Tournaments</div>
-    </div>
-    <div class="menu-item">
-      <div class="menu-heading"><font-awesome-icon icon="video" />Creators</div>
-    </div> -->
-        <!-- <div class="menu-item">
+        <div class="menu-item">
             <div class="menu-heading" @click="toggleDropDown()">
-                <font-awesome-icon icon="plus-circle" />Add
+                <font-awesome-icon icon="plus-circle" /><span>Add</span>
             </div>
-        </div> -->
+        </div>
         <div v-if="isDropDownOpen" class="add-content-dropdown">
             <ul>
                 <li
@@ -44,14 +42,36 @@
                 </li>
             </ul>
         </div>
+        <!-- <recommendation /> -->
     </div>
 </template>
 
 <script>
 import { eventbus } from '@/main';
+// import recommendation from '@/components/common/recommendation';
 
 export default {
     name: 'SideNav',
+
+    components: {
+        // recommendation: recommendation
+    },
+
+    props: {
+        characterId: {
+            type: String,
+            default: null
+        },
+        playerId: {
+            type: String,
+            default: null
+        },
+        gameId: {
+            type: String,
+            default: null
+        }
+    },
+
     data() {
         return {
             isDropDownOpen: false,
