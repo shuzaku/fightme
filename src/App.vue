@@ -208,7 +208,6 @@ textarea {
 }
 
 #app.mobile .side-panel {
-    display: none;
 }
 
 #app.mobile .videos-container {
