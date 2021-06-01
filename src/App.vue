@@ -257,15 +257,43 @@ textarea {
     height: 150px;
 }
 
+#app.mobile.small-mobile .side-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 50px;
+    width: 100%;
+    background: #151515;
+    z-index: 99;
+    padding: 5px 10px 0;
+}
+
+#app.mobile.small-mobile .side-nav {
+    width: 100%;
+    display: flex;
+    padding: 0;
+    justify-content: space-around;
+}
+
+#app.mobile.small-mobile .menu-heading svg {
+    margin: 0 auto;
+}
+
+#app.mobile.small-mobile .side-nav .menu-heading,
+#app.mobile.small-mobile .side-nav .logo h2 {
+    margin-bottom: 0px;
+}
+
+#app.mobile.small-mobile .side-nav .menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
 @media only screen and (max-width: 1125px) {
     #app .side-panel {
         width: 70px;
         min-width: 70px;
-    }
-
-    #app .side-nav {
-        width: 70px;
-        padding: 20px;
     }
 
     #app .side-nav .menu-item span,
