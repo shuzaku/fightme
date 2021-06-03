@@ -20,7 +20,7 @@
                 <div
                     :class="[
                         'character-bubble',
-                        `character-${index}`,
+                        `character-${index + 1}`,
                         character.name.toLowerCase()
                     ]"
                     :style="{ backgroundImage: `url('${character.imageUrl}')` }"

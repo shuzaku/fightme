@@ -94,13 +94,13 @@
                         <div v-for="(player, index) in video.match.team1Players" :key="index">
                             <player-search
                                 v-model="player.id"
-                                @update:player="addPlayerToTeam1($event)"
+                                @update:player="addPlayerToTeam1($event, index)"
                             />
                             <div class="character-container">
                                 <h3>Characters</h3>
                                 <div v-for="character in player.characterCount" :key="character">
                                     <character-search
-                                        v-model="player.characterIds"
+                                        v-model="player.characterIds[index]"
                                         :gameId="video.gameId"
                                         @update:character="addCharacterToPlayer($event, player)"
                                     />
@@ -115,13 +115,13 @@
                         <div v-for="(player, index) in video.match.team2Players" :key="index">
                             <player-search
                                 v-model="video.match.team2Players[index].id"
-                                @update:player="addPlayerToTeam2($event)"
+                                @update:player="addPlayerToTeam2($event, index)"
                             />
                             <div class="character-container">
                                 <h3>Characters</h3>
                                 <div v-for="character in player.characterCount" :key="character">
                                     <character-search
-                                        v-model="player.characterIds"
+                                        v-model="player.characterIds[index]"
                                         :gameId="video.gameId"
                                         @update:character="addCharacterToPlayer($event, player)"
                                     />
@@ -215,6 +215,7 @@ import moment from 'moment';
 import UploadVideo from '@/components/videos/upload-video';
 import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
+import MatchesService from '@/services/matches-service';
 import PlayerSearch from '@/components/players/player-search';
 import CharacterSearch from '@/components/character/character-search';
 import GameSearch from '@/components/games/game-search';
@@ -243,9 +244,8 @@ export default {
 
     data() {
         return {
-            winner: null,
             isVideoClipped: false,
-            currentStep: 'Match',
+            currentStep: 'Video',
             comboInputsRaw: '',
             showErrorMessage: false,
             video: {
@@ -291,15 +291,10 @@ export default {
                 },
                 tags: []
             },
-            isAddingPlayers: false,
-            isImportingVideo: true,
             importVideoUrl: null,
-            games: [],
             origin: 'web',
             isTournament: false,
             contentTypes: ['Match', 'Combo', 'Analysis'],
-            team1Players: [],
-            team2Players: [],
             isLoading: true
         };
     },
@@ -320,10 +315,8 @@ export default {
             if (this.video.url && this.video.gameId) {
                 if (
                     this.video.contentType === 'Match' &&
-                    this.video.match.player1.characterId &&
-                    this.video.match.player2.characterId &&
-                    this.video.match.player1.id &&
-                    this.video.match.player2.id
+                    this.video.match.team1Players.length > 0 &&
+                    this.video.match.team1Players.length > 0
                 ) {
                     return true;
                 } else if (this.video.contentType === 'Combo' && this.video.combos[0].id) {
@@ -434,30 +427,27 @@ export default {
             }
         },
 
-        async addMatches() {
-            const response = await CombosService.addMatch({
-                Team1: [
-                    {
-                        Id: null,
-                        CharacterIds: [],
-                        Slot: null
-                    }
-                ],
-                Team2: [
-                    {
-                        Id: null,
-                        CharacterIds: [],
-                        Slot: null
-                    }
-                ],
-                VideoUrl: null,
-                GameId: this.gameId
-            });
+        async addMatch() {
+            var match = {
+                Team1Players: this.video.match.team1Players.map(player => {
+                    return {
+                        Id: player.id,
+                        Slot: 1,
+                        CharacterIds: player.characterIds
+                    };
+                }),
+                Team2Players: this.video.match.team2Players.map(player => {
+                    return {
+                        Id: player.id,
+                        Slot: 2,
+                        CharacterIds: player.characterIds
+                    };
+                }),
+                VideoUrl: this.video.url,
+                GameId: this.video.gameId
+            };
 
-            for (var i = 0; i < this.video.combos.length; i++) {
-                let combo = this.video.combos[i];
-                combo.id = response.data.combos[i]._id;
-            }
+            await MatchesService.addMatch(match);
 
             if (this.video.type === 'uploaded') {
                 this.$refs.videoUploader.upload();
@@ -617,7 +607,7 @@ export default {
         },
 
         addToTeam2() {
-            this.video.match.team1Players.push({
+            this.video.match.team2Players.push({
                 id: null,
                 characterIds: [],
                 slot: null,
@@ -631,6 +621,14 @@ export default {
 
         addCharacter(player) {
             player.characterCount++;
+        },
+
+        addPlayerToTeam1(item, index) {
+            this.video.match.team1Players[index].id = item.id;
+        },
+
+        addPlayerToTeam2(item, index) {
+            this.video.match.team2Players[index].id = item.id;
         }
     }
 };

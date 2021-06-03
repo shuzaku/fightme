@@ -8,7 +8,6 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import MatchService from '@/services/match-service';
 
 export default {
     name: 'Videos',
@@ -160,9 +159,6 @@ export default {
                     GameId: video.gameId
                 };
             });
-        },
-        post() {
-            MatchService.addBulkMatches(this.matches);
         }
     }
 };

@@ -2,6 +2,7 @@
 <template>
     <div class="players-search">
         <multiselect
+            v-if="!isLoading"
             v-model="selectedPlayer"
             :options="players"
             :multiple="false"
@@ -10,13 +11,13 @@
             :preserve-search="true"
             :taggable="true"
             placeholder="Search or add a Player"
-            label="name"
-            @tag="addPlayer"
+            label="playerName"
+            @tag="addPlayer($event)"
             @input="setPlayer"
         >
             <template slot="selection" slot-scope="{ values, isOpen }">
                 <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
-                    Select Player
+                    Select Creator
                 </span>
             </template>
         </multiselect>
@@ -44,7 +45,8 @@ export default {
     data() {
         return {
             players: [],
-            selectedPlayer: null
+            selectedPlayer: null,
+            isLoading: true
         };
     },
 
@@ -76,7 +78,7 @@ export default {
             this.players = response.data.players.map(player => {
                 return {
                     id: player._id,
-                    name: player.Name
+                    playerName: player.Name
                 };
             });
 
@@ -90,6 +92,8 @@ export default {
             if (this.value) {
                 this.selectedPlayer = this.players.filter(player => player.id === this.value);
             }
+
+            this.isLoading = false;
         },
 
         setPlayer() {
