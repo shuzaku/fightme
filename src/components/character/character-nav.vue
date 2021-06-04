@@ -1,18 +1,23 @@
 <!-- @format -->
 <template>
     <div class="character-nav">
-        <h2>{{ name }}</h2>
-        <div class="sort-filter-container">
-            <select v-model="selectedFilter">
-                <option v-for="option in filterOptions" :key="option">
-                    {{ option }}
-                </option>
-            </select>
-            <select v-show="selectedFilter === 'Combo'" v-model="selectedSort">
-                <option v-for="option in comboSortOptions" :key="option">
-                    {{ option }}
-                </option>
-            </select>
+        <div class="character-bubble" :style="characterbubbleStyle">
+            <div class="options">
+                <h2>{{ name }}</h2>
+                <div class="divider">></div>
+                <div class="sort-filter-container">
+                    <select v-model="selectedFilter">
+                        <option v-for="option in filterOptions" :key="option">
+                            {{ option }}
+                        </option>
+                    </select>
+                    <select v-show="selectedFilter === 'Combo'" v-model="selectedSort">
+                        <option v-for="option in comboSortOptions" :key="option">
+                            {{ option }}
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -35,8 +40,20 @@ export default {
             filterOptions: ['All Videos', 'Combo', 'Match'],
             comboSortOptions: ['Damage', 'Hits'],
             selectedFilter: 'All Videos',
-            selectedSort: 'Hits'
+            selectedSort: 'Hits',
+            imageUrl: null
         };
+    },
+
+    computed: {
+        characterbubbleStyle() {
+            return {
+                'background-image': `url(${this.imageUrl})`,
+                'background-size': '40%',
+                'background-repeat': 'no-repeat',
+                'background-position': '0% 23%'
+            };
+        }
     },
 
     watch: {
@@ -59,20 +76,43 @@ export default {
                 id: this.characterId
             });
             this.name = response.data.Name;
+            this.imageUrl = response.data.ImageUrl;
         }
     }
 };
 </script>
 <style type="text/css">
 .character-nav {
-    padding: 0 40px;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.character-nav select {
-    margin-left: 20px;
+.character-nav .character-bubble {
+    height: 80px;
+    background: #fff;
+    color: #3eb489;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 20px;
+    border-radius: 25px;
+    border: 3px solid #3eb489;
+}
+
+.character-nav .character-bubble h2 {
+    text-align: right;
+}
+
+.character-nav .character-bubble .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.character-nav .character-bubble .divider {
+    margin: 0 10px;
 }
 </style>
