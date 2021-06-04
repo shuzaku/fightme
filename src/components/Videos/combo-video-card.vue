@@ -98,7 +98,7 @@ export default {
                 } else {
                     this.$refs.videoRef.pause();
                 }
-            } else if (this.video.videoType === 'youtube') {
+            } else if (this.video.videoType === 'youtube' && this.player) {
                 if (this.video.isPlaying) {
                     this.player.playVideo();
                 } else {
@@ -171,14 +171,20 @@ export default {
 
         setTimer() {
             this.$nextTick(function() {
-                window.setInterval(() => {
+                var setTimer = window.setInterval(() => {
                     this.getTimeStamp();
                 }, 1000);
+                if (!this.video.isPlaying) {
+                    clearInterval(setTimer);
+                }
+                setTimer;
             });
         },
 
         getTimeStamp() {
-            this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
+            if (this.$refs.youtubeRef.player) {
+                this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
+            }
         },
 
         editVideo() {
