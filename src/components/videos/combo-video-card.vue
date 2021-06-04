@@ -162,11 +162,11 @@ export default {
         },
 
         queryPlayer(playerId) {
-            this.$router.push(`/players/${playerId}`);
+            this.$router.push(`/player/${playerId}`);
         },
 
         queryCharacter(characterId) {
-            this.$router.push(`/characters/${characterId}`);
+            this.$router.push(`/character/${characterId}`);
         },
 
         setTimer() {

@@ -29,7 +29,7 @@ import MatchVideoCard from '@/components/videos/match-video-card';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Videos',
+    name: 'Matches',
 
     components: {
         'match-video-card': MatchVideoCard
@@ -103,6 +103,7 @@ export default {
         },
 
         hydrateVideos(response) {
+            console.log(response);
             response.data.videos.forEach(video => {
                 this.videos.push({
                     id: video._id,
@@ -117,35 +118,37 @@ export default {
                         Title: video.Game.Title,
                         LogoUrl: video.Game.LogoUrl
                     },
-                    match: {
-                        id: video.Match._id,
-                        team1Players: video.Match.Team1Players.map(player => {
-                            return {
-                                id: player.Id,
-                                slot: player.Slot,
-                                name: video.Match.Team1Player.filter(
-                                    searchPlayer => searchPlayer._id === player.Id
-                                )[0].Name,
-                                characters: this.hydrateCharacters(
-                                    player.CharacterIds,
-                                    video.Match.Team1PlayerCharacters
-                                )
-                            };
-                        }),
-                        team2Players: video.Match.Team2Players.map(player => {
-                            return {
-                                id: player.Id,
-                                slot: player.Slot,
-                                name: video.Match.Team2Player.filter(
-                                    searchPlayer => searchPlayer._id === player.Id
-                                )[0].Name,
-                                characters: this.hydrateCharacters(
-                                    player.CharacterIds,
-                                    video.Match.Team2PlayerCharacters
-                                )
-                            };
-                        })
-                    }
+                    match: video.Match._id
+                        ? {
+                              id: video.Match._id,
+                              team1Players: video.Match.Team1Players.map(player => {
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: video.Match.Team1Player.filter(
+                                          searchPlayer => searchPlayer._id === player.Id
+                                      )[0].Name,
+                                      characters: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team1PlayerCharacters
+                                      )
+                                  };
+                              }),
+                              team2Players: video.Match.Team2Players.map(player => {
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: video.Match.Team2Player.filter(
+                                          searchPlayer => searchPlayer._id === player.Id
+                                      )[0].Name,
+                                      characters: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team2PlayerCharacters
+                                      )
+                                  };
+                              })
+                          }
+                        : null
                 });
             });
         },

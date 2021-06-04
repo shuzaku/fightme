@@ -1,13 +1,13 @@
 <!-- @format -->
 <template>
-    <div v-if="game" class="trending-game" :style="trendingStyle" @click="navigateToGame()"></div>
+    <div v-if="game" class="game-bubble" :style="trendingStyle" @click="navigateToGame()"></div>
 </template>
 
 <script>
 import GamesService from '@/services/games-service';
 
 export default {
-    name: 'TrendingGame',
+    name: 'GameBubble',
     components: {},
 
     props: {
@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style>
-.trending-game {
+.game-bubble {
     height: 60px;
     background: #fff;
     width: 100%;
@@ -65,5 +65,6 @@ export default {
     padding: 0 20px;
     border-radius: 25px;
     margin-top: 20px;
+    cursor: pointer;
 }
 </style>

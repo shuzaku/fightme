@@ -1,46 +1,73 @@
 <!-- @format -->
 <template>
     <div class="side-nav">
-        <div class="logo">
-            <h2><span>🥊</span><span class="title">Fight.Me</span></h2>
-        </div>
-        <div class="menu-item">
-            <router-link to="/">
-                <div class="menu-heading"><font-awesome-icon icon="rss" /><span>Feed</span></div>
-            </router-link>
-        </div>
-        <div class="menu-item">
-            <router-link to="/combos">
-                <div class="menu-heading">
-                    <font-awesome-icon icon="gamepad" /><span>Combos</span>
-                </div>
-            </router-link>
-        </div>
-        <!-- <div class="menu-item">
-      <div class="menu-heading"><font-awesome-icon icon="users" /><span>Players</span></div>
-    </div> -->
-        <div class="menu-item">
-            <router-link to="/matches">
-                <div class="menu-heading">
-                    <font-awesome-icon icon="meteor" /><span>Matches</span>
-                </div>
-            </router-link>
-        </div>
-        <!-- <div class="menu-item">
-            <div class="menu-heading" @click="toggleDropDown()">
-                <font-awesome-icon icon="plus-circle" /><span>Add</span>
+        <div class="top-section">
+            <div class="logo">
+                <img
+                    src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
+                    class="logo-img"
+                />
+                <h2>
+                    <span class="title"
+                        >Fighters<br />
+                        Edge</span
+                    >
+                </h2>
             </div>
-        </div> -->
-        <div v-if="isDropDownOpen" class="add-content-dropdown">
-            <ul>
-                <li
-                    v-for="create in createOptions"
-                    :key="create.value"
-                    @click="openCreateWidget(create.value)"
-                >
-                    {{ create.name }}
-                </li>
-            </ul>
+            <div class="menu-item">
+                <router-link to="/">
+                    <div class="menu-heading">
+                        <font-awesome-icon icon="rss" /><span>Feed</span>
+                    </div>
+                </router-link>
+            </div>
+            <div class="menu-item">
+                <router-link to="/combos">
+                    <div class="menu-heading">
+                        <font-awesome-icon icon="hand-rock" /><span>Combos</span>
+                    </div>
+                </router-link>
+            </div>
+            <!-- <div class="menu-item">
+                <div class="menu-heading"><font-awesome-icon icon="users" /><span>Players</span></div>
+            </div> -->
+            <div class="menu-item">
+                <router-link to="/matches">
+                    <div class="menu-heading">
+                        <font-awesome-icon icon="meteor" /><span>Matches</span>
+                    </div>
+                </router-link>
+            </div>
+            <div class="menu-item">
+                <router-link to="/games">
+                    <div class="menu-heading">
+                        <font-awesome-icon icon="gamepad" /><span>Games</span>
+                    </div>
+                </router-link>
+            </div>
+            <div class="menu-item">
+                <div class="menu-heading" @click="toggleDropDown()">
+                    <font-awesome-icon icon="plus-circle" /><span>Add</span>
+                </div>
+            </div>
+            <div v-if="isDropDownOpen" class="add-content-dropdown">
+                <ul>
+                    <li
+                        v-for="create in createOptions"
+                        :key="create.value"
+                        @click="openCreateWidget(create.value)"
+                    >
+                        {{ create.name }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="bottom-section">
+            <div class="menu-item">
+                <a class="menu-heading" href="https://discord.gg/n373TGP727" target="_blank">
+                    <font-awesome-icon :icon="['fab', 'discord']" /> <span>Discord</span>
+                </a>
+            </div>
         </div>
         <!-- <recommendation /> -->
     </div>
@@ -122,10 +149,12 @@ export default {
 <style type="text/css">
 .side-nav {
     width: 400px;
-    padding: 80px 30px;
+    padding: 40px 30px;
     position: fixed;
-    -webkit-box-pack: justify;
     justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .side-nav h2 {
@@ -143,6 +172,8 @@ export default {
     line-height: 1.2em;
     font-weight: 300;
     text-decoration: none;
+    display: flex;
+    align-items: center;
 }
 
 .side-nav .menu-item .menu-heading:hover {
@@ -162,8 +193,6 @@ export default {
 }
 
 .side-nav .logo {
-    display: flex;
-    align-items: center;
     margin-bottom: 0px;
     color: #3eb489;
     text-transform: uppercase;
@@ -197,7 +226,7 @@ export default {
 }
 
 .side-nav .menu-item {
-    margin-left: 40px;
+    margin-left: 20px;
 }
 
 .side-nav .menu-item a {
@@ -216,5 +245,11 @@ export default {
     position: relative;
     top: -3px;
     margin-right: 5px;
+}
+
+.side-nav .logo-img {
+    max-width: 120px;
+    position: relative;
+    left: -40px;
 }
 </style>

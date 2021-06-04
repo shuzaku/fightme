@@ -201,7 +201,7 @@ export default {
         },
 
         queryCharacter(characterId) {
-            this.$router.push(`/characters/${characterId}`);
+            this.$router.push(`/character/${characterId}`);
         },
 
         setTimer() {

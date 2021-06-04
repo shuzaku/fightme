@@ -25,6 +25,8 @@ import { faNetworkWired } from '@fortawesome/free-solid-svg-icons'
 import { faVideo } from '@fortawesome/free-solid-svg-icons'
 import { faYinYang } from '@fortawesome/free-solid-svg-icons'
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faHandRock } from '@fortawesome/free-solid-svg-icons'
+import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 
 library.add(faRss)
 library.add(faFontAwesome)
@@ -35,6 +37,8 @@ library.add(faNetworkWired)
 library.add(faVideo)
 library.add(faYinYang)
 library.add(faPlusCircle)
+library.add(faHandRock)
+library.add(faDiscord)
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 

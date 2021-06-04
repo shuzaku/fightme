@@ -176,7 +176,7 @@ export default {
     padding-top: 80px;
 }
 
-#app .trending-container h2 {
+.trending-container h2 {
     color: #fff;
     letter-spacing: 3px;
     font-weight: 400;
