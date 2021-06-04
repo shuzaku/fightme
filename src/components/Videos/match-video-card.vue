@@ -197,7 +197,7 @@ export default {
         },
 
         queryPlayer(playerId) {
-            this.$router.push(`/players/${playerId}`);
+            this.$router.push(`/player/${playerId}`);
         },
 
         queryCharacter(characterId) {

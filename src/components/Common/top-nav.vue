@@ -156,15 +156,17 @@ export default {
 
         setSearch() {
             var query = {
-                queryName: this.searchValue.valueType,
-                queryValue: this.searchValue.id
+                name: this.searchValue.valueType,
+                value: this.searchValue.id
             };
 
-            if (this.$route.name !== 'Videos') {
-                this.$router.push({ name: 'Videos', params: query });
-            } else {
-                eventbus.$emit('search', query);
-            }
+            this.$router.push(`/${query.name}/${query.value}`);
+
+            // if (this.$route.name !== 'Videos') {
+            //     this.$router.push({ name: 'Videos', params: query });
+            // } else {
+            //     eventbus.$emit('search', query);
+            // }
         },
 
         openRegisterModal() {

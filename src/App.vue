@@ -206,11 +206,13 @@ textarea {
     padding: 0;
 }
 
-#app.mobile .side-panel {
+#app.mobile .side-nav {
+    width: initial;
+    padding: 80px 5px;
 }
 
 #app.mobile .videos-container {
-    padding: 0 28px;
+    padding: 0 10px;
 }
 
 #app.mobile .content-container,
@@ -243,7 +245,7 @@ textarea {
 }
 
 #app.mobile.small-mobile .video-card {
-    max-width: 264px;
+    max-width: 400px;
     margin: 30px auto 30px;
 }
 
@@ -252,8 +254,12 @@ textarea {
 }
 
 #app.mobile.small-mobile .video-card iframe {
-    width: 264px !important;
-    height: 150px;
+    width: 400px !important;
+    height: 225px;
+}
+
+#app.mobile.small-mobile .character-bubble {
+    display: none;
 }
 
 #app.mobile.small-mobile .side-panel {
