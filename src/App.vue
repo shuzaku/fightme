@@ -231,7 +231,7 @@ textarea {
 }
 
 #app.mobile .video-card {
-    max-width: 369px;
+    max-width: 392px;
     margin: 30px auto 30px;
 }
 
@@ -240,12 +240,12 @@ textarea {
 }
 
 #app.mobile .video-card iframe {
-    width: 369px !important;
-    height: 209px;
+    width: 392px !important;
+    height: 225px;
 }
 
 #app.mobile.small-mobile .video-card {
-    max-width: 400px;
+    max-width: 392px;
     margin: 30px auto 30px;
 }
 
@@ -254,7 +254,7 @@ textarea {
 }
 
 #app.mobile.small-mobile .video-card iframe {
-    width: 400px !important;
+    width: 392px !important;
     height: 225px;
 }
 
