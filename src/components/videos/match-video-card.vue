@@ -91,7 +91,7 @@
                     mdi-delete
                 </v-icon>
             </v-btn> -->
-            <v-btn @click="copyLink()">
+            <v-btn class="share-button" @click="copyLink()">
                 <v-icon dark>
                     mdi-link
                 </v-icon>
@@ -415,7 +415,14 @@ export default {
 .video-card .admin-controls {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding: 0 20px;
+}
+
+.video-card .admin-controls .share-button {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    min-width: initial;
 }
 </style>

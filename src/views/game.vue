@@ -1,12 +1,7 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="characters-view">
-        <character-nav
-            v-if="!isLoading"
-            :characterId="characterId"
-            @character-sort:update="applySort($event)"
-            @character-filter:update="applyFilter($event)"
-        />
+    <div ref="videoViewRef" class="game-view">
+        <game-nav v-if="!isLoading" :gameId="gameId" @game-filter:update="applyFilter($event)" />
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -46,16 +41,16 @@
 import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
-import CharacterNav from '@/components/character/character-nav';
+import GameNav from '@/components/games/game-nav';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Characters',
+    name: 'Game',
 
     components: {
         'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard,
-        'character-nav': CharacterNav
+        'game-nav': GameNav
     },
 
     data() {
@@ -78,13 +73,13 @@ export default {
             return this.videos.length;
         },
 
-        characterId: function() {
+        gameId: function() {
             return this.$route.params.id;
         }
     },
 
     watch: {
-        characterId: function() {
+        gameId: function() {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();
@@ -121,8 +116,8 @@ export default {
 
             searchQuery = [
                 {
-                    queryName: 'CharacterId',
-                    queryValue: this.characterId
+                    queryName: 'GameId',
+                    queryValue: this.gameId
                 }
             ];
 
@@ -283,7 +278,7 @@ export default {
 </script>
 
 <style>
-.characters-view {
+.game-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -293,35 +288,35 @@ export default {
     flex-direction: column;
 }
 
-.characters-view::-webkit-scrollbar-track {
+.game-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar {
+.game-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar-thumb {
+.game-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.characters-view .videos-container {
+.game-view .videos-container {
     position: relative;
     margin-top: 0;
 }
 
-.characters-view .videos-container video {
+.game-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
 }
 
-.characters-view .combo-card:first-child {
+.game-view .combo-card:first-child {
     margin-top: 30px;
 }
 </style>

@@ -12,9 +12,7 @@
                         <top-nav />
                         <router-view />
                     </div>
-                    <div class="trending-container">
-                        <h2>Trending</h2>
-                    </div>
+                    <trending />
                 </div>
             </div>
         </div>
@@ -27,6 +25,7 @@ import { eventbus } from '@/main';
 import TopNav from '@/components/common/top-nav';
 import SideNav from '@/components/common/side-nav';
 import Modal from '@/components/common/modal';
+import Trending from '@/components/trending/trending';
 
 export default {
     name: 'App',
@@ -34,7 +33,8 @@ export default {
     components: {
         'top-nav': TopNav,
         'side-nav': SideNav,
-        modal: Modal
+        modal: Modal,
+        trending: Trending
     },
 
     data() {
@@ -172,9 +172,8 @@ export default {
 }
 
 #app .trending-container {
-    max-width: 350px;
+    width: 350px;
     padding-top: 80px;
-    margin-left: 40px;
 }
 
 #app .trending-container h2 {

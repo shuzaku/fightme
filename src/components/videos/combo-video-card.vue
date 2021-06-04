@@ -386,7 +386,7 @@ export default {
 .video-card .admin-controls {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding: 0 20px;
 }
 </style>

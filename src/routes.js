@@ -7,6 +7,7 @@ import Combo from './views/combo.vue';
 import Match from './views/match.vue';
 import Matches from './views/matches.vue';
 import Games from './views/games.vue';
+import Game from './views/game.vue';
 import WorkSpace from './views/workspace.vue';
 
 const routes = [
@@ -21,6 +22,7 @@ const routes = [
     {path: '/combo/:id', name: 'Combo', component: Combo},
     {path: '/match/:id', name: 'Match', component: Match},
     {path: '/workspace', name: 'WorkSpace', component: WorkSpace},
+    {path: '/game/:id', name: 'Game', component: Game},
 ] 
 
 export default routes;   

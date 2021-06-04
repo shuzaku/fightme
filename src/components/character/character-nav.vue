@@ -6,11 +6,13 @@
                 <h2>{{ name }}</h2>
                 <div class="divider">></div>
                 <div class="sort-filter-container">
+                    <span>Show:</span>
                     <select v-model="selectedFilter">
                         <option v-for="option in filterOptions" :key="option">
                             {{ option }}
                         </option>
                     </select>
+                    <span class="divider" v-if="selectedFilter === 'Combo'">></span>
                     <select v-show="selectedFilter === 'Combo'" v-model="selectedSort">
                         <option v-for="option in comboSortOptions" :key="option">
                             {{ option }}
@@ -114,5 +116,16 @@ export default {
 
 .character-nav .character-bubble .divider {
     margin: 0 10px;
+}
+
+.character-nav .character-bubble select {
+    margin: 0 5px;
+    border-bottom: 1px solid #3eb489;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.character-nav .sort-filter-container .divider {
+    margin: 0;
 }
 </style>
