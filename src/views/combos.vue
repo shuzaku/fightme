@@ -8,7 +8,8 @@
                 :class="{ selected: video.selected }"
             >
                 <combo-video-card
-                    :id="video.id"
+                    v-if="video.contentType === 'Combo'"
+                    :id="video.combo.id"
                     v-model="video.isPlaying"
                     v-waypoint="{
                         active: true,
@@ -147,6 +148,7 @@ export default {
                 featuredVideo.inview = true;
                 featuredVideo.isPlaying = true;
             }
+
             if (going === this.$waypointMap.GOING_OUT && direction) {
                 featuredVideo.isPlaying = false;
             }
