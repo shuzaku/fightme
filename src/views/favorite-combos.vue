@@ -1,24 +1,12 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="videos-view">
+    <div ref="videoViewRef" class="favorite-matches-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
                 :class="{ selected: video.selected }"
             >
-                <match-video-card
-                    v-if="video.contentType === 'Match'"
-                    :id="video.id"
-                    v-model="video.isPlaying"
-                    v-waypoint="{
-                        active: true,
-                        callback: onWaypoint,
-                        options: intersectionOptions
-                    }"
-                    :video="video"
-                    @video:delete="spliceVideo($event)"
-                />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     :id="video.combo.id"
@@ -38,15 +26,13 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Videos',
+    name: 'FavoriteCombos',
 
     components: {
-        'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard
     },
 
@@ -80,7 +66,7 @@ export default {
 
     mounted() {
         this.updateFavorites();
-        this.queryVideos(this.$route.params);
+        this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
@@ -104,52 +90,16 @@ export default {
                 this.savedQuery = query;
             }
 
-            if (searchParameter) {
-                if (searchParameter.queryName === 'Game') {
-                    searchQuery = [
-                        {
-                            queryName: 'GameId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Player') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1Id',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2Id',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Character') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Combo.CharacterId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Video Type') {
-                    searchQuery = [
-                        {
-                            queryName: 'ContentType',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-            }
+            var filteredCombos = this.account.favoriteVideos.filter(
+                video => video.contentType === 'Combo'
+            );
+
+            searchQuery = filteredCombos.map(combo => {
+                return {
+                    queryName: 'ComboId',
+                    queryValue: combo.id
+                };
+            });
 
             var queryParameter = {
                 skip: this.skip,
@@ -174,60 +124,15 @@ export default {
                     isEditing: false,
                     isPlaying: false,
                     url: video.Url,
-                    combo: this.getCombos(video.Combo),
                     isFavorited: false,
+                    combo: this.getCombos(video.Combo),
                     game: {
                         id: video.Game._id,
                         Title: video.Game.Title,
                         LogoUrl: video.Game.LogoUrl
-                    },
-                    match: video.Match._id
-                        ? {
-                              id: video.Match._id,
-                              team1Players: video.Match.Team1Players.map(player => {
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: video.Match.Team1Player.filter(
-                                          searchPlayer => searchPlayer._id === player.Id
-                                      )[0].Name,
-                                      characters: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team1PlayerCharacters
-                                      )
-                                  };
-                              }),
-                              team2Players: video.Match.Team2Players.map(player => {
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: video.Match.Team2Player.filter(
-                                          searchPlayer => searchPlayer._id === player.Id
-                                      )[0].Name,
-                                      characters: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team2PlayerCharacters
-                                      )
-                                  };
-                              })
-                          }
-                        : null
+                    }
                 });
             });
-        },
-
-        hydrateCharacters(characterIds, characters) {
-            var playerCharacters = [];
-
-            characterIds.forEach(id => {
-                var filteredCharacter = characters.filter(character => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].ImageUrl
-                });
-            });
-            return playerCharacters;
         },
 
         getCombos(comboResponse) {
@@ -255,19 +160,6 @@ export default {
             }
             this.videos[0].isPlaying = true;
             this.isLoading = false;
-        },
-
-        onWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.id === objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
-            }
         },
 
         onComboWaypoint({ el, going, direction }) {
@@ -326,7 +218,7 @@ export default {
 </script>
 
 <style>
-.videos-view {
+.favorite-matches-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -336,29 +228,29 @@ export default {
     overflow: hidden;
 }
 
-.videos-view::-webkit-scrollbar-track {
+.favorite-matches-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar {
+.favorite-matches-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar-thumb {
+.favorite-matches-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.videos-view .videos-container {
+.favorite-matches-view .videos-container {
     position: relative;
     padding: 0 40px;
 }
 
-.videos-view .videos-container video {
+.favorite-matches-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

@@ -1,75 +1,43 @@
 <!-- @format -->
 <template>
     <div class="register-modal">
-        <div class="row">
-            <div class="card">
-                <div class="card-header">Register</div>
-                <div class="card-body">
-                    <div v-if="error" class="alert alert-danger">{{ error }}</div>
-                    <form action="#" @submit.prevent="submit">
-                        <div class="form-group row">
-                            <label for="name" class="col-md-4 col-form-label text-md-right"
-                                >Name</label
-                            >
+        <div class="formcontainer">
+            <h2>Register Account</h2>
+            <div v-if="error" class="error">{{ error }}</div>
+            <v-text-field
+                id="name"
+                v-model="form.name"
+                type="text"
+                class="form-control"
+                placeholder="Username"
+                value
+                required
+                autofocus
+            />
 
-                            <div class="col-md-6">
-                                <input
-                                    id="name"
-                                    v-model="form.name"
-                                    type="name"
-                                    class="form-control"
-                                    name="name"
-                                    value
-                                    required
-                                    autofocus
-                                />
-                            </div>
-                        </div>
+            <v-text-field
+                id="email"
+                v-model="form.email"
+                type="email"
+                class="form-control"
+                placeholder="Email"
+                value
+                required
+                autofocus
+            />
 
-                        <div class="form-group row">
-                            <label for="email" class="col-md-4 col-form-label text-md-right"
-                                >Email</label
-                            >
+            <v-text-field
+                id="password"
+                v-model="form.password"
+                type="password"
+                class="form-control"
+                placeholder="Password"
+                value
+                required
+                autofocus
+            />
 
-                            <div class="col-md-6">
-                                <input
-                                    id="email"
-                                    v-model="form.email"
-                                    type="email"
-                                    class="form-control"
-                                    name="email"
-                                    value
-                                    required
-                                    autofocus
-                                />
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right"
-                                >Password</label
-                            >
-
-                            <div class="col-md-6">
-                                <input
-                                    id="password"
-                                    v-model="form.password"
-                                    type="password"
-                                    class="form-control"
-                                    name="password"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">Register</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            <v-btn class="submit-btn" rounded @click="submit()">Submit</v-btn>
         </div>
     </div>
 </template>
@@ -97,7 +65,8 @@ export default {
                 .then(data => {
                     data.user
                         .updateProfile({
-                            displayName: this.form.name
+                            displayName: this.form.name,
+                            email: this.form.email
                         })
                         .then(() => {
                             var newUser = {
@@ -124,38 +93,31 @@ export default {
 };
 </script>
 <style>
-.register-modal {
+.register-modal .input-container {
+    padding: 0 5px;
+}
+
+.register-modal .input-container input {
+    font-size: 12px;
+}
+
+.register-modal .inputs-container .v-input {
+    padding-top: 0;
+    margin-top: 0px;
+}
+
+.register-modal .inputs-container .v-input__slot,
+.register-modal .input-container .v-input__slot {
     background: #fff;
-    position: absolute;
-    top: 0;
-    left: 0;
-    max-width: 300px;
-    width: 100%;
-    border-radius: 30px;
 }
 
-.register-modal .card {
-    max-width: 200px;
-    margin: 0 auto;
+.register-modal .inputs-container .v-input__slot {
+    padding: 10px;
 }
 
-.register-modal .form-group.row {
-    display: block;
-    text-align: left;
-}
-
-.register-modal input {
-    border: 1px solid #000;
-    color: #000;
-}
-
-.register-modal label {
-    color: #000;
-}
-
-.register-modal .btn {
-    background: #1ab097;
-    color: #fff;
-    padding: 5px 20px;
+.register-modal .error {
+    color: #ff0000;
+    margin-top: 20px;
+    font-style: italic;
 }
 </style>

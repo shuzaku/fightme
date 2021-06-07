@@ -19,6 +19,10 @@
         <new-character v-if="options.name === 'character'" @closeModal="closeModal()" />
 
         <new-tournament v-if="options.name === 'tournament'" @closeModal="closeModal()" />
+
+        <register v-if="options.name === 'register'" @closeModal="closeModal()" />
+
+        <login v-if="options.name === 'login'" @closeModal="closeModal()" />
     </div>
 </template>
 
@@ -29,6 +33,8 @@ import newPlayer from '@/components/players/new-player';
 import newVideo from '@/components/videos/video-widget';
 import newTournament from '@/components/tournament/new-tournament';
 import newCharacter from '@/components/character/new-character';
+import register from '@/components/account/register';
+import login from '@/components/account/login';
 
 export default {
     name: 'Modal',
@@ -39,7 +45,9 @@ export default {
         'new-creator': newCreator,
         'new-player': newPlayer,
         'new-tournament': newTournament,
-        'new-character': newCharacter
+        'new-character': newCharacter,
+        register: register,
+        login: login
     },
 
     props: {

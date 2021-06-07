@@ -3,14 +3,14 @@
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <div class="content">
             <div class="side-panel">
-                <side-nav />
+                <side-nav @account:logout="logout()" />
             </div>
             <div ref="mainPanel" class="main-panel">
                 <modal v-if="isWidgetOpen" :options="options" @closeModal="closeModal()" />
                 <div class="content-container">
-                    <div class="main-content-container">
+                    <div v-if="!isLoading" class="main-content-container">
                         <top-nav />
-                        <router-view />
+                        <router-view :account="account" />
                     </div>
                     <trending />
                 </div>
@@ -26,6 +26,8 @@ import TopNav from '@/components/common/top-nav';
 import SideNav from '@/components/common/side-nav';
 import Modal from '@/components/common/modal';
 import Trending from '@/components/trending/trending';
+import firebase from 'firebase';
+import AccountsService from '@/services/accounts-service';
 
 export default {
     name: 'App',
@@ -43,17 +45,32 @@ export default {
             isWidgetOpen: false,
             screenWidth: 0,
             isMobile: false,
-            isSmallMobile: false
+            isSmallMobile: false,
+            account: null,
+            isLoading: true
         };
     },
 
+    watch: {
+        account() {
+            eventbus.$emit('account:update', this.account);
+        }
+    },
+
     created() {
-        eventbus.$on('open:videoWidget', this.openModal);
+        this.getPersistantUser();
+        eventbus.$on('open:widget', this.openModal);
+        eventbus.$on('account:login', this.setAccount);
+        eventbus.$on('video:favorite', this.addFavoriteVideo);
+        eventbus.$on('video:unfavorite', this.removeFavoriteVideo);
         window.addEventListener('resize', this.calculateScreenWidth);
     },
 
     beforeDestroy() {
-        eventbus.$off('open:videoWidget', this.openModal);
+        eventbus.$off('open:widget', this.openModal);
+        eventbus.$off('account:login', this.setAccount);
+        eventbus.$off('video:favorite', this.addFavoriteVideo);
+        eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
         window.removeEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -84,6 +101,119 @@ export default {
                 this.isSmallMobile = false;
             }
             // eventbus.$emit('screen-size:update', this.screenWidth);
+        },
+
+        setAccount(account) {
+            this.account = account;
+            this.isLoading = false;
+        },
+
+        async fetchAccount(id) {
+            const response = await AccountsService.getAccount({ id: id });
+            var account = {
+                id: response.data.account[0]._id,
+                displayName: response.data.account[0].DisplayName,
+                email: response.data.account[0].Email,
+                favoriteVideos: response.data.account[0].FavoriteVideos.map(video => {
+                    return {
+                        contentType: video.ContentType,
+                        id: video.Id
+                    };
+                }),
+                collections: response.data.account[0].Collections
+            };
+
+            this.setAccount(account);
+        },
+
+        getPersistantUser() {
+            var globalScope = this;
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    globalScope.fetchAccount(user.uid);
+                } else {
+                    globalScope.isLoading = false;
+                }
+            });
+        },
+
+        logout() {
+            firebase
+                .auth()
+                .signOut()
+                .then(() => {
+                    this.account = null;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+
+        async addFavoriteVideo(video) {
+            var targetId = null;
+            var request = null;
+
+            if (video.contentType === 'Combo') {
+                targetId = video.combo.id;
+            } else {
+                targetId = video.id;
+            }
+
+            if (this.account.favoriteVideos.length == 0) {
+                this.account.favoriteVideos = [
+                    {
+                        ContentType: video.contentType,
+                        Id: targetId
+                    }
+                ];
+
+                request = {
+                    id: this.account.id,
+                    FavoriteVideos: this.account.favoriteVideos
+                };
+            } else {
+                var favoriteVideos = this.account.favoriteVideos.map(video => {
+                    return {
+                        ContentType: video.contentType,
+                        Id: video.id
+                    };
+                });
+
+                favoriteVideos.push({
+                    ContentType: video.contentType,
+                    Id: targetId
+                });
+
+                request = {
+                    id: this.account.id,
+                    FavoriteVideos: favoriteVideos
+                };
+            }
+
+            await AccountsService.patchAccount(request);
+        },
+
+        async removeFavoriteVideo(video) {
+            var targetId = null;
+
+            if (video.contentType === 'Combo') {
+                targetId = video.combo.id;
+            } else {
+                targetId = video.id;
+            }
+
+            for (var i = 0; i < this.account.favoriteVideos.length; i++) {
+                if (this.account.favoriteVideos[i].Id === targetId) {
+                    this.account.favoriteVideos.splice(i, -1);
+                }
+            }
+
+            var request = {
+                id: this.account.id,
+                FavoriteVideos: this.account.favoriteVideos
+            };
+
+            await AccountsService.patchAccount(request);
         }
     }
 };
@@ -293,6 +423,30 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-around;
+}
+
+#app.mobile.small-mobile .side-nav {
+    height: initial;
+    flex-direction: row;
+}
+
+#app.mobile.small-mobile .top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    max-width: 80%;
+    width: 100%;
+}
+
+#app.mobile.small-mobile .bottom-section {
+    align-items: center;
+    display: flex;
+}
+
+#app.mobile.small-mobile .logo img {
+    width: 40px;
+    left: 0;
 }
 
 @media only screen and (max-width: 1125px) {

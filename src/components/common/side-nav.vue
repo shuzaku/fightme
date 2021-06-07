@@ -3,16 +3,18 @@
     <div class="side-nav">
         <div class="top-section">
             <div class="logo">
-                <img
-                    src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
-                    class="logo-img"
-                />
-                <h2>
-                    <span class="title"
-                        >Fighters<br />
-                        Edge</span
-                    >
-                </h2>
+                <router-link to="/">
+                    <img
+                        src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
+                        class="logo-img"
+                    />
+                    <h2>
+                        <span class="title"
+                            >Fighters<br />
+                            Edge</span
+                        >
+                    </h2>
+                </router-link>
             </div>
             <div class="menu-item">
                 <router-link to="/">
@@ -45,11 +47,28 @@
                     </div>
                 </router-link>
             </div>
-            <!-- <div class="menu-item">
+            <div class="menu-item">
+                <div class="menu-heading" @click="toggleFavorites()">
+                    <font-awesome-icon icon="heart" /><span>Favorites</span>
+                </div>
+                <div v-if="showFavorites" class="sub-menu">
+                    <router-link to="/favorite-matches">
+                        <div class="menu-heading">
+                            <span>Matches</span>
+                        </div>
+                    </router-link>
+                    <router-link to="/favorite-combos">
+                        <div class="menu-heading">
+                            <span>Combos</span>
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+            <div class="menu-item">
                 <div class="menu-heading" @click="toggleDropDown()">
                     <font-awesome-icon icon="plus-circle" /><span>Add</span>
                 </div>
-            </div> -->
+            </div>
             <div v-if="isDropDownOpen" class="add-content-dropdown">
                 <ul>
                     <li
@@ -68,6 +87,7 @@
                     <font-awesome-icon :icon="['fab', 'discord']" /> <span>Discord</span>
                 </a>
             </div>
+            <user />
         </div>
         <!-- <recommendation /> -->
     </div>
@@ -75,6 +95,8 @@
 
 <script>
 import { eventbus } from '@/main';
+import user from '@/components/account/user';
+
 // import recommendation from '@/components/common/recommendation';
 
 export default {
@@ -82,6 +104,7 @@ export default {
 
     components: {
         // recommendation: recommendation
+        user: user
     },
 
     props: {
@@ -96,12 +119,17 @@ export default {
         gameId: {
             type: String,
             default: null
+        },
+        value: {
+            type: Boolean,
+            default: false
         }
     },
 
     data() {
         return {
             isDropDownOpen: false,
+            showFavorites: false,
             createOptions: [
                 {
                     name: 'Video',
@@ -132,8 +160,11 @@ export default {
     },
 
     methods: {
+        toggleFavorites() {
+            this.showFavorites = !this.showFavorites;
+        },
         openCreateWidget(createType) {
-            eventbus.$emit('open:videoWidget', {
+            eventbus.$emit('open:widget', {
                 name: createType
             });
             this.toggleDropDown();
@@ -199,6 +230,10 @@ export default {
     font-size: 20px;
 }
 
+.side-nav .logo a {
+    text-decoration: none;
+}
+
 .side-nav .logo svg {
     font-size: 40px;
     margin-bottom: 50px;
@@ -251,5 +286,10 @@ export default {
     max-width: 120px;
     position: relative;
     left: -40px;
+}
+
+.side-nav .sub-menu .menu-heading {
+    font-size: 12px;
+    margin-left: 40px;
 }
 </style>

@@ -35,6 +35,13 @@ export default {
         'match-video-card': MatchVideoCard
     },
 
+    props: {
+        account: {
+            type: Object,
+            default: null
+        }
+    },
+
     data() {
         return {
             videos: [],
@@ -56,6 +63,7 @@ export default {
     },
 
     mounted() {
+        this.updateFavorites();
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
@@ -88,6 +96,7 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
+            this.checkFavorites();
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
@@ -112,6 +121,7 @@ export default {
                     isEditing: false,
                     isPlaying: false,
                     url: video.Url,
+                    isFavorited: false,
                     game: {
                         id: video.Game._id,
                         Title: video.Game.Title,
@@ -195,6 +205,23 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
+        },
+
+        updateFavorites() {
+            this.favorites = this.account.favoriteVideos.map(video => {
+                return {
+                    contentType: video.contentType,
+                    id: video.id
+                };
+            });
+        },
+
+        checkFavorites() {
+            this.favorites.forEach(favorite => {
+                if (favorite.contentType === 'Match') {
+                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+                }
+            });
         }
     }
 };

@@ -1,58 +1,41 @@
 <!-- @format -->
 <template>
     <div class="login-modal">
-        <div class="card">
-            <div class="card-header">Login</div>
-            <div class="card-body">
-                <div v-if="error" class="alert alert-danger">{{ error }}</div>
-                <form action="#" @submit.prevent="submit">
-                    <div class="form-group row">
-                        <label for="email" class="col-md-4 col-form-label text-md-right"
-                            >Email</label
-                        >
-                        <div class="col-md-6">
-                            <input
-                                id="email"
-                                v-model="form.email"
-                                type="email"
-                                class="form-control"
-                                name="email"
-                                value
-                                required
-                                autofocus
-                            />
-                        </div>
-                    </div>
+        <div class="formcontainer">
+            <h2>Login</h2>
+            <div v-if="error" class="error">{{ error }}</div>
 
-                    <div class="form-group row">
-                        <label for="password" class="col-md-4 col-form-label text-md-right"
-                            >Password</label
-                        >
-                        <div class="col-md-6">
-                            <input
-                                id="password"
-                                v-model="form.password"
-                                type="password"
-                                class="form-control"
-                                name="password"
-                                required
-                            />
-                        </div>
-                    </div>
+            <v-text-field
+                id="email"
+                v-model="form.email"
+                type="email"
+                class="form-control"
+                placeholder="Email"
+                value
+                required
+                autofocus
+            />
 
-                    <div class="form-group row mb-0">
-                        <div class="col-md-8 offset-md-4">
-                            <button type="submit" class="btn btn-primary">Login</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+            <v-text-field
+                id="password"
+                v-model="form.password"
+                type="password"
+                class="form-control"
+                placeholder="Password"
+                value
+                required
+                autofocus
+            />
+
+            <v-btn class="submit-btn" rounded @click="submit()">Login</v-btn>
         </div>
     </div>
 </template>
 
 <script>
 import firebase from 'firebase';
+import AccountsService from '@/services/accounts-service';
+import { eventbus } from '@/main';
 
 export default {
     data() {
@@ -69,54 +52,66 @@ export default {
         submit() {
             firebase
                 .auth()
-                .signInWithEmailAndPassword(this.form.email, this.form.password)
-                .then(data => {
-                    this.user = {
-                        id: data.user.uid
-                    };
-                    this.$emit('login:success');
+                .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                .then(() => {
+                    return firebase
+                        .auth()
+                        .signInWithEmailAndPassword(this.form.email, this.form.password)
+                        .then(data => {
+                            this.user = {
+                                id: data.user.uid
+                            };
+                            this.getAccount(this.user.id);
+                        });
                 })
-                .catch(err => {
-                    this.error = err.message;
+                .catch(error => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.log(`${errorCode}: ${errorMessage}`);
                 });
+        },
+        async getAccount(id) {
+            const response = await AccountsService.getAccount({ id: id });
+            this.account = {
+                id: response.data.account[0]._id,
+                displayName: response.data.account[0].DisplayName,
+                email: response.data.account[0].Email,
+                favoriteVideos: response.data.account[0].FavoriteVideos,
+                collections: response.data.account[0].Collections
+            };
+
+            eventbus.$emit('account:login', this.account);
         }
     }
 };
 </script>
 
 <style>
-.login-modal {
+.login-modal .input-container {
+    padding: 0 5px;
+}
+
+.login-modal .input-container input {
+    font-size: 12px;
+}
+
+.login-modal .inputs-container .v-input {
+    padding-top: 0;
+    margin-top: 0px;
+}
+
+.login-modal .inputs-container .v-input__slot,
+.login-modal .input-container .v-input__slot {
     background: #fff;
-    position: absolute;
-    top: 50px;
-    left: 50%;
-    max-width: 300px;
-    width: 100%;
-    border-radius: 30px;
 }
 
-.login-modal .card {
-    max-width: 200px;
-    margin: 0 auto;
+.login-modal .inputs-container .v-input__slot {
+    padding: 10px;
 }
 
-.login-modal .form-group.row {
-    display: block;
-    text-align: left;
-}
-
-.login-modal input {
-    border: 1px solid #000;
-    color: #000;
-}
-
-.login-modal label {
-    color: #000;
-}
-
-.login-modal .btn {
-    background: #1ab097;
-    color: #fff;
-    padding: 5px 20px;
+.login-modal .error {
+    color: #ff0000;
+    margin-top: 20px;
+    font-style: italic;
 }
 </style>

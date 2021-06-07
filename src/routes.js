@@ -9,6 +9,8 @@ import Matches from './views/matches.vue';
 import Games from './views/games.vue';
 import Game from './views/game.vue';
 import WorkSpace from './views/workspace.vue';
+import FavoriteMatches from './views/favorite-matches.vue';
+import FavoriteCombos from './views/favorite-combos.vue';
 
 const routes = [
     {path: '/', name: 'Videos', component: Videos},
@@ -23,6 +25,8 @@ const routes = [
     {path: '/player/:id', name: 'Player', component: Player},
     {path: '/character/:id', name: 'Character', component: Character},
     {path: '/workspace', name: 'WorkSpace', component: WorkSpace},
+    {path: '/favorite-matches', name: 'Favorites Matches', component: FavoriteMatches},
+    {path: '/favorite-combos', name: 'Favorites Combos', component: FavoriteCombos},
 ] 
 
 export default routes;   

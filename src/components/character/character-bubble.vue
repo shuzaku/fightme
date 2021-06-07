@@ -79,5 +79,6 @@ export default {
     font-size: 22px;
     color: #3eb489;
     font-family: 'Roboto';
+    font-weight: 600;
 }
 </style>

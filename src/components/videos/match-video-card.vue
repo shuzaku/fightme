@@ -91,8 +91,18 @@
                     mdi-delete
                 </v-icon>
             </v-btn> -->
+            <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
+                <v-icon light>
+                    mdi-heart-outline
+                </v-icon>
+            </v-btn>
+            <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                <v-icon>
+                    mdi-heart
+                </v-icon>
+            </v-btn>
             <v-btn class="share-button" @click="copyLink()">
-                <v-icon dark>
+                <v-icon light>
                     mdi-link
                 </v-icon>
             </v-btn>
@@ -228,6 +238,16 @@ export default {
             this.$copyText(`https://fighters-edge.com/match/${this.video.id}`).then(() => {
                 alert('match copied');
             });
+        },
+
+        favoriteVideo() {
+            eventbus.$emit('video:favorite', this.video);
+            this.video.isFavorited = true;
+        },
+
+        unfavoriteVideo() {
+            eventbus.$emit('video:unfavorite', this.video);
+            this.video.isFavorited = false;
         }
     }
 };
@@ -419,10 +439,12 @@ export default {
     padding: 0 20px;
 }
 
-.video-card .admin-controls .share-button {
-    border-radius: 50%;
+#app .video-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 50%;
 }
 </style>

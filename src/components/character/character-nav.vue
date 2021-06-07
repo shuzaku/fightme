@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="character-nav">
-        <div class="character-bubble" :style="characterbubbleStyle">
+        <div class="character-header" :style="characterbubbleStyle">
             <div class="options">
                 <h2>{{ name }}</h2>
                 <div class="divider">></div>
@@ -12,7 +12,7 @@
                             {{ option }}
                         </option>
                     </select>
-                    <span class="divider" v-if="selectedFilter === 'Combo'">></span>
+                    <span v-if="selectedFilter === 'Combo'" class="divider">></span>
                     <select v-show="selectedFilter === 'Combo'" v-model="selectedSort">
                         <option v-for="option in comboSortOptions" :key="option">
                             {{ option }}
@@ -65,6 +65,10 @@ export default {
 
         selectedFilter() {
             this.$emit('character-filter:update', this.selectedFilter);
+        },
+
+        characterId() {
+            this.getCharacter();
         }
     },
 
@@ -89,9 +93,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0 15px;
 }
 
-.character-nav .character-bubble {
+.character-nav .character-header {
     height: 80px;
     background: #fff;
     color: #3eb489;
@@ -104,21 +109,21 @@ export default {
     border: 3px solid #3eb489;
 }
 
-.character-nav .character-bubble h2 {
+.character-nav .character-header h2 {
     text-align: right;
 }
 
-.character-nav .character-bubble .options {
+.character-nav .character-header .options {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.character-nav .character-bubble .divider {
+.character-nav .character-header .divider {
     margin: 0 10px;
 }
 
-.character-nav .character-bubble select {
+.character-nav .character-header select {
     margin: 0 5px;
     border-bottom: 1px solid #3eb489;
     font-weight: 600;
