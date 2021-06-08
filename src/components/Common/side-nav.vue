@@ -123,6 +123,10 @@ export default {
         value: {
             type: Boolean,
             default: false
+        },
+        account: {
+            type: Object,
+            default: null
         }
     },
 
