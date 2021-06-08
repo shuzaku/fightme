@@ -144,9 +144,7 @@ export default {
                 .then(() => {
                     this.account = null;
                 })
-                .catch(error => {
-                    console.log(error);
-                });
+                .catch(() => {});
         },
 
         async addFavoriteVideo(video) {
