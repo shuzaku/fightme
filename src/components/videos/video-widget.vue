@@ -333,10 +333,17 @@ export default {
     watch: {
         importVideoUrl() {
             if (this.importVideoUrl.includes('youtube')) {
-                this.video.url = this.importVideoUrl.substring(
-                    this.importVideoUrl.indexOf('v=') + 2,
-                    this.importVideoUrl.indexOf('&ab_channel')
-                );
+                if (this.importVideoUrl.includes('ab_channel')) {
+                    this.video.url = this.importVideoUrl.substring(
+                        this.importVideoUrl.indexOf('v=') + 2,
+                        this.importVideoUrl.indexOf('&ab_channel')
+                    );
+                } else {
+                    this.video.url = this.importVideoUrl.substring(
+                        this.importVideoUrl.indexOf('v=') + 2,
+                        this.importVideoUrl.length
+                    );
+                }
                 this.video.type = 'youtube';
             } else {
                 this.video.url = this.importVideoUrl;

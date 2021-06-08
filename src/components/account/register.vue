@@ -79,6 +79,7 @@ export default {
                             this.addAccount(newUser);
 
                             this.$emit('register:success');
+                            this.$emit('closeModal');
                         });
                 })
                 .catch(err => {

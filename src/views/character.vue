@@ -93,6 +93,9 @@ export default {
     },
 
     mounted() {
+        if (this.account) {
+            this.updateFavorites();
+        }
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
@@ -161,6 +164,7 @@ export default {
                     isPlaying: false,
                     url: video.Url,
                     combo: this.getCombos(video.Combo),
+                    isFavorited: false,
                     game: {
                         id: video.Game._id,
                         Title: video.Game.Title,
@@ -277,6 +281,27 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
+        },
+
+        updateFavorites() {
+            this.favorites = this.account.favoriteVideos.map(video => {
+                return {
+                    contentType: video.contentType,
+                    id: video.id
+                };
+            });
+        },
+
+        checkFavorites() {
+            this.favorites.forEach(favorite => {
+                if (favorite.contentType === 'Combo') {
+                    this.videos.filter(
+                        video => video.combo.id === favorite.id
+                    )[0].isFavorited = true;
+                } else {
+                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+                }
+            });
         }
     }
 };

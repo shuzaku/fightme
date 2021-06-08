@@ -77,6 +77,7 @@ export default {
             };
 
             eventbus.$emit('account:login', this.account);
+            this.$emit('closeModal');
         }
     }
 };
