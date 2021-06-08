@@ -47,7 +47,7 @@
                     </div>
                 </router-link>
             </div>
-            <div class="menu-item">
+            <div v-if="account" class="menu-item">
                 <div class="menu-heading" @click="toggleFavorites()">
                     <font-awesome-icon icon="heart" /><span>Favorites</span>
                 </div>
@@ -64,11 +64,11 @@
                     </router-link>
                 </div>
             </div>
-            <div class="menu-item">
+            <!-- <div class="menu-item">
                 <div class="menu-heading" @click="toggleDropDown()">
                     <font-awesome-icon icon="plus-circle" /><span>Add</span>
                 </div>
-            </div>
+            </div> -->
             <div v-if="isDropDownOpen" class="add-content-dropdown">
                 <ul>
                     <li

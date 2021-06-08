@@ -3,7 +3,7 @@
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <div class="content">
             <div class="side-panel">
-                <side-nav @account:logout="logout()" />
+                <side-nav :account="account" @account:logout="logout()" />
             </div>
             <div ref="mainPanel" class="main-panel">
                 <modal v-if="isWidgetOpen" :options="options" @closeModal="closeModal()" />
@@ -447,6 +447,10 @@ textarea {
 #app.mobile.small-mobile .logo img {
     width: 40px;
     left: 0;
+}
+
+#app.mobile.small-mobile .account {
+    display: none;
 }
 
 @media only screen and (max-width: 1125px) {

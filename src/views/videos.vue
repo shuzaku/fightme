@@ -79,7 +79,9 @@ export default {
     },
 
     mounted() {
-        this.updateFavorites();
+        if (this.account) {
+            this.updateFavorites();
+        }
         this.queryVideos(this.$route.params);
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);

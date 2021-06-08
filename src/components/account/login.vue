@@ -64,11 +64,7 @@ export default {
                             this.getAccount(this.user.id);
                         });
                 })
-                .catch(error => {
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    console.log(`${errorCode}: ${errorMessage}`);
-                });
+                .catch(() => {});
         },
         async getAccount(id) {
             const response = await AccountsService.getAccount({ id: id });
