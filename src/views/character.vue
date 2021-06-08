@@ -264,7 +264,7 @@ export default {
                 var bottomOfWindow =
                     document.documentElement.scrollTop + window.innerHeight ===
                     document.documentElement.offsetHeight;
-                if (bottomOfWindow) {
+                if (bottomOfWindow - 10) {
                     this.queryVideos();
                 }
             }
