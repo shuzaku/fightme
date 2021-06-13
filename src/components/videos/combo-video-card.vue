@@ -274,7 +274,7 @@ export default {
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/combo/${this.video.combo.id}`).then(() => {
+            this.$copyText(`https://fighters-edge.com/combo/${this.comboId}`).then(() => {
                 alert('combo copied');
             });
         },
