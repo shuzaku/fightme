@@ -140,7 +140,7 @@ export default {
                 }
             }
 
-            if (this.value === true && this.video.combo.startTime) {
+            if (this.video.isPlaying && this.video.combo.startTime) {
                 this.setTimer();
             }
         },
@@ -198,7 +198,7 @@ export default {
             };
 
             this.video.combo.startTime = parseInt(videoResponse.Combos.StartTime);
-            this.video.combo.endtime = parseInt(videoResponse.Combos.Endtime);
+            this.video.combo.endTime = parseInt(videoResponse.Combos.Endtime);
             this.video.isPlaying = false;
             this.isLoading = false;
         },
