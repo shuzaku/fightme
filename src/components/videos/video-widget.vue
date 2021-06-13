@@ -98,9 +98,12 @@
                             />
                             <div class="character-container">
                                 <h3>Characters</h3>
-                                <div v-for="character in player.characterCount" :key="character">
+                                <div
+                                    v-for="(character, i) in player.characterCount"
+                                    :key="character"
+                                >
                                     <character-search
-                                        v-model="player.characterIds[index]"
+                                        v-model="player.characters[i].id"
                                         :gameId="video.gameId"
                                         @update:character="addCharacterToPlayer($event, player)"
                                     />
@@ -119,9 +122,12 @@
                             />
                             <div class="character-container">
                                 <h3>Characters</h3>
-                                <div v-for="character in player.characterCount" :key="character">
+                                <div
+                                    v-for="(character, i) in player.characterCount"
+                                    :key="character"
+                                >
                                     <character-search
-                                        v-model="player.characterIds[index]"
+                                        v-model="player.characters[i].id"
                                         :gameId="video.gameId"
                                         @update:character="addCharacterToPlayer($event, player)"
                                     />
@@ -130,6 +136,13 @@
                             </div>
                         </div>
                         <v-btn @click="addToTeam2()">AddPlayers</v-btn>
+                    </div>
+                    <div class="tag">
+                        <tag-search
+                            v-model="video.tags"
+                            :taggable="true"
+                            @update:tags="setTags($event)"
+                        />
                     </div>
                 </div>
             </div>
@@ -194,7 +207,13 @@
                                     />
                                 </div>
                             </div>
-
+                            <div class="tag">
+                                <tag-search
+                                    v-model="video.tags"
+                                    :taggable="true"
+                                    @update:tags="setTags($event, combo)"
+                                />
+                            </div>
                             <v-btn class="add-combo-btn" rounded @click="addCombo(index)"
                                 >Add More Combo</v-btn
                             >
@@ -221,6 +240,8 @@ import CharacterSearch from '@/components/character/character-search';
 import GameSearch from '@/components/games/game-search';
 import CreatorSearch from '@/components/content-creator/creator-search';
 import TournamentSearch from '@/components/tournament/tournament-search';
+import TagSearch from '@/components/tags/tag-search';
+
 import { eventbus } from '@/main';
 
 export default {
@@ -232,7 +253,8 @@ export default {
         'creator-search': CreatorSearch,
         'game-search': GameSearch,
         'character-search': CharacterSearch,
-        'tournament-search': TournamentSearch
+        'tournament-search': TournamentSearch,
+        'tag-search': TagSearch
     },
 
     props: {
@@ -302,13 +324,6 @@ export default {
     computed: {
         timeStamp: function() {
             return moment().format();
-        },
-
-        players: function() {
-            var players = [];
-            players.push(this.video.match.player1);
-            players.push(this.video.match.player2);
-            return players;
         },
 
         isValidated: function() {
@@ -394,7 +409,8 @@ export default {
                         CharacterId: this.video.combo.characterId,
                         Inputs: this.video.combo.inputs,
                         Damage: this.video.combo.damage,
-                        Hits: this.video.combo.hits
+                        Hits: this.video.combo.hits,
+                        Tags: this.video.combo.tags
                     });
                     this.patchVideo();
                 }
@@ -402,6 +418,25 @@ export default {
                 if (!this.videoId) {
                     this.addMatch();
                 } else {
+                    await MatchesService.patchMatch({
+                        id: this.video.match.id,
+                        Team1Players: this.video.match.team1Players.map(player => {
+                            return {
+                                Id: player.id,
+                                Slot: 1,
+                                CharacterIds: player.characterIds
+                            };
+                        }),
+                        Team2Players: this.video.match.team2Players.map(player => {
+                            return {
+                                Id: player.id,
+                                Slot: 2,
+                                CharacterIds: player.characterIds
+                            };
+                        }),
+                        VideoUrl: this.video.url,
+                        GameId: this.video.gameId
+                    });
                     this.patchVideo();
                 }
             }
@@ -417,7 +452,8 @@ export default {
                         Damage: combo.damage,
                         Hits: combo.hits,
                         StartTime: combo.startTime,
-                        EndTime: combo.endTime
+                        EndTime: combo.endTime,
+                        Tags: combo.tags
                     };
                 })
             );
@@ -512,67 +548,111 @@ export default {
             var videoResponse = response.data.video;
             this.video = videoResponse.map(video => {
                 return {
-                    url: video.Url,
+                    id: video._id,
                     contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
-                    type: video.VideoType,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
+                    videoType: video.VideoType,
+                    inview: false,
+                    isEditing: false,
+                    isPlaying: false,
+                    url: video.Url,
+                    combo: video.ContentType === 'Combo' ? this.getCombos(video.Combo) : null,
+                    isFavorited: false,
                     gameId: video.GameId,
-                    combo: video.Combo
-                        ? {
-                              id: video.ComboId,
-                              characterId: video.Combo.CharacterId,
-                              damage: video.Combo.Damage,
-                              hits: video.Combo.Hits,
-                              inputs: video.Combo.Inputs.join('>')
-                          }
+                    tags: video.Tags
+                        ? video.Tags.map(tag => {
+                              return tag._id;
+                          })
                         : null,
-                    origin: video.Type === 'youtube' ? 'web' : 'computer'
+                    game: {
+                        id: video.Game._id,
+                        Title: video.Game.Title,
+                        LogoUrl: video.Game.LogoUrl
+                    },
+                    match:
+                        video.ContentType === 'Match'
+                            ? {
+                                  id: video.Match._id,
+                                  team1Players: video.Match.Team1Players.map(player => {
+                                      return {
+                                          id: player.Id,
+                                          slot: player.Slot,
+                                          name: video.Match.Team1Player.filter(
+                                              searchPlayer => searchPlayer._id === player.Id
+                                          )[0].Name,
+                                          characters: this.hydrateCharacters(
+                                              player.CharacterIds,
+                                              video.Match.Team1PlayerCharacters
+                                          ),
+                                          characterCount: player.CharacterIds.length
+                                      };
+                                  }),
+                                  team2Players: video.Match.Team2Players.map(player => {
+                                      return {
+                                          id: player.Id,
+                                          slot: player.Slot,
+                                          name: video.Match.Team2Player.filter(
+                                              searchPlayer => searchPlayer._id === player.Id
+                                          )[0].Name,
+                                          characters: this.hydrateCharacters(
+                                              player.CharacterIds,
+                                              video.Match.Team2PlayerCharacters
+                                          ),
+                                          characterCount: player.CharacterIds.length
+                                      };
+                                  })
+                              }
+                            : null
                 };
             })[0];
-
-            this.comboInputsRaw = videoResponse[0].Combo
-                ? videoResponse[0].Combo.Inputs.join('>')
-                : null;
-
-            if (!videoResponse[0].Combo) {
-                this.player1Has2Characters = this.video.match.player1.character2Id ? true : false;
-                this.player1Has3Characters = this.video.match.player1.character3Id ? true : false;
-                this.player2Has2Characters = this.video.match.player2.character2Id ? true : false;
-                this.player2Has3Characters = this.video.match.player2.character3Id ? true : false;
-            }
-
             this.isLoading = false;
         },
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
 
+            characterIds.forEach(id => {
+                var filteredCharacter = characters.filter(character => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].ImageUrl
+                });
+            });
+            return playerCharacters;
+        },
+
+        getCombos(comboResponse) {
+            return {
+                id: comboResponse._id,
+                inputs: comboResponse.Inputs,
+                hits: comboResponse.Hits,
+                damage: comboResponse.Damage,
+                startTime: comboResponse.StartTime,
+                endTime: comboResponse.EndTime,
+                tags: comboResponse.Tags,
+                character: comboResponse.CharacterId
+                    ? {
+                          name: comboResponse.Character.Name,
+                          imageUrl: comboResponse.Character.ImageUrl,
+                          id: comboResponse.Character._id
+                      }
+                    : null
+            };
+        },
         async patchVideo() {
             if (this.isValidated) {
-                var request = {
-                    id: this.videoId,
-                    ContentType: this.video.contentType,
-                    ContentCreatorId: this.video.contentCreatorId,
-                    GameId: this.video.gameId,
-                    Tags: this.video.tags
+                var videoRequest = {
+                    id: this.video.id,
+                    Tags: this.video.tags,
+                    GameId: this.video.gameid,
+                    Combos:
+                        this.video.ContentType === 'Combo'
+                            ? this.video.combos.map(combo => {
+                                  return combo.id;
+                              })
+                            : null
                 };
 
-                if (!this.video.combo) {
-                    request.Player1Id = this.video.match.player1.id;
-                    request.Player1CharacterId = this.video.match.player1.characterId;
-                    request.Player1Character2Id = this.video.match.player1.character2Id;
-                    request.Player1Character3Id = this.video.match.player1.character3Id;
-                    request.Player2Id = this.video.match.player2.id;
-                    request.Player2CharacterId = this.video.match.player2.characterId;
-                    request.Player2Character2Id = this.video.match.player2.character2Id;
-                    request.Player2Character3Id = this.video.match.player2.character3Id;
-                    request.WinnerId = this.video.match.winner.id;
-                } else {
-                    request.ComboIds = this.video.combos.map(combo => {
-                        return combo.id;
-                    });
-                }
-
-                await VideosService.patchVideo(request);
+                await VideosService.patchVideo(videoRequest);
 
                 this.$emit('closeModal');
                 eventbus.$emit('newVideoPosted');
@@ -594,7 +674,8 @@ export default {
                     inputs: '',
                     startTime: '',
                     endTime: '',
-                    isExpanded: true
+                    isExpanded: true,
+                    tags: []
                 });
             }
         },
@@ -636,6 +717,18 @@ export default {
 
         addPlayerToTeam2(item, index) {
             this.video.match.team2Players[index].id = item.id;
+        },
+
+        setTags(tags, combo) {
+            if (combo) {
+                combo.tags = tags.map(tag => {
+                    return tag.id;
+                });
+            } else {
+                this.video.tags = tags.map(tag => {
+                    return tag.id;
+                });
+            }
         }
     }
 };

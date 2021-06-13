@@ -25,6 +25,9 @@ export default {
     if(params.filter){
       queryParams.push(`filter=${params.filter}`)
     }
+    if(params.tagFilter){
+      queryParams.push(`tag=${params.tagFilter}`)
+    }
     return Api().get(`videoQuery?${queryParams.join('&')}`, params)
   },
 
@@ -44,7 +47,15 @@ export default {
     return Api().post('bulkVideos/')
   },
 
-  test() {
-    return Api().post('videostest/')
-  }
+  getVideos() {
+    return Api().post('getVideos/')
+  },
+
+  getComboVideo (id) {
+    return Api().get('comboVideo/' + id) 
+  },
+
+  getMatchVideo (url) {
+    return Api().get('matchVideo/' + url) 
+  },
 } 

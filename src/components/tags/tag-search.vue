@@ -4,20 +4,17 @@
         <multiselect
             v-model="selectedTags"
             :options="tags"
-            :multiple="true"
-            :close-on-select="false"
             :clear-on-select="false"
-            :preserve-search="true"
+            :close-on-select="!multiple"
+            :multiple="multiple"
             :taggable="taggable"
-            @tag="addTag"
-            @input="setTags"
             placeholder="Search or add a Tag"
             label="name"
-            track-by="TagName"
+            @tag="addTag"
         >
             <template slot="selection" slot-scope="{ values, isOpen }">
-                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">
-                    Select Tags
+                <span class="multiselect__single" v-if="values.length && !isOpen">
+                    {{ values.length }} tags selected
                 </span>
             </template>
         </multiselect>
@@ -32,22 +29,36 @@ export default {
     props: {
         taggable: {
             type: Boolean,
-            default: false
+            default: true
+        },
+        multiple: {
+            type: Boolean,
+            default: true
         },
         value: {
-            type: Array
+            type: Array,
+            default: null
         }
     },
+
     data() {
         return {
             tags: [],
             selectedTags: null
         };
     },
+
+    watch: {
+        selectedTags() {
+            this.$emit('update:tags', this.selectedTags);
+        }
+    },
+
     mounted() {
         this.selectedTags = this.value;
         this.getTags();
     },
+
     methods: {
         async addTag(newTag) {
             await TagsService.addTag({
@@ -66,10 +77,6 @@ export default {
                     name: tag.TagName
                 };
             });
-        },
-
-        setTags() {
-            this.$emit('update:tags', this.selectedTags);
         }
     }
 };

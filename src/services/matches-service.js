@@ -9,4 +9,12 @@ export default {
   fetchMatches() {
     return Api().get('matches')
   },
+
+  patchMatch(params) {
+    return Api().put('matches/' + params.id, params)
+  },
+
+  getMatch(params) {
+    return Api().get('match/' + params) 
+  },
 } 

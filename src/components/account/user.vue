@@ -11,7 +11,7 @@
         </div>
         <div v-else>
             <h2 class="display-name">{{ account.displayName }}</h2>
-            <div class="menu-item" @click="logOut()">
+            <div class="menu-item" @click="logout()">
                 <span class="menu-heading logout">logOut</span>
             </div>
         </div>
@@ -52,7 +52,7 @@ export default {
         },
 
         logout() {
-            this.$emit('account:logout');
+            eventbus.$emit('account:logout');
         }
     }
 };

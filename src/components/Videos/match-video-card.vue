@@ -1,18 +1,29 @@
 <!-- @format -->
 <template>
     <div ref="videoList" class="video-card">
-        <div class="match-card card">
-            <youtube-media
-                v-if="video.videoType === 'youtube'"
-                ref="youtubeRef"
-                :video-id="video.url"
-                :player-width="556"
-                :player-height="313"
-                :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
-                :mute="true"
-                @ready="ready"
-            />
-            <div class="card-label">{{ video.contentType }}</div>
+        <div v-if="isLoading"></div>
+        <div v-else class="match-card card ">
+            <div
+                :id="matchId"
+                v-waypoint="{
+                    active: true,
+                    callback: onWaypoint,
+                    options: intersectionOptions
+                }"
+                class="video-container"
+            >
+                <youtube-media
+                    v-if="video.videoType === 'youtube'"
+                    ref="youtubeRef"
+                    :video-id="video.url"
+                    :player-width="556"
+                    :player-height="313"
+                    :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
+                    :mute="true"
+                    @ready="ready"
+                />
+            </div>
+            <div class="card-label">Match</div>
             <div
                 v-for="(character, index) in video.match.team1Players[0].characters"
                 :key="character.id"
@@ -81,7 +92,8 @@
             </div>
         </div>
         <div class="admin-controls">
-            <!-- <v-btn @click="editVideo()">
+            <!-- <span class="admin-only">
+            <v-btn @click="editVideo()">
                 <v-icon dark>
                     mdi-wrench
                 </v-icon>
@@ -90,7 +102,8 @@
                 <v-icon dark>
                     mdi-delete
                 </v-icon>
-            </v-btn> -->
+            </v-btn>
+            </span> -->
             <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
                 <v-icon light>
                     mdi-heart-outline
@@ -112,6 +125,7 @@
 
 <script>
 import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
 import { eventbus } from '@/main';
 
 export default {
@@ -119,26 +133,31 @@ export default {
     components: {},
 
     props: {
-        video: {
-            type: Object,
+        matchId: {
+            type: String,
             default: null
         },
         value: {
-            type: Boolean
+            type: Boolean,
+            default: false
         }
-    },
-
-    provide() {
-        return {
-            video: this.video
-        };
     },
 
     data() {
         return {
-            videoId: null,
-            startTime: null,
-            videoCurrentTime: 0
+            videoCurrentTime: 0,
+            isLoading: true,
+            video: {
+                videoType: null,
+                isPlaying: false,
+                url: null
+            },
+            intersectionOptions: {
+                root: null,
+                rootMargin: '25% 0px 25% 0px',
+                threshold: 1
+            },
+            player: null
         };
     },
 
@@ -149,48 +168,115 @@ export default {
     },
 
     watch: {
-        value() {
+        'video.isPlaying'() {
             if (this.video.videoType === 'uploaded') {
-                if (this.video.isPlaying) {
+                if (this.video.isPlaying === true) {
                     this.$refs.videoRef.play();
                 } else {
                     this.$refs.videoRef.pause();
                 }
-            } else if (this.video.videoType === 'youtube') {
-                if (this.video.isPlaying) {
+            } else if (this.video.videoType === 'youtube' && this.player) {
+                if (this.video.isPlaying === true) {
                     this.player.playVideo();
                 } else {
                     this.player.pauseVideo();
                 }
             }
+
+            if (this.value === true && this.video.combo.startTime) {
+                this.setTimer();
+            }
         },
 
         videoCurrentTime() {
-            if (this.videoCurrentTime > parseInt(this.video.endTime)) {
-                this.$refs.youtubeRef.player.seekTo(this.video.startTime);
-            }
-        },
-
-        'video.isPlaying'() {
-            if (this.video.isPlaying && this.video.startTime) {
-                this.setTimer();
+            if (this.videoCurrentTime > parseInt(this.video.combo.endTime)) {
+                this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
             }
         }
     },
 
-    mounted() {
-        if (this.video.videoType === 'uploaded') {
-            if (this.video.isPlaying) {
-                this.$refs.videoRef.play();
-            }
-        } else if (this.video.videoType === 'youtube') {
-            if (this.video.isPlaying) {
-                // this.player.playVideo();
-            }
-        }
+    created() {
+        this.getMatch();
+        this.playVideo();
     },
 
     methods: {
+        async getMatch() {
+            const response = await MatchesService.getMatch(this.matchId);
+            var matchResponse = response.data.matches[0];
+            this.video.match = {
+                team1Players: matchResponse.Team1Players.map(player => {
+                    return {
+                        id: player.Id,
+                        slot: player.Slot,
+                        name: matchResponse.Team1Player.filter(
+                            searchPlayer => searchPlayer._id === player.Id
+                        )[0].Name,
+                        characters: this.hydrateCharacters(
+                            player.CharacterIds,
+                            matchResponse.Team1PlayerCharacters
+                        )
+                    };
+                }),
+                team2Players: matchResponse.Team2Players.map(player => {
+                    return {
+                        id: player.Id,
+                        slot: player.Slot,
+                        name: matchResponse.Team2Player.filter(
+                            searchPlayer => searchPlayer._id === player.Id
+                        )[0].Name,
+                        characters: this.hydrateCharacters(
+                            player.CharacterIds,
+                            matchResponse.Team2PlayerCharacters
+                        )
+                    };
+                })
+            };
+            this.video.url = matchResponse.VideoUrl;
+            this.getVideo();
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach(id => {
+                var filteredCharacter = characters.filter(character => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].ImageUrl
+                });
+            });
+            return playerCharacters;
+        },
+
+        async getVideo() {
+            const response = await VideosService.getMatchVideo(this.video.url);
+
+            var videoResponse = response.data.videos[0];
+            this.video.videoType = videoResponse.VideoType;
+            this.video.game = {
+                title: videoResponse.Game.Title,
+                logoUrl: videoResponse.Game.LogoUrl,
+                id: videoResponse.Game._id
+            };
+            this.video.isPlaying = false;
+            this.video.id = videoResponse._id;
+            this.isLoading = false;
+        },
+
+        playVideo() {
+            if (this.video.videoType === 'uploaded') {
+                if (this.video.isPlaying) {
+                    this.$refs.videoRef.play();
+                }
+            } else if (this.video.videoType === 'youtube') {
+                if (this.video.isPlaying) {
+                    // this.player.playVideo();
+                }
+            }
+        },
+
         ready(event) {
             this.player = event.target;
             if (this.video.isPlaying) {
@@ -228,7 +314,7 @@ export default {
 
         editVideo() {
             this.video.isEditing = true;
-            eventbus.$emit('open:videoWidget', {
+            eventbus.$emit('open:widget', {
                 name: 'video',
                 videoId: this.video.id
             });
@@ -248,6 +334,18 @@ export default {
         unfavoriteVideo() {
             eventbus.$emit('video:unfavorite', this.video);
             this.video.isFavorited = false;
+        },
+
+        onWaypoint({ el, going, direction }) {
+            var objectId = el.id;
+            if (objectId) {
+                if (going === this.$waypointMap.GOING_IN && direction) {
+                    this.video.isPlaying = true;
+                }
+                if (going === this.$waypointMap.GOING_OUT && direction) {
+                    this.video.isPlaying = false;
+                }
+            }
         }
     }
 };

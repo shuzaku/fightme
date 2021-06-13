@@ -3,7 +3,7 @@
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <div class="content">
             <div class="side-panel">
-                <side-nav :account="account" @account:logout="logout()" />
+                <side-nav :account="account" />
             </div>
             <div ref="mainPanel" class="main-panel">
                 <modal v-if="isWidgetOpen" :options="options" @closeModal="closeModal()" />
@@ -12,7 +12,8 @@
                         <top-nav />
                         <router-view :account="account" />
                     </div>
-                    <trending />
+                    <trending v-if="$route.name === 'Videos'" />
+                    <character-recommended v-if="$route.name === 'Character'" />
                 </div>
             </div>
         </div>
@@ -26,6 +27,7 @@ import TopNav from '@/components/common/top-nav';
 import SideNav from '@/components/common/side-nav';
 import Modal from '@/components/common/modal';
 import Trending from '@/components/trending/trending';
+import CharacterRecommended from '@/components/character/character-recommended';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
 
@@ -35,6 +37,7 @@ export default {
     components: {
         'top-nav': TopNav,
         'side-nav': SideNav,
+        'character-recommended': CharacterRecommended,
         modal: Modal,
         trending: Trending
     },
@@ -63,6 +66,8 @@ export default {
         eventbus.$on('account:login', this.setAccount);
         eventbus.$on('video:favorite', this.addFavoriteVideo);
         eventbus.$on('video:unfavorite', this.removeFavoriteVideo);
+        eventbus.$on('account:logout', this.logout);
+
         window.addEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -71,6 +76,8 @@ export default {
         eventbus.$off('account:login', this.setAccount);
         eventbus.$off('video:favorite', this.addFavoriteVideo);
         eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
+        eventbus.$off('account:logout', this.logout);
+
         window.removeEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -144,7 +151,9 @@ export default {
                 .then(() => {
                     this.account = null;
                 })
-                .catch(() => {});
+                .catch(error => {
+                    console.log(error);
+                });
         },
 
         async addFavoriteVideo(video) {

@@ -26,6 +26,7 @@
 
 <script>
 import CharactersService from '@/services/characters-service';
+import TagsService from '@/services/tags-service';
 
 export default {
     name: 'CharacterNav',
@@ -39,11 +40,13 @@ export default {
     data() {
         return {
             name: null,
-            filterOptions: ['All Videos', 'Combo', 'Match'],
+            filterOptions: ['All Videos', 'Combo', 'Match', 'Tags'],
             comboSortOptions: ['Damage', 'Hits'],
             selectedFilter: 'All Videos',
             selectedSort: 'Hits',
-            imageUrl: null
+            selectedTag: null,
+            imageUrl: null,
+            tags: null
         };
     },
 
@@ -67,6 +70,10 @@ export default {
             this.$emit('character-filter:update', this.selectedFilter);
         },
 
+        selectedTag() {
+            this.$emit('character-filter-tag:update', this.selectedTag);
+        },
+
         characterId() {
             this.getCharacter();
         }
@@ -74,6 +81,7 @@ export default {
 
     mounted() {
         this.getCharacter();
+        this.getTags();
     },
 
     methods: {
@@ -83,6 +91,17 @@ export default {
             });
             this.name = response.data.Name;
             this.imageUrl = response.data.ImageUrl;
+        },
+
+        async getTags() {
+            const response = await TagsService.fetchTags();
+            this.tags = response.data.tags.map(tag => {
+                return {
+                    id: tag._id,
+                    name: tag.TagName
+                };
+            });
+            this.selectedTags = this.tags[0];
         }
     }
 };

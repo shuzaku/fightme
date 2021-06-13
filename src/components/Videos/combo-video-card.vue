@@ -1,8 +1,17 @@
 <!-- @format -->
 <template>
     <div ref="videoList">
-        <div class="combo-card card video-card">
-            <div class="video-container">
+        <div v-if="isLoading" />
+        <div v-else class="combo-card card video-card">
+            <div
+                :id="comboId"
+                v-waypoint="{
+                    active: true,
+                    callback: onComboWaypoint,
+                    options: intersectionOptions
+                }"
+                class="video-container"
+            >
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
                     ref="youtubeRef"
@@ -21,7 +30,7 @@
                     <source :src="video.url" type="video/mp4" />
                 </video>
             </div>
-            <div class="card-label">{{ video.contentType }}</div>
+            <div class="card-label">Combo</div>
             <div
                 class="character-bubble"
                 :style="{ backgroundImage: `url('${video.combo.character.imageUrl}')` }"
@@ -37,6 +46,9 @@
             </div>
             <div class="combo-input">
                 <p class="inputs">{{ video.combo.inputs.join(' > ') }}</p>
+            </div>
+            <div class="combo-tags" v-if="video.combo.tags">
+                <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
             </div>
             <div class="admin-controls">
                 <!-- <v-btn @click="editVideo()">
@@ -75,16 +87,17 @@ import CombosService from '@/services/combos-service';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'VideoCard',
+    name: 'NewVideoCard',
     components: {},
 
     props: {
-        video: {
-            type: Object,
+        comboId: {
+            type: String,
             default: null
         },
         value: {
-            type: Boolean
+            type: Boolean,
+            default: false
         }
     },
 
@@ -96,24 +109,39 @@ export default {
 
     data() {
         return {
-            videoCurrentTime: 0
+            videoCurrentTime: 0,
+            isLoading: true,
+            video: {
+                videoType: null,
+                isPlaying: false
+            },
+            intersectionOptions: {
+                root: null,
+                rootMargin: '25% 0px 25% 0px',
+                threshold: 1
+            },
+            player: null
         };
     },
 
     watch: {
-        value() {
+        'video.isPlaying'() {
             if (this.video.videoType === 'uploaded') {
-                if (this.video.isPlaying) {
+                if (this.video.isPlaying === true) {
                     this.$refs.videoRef.play();
                 } else {
                     this.$refs.videoRef.pause();
                 }
             } else if (this.video.videoType === 'youtube' && this.player) {
-                if (this.video.isPlaying) {
+                if (this.video.isPlaying === true) {
                     this.player.playVideo();
                 } else {
                     this.player.pauseVideo();
                 }
+            }
+
+            if (this.value === true && this.video.combo.startTime) {
+                this.setTimer();
             }
         },
 
@@ -121,28 +149,72 @@ export default {
             if (this.videoCurrentTime > parseInt(this.video.combo.endTime)) {
                 this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
             }
-        },
-
-        'video.isPlaying'() {
-            if (this.video.isPlaying && this.video.combo.startTime) {
-                this.setTimer();
-            }
         }
     },
 
-    mounted() {
-        if (this.video.videoType === 'uploaded') {
-            if (this.video.isPlaying) {
-                this.$refs.videoRef.play();
-            }
-        } else if (this.video.videoType === 'youtube') {
-            if (this.video.isPlaying) {
-                // this.player.playVideo();
-            }
-        }
+    created() {
+        this.getCombo();
+        this.playVideo();
     },
 
     methods: {
+        async getCombo() {
+            const response = await CombosService.getCombo(this.comboId);
+            var comboResponse = response.data.combos[0];
+            this.video.combo = {
+                character: {
+                    id: comboResponse.Character._id,
+                    name: comboResponse.Character.Name,
+                    imageUrl: comboResponse.Character.ImageUrl
+                },
+                damage: comboResponse.Damage,
+                hits: comboResponse.Hits,
+                tags:
+                    comboResponse.Tags.length > 0
+                        ? comboResponse.Tags.map(tag => {
+                              return {
+                                  name: tag.TagName,
+                                  id: tag._id
+                              };
+                          })
+                        : null,
+                inputs: comboResponse.Inputs,
+                startTime: null,
+                endtime: null
+            };
+            this.getVideo();
+        },
+
+        async getVideo() {
+            const response = await VideosService.getComboVideo(this.comboId);
+
+            var videoResponse = response.data.videos[0];
+            this.video.url = videoResponse.Url;
+            this.video.videoType = videoResponse.VideoType;
+            this.video.game = {
+                title: videoResponse.Game.Title,
+                logoUrl: videoResponse.Game.LogoUrl,
+                id: videoResponse.Game._id
+            };
+
+            this.video.combo.startTime = parseInt(videoResponse.Combos.StartTime);
+            this.video.combo.endtime = parseInt(videoResponse.Combos.Endtime);
+            this.video.isPlaying = false;
+            this.isLoading = false;
+        },
+
+        playVideo() {
+            if (this.video.videoType === 'uploaded') {
+                if (this.video.isPlaying) {
+                    this.$refs.videoRef.play();
+                }
+            } else if (this.video.videoType === 'youtube') {
+                if (this.video.isPlaying) {
+                    // this.player.playVideo();
+                }
+            }
+        },
+
         ready(event) {
             this.player = event.target;
             if (this.video.isPlaying) {
@@ -171,10 +243,6 @@ export default {
             this.$emit('video:delete', this.video);
         },
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
-        },
-
         queryCharacter(characterId) {
             this.$router.push(`/character/${characterId}`);
         },
@@ -192,8 +260,8 @@ export default {
         },
 
         getTimeStamp() {
-            if (this.$refs.youtubeRef.player) {
-                this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
+            if (this.player) {
+                this.videoCurrentTime = this.player.getCurrentTime();
             }
         },
 
@@ -219,6 +287,18 @@ export default {
         unfavoriteVideo() {
             eventbus.$emit('video:unfavorite', this.video);
             this.video.isFavorited = false;
+        },
+
+        onComboWaypoint({ el, going, direction }) {
+            var objectId = el.id;
+            if (objectId) {
+                if (going === this.$waypointMap.GOING_IN && direction) {
+                    this.video.isPlaying = true;
+                }
+                if (going === this.$waypointMap.GOING_OUT && direction) {
+                    this.video.isPlaying = false;
+                }
+            }
         }
     }
 };
@@ -227,6 +307,7 @@ export default {
 <style>
 .video-card {
     margin: 60px 0;
+    min-height: 446px;
 }
 
 .video-card .character-bubble {
@@ -421,5 +502,18 @@ export default {
 
 #app .video-card .mdi-heart {
     color: #fff;
+}
+
+#app .video-card .tag {
+    background: #3eb489;
+    color: #fff;
+    border-radius: 10px;
+    padding: 3px 10px;
+}
+
+#app .video-card .combo-tags {
+    display: flex;
+    width: 100%;
+    padding: 5px 20px;
 }
 </style>
