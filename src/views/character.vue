@@ -17,11 +17,13 @@
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
+                    :isFirst="video.isFirst"
                     :matchId="video.matchId"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
+                    :isFirst="video.isFirst"
                     :comboId="video.comboId"
                 />
             </div>
@@ -153,9 +155,10 @@ export default {
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isFirst: false
                 });
             });
+            this.videos[0].isFirst = true;
         },
 
         playFirstVideo() {
@@ -179,7 +182,7 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow) {
+            if (bottomOfWindow - 50) {
                 this.queryVideos();
             }
         },

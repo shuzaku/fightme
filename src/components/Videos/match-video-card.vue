@@ -140,6 +140,10 @@ export default {
         value: {
             type: Boolean,
             default: false
+        },
+        isFirst: {
+            type: Boolean,
+            default: false
         }
     },
 
@@ -154,7 +158,7 @@ export default {
             },
             intersectionOptions: {
                 root: null,
-                rootMargin: '25% 0px 25% 0px',
+                rootMargin: '0px 0px 0px 0px',
                 threshold: 1
             },
             player: null
@@ -279,7 +283,7 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying) {
+            if (this.video.isPlaying || this.isFirst) {
                 this.player.playVideo();
                 if (this.video.isPlaying && this.video.startTime) {
                     this.setTimer();
