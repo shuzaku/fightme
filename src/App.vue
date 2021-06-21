@@ -95,10 +95,10 @@ export default {
 
         calculateScreenWidth() {
             this.screenWidth = this.$refs.mainPanel.clientWidth;
-            if (this.screenWidth < 425) {
+            if (this.screenWidth < 1000) {
                 this.isSmallMobile = true;
                 this.isMobile = true;
-            } else if (this.screenWidth < 755) {
+            } else if (this.screenWidth < 1000) {
                 this.isMobile = true;
                 this.isSmallMobile = false;
             } else {
@@ -340,8 +340,7 @@ textarea {
 }
 
 #app.mobile .side-nav {
-    width: initial;
-    padding: 80px 5px;
+    width: 25%;
 }
 
 #app.mobile .videos-container {
@@ -456,7 +455,7 @@ textarea {
     display: none;
 }
 
-@media only screen and (max-width: 1125px) {
+@media only screen and (max-width: 1000px) {
     #app .side-panel {
         width: 70px;
         min-width: 70px;
