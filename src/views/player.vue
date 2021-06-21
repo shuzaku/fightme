@@ -114,7 +114,6 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
-            // this.checkFavorites();
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }

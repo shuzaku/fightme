@@ -8,6 +8,7 @@
             @character-filter:update="applyFilter($event)"
             @character-filter-tag:update="applyTagFilter($event)"
         />
+        <character-recommended v-if="$route.name === 'Character'" />
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -17,12 +18,14 @@
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
+                    :favoriteVideos="account.favoriteVideos"
                     :isFirst="video.isFirst"
                     :matchId="video.matchId"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
+                    :favoriteVideos="account.favoriteVideos"
                     :isFirst="video.isFirst"
                     :comboId="video.comboId"
                 />
@@ -36,6 +39,7 @@ import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import CharacterNav from '@/components/character/character-nav';
+import CharacterRecommended from '@/components/character/character-recommended';
 
 import { eventbus } from '@/main';
 
@@ -45,7 +49,8 @@ export default {
     components: {
         'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard,
-        'character-nav': CharacterNav
+        'character-nav': CharacterNav,
+        'character-recommended': CharacterRecommended
     },
 
     props: {
@@ -142,10 +147,8 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
+            this.isLoading = false;
             // this.checkFavorites();
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
         },
 
         hydrateVideos(response) {
@@ -158,12 +161,9 @@ export default {
                     isFirst: false
                 });
             });
-            this.videos[0].isFirst = true;
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         onWaypoint({ el, going, direction }) {
@@ -221,7 +221,6 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 100px;
     height: 100%;
     flex-direction: column;

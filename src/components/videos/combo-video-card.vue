@@ -102,13 +102,11 @@ export default {
         isFirst: {
             type: Boolean,
             default: false
+        },
+        favoriteVideos: {
+            type: Array,
+            default: null
         }
-    },
-
-    provide() {
-        return {
-            video: this.video
-        };
     },
 
     data() {
@@ -117,7 +115,8 @@ export default {
             isLoading: true,
             video: {
                 videoType: null,
-                isPlaying: false
+                isPlaying: false,
+                isFavorited: false
             },
             intersectionOptions: {
                 root: null,
@@ -203,7 +202,10 @@ export default {
 
             this.video.combo.startTime = parseInt(videoResponse.Combos.StartTime);
             this.video.combo.endTime = parseInt(videoResponse.Combos.Endtime);
+            this.video.combo.id = this.comboId;
             this.video.isPlaying = false;
+            this.video.contentType = 'Combo';
+            this.video.isFavorited = this.favoriteVideos.some(video => video.id === this.comboId);
             this.isLoading = false;
         },
 

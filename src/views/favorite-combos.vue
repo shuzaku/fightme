@@ -9,15 +9,9 @@
             >
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
-                    :id="video.combo.id"
                     v-model="video.isPlaying"
-                    v-waypoint="{
-                        active: true,
-                        callback: onComboWaypoint,
-                        options: intersectionOptions
-                    }"
-                    :video="video"
-                    @video:delete="spliceVideo($event)"
+                    :comboId="video.comboId"
+                    :favoriteVideos="account.favoriteVideos"
                 />
             </div>
         </div>
@@ -65,19 +59,16 @@ export default {
     },
 
     mounted() {
-        this.updateFavorites();
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
-        eventbus.$on('account:update', this.updateFavorites);
     },
 
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
         eventbus.$off('search', this.queryVideos);
-        eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
@@ -108,7 +99,6 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
-            this.checkFavorites();
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
@@ -117,62 +107,17 @@ export default {
         hydrateVideos(response) {
             response.data.videos.forEach(video => {
                 this.videos.push({
-                    id: video._id,
+                    comboId: video.Combo ? video.Combo._id : null,
                     contentType: video.ContentType,
-                    videoType: video.VideoType,
-                    inview: false,
                     isEditing: false,
-                    isPlaying: false,
-                    url: video.Url,
-                    isFavorited: false,
-                    combo: this.getCombos(video.Combo),
-                    game: {
-                        id: video.Game._id,
-                        Title: video.Game.Title,
-                        LogoUrl: video.Game.LogoUrl
-                    }
+                    isPlaying: false
                 });
             });
         },
 
-        getCombos(comboResponse) {
-            return {
-                id: comboResponse._id,
-                inputs: comboResponse.Inputs,
-                hits: comboResponse.Hits,
-                damage: comboResponse.Damage,
-                startTime: comboResponse.StartTime,
-                endTime: comboResponse.EndTime,
-                character: comboResponse.CharacterId
-                    ? {
-                          name: comboResponse.Character.Name,
-                          imageUrl: comboResponse.Character.ImageUrl,
-                          id: comboResponse.Character._id
-                      }
-                    : null
-            };
-        },
-
         playFirstVideo() {
-            var count = this.videos.length < 4 ? this.videos.length - 1 : 3;
-            for (var i = 0; i <= count; i++) {
-                this.videos[i].inview = true;
-            }
             this.videos[0].isPlaying = true;
             this.isLoading = false;
-        },
-
-        onComboWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.combo.id === objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
-            }
         },
 
         handleScroll() {
@@ -191,27 +136,6 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        },
-
-        updateFavorites() {
-            this.favorites = this.account.favoriteVideos.map(video => {
-                return {
-                    contentType: video.contentType,
-                    id: video.id
-                };
-            });
-        },
-
-        checkFavorites() {
-            this.favorites.forEach(favorite => {
-                if (favorite.contentType === 'Combo') {
-                    this.videos.filter(
-                        video => video.combo.id === favorite.id
-                    )[0].isFavorited = true;
-                } else {
-                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
-                }
-            });
         }
     }
 };

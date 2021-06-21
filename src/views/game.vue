@@ -11,11 +11,13 @@
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
+                    :favoriteVideos="account.favoriteVideos"
                     :matchId="video.matchId"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
+                    :favoriteVideos="account.favoriteVideos"
                     :comboId="video.comboId"
                 />
             </div>
@@ -202,7 +204,6 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 100px;
     height: 100%;
     flex-direction: column;

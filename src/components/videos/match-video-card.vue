@@ -144,6 +144,10 @@ export default {
         isFirst: {
             type: Boolean,
             default: false
+        },
+        favoriteVideos: {
+            type: Array,
+            default: null
         }
     },
 
@@ -154,7 +158,8 @@ export default {
             video: {
                 videoType: null,
                 isPlaying: false,
-                url: null
+                url: null,
+                isFavorited: false
             },
             intersectionOptions: {
                 root: null,
@@ -267,6 +272,9 @@ export default {
             this.video.isPlaying = false;
             this.video.id = videoResponse._id;
             this.isLoading = false;
+            this.video.match.id = this.matchId;
+            this.video.contentType = 'Match';
+            this.video.isFavorited = this.favoriteVideos.some(video => video.id === this.video.id);
         },
 
         playVideo() {

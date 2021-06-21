@@ -9,15 +9,9 @@
             >
                 <match-video-card
                     v-if="video.contentType === 'Match'"
-                    :id="video.id"
                     v-model="video.isPlaying"
-                    v-waypoint="{
-                        active: true,
-                        callback: onWaypoint,
-                        options: intersectionOptions
-                    }"
-                    :video="video"
-                    @video:delete="spliceVideo($event)"
+                    :matchId="video.matchId"
+                    :favoriteVideos="account.favoriteVideos"
                 />
             </div>
         </div>
@@ -65,19 +59,16 @@ export default {
     },
 
     mounted() {
-        this.updateFavorites();
         this.queryVideos(this.$route.params);
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
-        eventbus.$on('account:update', this.updateFavorites);
     },
 
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
         eventbus.$off('search', this.queryVideos);
-        eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
@@ -96,7 +87,7 @@ export default {
 
             searchQuery = filteredMatches.map(match => {
                 return {
-                    queryName: '_id',
+                    queryName: 'Id',
                     queryValue: match.id
                 };
             });
@@ -107,98 +98,19 @@ export default {
             };
 
             const response = await VideosService.queryVideos(queryParameter);
+
             this.hydrateVideos(response);
-            this.checkFavorites();
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
         },
 
         hydrateVideos(response) {
             response.data.videos.forEach(video => {
                 this.videos.push({
-                    id: video._id,
+                    matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
-                    videoType: video.VideoType,
-                    inview: false,
                     isEditing: false,
-                    isPlaying: false,
-                    url: video.Url,
-                    isFavorited: false,
-                    game: {
-                        id: video.Game._id,
-                        Title: video.Game.Title,
-                        LogoUrl: video.Game.LogoUrl
-                    },
-                    match: video.Match._id
-                        ? {
-                              id: video.Match._id,
-                              team1Players: video.Match.Team1Players.map(player => {
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: video.Match.Team1Player.filter(
-                                          searchPlayer => searchPlayer._id === player.Id
-                                      )[0].Name,
-                                      characters: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team1PlayerCharacters
-                                      )
-                                  };
-                              }),
-                              team2Players: video.Match.Team2Players.map(player => {
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: video.Match.Team2Player.filter(
-                                          searchPlayer => searchPlayer._id === player.Id
-                                      )[0].Name,
-                                      characters: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team2PlayerCharacters
-                                      )
-                                  };
-                              })
-                          }
-                        : null
+                    isPlaying: false
                 });
             });
-        },
-
-        hydrateCharacters(characterIds, characters) {
-            var playerCharacters = [];
-
-            characterIds.forEach(id => {
-                var filteredCharacter = characters.filter(character => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].ImageUrl
-                });
-            });
-            return playerCharacters;
-        },
-
-        playFirstVideo() {
-            var count = this.videos.length < 4 ? this.videos.length - 1 : 3;
-            for (var i = 0; i <= count; i++) {
-                this.videos[i].inview = true;
-            }
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
-        },
-
-        onWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.id === objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
-            }
         },
 
         handleScroll() {
@@ -217,23 +129,6 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        },
-
-        updateFavorites() {
-            this.favorites = this.account.favoriteVideos.map(video => {
-                return {
-                    contentType: video.contentType,
-                    id: video.id
-                };
-            });
-        },
-
-        checkFavorites() {
-            this.favorites.forEach(favorite => {
-                if (favorite.contentType === 'Match') {
-                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
-                }
-            });
         }
     }
 };

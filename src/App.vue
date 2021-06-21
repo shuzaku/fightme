@@ -27,7 +27,6 @@ import TopNav from '@/components/common/top-nav';
 import SideNav from '@/components/common/side-nav';
 import Modal from '@/components/common/modal';
 import Trending from '@/components/trending/trending';
-import CharacterRecommended from '@/components/character/character-recommended';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
 
@@ -37,7 +36,6 @@ export default {
     components: {
         'top-nav': TopNav,
         'side-nav': SideNav,
-        'character-recommended': CharacterRecommended,
         modal: Modal,
         trending: Trending
     },
@@ -479,6 +477,16 @@ textarea {
 
     #app .trending-container {
         display: none;
+    }
+
+    #app .character-recommended {
+        padding: 0;
+        max-width: 570px;
+        margin: 20px auto;
+    }
+
+    #app .content-container {
+        flex-direction: column-reverse;
     }
 }
 </style>

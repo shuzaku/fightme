@@ -2,12 +2,7 @@
 <template>
     <div class="character-recommended">
         <h3>Filter by tags:</h3>
-        <tag-search
-            v-model="selectedTag"
-            :taggable="false"
-            :multiple="false"
-            @update:tags="setTags($event, combo)"
-        />
+        <tag-search :taggable="false" :multiple="false" @update:tags="setTags($event)" />
     </div>
 </template>
 
@@ -31,7 +26,7 @@ export default {
 
     data() {
         return {
-            selectedTag: null,
+            selectedTag: [],
             tags: null
         };
     },
@@ -55,22 +50,35 @@ export default {
                     name: tag.TagName
                 };
             });
-            this.selectedTags = this.tags[0];
+            this.selectedTags = null;
         },
 
         setTags(tag) {
-            this.selectedTag = tag.id;
+            this.selectedTag = [];
+            this.selectedTag.push(tag.id);
         }
     }
 };
 </script>
 <style type="text/css">
 .character-recommended {
-    padding: 100px 0 50px;
     color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    margin-top: 20px;
 }
 
 .character-recommended h3 {
     margin-bottom: 20px;
+    margin-right: 20px;
+}
+
+.character-recommended .tag-search {
+    width: 300px;
+}
+
+.character-recommended .multiselect__option::after {
+    display: none;
 }
 </style>

@@ -11,6 +11,7 @@
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
                     :comboId="video.comboId"
+                    :favoriteVideos="account.favoriteVideos"
                 />
             </div>
         </div>
@@ -56,21 +57,16 @@ export default {
     },
 
     mounted() {
-        if (this.account) {
-            this.updateFavorites();
-        }
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
-        eventbus.$on('account:update', this.updateFavorites);
     },
 
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
         eventbus.$off('search', this.queryVideos);
-        eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
@@ -101,7 +97,6 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
-            // this.checkFavorites();
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
@@ -123,18 +118,6 @@ export default {
             this.isLoading = false;
         },
 
-        onWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
-            }
-        },
-
         handleScroll() {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
@@ -147,27 +130,6 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        },
-
-        updateFavorites() {
-            this.favorites = this.account.favoriteVideos.map(video => {
-                return {
-                    contentType: video.contentType,
-                    id: video.id
-                };
-            });
-        },
-
-        checkFavorites() {
-            this.favorites.forEach(favorite => {
-                if (favorite.contentType === 'Combo') {
-                    this.videos.filter(
-                        video => video.combo.id === favorite.id
-                    )[0].isFavorited = true;
-                } else {
-                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
-                }
-            });
         }
     }
 };
@@ -178,7 +140,6 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 100px;
     height: 100%;
     flex-direction: column;
