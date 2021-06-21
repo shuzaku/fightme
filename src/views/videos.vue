@@ -11,11 +11,13 @@
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
                     :matchId="video.matchId"
+                    :favoriteVideos="account.favoriteVideos"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
                     :comboId="video.comboId"
+                    :favoriteVideos="account.favoriteVideos"
                 />
             </div>
         </div>

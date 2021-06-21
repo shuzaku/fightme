@@ -4,15 +4,15 @@
         <div class="notations" v-for="notation in notations" :key="notation.name">
             <div class="notation" v-if="notation.name === selectedNotationType">
                 <div class="movement">
-                    <div class="up-back">{{notation.}}</div>
-                    <div class="up"></div>
-                    <div class="up-forward"></div>
-                    <div class="back"></div>
-                    <div class="neutral"></div>
-                    <div class="forward"></div>
-                    <div class="down-back"></div>
-                    <div class="down"></div>
-                    <div class="up-back"></div>
+                    <div class="up-back">{{ notation.upBack }}</div>
+                    <div class="up">{{ notation.up }}</div>
+                    <div class="up-forward">{{ notation.upForward }}</div>
+                    <div class="back">{{ notation.back }}</div>
+                    <div class="neutral">{{ notation.neutral }}</div>
+                    <div class="forward">{{ notation.forward }}</div>
+                    <div class="down-back">{{ notation.downBack }}</div>
+                    <div class="down">{{ notation.down }}</div>
+                    <div class="down forward">{{ notation.upBack }}</div>
                 </div>
             </div>
         </div>
