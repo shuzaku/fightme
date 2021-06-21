@@ -18,14 +18,14 @@
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
-                    :favoriteVideos="account.favoriteVideos"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :matchId="video.matchId"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
-                    :favoriteVideos="account.favoriteVideos"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :comboId="video.comboId"
                 />

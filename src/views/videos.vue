@@ -12,14 +12,14 @@
                     v-model="video.isPlaying"
                     :isFirst="video.isFirst"
                     :matchId="video.matchId"
-                    :favoriteVideos="account.favoriteVideos"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
                     :isFirst="video.isFirst"
                     :comboId="video.comboId"
-                    :favoriteVideos="account.favoriteVideos"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                 />
             </div>
         </div>
@@ -64,10 +64,6 @@ export default {
     },
 
     mounted() {
-        if (this.account) {
-            this.updateFavorites();
-        }
-
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
@@ -79,13 +75,11 @@ export default {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
         eventbus.$off('search', this.queryVideos);
-        eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
         accountUpdate() {
             this.queryVideos();
-            this.updateFavorites();
         },
 
         async queryVideos() {
@@ -145,15 +139,6 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        },
-
-        updateFavorites() {
-            this.favorites = this.account.favoriteVideos.map(video => {
-                return {
-                    contentType: video.contentType,
-                    id: video.id
-                };
-            });
         },
 
         checkFavorites() {

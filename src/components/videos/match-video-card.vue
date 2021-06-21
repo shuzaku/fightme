@@ -92,7 +92,7 @@
             </div>
         </div>
         <div class="admin-controls">
-            <span class="admin-only">
+            <!-- <span class="admin-only">
                 <v-btn @click="editVideo()">
                     <v-icon dark>
                         mdi-wrench
@@ -103,7 +103,7 @@
                         mdi-delete
                     </v-icon>
                 </v-btn>
-            </span>
+            </span> -->
             <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
                 <v-icon light>
                     mdi-heart-outline
@@ -274,7 +274,9 @@ export default {
             this.isLoading = false;
             this.video.match.id = this.matchId;
             this.video.contentType = 'Match';
-            this.video.isFavorited = this.favoriteVideos.some(video => video.id === this.video.id);
+            this.video.isFavorited = this.favoriteVideos
+                ? this.favoriteVideos.some(video => video.id === this.video.id)
+                : null;
         },
 
         playVideo() {

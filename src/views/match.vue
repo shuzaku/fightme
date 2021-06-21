@@ -16,6 +16,7 @@
                         options: intersectionOptions
                     }"
                     :video="video"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                     @video:delete="spliceVideo($event)"
                 />
             </div>

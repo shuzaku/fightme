@@ -11,7 +11,7 @@
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
                     :comboId="video.comboId"
-                    :favoriteVideos="account.favoriteVideos"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                 />
             </div>
         </div>

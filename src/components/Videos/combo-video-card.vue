@@ -205,7 +205,9 @@ export default {
             this.video.combo.id = this.comboId;
             this.video.isPlaying = false;
             this.video.contentType = 'Combo';
-            this.video.isFavorited = this.favoriteVideos.some(video => video.id === this.comboId);
+            this.video.isFavorited = this.favoriteVideos
+                ? this.favoriteVideos.some(video => video.id === this.comboId)
+                : null;
             this.isLoading = false;
         },
 

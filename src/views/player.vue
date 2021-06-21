@@ -6,11 +6,13 @@
                 v-for="(video, index) in videos"
                 :key="index"
                 :class="{ selected: video.selected }"
+                :favoriteVideos="account ? account.favoriteVideos : null"
             >
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
                     :matchId="video.matchId"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                 />
             </div>
         </div>
