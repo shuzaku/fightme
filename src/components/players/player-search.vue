@@ -69,8 +69,8 @@ export default {
             await PlayersService.addPlayer({
                 Name: newPlayer.trim()
             });
-            eventbus.$emit('add:new-player');
             this.getPlayers(newPlayer);
+            eventbus.$emit('add:new-player');
         },
 
         async getPlayers(newPlayer) {

@@ -10,12 +10,14 @@
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
+                    :isFirst="video.isFirst"
                     :matchId="video.matchId"
                     :favoriteVideos="account.favoriteVideos"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
+                    :isFirst="video.isFirst"
                     :comboId="video.comboId"
                     :favoriteVideos="account.favoriteVideos"
                 />
@@ -106,9 +108,12 @@ export default {
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isFirst: false
                 });
             });
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         playFirstVideo() {

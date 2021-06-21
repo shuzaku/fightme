@@ -92,18 +92,18 @@
             </div>
         </div>
         <div class="admin-controls">
-            <!-- <span class="admin-only">
-            <v-btn @click="editVideo()">
-                <v-icon dark>
-                    mdi-wrench
-                </v-icon>
-            </v-btn>
-            <v-btn @click="deleteVideo()">
-                <v-icon dark>
-                    mdi-delete
-                </v-icon>
-            </v-btn>
-            </span> -->
+            <span class="admin-only">
+                <v-btn @click="editVideo()">
+                    <v-icon dark>
+                        mdi-wrench
+                    </v-icon>
+                </v-btn>
+                <v-btn @click="deleteVideo()">
+                    <v-icon dark>
+                        mdi-delete
+                    </v-icon>
+                </v-btn>
+            </span>
             <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
                 <v-icon light>
                     mdi-heart-outline

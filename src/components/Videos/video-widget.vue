@@ -103,7 +103,7 @@
                                     :key="character"
                                 >
                                     <character-search
-                                        v-model="player.characters[i].id"
+                                        v-model="player.characterIds[i]"
                                         :gameId="video.gameId"
                                         @update:character="addCharacterToPlayer($event, player)"
                                     />
@@ -117,7 +117,7 @@
                     <div class="team2">
                         <div v-for="(player, index) in video.match.team2Players" :key="index">
                             <player-search
-                                v-model="video.match.team2Players[index].id"
+                                v-model="player.id"
                                 @update:player="addPlayerToTeam2($event, index)"
                             />
                             <div class="character-container">
@@ -127,7 +127,7 @@
                                     :key="character"
                                 >
                                     <character-search
-                                        v-model="player.characters[i].id"
+                                        v-model="player.characterIds[i]"
                                         :gameId="video.gameId"
                                         @update:character="addCharacterToPlayer($event, player)"
                                     />
@@ -579,7 +579,7 @@ export default {
                                           name: video.Match.Team1Player.filter(
                                               searchPlayer => searchPlayer._id === player.Id
                                           )[0].Name,
-                                          characters: this.hydrateCharacters(
+                                          characterIds: this.hydrateCharacters(
                                               player.CharacterIds,
                                               video.Match.Team1PlayerCharacters
                                           ),
@@ -593,7 +593,7 @@ export default {
                                           name: video.Match.Team2Player.filter(
                                               searchPlayer => searchPlayer._id === player.Id
                                           )[0].Name,
-                                          characters: this.hydrateCharacters(
+                                          characterIds: this.hydrateCharacters(
                                               player.CharacterIds,
                                               video.Match.Team2PlayerCharacters
                                           ),
@@ -606,16 +606,13 @@ export default {
             })[0];
             this.isLoading = false;
         },
+
         hydrateCharacters(characterIds, characters) {
             var playerCharacters = [];
 
             characterIds.forEach(id => {
                 var filteredCharacter = characters.filter(character => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].ImageUrl
-                });
+                playerCharacters.push(filteredCharacter[0]._id);
             });
             return playerCharacters;
         },
