@@ -8,16 +8,11 @@
                 :class="{ selected: video.selected }"
             >
                 <match-video-card
-                    :id="video.id"
+                    v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
-                    v-waypoint="{
-                        active: true,
-                        callback: onWaypoint,
-                        options: intersectionOptions
-                    }"
-                    :video="video"
                     :favoriteVideos="account ? account.favoriteVideos : null"
-                    @video:delete="spliceVideo($event)"
+                    :isFirst="video.isFirst"
+                    :matchId="video.matchId"
                 />
             </div>
         </div>
@@ -72,154 +67,37 @@ export default {
     },
 
     methods: {
-        async queryVideos(query) {
-            var searchQuery = [];
-            var searchParameter = query || this.savedQuery;
-
-            if (this.savedQuery !== searchParameter) {
-                this.videos = [];
-                this.savedQuery = query;
-            }
-
-            if (searchParameter) {
-                if (searchParameter.queryName === 'Game') {
-                    searchQuery = [
-                        {
-                            queryName: 'GameId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Player') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1Id',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2Id',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-                if (searchParameter.queryName === 'Character') {
-                    searchQuery = [
-                        {
-                            queryName: 'Player1CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Player2CharacterId',
-                            queryValue: searchParameter.queryValue
-                        },
-                        {
-                            queryName: 'Combo.CharacterId',
-                            queryValue: searchParameter.queryValue
-                        }
-                    ];
-                }
-            }
-
-            searchQuery.push({
-                queryName: 'Id',
-                queryValue: this.videoId
-            });
-
+        async queryVideos() {
             var queryParameter = {
                 skip: this.skip,
-                searchQuery: searchQuery
+                sortOption: this.sort,
+                filter: this.filter,
+                tagFilter: this.tagFilter,
+                searchQuery: [
+                    {
+                        queryName: 'Id',
+                        queryValue: this.videoId
+                    }
+                ]
             };
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
-        },
-
-        playFirstVideo() {
-            var count = this.videos.length < 4 ? this.videos.length - 1 : 3;
-            for (var i = 0; i <= count; i++) {
-                this.videos[i].inview = true;
-            }
-            this.videos[0].isPlaying = true;
             this.isLoading = false;
         },
 
         hydrateVideos(response) {
             response.data.videos.forEach(video => {
                 this.videos.push({
-                    id: video._id,
+                    comboId: video.Combo ? video.Combo._id : null,
+                    matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
-                    videoType: video.VideoType,
-                    inview: false,
                     isEditing: false,
-                    isPlaying: false,
-                    url: video.Url,
-                    game: {
-                        id: video.Game._id,
-                        Title: video.Game.Title,
-                        LogoUrl: video.Game.LogoUrl
-                    },
-                    match: video.Match._id
-                        ? {
-                              id: video.Match._id,
-                              team1Players: video.Match.Team1Players.map(player => {
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: video.Match.Team1Player.filter(
-                                          searchPlayer => searchPlayer._id === player.Id
-                                      )[0].Name,
-                                      characters: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team1PlayerCharacters
-                                      )
-                                  };
-                              }),
-                              team2Players: video.Match.Team2Players.map(player => {
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: video.Match.Team2Player.filter(
-                                          searchPlayer => searchPlayer._id === player.Id
-                                      )[0].Name,
-                                      characters: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team2PlayerCharacters
-                                      )
-                                  };
-                              })
-                          }
-                        : null
+                    isFirst: false
                 });
             });
-        },
-
-        hydrateCharacters(characterIds, characters) {
-            var playerCharacters = [];
-
-            characterIds.forEach(id => {
-                var filteredCharacter = characters.filter(character => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].ImageUrl
-                });
-            });
-            return playerCharacters;
-        },
-
-        onWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.id == objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
             }
         },
 
@@ -230,10 +108,6 @@ export default {
             if (bottomOfWindow) {
                 this.queryVideos();
             }
-        },
-
-        spliceVideo(video) {
-            this.videos.splice(this.videos.indexOf(video), 1);
         },
 
         addedNewVideo() {
