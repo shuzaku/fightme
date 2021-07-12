@@ -54,7 +54,8 @@ export default {
             query: null,
             savedQuery: null,
             favorites: [],
-            error: null
+            error: null,
+            results: null
         };
     },
 
@@ -164,7 +165,7 @@ export default {
 &channelId=UCVsmYrE8-v3VS7XWg3cXp9g&part=snippet,id&order=date&maxResults=20`;
                 const response = await this.axios.get(url);
                 const results = response.data.results;
-                console.log(results);
+                this.results = results;
             } catch (err) {
                 this.error = err;
             }
