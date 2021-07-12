@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="players-view" v-if="results">{{{results}}}</div>
+    <div ref="videoViewRef" class="players-view" v-if="results">{{ results }}</div>
 </template>
 
 <script>
