@@ -53,7 +53,8 @@ export default {
             loading: true,
             query: null,
             savedQuery: null,
-            favorites: []
+            favorites: [],
+            error: null
         };
     },
 
@@ -165,15 +166,7 @@ export default {
                 const results = response.data.results;
                 console.log(results);
             } catch (err) {
-                if (err.response) {
-                    // client received an error response (5xx, 4xx)
-                    console.log('Server Error:', err);
-                } else if (err.request) {
-                    // client never received a response, or request never left
-                    console.log('Network Error:', err);
-                } else {
-                    console.log('Client Error:', err);
-                }
+                this.error = err;
             }
         }
     }
