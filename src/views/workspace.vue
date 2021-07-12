@@ -1,14 +1,9 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="players-view">
-        <v-btn @click="createMatches()">Create</v-btn>
-        <v-btn @click="post()">Post</v-btn>
-    </div>
+    <div ref="videoViewRef" class="players-view" v-if="results">{{{results}}}</div>
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
-
 export default {
     name: 'Videos',
 
@@ -16,149 +11,26 @@ export default {
 
     data() {
         return {
-            videos: [],
-            matches: [],
-            skip: 0
+            results: null,
+            error: null
         };
     },
 
     mounted() {
-        this.queryVideos();
+        this.fetch();
     },
 
     methods: {
-        async queryVideos() {
-            var searchQuery = [];
-
-            searchQuery.push({
-                queryName: 'ContentType',
-                queryValue: 'Match'
-            });
-
-            var queryParameter = {
-                skip: this.skip,
-                searchQuery: searchQuery
-            };
-
-            const response = await VideosService.queryVideos(queryParameter);
-            this.hydrateVideos(response);
-        },
-
-        hydrateVideos(response) {
-            response.data.videos.forEach(video => {
-                this.videos.push({
-                    id: video._id,
-                    contentType: video.ContentType,
-                    contentCreatorId: video.ContentCreatorId,
-                    videoType: video.VideoType,
-                    url: video.Url,
-                    startTime: video.StartTime,
-                    endTime: video.EndTime,
-                    gameId: video.GameId,
-                    match:
-                        video.Player1Id && video.Player2Id
-                            ? {
-                                  player1: {
-                                      id: video.Player1Id,
-                                      name: video.Player1.Name,
-                                      character: {
-                                          id: video.Player1CharacterId,
-                                          name: video.Player1Character.Name,
-                                          imageUrl: video.Player1Character.ImageUrl
-                                      },
-                                      character2: video.Player1Character2Id
-                                          ? {
-                                                id: video.Player1Character2Id,
-                                                name: video.Player1Character2.Name,
-                                                imageUrl: video.Player1Character2.ImageUrl
-                                            }
-                                          : null,
-                                      character3: video.Player1Character3Id
-                                          ? {
-                                                id: video.Player1Character3Id,
-                                                name: video.Player1Character3.Name,
-                                                imageUrl: video.Player1Character3.ImageUrl
-                                            }
-                                          : null
-                                  },
-                                  player2: {
-                                      id: video.Player2Id,
-                                      name: video.Player2.Name,
-                                      character: {
-                                          id: video.Player2CharacterId,
-                                          name: video.Player2Character.Name,
-                                          imageUrl: video.Player2Character.ImageUrl
-                                      },
-                                      character2: video.Player2Character2Id
-                                          ? {
-                                                id: video.Player2Character2Id,
-                                                name: video.Player2Character2.Name,
-                                                imageUrl: video.Player2Character2.ImageUrl
-                                            }
-                                          : null,
-                                      character3: video.Player2Character3Id
-                                          ? {
-                                                id: video.Player2Character3Id,
-                                                name: video.Player2Character3.Name,
-                                                imageUrl: video.Player2Character3.ImageUrl
-                                            }
-                                          : null
-                                  }
-                                  // winner: video.Match.Winner,
-                                  // tournamentId: video.Match.TournamentId,
-                              }
-                            : null,
-                    tags: video.Tags.map(tag => {
-                        return {
-                            id: tag._id,
-                            name: tag.TagName
-                        };
-                    }),
-                    inview: false,
-                    isPlaying: false,
-                    isEditing: false
-                });
-            });
-        },
-
-        createMatches() {
-            this.matches = this.videos.map(video => {
-                var player1Characters = [video.match.player1.character.id];
-                var player2Characters = [video.match.player2.character.id];
-
-                if (video.match.player1.character2) {
-                    player1Characters.push(video.match.player1.character2.id);
-                }
-                if (video.match.player1.character3) {
-                    player1Characters.push(video.match.player1.character3.id);
-                }
-
-                if (video.match.player2.character2) {
-                    player2Characters.push(video.match.player2.character2.id);
-                }
-                if (video.match.player2.character3) {
-                    player2Characters.push(video.match.player2.character3.id);
-                }
-
-                return {
-                    Team1Players: [
-                        {
-                            Id: video.match.player1.id,
-                            CharacterIds: player1Characters,
-                            Slot: 1
-                        }
-                    ],
-                    Team2Players: [
-                        {
-                            Id: video.match.player2.id,
-                            CharacterIds: player2Characters,
-                            Slot: 2
-                        }
-                    ],
-                    VideoUrl: video.url,
-                    GameId: video.gameId
-                };
-            });
+        async fetch() {
+            try {
+                const url = `https://www.googleapis.com/youtube/v3/search?key=936424237721-3988kr9bnjlqbmrsfu45nnm4ueba6pqc.apps.googleusercontent.com
+&channelId=UCVsmYrE8-v3VS7XWg3cXp9g&part=snippet,id&order=date&maxResults=20`;
+                const response = await this.axios.get(url);
+                const results = response.data.results;
+                this.results = results;
+            } catch (err) {
+                this.error = err;
+            }
         }
     }
 };
