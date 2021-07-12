@@ -63,6 +63,10 @@ export default {
         }
     },
 
+    created() {
+        this.fetch();
+    },
+
     mounted() {
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
@@ -151,6 +155,26 @@ export default {
                     this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
                 }
             });
+        },
+
+        async fetch() {
+            try {
+                const url = `https://www.googleapis.com/youtube/v3/search?key=936424237721-3988kr9bnjlqbmrsfu45nnm4ueba6pqc.apps.googleusercontent.com
+&channelId=UCVsmYrE8-v3VS7XWg3cXp9g&part=snippet,id&order=date&maxResults=20`;
+                const response = await this.axios.get(url);
+                const results = response.data.results;
+                console.log(results);
+            } catch (err) {
+                if (err.response) {
+                    // client received an error response (5xx, 4xx)
+                    console.log('Server Error:', err);
+                } else if (err.request) {
+                    // client never received a response, or request never left
+                    console.log('Network Error:', err);
+                } else {
+                    console.log('Client Error:', err);
+                }
+            }
         }
     }
 };
