@@ -119,13 +119,16 @@ export default {
                 id: response.data.account[0]._id,
                 displayName: response.data.account[0].DisplayName,
                 email: response.data.account[0].Email,
-                favoriteVideos: response.data.account[0].FavoriteVideos.map(video => {
-                    return {
-                        contentType: video.ContentType,
-                        id: video.Id
-                    };
-                }),
-                collections: response.data.account[0].Collections
+                favoriteVideos: response.data.account[0].FavoriteVideos
+                    ? response.data.account[0].FavoriteVideos.map(video => {
+                          return {
+                              contentType: video.ContentType,
+                              id: video.Id
+                          };
+                      })
+                    : [],
+                collections: response.data.account[0].Collections,
+                role: response.data.account[0].AccountType
             };
 
             this.setAccount(account);
@@ -295,7 +298,7 @@ export default {
 }
 
 #app .main-content-container {
-    max-width: 700px;
+    /* max-width: 700px; */
     border-right: 1px dashed #3eb489;
     margin-right: 50px;
     padding: 0 40px;

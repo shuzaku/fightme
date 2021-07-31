@@ -6,6 +6,10 @@ export default {
     return Api().post('matches', params)
   },
 
+  addMatches(params) {
+    return Api().post('matches?bulk=true', params)
+  },
+
   fetchMatches() {
     return Api().get('matches')
   },

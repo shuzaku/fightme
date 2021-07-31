@@ -47,6 +47,12 @@ export default {
         };
     },
 
+    watch: {
+        value() {
+            this.getGames();
+        }
+    },
+
     mounted() {
         this.getGames();
     },

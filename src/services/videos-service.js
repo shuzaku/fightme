@@ -10,6 +10,10 @@ export default {
     return Api().post('video', params)
   },
   
+  addVideos (params) {
+    return Api().post('video?bulk=true', params)
+  },
+
   queryVideos (params) {
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];

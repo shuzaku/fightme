@@ -1,18 +1,27 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="favorite-matches-view">
+    <div class="favorite-matches-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
                 :class="{ selected: video.selected }"
             >
+                <match-video-card
+                    v-if="video.contentType === 'Match'"
+                    v-model="video.isPlaying"
+                    :isFirst="video.isFirst"
+                    :matchId="video.id"
+                    :account="account"
+                    :favoriteVideos="account.favoriteVideos"
+                />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
-                    :comboId="video.comboId"
+                    :isFirst="video.isFirst"
+                    :comboId="video.id"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
                     :account="account"
-                    :favoriteVideos="account.favoriteVideos"
                 />
             </div>
         </div>
@@ -20,14 +29,18 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
+
+import CollectionsService from '@/services/collections-service';
+
 import { eventbus } from '@/main';
 
 export default {
-    name: 'FavoriteCombos',
+    name: 'Collection',
 
     components: {
+        'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard
     },
 
@@ -49,6 +62,9 @@ export default {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
                 threshold: 1
+            },
+            collection: {
+                id: this.$route.params.id
             }
         };
     },
@@ -60,7 +76,7 @@ export default {
     },
 
     mounted() {
-        this.queryVideos();
+        this.getCollection(this.$route.params);
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
@@ -73,52 +89,16 @@ export default {
     },
 
     methods: {
-        async queryVideos(query) {
-            var searchQuery = null;
-            var searchParameter = query || this.savedQuery;
-
-            if (this.savedQuery !== searchParameter) {
-                this.videos = [];
-                this.savedQuery = query;
-            }
-
-            var filteredCombos = this.account.favoriteVideos.filter(
-                video => video.contentType === 'Combo'
-            );
-
-            searchQuery = filteredCombos.map(combo => {
+        async getCollection() {
+            const response = await CollectionsService.queryCollection(this.collection.id);
+            this.videos = response.data.collection[0].Videos.map(video => {
                 return {
-                    queryName: 'ComboId',
-                    queryValue: combo.id
-                };
-            });
-
-            var queryParameter = {
-                skip: this.skip,
-                searchQuery: searchQuery
-            };
-
-            const response = await VideosService.queryVideos(queryParameter);
-            this.hydrateVideos(response);
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
-        },
-
-        hydrateVideos(response) {
-            response.data.videos.forEach(video => {
-                this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
+                    id: video.Id,
                     contentType: video.ContentType,
                     isEditing: false,
                     isPlaying: false
-                });
+                };
             });
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
         },
 
         handleScroll() {
@@ -143,7 +123,7 @@ export default {
 </script>
 
 <style>
-.favorite-matches-view {
+.videos-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -153,29 +133,29 @@ export default {
     overflow: hidden;
 }
 
-.favorite-matches-view::-webkit-scrollbar-track {
+.videos-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.favorite-matches-view::-webkit-scrollbar {
+.videos-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.favorite-matches-view::-webkit-scrollbar-thumb {
+.videos-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.favorite-matches-view .videos-container {
+.videos-view .videos-container {
     position: relative;
     padding: 0 40px;
 }
 
-.favorite-matches-view .videos-container video {
+.videos-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

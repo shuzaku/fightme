@@ -16,6 +16,7 @@
                         options: intersectionOptions
                     }"
                     :video="video"
+                    :account="account"
                     @video:delete="spliceVideo($event)"
                 />
             </div>

@@ -7,12 +7,14 @@
                 :key="index"
                 :class="{ selected: video.selected }"
                 :favoriteVideos="account ? account.favoriteVideos : null"
+                :account="account"
             >
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
                     :matchId="video.matchId"
                     :favoriteVideos="account ? account.favoriteVideos : null"
+                    :account="account"
                 />
             </div>
         </div>
