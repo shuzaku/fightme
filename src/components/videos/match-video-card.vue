@@ -92,6 +92,14 @@
             </div>
         </div>
         <div class="admin-controls">
+            <collection-search
+                v-if="account"
+                v-model="video.match.collections"
+                :account="account"
+                multiple
+                @update:collection="updateCollections($event, video)"
+            />
+
             <!-- <span class="admin-only">
                 <v-btn @click="editVideo()">
                     <v-icon dark>
@@ -126,11 +134,15 @@
 <script>
 import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
+import CollectionSearch from '@/components/collection/collection-search';
+import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
 
 export default {
     name: 'VideoCard',
-    components: {},
+    components: {
+        'collection-search': CollectionSearch
+    },
 
     props: {
         matchId: {
@@ -147,6 +159,10 @@ export default {
         },
         favoriteVideos: {
             type: Array,
+            default: null
+        },
+        account: {
+            type: Object,
             default: null
         }
     },
@@ -166,7 +182,8 @@ export default {
                 rootMargin: '0px 0px 0px 0px',
                 threshold: 1
             },
-            player: null
+            player: null,
+            collections: null
         };
     },
 
@@ -205,6 +222,7 @@ export default {
     },
 
     created() {
+        this.getCollections();
         this.getMatch();
         this.playVideo();
     },
@@ -239,7 +257,8 @@ export default {
                             matchResponse.Team2PlayerCharacters
                         )
                     };
-                })
+                }),
+                collections: this.assignCollection(this.matchId)
             };
             this.video.url = matchResponse.VideoUrl;
             this.getVideo();
@@ -359,6 +378,89 @@ export default {
                 if (going === this.$waypointMap.GOING_OUT && direction) {
                     this.video.isPlaying = false;
                 }
+            }
+        },
+
+        updateCollections(collections) {
+            var collectionIds = collections.map(collection => {
+                return collection.id;
+            });
+
+            var comboObject = { id: this.matchId, contentType: 'Match' };
+
+            this.collections.forEach(collection => {
+                var collectionHasVideo = collection.videos.some(videos => {
+                    return videos.id === this.matchId;
+                });
+
+                var collectionShouldHaveVideo = collectionIds.some(collectionId => {
+                    return collectionId === collection.id;
+                });
+
+                if (collectionShouldHaveVideo && !collectionHasVideo) {
+                    collection.videos.push(comboObject);
+                    this.patchCollection(collection);
+                } else if (!collectionShouldHaveVideo && collectionHasVideo) {
+                    collection.videos = collection.videos.splice(
+                        collection.videos.indexOf(comboObject),
+                        1
+                    );
+                    this.patchCollection(collection);
+                }
+            });
+        },
+
+        async patchCollection(collection) {
+            var patchRequest = {
+                id: collection.id,
+                Videos: collection.videos,
+                Name: collection.name
+            };
+
+            await CollectionsService.updateCollection(patchRequest);
+        },
+
+        async getCollections() {
+            var searchQuery = [
+                {
+                    queryName: 'OwnerId',
+                    queryValue: this.account.id
+                }
+            ];
+
+            var queryParameter = {
+                skip: this.skip,
+                searchQuery: searchQuery
+            };
+
+            const response = await CollectionsService.queryCollections(queryParameter);
+            this.collections = response.data.collections.map(collection => {
+                return {
+                    id: collection._id,
+                    name: collection.Name,
+                    ownerId: collection.OwnerId,
+                    videos: collection.Videos.map(video => {
+                        return {
+                            id: video.Id,
+                            contentType: video.ContentType
+                        };
+                    })
+                };
+            });
+        },
+
+        assignCollection() {
+            if (this.collections) {
+                var collections = [];
+                this.collections.forEach(collection => {
+                    var hasVideo = collection.videos.some(video => {
+                        return video.id === this.matchId;
+                    });
+                    if (hasVideo) {
+                        collections.push(collection.id);
+                    }
+                });
+                return collections;
             }
         }
     }

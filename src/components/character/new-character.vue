@@ -4,23 +4,23 @@
         <h1>Add Character</h1>
         <div class="form">
             <div class="character-container">
-                <div class="character-img-container" v-if="imageUrl">
+                <div v-if="imageUrl" class="character-img-container">
                     <img :src="imageUrl" class="character-img" />
                     <v-btn @click="imageUrl = ''">X</v-btn>
                 </div>
                 <input
+                    v-model="characterName"
                     type="text"
                     name="name"
                     placeholder="Character Name"
-                    v-model="characterName"
                 />
                 <input
                     id="import-image"
-                    type="text"
                     v-model="imageUrl"
+                    type="text"
                     placeholder="Character Image Url"
                 />
-                <game-search v-model="game" @update:game="setGame($event)" />
+                <game-search v-model="game.id" @update:game="setGame($event)" />
             </div>
             <div>
                 <v-btn class="submit-btn" rounded @click="addCharacter()">Submit</v-btn>
@@ -35,7 +35,7 @@ import CharactersService from '@/services/characters-service';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'NewGame',
+    name: 'NewCharacter',
 
     components: {
         'game-search': GameSearch
@@ -44,9 +44,17 @@ export default {
     data() {
         return {
             characterName: '',
-            game: null,
+            game: {
+                name: null,
+                id: null,
+                imageUrl: null
+            },
             imageUrl: null
         };
+    },
+
+    created() {
+        this.getPlayer();
     },
 
     methods: {
@@ -64,10 +72,6 @@ export default {
         setGame(game) {
             this.game = game;
         }
-    },
-
-    created() {
-        this.getPlayer();
     }
 };
 </script>

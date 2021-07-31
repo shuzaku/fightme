@@ -11,6 +11,7 @@
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
                     :matchId="video.matchId"
+                    :account="account"
                     :favoriteVideos="account.favoriteVideos"
                 />
             </div>

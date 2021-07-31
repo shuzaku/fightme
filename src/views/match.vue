@@ -13,6 +13,7 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :matchId="video.matchId"
+                    :account="account"
                 />
             </div>
         </div>

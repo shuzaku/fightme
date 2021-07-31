@@ -21,6 +21,7 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :matchId="video.matchId"
+                    :account="account"
                 />
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
@@ -28,6 +29,7 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :comboId="video.comboId"
+                    :account="account"
                 />
             </div>
         </div>

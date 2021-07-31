@@ -30,6 +30,7 @@ import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import { faHandRock } from '@fortawesome/free-solid-svg-icons'
 import { faHeart } from '@fortawesome/free-solid-svg-icons'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
+import { faBook } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faRss)
 library.add(faFontAwesome)
@@ -43,6 +44,7 @@ library.add(faPlusCircle)
 library.add(faHandRock)
 library.add(faDiscord)
 library.add(faHeart)
+library.add(faBook)
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 

@@ -64,21 +64,27 @@
                     </router-link>
                 </div>
             </div>
-            <div class="menu-item">
-                <!-- <div class="menu-heading" @click="toggleDropDown()">
+            <div v-if="account && account.role === 'Admin User'" class="menu-item">
+                <div class="menu-heading" @click="toggleDropDown()">
                     <font-awesome-icon icon="plus-circle" /><span>Add</span>
-                </div> -->
+                </div>
+                <div v-if="isDropDownOpen" class="add-content-dropdown">
+                    <ul>
+                        <li
+                            v-for="create in createOptions"
+                            :key="create.value"
+                            @click="openCreateWidget(create.value)"
+                        >
+                            {{ create.name }}
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div v-if="isDropDownOpen" class="add-content-dropdown">
-                <ul>
-                    <li
-                        v-for="create in createOptions"
-                        :key="create.value"
-                        @click="openCreateWidget(create.value)"
-                    >
-                        {{ create.name }}
-                    </li>
-                </ul>
+            <div v-if="account && account.role === 'Admin User'" class="menu-item collection">
+                <div class="menu-heading" @click="toggleCollections()">
+                    <font-awesome-icon icon="book" />
+                    <span> <collection-search :account="account" /> </span>
+                </div>
             </div>
         </div>
         <div class="bottom-section">
@@ -96,7 +102,7 @@
 <script>
 import { eventbus } from '@/main';
 import user from '@/components/account/user';
-
+import CollectionSearch from '@/components/collection/collection-search';
 // import recommendation from '@/components/common/recommendation';
 
 export default {
@@ -104,7 +110,8 @@ export default {
 
     components: {
         // recommendation: recommendation
-        user: user
+        user: user,
+        'collection-search': CollectionSearch
     },
 
     props: {
@@ -134,6 +141,7 @@ export default {
         return {
             isDropDownOpen: false,
             showFavorites: false,
+            showCollections: false,
             createOptions: [
                 {
                     name: 'Video',
@@ -167,6 +175,11 @@ export default {
         toggleFavorites() {
             this.showFavorites = !this.showFavorites;
         },
+
+        toggleCollections() {
+            this.showCollections = !this.showCollections;
+        },
+
         openCreateWidget(createType) {
             eventbus.$emit('open:widget', {
                 name: createType
@@ -209,6 +222,10 @@ export default {
     text-decoration: none;
     display: flex;
     align-items: center;
+}
+
+.side-nav .menu-item.collection .menu-heading:hover {
+    opacity: 1;
 }
 
 .side-nav .menu-item .menu-heading:hover {
@@ -295,5 +312,31 @@ export default {
 .side-nav .sub-menu .menu-heading {
     font-size: 12px;
     margin-left: 40px;
+}
+
+.side-nav .multiselect__single {
+    background: transparent;
+    color: #3eb489;
+}
+
+.side-nav .menu-item.collection .menu-heading:hover .multiselect__placeholder {
+    color: #fff;
+}
+
+.side-nav .collection-search .multiselect {
+    margin-bottom: 0px;
+}
+
+.side-nav .collection-search .multiselect__placeholder {
+    color: #3eb489;
+    font-size: 20px;
+}
+
+.side-nav .collection-search .multiselect__tags {
+    border: 0;
+}
+
+.side-nav .collection-search .multiselect__placeholder {
+    padding-left: 0;
 }
 </style>
