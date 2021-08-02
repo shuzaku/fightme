@@ -20,6 +20,7 @@
                     :player-height="313"
                     :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
                     :mute="true"
+                    :playsinline="1"
                     @ready="ready"
                 />
             </div>
