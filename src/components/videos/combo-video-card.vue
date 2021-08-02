@@ -24,6 +24,7 @@
                         end: video.combo.endTime
                     }"
                     :mute="true"
+                    :playsinline="1"
                     @ready="ready"
                 />
                 <video v-else ref="videoRef" loop controls muted>
