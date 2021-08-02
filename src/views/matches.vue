@@ -45,7 +45,7 @@ export default {
             query: null,
             savedQuery: null,
             favorites: [],
-            filter: null,
+            filter: 'Match',
             sort: null
         };
     },
@@ -76,6 +76,7 @@ export default {
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
+        eventbus.$on('filter', this.applyFilter);
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('account:update', this.updateFavorites);
     },
@@ -83,7 +84,8 @@ export default {
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('search', this.queryVideos);
+        eventbus.$off('filter', this.applyFilter);
+        eventbus.$on('search', this.queryVideos);
         eventbus.$off('account:update', this.updateFavorites);
     },
 
@@ -96,22 +98,20 @@ export default {
 
         applyFilter(filter) {
             this.videos = [];
-            this.filter = filter;
-            this.queryVideos();
+            this.queryVideos(filter);
         },
 
-        async queryVideos() {
+        async queryVideos(query) {
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
                 filter: this.filter,
-                searchQuery: [
-                    {
-                        queryName: 'ContentType',
-                        queryValue: 'Match'
-                    }
-                ]
+                searchQuery: []
             };
+
+            if (query) {
+                queryParameter.searchQuery.push(query);
+            }
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);

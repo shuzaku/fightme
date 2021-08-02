@@ -50,6 +50,10 @@ export default {
     watch: {
         selectedFilter() {
             this.$emit('game-filter:update', this.selectedFilter);
+        },
+
+        gameId() {
+            this.getGame();
         }
     },
 

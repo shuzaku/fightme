@@ -10,12 +10,17 @@
             :taggable="taggable"
             :multiple="multiple"
             track-by="id"
-            placeholder="Collections"
+            placeholder="Select or Add Collections"
             tag-placeholder="Add this as new tag"
             label="name"
             @tag="addCollection"
             @remove="remove()"
         >
+            <template slot="selection" slot-scope="{ values, search, isOpen }"
+                ><span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen"
+                    >{{ values.length }} options selected</span
+                ></template
+            >
         </multiselect>
     </div>
 </template>
@@ -176,5 +181,10 @@ export default {
 
 .collection-search .multiselect__option::after {
     display: none;
+}
+
+.collection-search .multiselect__option--selected {
+    background: #3eb489;
+    color: #fff;
 }
 </style>

@@ -16,35 +16,12 @@ import _ from 'lodash';
 import firebase from 'firebase/app'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faFontAwesome } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-import { faRss } from '@fortawesome/free-solid-svg-icons'
-import { faGamepad } from '@fortawesome/free-solid-svg-icons'
-import { faUsers } from '@fortawesome/free-solid-svg-icons'
-import { faMeteor } from '@fortawesome/free-solid-svg-icons'
-import { faNetworkWired } from '@fortawesome/free-solid-svg-icons'
-import { faVideo } from '@fortawesome/free-solid-svg-icons'
-import { faYinYang } from '@fortawesome/free-solid-svg-icons'
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'
-import { faHandRock } from '@fortawesome/free-solid-svg-icons'
-import { faHeart } from '@fortawesome/free-solid-svg-icons'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
-import { faBook } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faRss)
-library.add(faFontAwesome)
-library.add(faGamepad)
-library.add(faUsers)
-library.add(faMeteor)
-library.add(faNetworkWired)
-library.add(faVideo)
-library.add(faYinYang)
-library.add(faPlusCircle)
-library.add(faHandRock)
+
 library.add(faDiscord)
-library.add(faHeart)
-library.add(faBook)
+
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 

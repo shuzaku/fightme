@@ -93,13 +93,21 @@
         </div>
         <div class="admin-controls">
             <collection-search
-                v-if="account"
-                v-model="video.match.collections"
+                v-if="showCollections"
+                v-model="video.collections"
                 :account="account"
                 multiple
                 @update:collection="updateCollections($event, video)"
             />
-
+            <v-btn
+                v-if="account"
+                class="favorite-button"
+                @click="showCollections = !showCollections"
+            >
+                <v-icon light>
+                    mdi-plus
+                </v-icon>
+            </v-btn>
             <!-- <span class="admin-only">
                 <v-btn @click="editVideo()">
                     <v-icon dark>
@@ -183,7 +191,8 @@ export default {
                 threshold: 1
             },
             player: null,
-            collections: null
+            collections: null,
+            showCollections: false
         };
     },
 
@@ -461,6 +470,8 @@ export default {
                     }
                 });
                 return collections;
+            } else {
+                return [];
             }
         }
     }
