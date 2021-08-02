@@ -23,6 +23,11 @@
         <register v-if="options.name === 'register'" @closeModal="closeModal()" />
 
         <login v-if="options.name === 'login'" @closeModal="closeModal()" />
+        <collections
+            v-if="options.name === 'collections'"
+            :account="account"
+            @closeModal="closeModal()"
+        />
     </div>
 </template>
 
@@ -35,6 +40,7 @@ import newTournament from '@/components/tournament/new-tournament';
 import newCharacter from '@/components/character/new-character';
 import register from '@/components/account/register';
 import login from '@/components/account/login';
+import collections from '@/components/collection/collections';
 
 export default {
     name: 'Modal',
@@ -47,11 +53,16 @@ export default {
         'new-tournament': newTournament,
         'new-character': newCharacter,
         register: register,
-        login: login
+        login: login,
+        collections: collections
     },
 
     props: {
         options: {
+            type: Object,
+            default: null
+        },
+        account: {
             type: Object,
             default: null
         }

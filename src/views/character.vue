@@ -196,7 +196,7 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    padding-top: 100px;
+    padding-top: 20px;
     height: 100%;
     flex-direction: column;
 }

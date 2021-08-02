@@ -52,13 +52,21 @@
             </div>
             <div class="admin-controls">
                 <collection-search
-                    v-if="account"
+                    v-if="showCollections"
                     v-model="video.collections"
                     :account="account"
                     multiple
                     @update:collection="updateCollections($event, video)"
                 />
-
+                <v-btn
+                    v-if="account"
+                    class="favorite-button"
+                    @click="showCollections = !showCollections"
+                >
+                    <v-icon light>
+                        mdi-plus
+                    </v-icon>
+                </v-btn>
                 <!-- <v-btn @click="editVideo()">
                     <v-icon dark>
                         mdi-wrench
@@ -141,7 +149,8 @@ export default {
                 threshold: 1
             },
             player: null,
-            collections: null
+            collections: null,
+            showCollections: false
         };
     },
 
@@ -174,9 +183,9 @@ export default {
     },
 
     created() {
+        this.getCollections();
         this.getCombo();
         this.playVideo();
-        this.getCollections();
     },
 
     methods: {
@@ -410,6 +419,13 @@ export default {
                 });
                 return collections;
             }
+        },
+
+        openCollections(video) {
+            eventbus.$emit('open:widget', {
+                name: 'collections',
+                video: video
+            });
         }
     }
 };

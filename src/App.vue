@@ -2,14 +2,27 @@
 <template>
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <div class="content">
-            <div class="side-panel">
-                <side-nav :account="account" />
+            <div class="side-panel" :class="{ menuActive: showMobileMenu }">
+                <!-- <side-nav :account="account" /> -->
+                <new-nav :account="account" />
+                <div class="mobile-bar" v-if="isSmallMobile">
+                    <v-list-item-avatar>
+                        <v-img
+                            src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
+                        ></v-img>
+                    </v-list-item-avatar>
+                    <v-icon @click="showMobileMenu = !showMobileMenu">mdi-menu</v-icon>
+                </div>
             </div>
             <div ref="mainPanel" class="main-panel">
-                <modal v-if="isWidgetOpen" :options="options" @closeModal="closeModal()" />
+                <modal
+                    v-if="isWidgetOpen"
+                    :options="options"
+                    :account="account"
+                    @closeModal="closeModal()"
+                />
                 <div class="content-container">
                     <div v-if="!isLoading" class="main-content-container">
-                        <top-nav />
                         <router-view :account="account" />
                     </div>
                     <trending v-if="$route.name === 'Videos'" />
@@ -23,8 +36,7 @@
 
 <script>
 import { eventbus } from '@/main';
-import TopNav from '@/components/common/top-nav';
-import SideNav from '@/components/common/side-nav';
+import NewNav from '@/components/common/new-nav';
 import Modal from '@/components/common/modal';
 import Trending from '@/components/trending/trending';
 import firebase from 'firebase';
@@ -34,8 +46,7 @@ export default {
     name: 'App',
 
     components: {
-        'top-nav': TopNav,
-        'side-nav': SideNav,
+        'new-nav': NewNav,
         modal: Modal,
         trending: Trending
     },
@@ -48,7 +59,8 @@ export default {
             isMobile: false,
             isSmallMobile: false,
             account: null,
-            isLoading: true
+            isLoading: true,
+            showMobileMenu: false
         };
     },
 
@@ -408,6 +420,16 @@ textarea {
     padding: 5px 10px 0;
 }
 
+#app.mobile.small-mobile .side-panel .navigation {
+    top: 0;
+    left: -400px;
+    transition: all 0.3s linear;
+}
+
+#app.mobile.small-mobile .side-panel.menuActive .navigation {
+    left: 0;
+}
+
 #app.mobile.small-mobile .side-nav {
     width: 100%;
     display: flex;
@@ -456,6 +478,22 @@ textarea {
 
 #app.mobile.small-mobile .account {
     display: none;
+}
+
+#app .mobile-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#app .mobile-bar button {
+    color: #fff;
+    top: -5px;
+}
+
+#app .mobile-bar .v-responsive {
+    top: -10px;
 }
 
 @media only screen and (max-width: 1000px) {
