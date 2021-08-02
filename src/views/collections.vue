@@ -75,6 +75,12 @@ export default {
         }
     },
 
+    watch: {
+        'collection.id': function() {
+            this.getCollection();
+        }
+    },
+
     mounted() {
         this.getCollection(this.$route.params);
         window.addEventListener('scroll', this.handleScroll);
