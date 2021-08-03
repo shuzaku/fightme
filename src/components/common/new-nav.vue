@@ -67,7 +67,10 @@
                         />
                     </div>
 
-                    <div v-if="selectedMain.title === 'Favorites'" class="favorite-nav inner-list">
+                    <div
+                        v-if="selectedMain.title === 'Favorites' && account"
+                        class="favorite-nav inner-list"
+                    >
                         <h2>Favorites</h2>
                         <div class="menu-item" @click="goToFavoriteMatch()">
                             Matches
@@ -77,7 +80,10 @@
                         </div>
                     </div>
 
-                    <div v-if="selectedMain.title === 'Add'" class="favorite-nav inner-list">
+                    <div
+                        v-if="selectedMain.title === 'Add' && account"
+                        class="favorite-nav inner-list"
+                    >
                         <h2>Add</h2>
                         <ul>
                             <li
@@ -91,7 +97,7 @@
                         </ul>
                     </div>
                     <div
-                        v-if="selectedMain.title === 'Collections'"
+                        v-if="selectedMain.title === 'Collections' && account"
                         class="favorite-nav inner-list"
                     >
                         <h2>Collections</h2>
