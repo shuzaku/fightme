@@ -62,9 +62,6 @@ export default {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
                 threshold: 1
-            },
-            collection: {
-                id: this.$route.params.id
             }
         };
     },
@@ -72,11 +69,14 @@ export default {
     computed: {
         skip: function() {
             return this.videos.length;
+        },
+        collectionId: function() {
+            return this.$route.params.id;
         }
     },
 
     watch: {
-        'collection.id': function() {
+        collectionId: function() {
             this.getCollection();
         }
     },
@@ -96,7 +96,7 @@ export default {
 
     methods: {
         async getCollection() {
-            const response = await CollectionsService.queryCollection(this.collection.id);
+            const response = await CollectionsService.queryCollection(this.collectionId);
             this.videos = response.data.collection[0].Videos.map(video => {
                 return {
                     id: video.Id,
