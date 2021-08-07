@@ -323,4 +323,8 @@ export default {
 .navigation .v-navigation-drawer__content {
     overflow-y: hidden;
 }
+
+.navigation .inner-list h2 {
+    margin-bottom: 20px;
+}
 </style>

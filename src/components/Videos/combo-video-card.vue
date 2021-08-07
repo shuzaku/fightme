@@ -197,7 +197,7 @@ export default {
                 character: {
                     id: comboResponse.Character._id,
                     name: comboResponse.Character.Name,
-                    imageUrl: comboResponse.Character.ImageUrl
+                    imageUrl: comboResponse.Character.AvatarUrl
                 },
                 damage: comboResponse.Damage,
                 hits: comboResponse.Hits,
@@ -444,7 +444,7 @@ export default {
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid #3eb489;
-    background-size: 200%;
+    background-size: cover;
     background-position: top center;
     position: absolute;
     top: -15px;

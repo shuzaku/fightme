@@ -282,7 +282,7 @@ export default {
                 playerCharacters.push({
                     name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
                     id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].ImageUrl
+                    imageUrl: filteredCharacter[0].AvatarUrl
                 });
             });
             return playerCharacters;
@@ -490,12 +490,12 @@ export default {
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid #3eb489;
-    background-size: 200%;
     background-position: top center;
     position: absolute;
     top: -15px;
     left: -25px;
     background-color: #e8e8e8;
+    background-size: contain;
 }
 
 .video-card .character-bubble.player2 {
@@ -643,19 +643,6 @@ export default {
 
 .video-card .character-3 {
     top: 120px;
-}
-
-.video-card .character-bubble.narmaya,
-.video-card .character-bubble.vaseraga,
-.video-card .character-bubble.charlotta,
-.video-card .character-bubble.anre,
-.video-card .character-bubble.arizona,
-.video-card .character-bubble.jacqui {
-    background-position-y: 25%;
-}
-
-.video-card .character-bubble.arizona {
-    background-position-y: 65%;
 }
 
 .video-card .admin-controls {
