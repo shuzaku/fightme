@@ -196,7 +196,6 @@ export default {
             };
 
             const response = await VideosService.queryMatchup(queryParameter);
-            console.log(response);
             this.hydrateVideos(response);
             this.isLoading = false;
         }
