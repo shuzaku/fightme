@@ -106,7 +106,6 @@ export default {
             ];
 
             var queryParameter = {
-                skip: this.skip,
                 searchQuery: searchQuery
             };
 

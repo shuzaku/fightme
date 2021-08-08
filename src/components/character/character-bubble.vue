@@ -33,7 +33,7 @@ export default {
         trendingStyle() {
             return {
                 'background-image': `url(${this.character.imageUrl})`,
-                'background-size': '60%',
+                'background-size': '40%',
                 'background-repeat': 'no-repeat',
                 'background-position': '0% 30%'
             };
@@ -50,7 +50,7 @@ export default {
             });
             this.character = {
                 name: response.data.Name,
-                imageUrl: response.data.ImageUrl
+                imageUrl: response.data.AvatarUrl
             };
         },
 

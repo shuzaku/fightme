@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="account">
+    <div class="account-menu">
         <div v-if="!account">
             <div class="menu-item" @click="openRegisterModal()">
                 <span class="menu-heading">Register</span>
@@ -25,18 +25,24 @@ export default {
     data() {
         return {
             displayName: null,
-            isLoading: true,
-            account: null
+            isLoading: true
         };
     },
 
-    created() {
-        eventbus.$on('account:update', this.refresh);
+    props: {
+        account: {
+            type: Object,
+            default: null
+        }
     },
 
-    beforeDestroy() {
-        eventbus.$on('account:update', this.refresh);
-    },
+    // created() {
+    //     eventbus.$on('account:update', this.refresh);
+    // },
+
+    // beforeDestroy() {
+    //     eventbus.$on('account:update', this.refresh);
+    // },
 
     methods: {
         refresh(account) {
@@ -58,7 +64,7 @@ export default {
 };
 </script>
 <style>
-.account .display-name {
+.account-menu .display-name {
     font-size: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -66,13 +72,13 @@ export default {
     margin-bottom: 10px;
 }
 
-.account {
+.account-menu {
     padding-top: 20px;
     border: 1px dashed #3eb489;
     padding: 20px 20px 0;
 }
 
-.account .menu-item .menu-heading.logout {
+.account-menu .menu-item .menu-heading.logout {
     font-size: 12px;
     text-transform: capitalize;
     letter-spacing: 1px;

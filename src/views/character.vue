@@ -1,14 +1,6 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="characters-view">
-        <character-nav
-            v-if="!isLoading"
-            :characterId="characterId"
-            @character-sort:update="applySort($event)"
-            @character-filter:update="applyFilter($event)"
-            @character-filter-tag:update="applyTagFilter($event)"
-        />
-        <character-recommended v-if="$route.name === 'Character'" />
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -98,15 +90,19 @@ export default {
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
+        eventbus.$on('character-filter', this.applyFilter);
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('filter-tag:update', this.filterbyTag);
+        eventbus.$on('matchup-filter', this.initiateQueryMatchup);
     },
 
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
+        eventbus.$off('character-filter', this.applyFilter);
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('filter-tag:update', this.filterbyTag);
+        eventbus.$off('matchup-filter', this.initiateQueryMatchup);
     },
 
     methods: {
@@ -186,6 +182,23 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
+        },
+
+        initiateQueryMatchup(searchQuery) {
+            this.videos = [];
+            this.queryMatchup(searchQuery);
+        },
+
+        async queryMatchup(searchQuery) {
+            var queryParameter = {
+                skip: this.skip,
+                searchQuery: searchQuery
+            };
+
+            const response = await VideosService.queryMatchup(queryParameter);
+            console.log(response);
+            this.hydrateVideos(response);
+            this.isLoading = false;
         }
     }
 };

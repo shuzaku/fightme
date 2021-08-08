@@ -8,7 +8,8 @@
                         <v-list-item-avatar>
                             <v-img
                                 src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
-                            ></v-img>
+                            >
+                            </v-img>
                         </v-list-item-avatar>
                     </v-list-item>
 
@@ -20,15 +21,16 @@
                             :key="item.title"
                             @click="updateMain(item)"
                         >
-                            <v-list-item-action>
-                                <v-icon>{{ item.icon }}</v-icon>
-                            </v-list-item-action>
-
-                            <v-list-item-content>
-                                <v-list-item-title>{{ item.title }}</v-list-item-title>
-                            </v-list-item-content>
+                            <div v-if="item.hasAccess" class="item-container">
+                                <v-list-item-action>
+                                    <v-icon>{{ item.icon }}</v-icon>
+                                </v-list-item-action>
+                            </div>
                         </v-list-item>
                     </v-list>
+                    <div class="account">
+                        <v-icon @click="updateMain({ title: 'Account' })">mdi-account</v-icon>
+                    </div>
                 </v-navigation-drawer>
 
                 <v-list>
@@ -56,7 +58,6 @@
                             @character-selected="searchCharacter($event)"
                         />
                     </div>
-
                     <div v-if="selectedMain.title === 'Games'" class="game-nav inner-list">
                         <h2>Games</h2>
                         <game-select-menu-item initialOpen @game-selected="updateGame($event)" />
@@ -66,7 +67,6 @@
                             @character-selected="updateCharacter($event)"
                         />
                     </div>
-
                     <div
                         v-if="selectedMain.title === 'Favorites' && account"
                         class="favorite-nav inner-list"
@@ -79,7 +79,6 @@
                             Combos
                         </div>
                     </div>
-
                     <div
                         v-if="selectedMain.title === 'Add' && account"
                         class="favorite-nav inner-list"
@@ -105,6 +104,42 @@
                             <collection-select-menu-item :account="account" />
                         </div>
                     </div>
+
+                    <div
+                        v-if="selectedMain.title === 'Collections' && account"
+                        class="collection-nav inner-list"
+                    >
+                        <h2>Collections</h2>
+                        <div class="menu-heading">
+                            <collection-select-menu-item :account="account" />
+                        </div>
+                    </div>
+
+                    <div v-if="selectedMain.title === 'Character'" class="character-nav inner-list">
+                        <character-select-menu-item
+                            v-model="selectedCharacterId"
+                            :gameId="selectedGame.id"
+                            @gameUpdate="updateGameId($event)"
+                            @character-selected="updateCharacter($event)"
+                        />
+                        <character-select-menu-item
+                            ref="matchupSelect"
+                            :title="'Matchup'"
+                            :gameId="selectedGame.id"
+                            @character-selected="setMatchup($event)"
+                        />
+                        <div class="menu-item" @click="emitMatch()">
+                            Matches
+                        </div>
+                        <div class="menu-item" @click="emitCombo()">
+                            Combos
+                        </div>
+                    </div>
+
+                    <div v-if="selectedMain.title === 'Account'" class="account-nav inner-list">
+                        <h2>Account</h2>
+                        <user :account="account" />
+                    </div>
                 </v-list>
             </v-row>
         </v-navigation-drawer>
@@ -117,7 +152,7 @@ import PlayerSelectMenuItem from '@/components/players/player-select-menu-item';
 import CharacterSelectMenuItem from '@/components/character/character-select-menu-item';
 import CollectionSelectMenuItem from '@/components/collection/collection-select-menu-item';
 import GeneralSearch from '@/components/common/general-search';
-
+import User from '@/components/account/user';
 import { eventbus } from '@/main';
 
 export default {
@@ -126,7 +161,8 @@ export default {
         'player-select-menu-item': PlayerSelectMenuItem,
         'character-select-menu-item': CharacterSelectMenuItem,
         'collection-select-menu-item': CollectionSelectMenuItem,
-        'general-search': GeneralSearch
+        'general-search': GeneralSearch,
+        user: User
     },
 
     props: {
@@ -138,18 +174,12 @@ export default {
 
     data() {
         return {
-            mainItems: [
-                { title: 'Videos', icon: 'mdi-video' },
-                { title: 'Combos', icon: 'mdi-mixed-martial-arts' },
-                { title: 'Matches', icon: 'mdi-kabaddi' },
-                { title: 'Games', icon: 'mdi-gamepad-square' },
-                { title: 'Favorites', icon: 'mdi-heart' },
-                { title: 'Add', icon: 'mdi-plus' },
-                { title: 'Collections', icon: 'mdi-book-variant-multiple' }
-            ],
             mini: true,
             selectedMain: { title: 'Videos', icon: 'mdi-video' },
-            selectedGame: null,
+            selectedGame: {
+                id: null
+            },
+            selectedCharacterId: null,
             createOptions: [
                 {
                     name: 'Video',
@@ -179,6 +209,42 @@ export default {
         };
     },
 
+    computed: {
+        routeName: function() {
+            return this.$route.name;
+        },
+        routeValue: function() {
+            return this.$route.params.id;
+        },
+        mainItems: function() {
+            return [
+                { title: 'Videos', icon: 'mdi-video', hasAccess: true },
+                { title: 'Combos', icon: 'mdi-mixed-martial-arts', hasAccess: true },
+                { title: 'Matches', icon: 'mdi-kabaddi', hasAccess: true },
+                { title: 'Games', icon: 'mdi-gamepad-square', hasAccess: true },
+                { title: 'Favorites', icon: 'mdi-heart', hasAccess: this.hasAccount },
+                { title: 'Add', icon: 'mdi-plus', hasAccess: this.isAdmin },
+                {
+                    title: 'Collections',
+                    icon: 'mdi-book-variant-multiple',
+                    hasAccess: this.hasAccount
+                }
+            ];
+        },
+
+        hasAccount: function() {
+            return this.account ? true : false;
+        },
+
+        isAdmin: function() {
+            if (this.hasAccount && this.account.role === 'Admin User') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    },
+
     watch: {
         selectedMain() {
             if (this.selectedMain.title === 'Videos') {
@@ -195,10 +261,25 @@ export default {
             if (this.selectedMain.title === 'Collections') {
                 this.$router.push(`/collections/`);
             }
+        },
+
+        routeName() {
+            if (this.routeName === 'Character') {
+                this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
+            }
+        },
+
+        routeValue() {
+            this.selectedCharacterId = this.routeValue;
         }
     },
 
-    created() {},
+    created() {
+        if (this.routeName === 'Character') {
+            this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
+            this.selectedCharacterId = this.$route.params.id;
+        }
+    },
 
     methods: {
         updateMain(item) {
@@ -212,6 +293,10 @@ export default {
             };
             this.selectedGame = game;
             this.setSearch(searchQuery);
+        },
+
+        updateGameId(game) {
+            this.selectedGame = { id: game.gameId };
         },
 
         updatePlayer(player) {
@@ -261,6 +346,35 @@ export default {
                 name: createType
             });
             this.toggleDropDown();
+        },
+
+        openLoginWidget() {
+            eventbus.$emit('open:widget', {
+                name: 'login'
+            });
+        },
+
+        openRegisterWidget() {
+            eventbus.$emit('open:widget', {
+                name: 'register'
+            });
+        },
+
+        emitMatch() {
+            this.$refs.matchupSelect.clearCharater();
+            eventbus.$emit('character-filter', 'Match');
+        },
+
+        emitCombo() {
+            this.$refs.matchupSelect.clearCharater();
+            eventbus.$emit('character-filter', 'Combo');
+        },
+
+        setMatchup(character) {
+            eventbus.$emit('matchup-filter', {
+                character1: this.selectedCharacterId,
+                character2: character.id
+            });
         }
     }
 };
@@ -322,5 +436,22 @@ export default {
 
 .navigation .v-navigation-drawer__content {
     overflow-y: hidden;
+}
+
+.navigation .inner-list h2 {
+    margin-bottom: 20px;
+}
+
+.navigation .account {
+    padding: 0 16px;
+}
+
+.navigation .v-navigation-drawer__content {
+    height: 100vh;
+}
+
+.navigation .account {
+    position: absolute;
+    bottom: 20px;
 }
 </style>

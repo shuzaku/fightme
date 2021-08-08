@@ -90,7 +90,7 @@ export default {
                 id: this.characterId
             });
             this.name = response.data.Name;
-            this.imageUrl = response.data.ImageUrl;
+            this.imageUrl = response.data.AvatarUrl;
         },
 
         async getTags() {
@@ -107,13 +107,13 @@ export default {
 };
 </script>
 <style type="text/css">
-.character-nav {
+/* .character-nav {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 15px;
-}
+} */
 
 .character-nav .character-header {
     height: 80px;

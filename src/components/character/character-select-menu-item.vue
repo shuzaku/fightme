@@ -2,27 +2,36 @@
 <template>
     <div :class="[{ opened: isOpen }, 'character-select-menu-item']">
         <div class="menu-item" @click="open">
-            Characters
+            {{ title }}
             <v-icon>
                 mdi-chevron-down
             </v-icon>
         </div>
-        <div class="characters">
-            <v-autocomplete
+        <div v-if="isOpen" class="characters">
+            <multiselect
                 v-model="selectedItem"
-                :items="characters"
-                :menu-props="{ closeOnClick: true, closeOnContentClick: true }"
-                label="Characters"
-                item-text="name"
-                item-value="id"
-                return-object
-                outlined
-                flat
-                small-chips
-                dense
-                @change="selectCharacter($event)"
+                :options="characters"
+                :close-on-select="true"
+                :clear-on-select="true"
+                :preserve-search="true"
+                :custom-label="customLabel"
+                @input="selectCharacter($event)"
+                placeholder="Characters"
+                label="name"
+                track-by="id"
+                v-if="!isLoading"
             >
-            </v-autocomplete>
+                <template slot="singleLabel" slot-scope="props">
+                    <img class="option__image" :src="props.option.imageUrl" />
+                    <span class="option__name">{{ props.option.name }}</span>
+                </template>
+                <template slot="option" slot-scope="props"
+                    ><img class="option__image" :src="props.option.imageUrl" alt="No Man’s Sky" />
+                    <div class="option__desc">
+                        <span class="option__name">{{ props.option.name }}</span>
+                    </div>
+                </template>
+            </multiselect>
         </div>
     </div>
 </template>
@@ -31,7 +40,7 @@
 import CharactersService from '@/services/characters-service';
 
 export default {
-    name: 'character-select',
+    name: 'character-menu-select',
     props: {
         initialOpen: {
             type: Boolean,
@@ -40,6 +49,14 @@ export default {
         gameId: {
             type: String,
             default: null
+        },
+        value: {
+            type: String,
+            default: null
+        },
+        title: {
+            type: String,
+            default: 'Characters'
         }
     },
 
@@ -47,28 +64,43 @@ export default {
         return {
             characters: [],
             isOpen: false,
-            selectedItem: null
+            selectedItem: null,
+            characterMenuOpen: false
         };
     },
 
     computed: {
-        componentStyle() {
-            return '[{opened: }]';
+        routeCharacterId() {
+            if (this.$route.name === 'Character') {
+                return this.$route.params.id;
+            } else {
+                return null;
+            }
         }
     },
 
     watch: {
         gameId() {
             this.getCharacters();
+        },
+        routeCharacterId() {
+            this.getCharacter();
         }
     },
 
     mounted() {
-        this.getCharacters();
+        if (!this.gameId) {
+            this.getCharacter();
+        } else {
+            this.getCharacters();
+        }
         this.isOpen = this.initialOpen;
     },
 
     methods: {
+        customLabel({ name }) {
+            return `${name}`;
+        },
         async getCharacters() {
             const response = await CharactersService.queryCharacters([
                 {
@@ -81,9 +113,25 @@ export default {
                 return {
                     id: character._id,
                     name: character.Name,
-                    imageUrl: character.ImageUrl
+                    imageUrl: character.AvatarUrl
                 };
             });
+        },
+
+        async getCharacter() {
+            const response = await CharactersService.getCharacter({
+                id: this.value
+            });
+
+            this.$emit('gameUpdate', {
+                gameId: response.data.GameId
+            });
+
+            this.selectedItem = {
+                id: response.data._id,
+                name: response.data.Name,
+                imageUrl: response.data.AvatarUrl
+            };
         },
 
         selectCharacter(character) {
@@ -91,110 +139,36 @@ export default {
                 character.selected = false;
             });
             character.selected = true;
+
             this.$emit('character-selected', character);
+            this.characterMenuOpen = false;
         },
 
         open() {
             this.isOpen = !this.isOpen;
+        },
+
+        clearCharater() {
+            this.isOpen = false;
+            this.selectedItem = null;
         }
     }
 };
 </script>
 <style type="text/css">
-.character-select-menu-item .logo-img {
-    width: 50px;
-    height: auto;
-    border-radius: 50%;
-}
-
-.character-select-menu-item li {
-    list-style: none;
-    font-weight: 400;
-    cursor: pointer;
-    padding: 10px 10px;
-}
-
-.character-select-menu-item li:hover,
-.character-select-menu-item li.selected {
-    background: #565656;
-}
-
-.character-select-menu-item li:last-child {
-    margin-bottom: 0px;
-}
-
-.character-select-menu-item .players {
-    background: #404040;
-    padding: 20px 10px 0;
-}
-
-.character-select-menu-item .mdi-chevron-down {
-    transform: rotate(0deg);
-    transition: all 0.3s linear;
-}
-
-.character-select-menu-item.opened .mdi-chevron-down {
-    transform: rotate(180deg);
-    transition: all 0.3s linear;
-}
-
-.character-select-menu-item .v-label {
-    padding: 0 10px;
-}
-
-.character-select-menu-item .v-label--active.v-label {
-    background: #404040;
-    padding: 3px 10px;
-    z-index: 10;
-    top: 5px !important;
-    left: -5px !important;
-}
-
-.character-select-menu-item .v-input__slot {
-    padding: 0px !important;
-}
-
-.character-select-menu-item .v-input__slot::after,
-.character-select-menu-item .v-input__slot::before {
+.character-select-menu-item .multiselect__option::after {
     display: none;
 }
 
-.character-select-menu-item .v-menu {
-    display: initial;
+.character-select-menu-item .option__image {
+    max-width: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
-.character-select-menu-item .v-menu__content {
-    left: 76px !important;
-    max-width: 230px !important;
-}
-
-.character-select-menu-item .v-select.v-text-field input {
-    border: 0;
-}
-
-.character-select-menu-item .v-select__slot .v-select__selections {
+.character-select-menu-item .multiselect__option,
+.character-select-menu-item .multiselect__single {
     display: flex;
-    align-items: flex-start;
-}
-
-.character-select-menu-item .v-select__selections {
-    padding-top: 20px !important;
-}
-
-.character-select-menu-item .v-select__slot .v-select__slot {
-    padding: 15px 0;
-}
-
-.character-select-menu-item .v-select__selections input {
-    order: 1;
-    min-width: 212px !important;
-}
-
-.character-select-menu-item .v-select__selections .v-select__selection {
-    order: 2;
-}
-
-.character-select-menu-item .v-select__slot .v-select__selections .v-chip {
-    margin-bottom: 10px;
+    align-items: center;
 }
 </style>

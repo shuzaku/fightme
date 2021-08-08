@@ -8,11 +8,11 @@
             </v-icon>
         </div>
 
-        <div class="players">
+        <div v-if="isOpen" class="players">
             <v-autocomplete
                 v-model="selectedItem"
                 :items="players"
-                :menu-props="{ closeOnClick: true, closeOnContentClick: true }"
+                :menu-props="{ closeOnContentClick: true }"
                 label="Players"
                 item-text="name"
                 item-value="id"

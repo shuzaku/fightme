@@ -187,7 +187,6 @@ export default {
     align-items: flex-start;
     position: relative;
     justify-content: space-around;
-    padding-top: 100px;
     height: 100%;
     flex-direction: column;
 }

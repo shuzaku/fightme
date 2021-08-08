@@ -66,6 +66,7 @@ export default {
                 })
                 .catch(() => {});
         },
+
         async getAccount(id) {
             const response = await AccountsService.getAccount({ id: id });
             this.account = {
