@@ -62,4 +62,8 @@ export default {
   getMatchVideo (url) {
     return Api().get('matchVideo/' + url) 
   },
+
+  queryMatchup(params) {
+    return Api().get(`characterMatchup?character1=${params.searchQuery.character1}&character2=${params.searchQuery.character2}`, params)
+  }
 } 

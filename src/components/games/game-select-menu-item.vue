@@ -1,6 +1,12 @@
 <!-- @format -->
 <template>
     <div :class="[{ opened: isOpen }, 'game-selct-menu-item']">
+        <div class="menu-item" @click="open">
+            Games
+            <v-icon>
+                mdi-chevron-down
+            </v-icon>
+        </div>
         <ul v-if="isOpen" class="games">
             <li
                 v-for="game in games"

@@ -26,7 +26,7 @@
                         <router-view :account="account" />
                     </div>
                     <trending v-if="$route.name === 'Videos'" />
-                    <character-recommended v-if="$route.name === 'Character'" />
+                    <!-- <character-recommended v-if="$route.name === 'Character'" /> -->
                 </div>
             </div>
         </div>
