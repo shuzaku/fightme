@@ -32,8 +32,6 @@
 import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
-import CharacterNav from '@/components/character/character-nav';
-import CharacterRecommended from '@/components/character/character-recommended';
 
 import { eventbus } from '@/main';
 
@@ -42,9 +40,7 @@ export default {
 
     components: {
         'match-video-card': MatchVideoCard,
-        'combo-video-card': ComboVideoCard,
-        'character-nav': CharacterNav,
-        'character-recommended': CharacterRecommended
+        'combo-video-card': ComboVideoCard
     },
 
     props: {
