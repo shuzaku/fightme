@@ -27,6 +27,6 @@ export default {
   },
 
   deleteCombo(id) {
-    return Api().delete('combos/' + id)
+    return Api().delete('combo/' + id)
   },
 } 

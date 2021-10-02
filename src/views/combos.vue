@@ -13,6 +13,7 @@
                     :comboId="video.comboId"
                     :account="account"
                     :favoriteVideos="account ? account.favoriteVideos : null"
+                    @video:delete="refreshDelete()"
                 />
             </div>
         </div>
@@ -71,6 +72,11 @@ export default {
     },
 
     methods: {
+        refreshDelete() {
+            this.videos = [];
+            this.queryVideos();
+            alert('combo deleted');
+        },
         applySort(sort) {
             this.videos = [];
             this.sort = sort;

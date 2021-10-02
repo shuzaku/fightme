@@ -48,7 +48,7 @@
             <div class="combo-input">
                 <p class="inputs">{{ video.combo.inputs.join(' > ') }}</p>
             </div>
-            <div class="combo-tags" v-if="video.combo.tags">
+            <div v-if="video.combo.tags" class="combo-tags">
                 <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
             </div>
             <div class="admin-controls">
@@ -68,16 +68,16 @@
                         mdi-plus
                     </v-icon>
                 </v-btn>
-                <!-- <v-btn @click="editVideo()">
+                <v-btn v-if="isAdmin" @click="editVideo()">
                     <v-icon dark>
                         mdi-wrench
                     </v-icon>
                 </v-btn>
-                <v-btn @click="deleteVideo(video.combo, index)">
+                <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
                     <v-icon dark>
                         mdi-delete
                     </v-icon>
-                </v-btn> -->
+                </v-btn>
                 <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
                     <v-icon light>
                         mdi-heart-outline
@@ -155,6 +155,12 @@ export default {
         };
     },
 
+    computed: {
+        isAdmin() {
+            return this.account.role === 'Admin User';
+        }
+    },
+
     watch: {
         'video.isPlaying'() {
             if (this.video.videoType === 'uploaded') {
@@ -221,6 +227,8 @@ export default {
             const response = await VideosService.getComboVideo(this.comboId);
 
             var videoResponse = response.data.videos[0];
+
+            this.video.id = videoResponse._id;
             this.video.url = videoResponse.Url;
             this.video.videoType = videoResponse.VideoType;
             this.video.game = {
@@ -263,22 +271,35 @@ export default {
             }
         },
 
-        async deleteVideo(combo, index) {
-            if (this.video.combos.length < 2) {
+        async deleteVideo() {
+            const response = await VideosService.getVideo(this.video.id);
+
+            var comboCount = response.data.video.length;
+            if (comboCount < 1) {
                 await VideosService.deleteVideo(this.video.id);
             } else {
-                this.videos.combos = this.videos.combos.splice(index, 1);
+                var videos = response.data.video;
+                var filteredCombos = videos.filter(video => {
+                    return video.Combo._id != this.comboId;
+                });
+
+                filteredCombos = filteredCombos.map(combo => {
+                    return {
+                        Id: combo.ComboId,
+                        StartTime: combo.Combo.StartTime,
+                        EndTime: combo.Combo.EndTime
+                    };
+                });
+
                 var request = {
                     id: this.video.id,
-                    ComboIds: this.video.combos.map(combo => {
-                        return combo.id;
-                    })
+                    Combos: filteredCombos,
+                    GameId: this.video.game.id
                 };
                 await VideosService.patchVideo(request);
-                await CombosService.deleteComboo(combo.id);
             }
-            this.$emit('closeModal');
-            this.$emit('video:delete', this.video);
+            var comboResponse = await CombosService.deleteCombo(this.comboId);
+            this.$emit('video:delete', comboResponse);
         },
 
         queryCharacter(characterId) {
@@ -305,7 +326,7 @@ export default {
 
         editVideo() {
             this.video.isEditing = true;
-            eventbus.$emit('open:videoWidget', {
+            eventbus.$emit('open:widget', {
                 name: 'video',
                 videoId: this.video.id
             });

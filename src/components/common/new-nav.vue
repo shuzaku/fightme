@@ -345,7 +345,6 @@ export default {
             eventbus.$emit('open:widget', {
                 name: createType
             });
-            this.toggleDropDown();
         },
 
         openLoginWidget() {

@@ -17,7 +17,7 @@
                     }"
                     :video="video"
                     :account="account"
-                    @video:delete="spliceVideo($event)"
+                    @video:delete="queryVideos()"
                 />
             </div>
         </div>

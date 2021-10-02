@@ -10,14 +10,20 @@
             :clear-on-select="true"
             :preserve-search="true"
             :taggable="taggable"
+            :custom-label="customLabel"
             label="name"
             placeholder="Search or add a Character"
             @input="setCharacter($event)"
         >
-            <template slot="selection">
-                <span v-for="character in selectedCharacters" :key="character.id" class="name">{{
-                    character.name
-                }}</span>
+            <template slot="singleLabel" slot-scope="props">
+                <img class="option__image" :src="props.option.imageUrl" />
+                <span class="option__name">{{ props.option.name }}</span>
+            </template>
+            <template slot="option" slot-scope="props"
+                ><img class="option__image" :src="props.option.imageUrl" alt="No Man’s Sky" />
+                <div class="option__desc">
+                    <span class="option__name">{{ props.option.name }}</span>
+                </div>
             </template>
         </multiselect>
     </div>
@@ -67,6 +73,10 @@ export default {
     },
 
     methods: {
+        customLabel({ name }) {
+            return `${name}`;
+        },
+
         setCharacter() {
             this.$emit('update:character', this.selectedCharacters);
         },
@@ -83,14 +93,14 @@ export default {
                 return {
                     id: character._id,
                     name: character.Name,
-                    imageUrl: character.ImageUrl
+                    imageUrl: character.AvatarUrl
                 };
             });
 
             if (this.value) {
                 this.value.forEach(characterId => {
                     this.selectedCharacters.push(
-                        this.characters.filter(character => character.id === characterId)
+                        this.characters.filter(character => character.id === characterId)[0]
                     );
                 });
             }
@@ -101,5 +111,17 @@ export default {
 <style type="text/css">
 .character-search .name {
     margin-right: 5px;
+}
+
+.character-search .option__image {
+    max-width: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.character-search .multiselect__option,
+.character-search .multiselect__single {
+    display: flex;
+    align-items: center;
 }
 </style>

@@ -20,6 +20,12 @@
                     type="text"
                     placeholder="Character Image Url"
                 />
+                <input
+                    id="import-thumbnail"
+                    v-model="avatarUrl"
+                    type="text"
+                    placeholder="Character Avatar Url"
+                />
                 <game-search v-model="game.id" @update:game="setGame($event)" />
             </div>
             <div>
@@ -49,7 +55,8 @@ export default {
                 id: null,
                 imageUrl: null
             },
-            imageUrl: null
+            imageUrl: null,
+            avatarUrl: null
         };
     },
 
@@ -62,7 +69,8 @@ export default {
             await CharactersService.addCharacter({
                 Name: this.characterName,
                 GameId: this.game.id,
-                ImageUrl: this.imageUrl
+                ImageUrl: this.imageUrl,
+                AvatarUrl: this.avatarUrl
             });
 
             eventbus.$emit('updateSearch');

@@ -98,16 +98,11 @@
                             />
                             <div class="character-container">
                                 <h3>Characters</h3>
-                                <div
-                                    v-for="(character, i) in player.characterCount"
-                                    :key="character"
-                                >
-                                    <character-search
-                                        v-model="player.characterIds[i]"
-                                        :gameId="video.gameId"
-                                        @update:character="addCharacterToPlayer($event, player)"
-                                    />
-                                </div>
+                                <character-search
+                                    v-model="player.characterIds"
+                                    :gameId="video.gameId"
+                                    @update:character="addCharacterToPlayer($event, player)"
+                                />
                                 <v-btn @click="addCharacter(player)">addCharacter</v-btn>
                             </div>
                         </div>
@@ -122,16 +117,11 @@
                             />
                             <div class="character-container">
                                 <h3>Characters</h3>
-                                <div
-                                    v-for="(character, i) in player.characterCount"
-                                    :key="character"
-                                >
-                                    <character-search
-                                        v-model="player.characterIds[i]"
-                                        :gameId="video.gameId"
-                                        @update:character="addCharacterToPlayer($event, player)"
-                                    />
-                                </div>
+                                <character-search
+                                    v-model="player.characterIds"
+                                    :gameId="video.gameId"
+                                    @update:character="addCharacterToPlayer($event, player)"
+                                />
                                 <v-btn @click="addCharacter(player)">addCharacter</v-btn>
                             </div>
                         </div>
@@ -221,9 +211,45 @@
                     </div>
                 </div>
             </div>
-            <v-btn v-if="currentStep === 'Video'" class="video-btn" rounded @click="nextStep()"
-                >Next</v-btn
-            >
+            <div v-if="currentStep === 'Montage'" class="match-step">
+                <p class="error-msg">
+                    {{ error }}
+                </p>
+                <!--- creator --->
+                <div class="creator-container">
+                    <creator-search
+                        v-model="video.contentCreatorId"
+                        @update:creator="setCreator($event)"
+                    />
+                </div>
+
+                <!--- montage --->
+                <div class="players-container">
+                    <h2>Players</h2>
+                    <player-search
+                        v-model="video.montage.playerIds"
+                        @update:player="addPlayerToMontage($event)"
+                    />
+                    <div class="character-container">
+                        <h3>Characters</h3>
+                        <character-search
+                            v-model="video.montage.characterIds"
+                            :gameId="video.gameId"
+                            @update:character="addCharacterToMontage($event)"
+                        />
+                    </div>
+                    <div class="tag">
+                        <tag-search
+                            v-model="video.tags"
+                            :taggable="true"
+                            @update:tags="setTags($event)"
+                        />
+                    </div>
+                </div>
+            </div>
+            <v-btn v-if="currentStep === 'Video'" class="video-btn" rounded @click="nextStep()">
+                Next
+            </v-btn>
             <v-btn v-else class="submit-btn" rounded @click="setUpVideo()">Submit</v-btn>
         </div>
     </div>
@@ -235,6 +261,7 @@ import UploadVideo from '@/components/videos/upload-video';
 import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
 import MatchesService from '@/services/matches-service';
+import MontagesService from '@/services/montages-service';
 import PlayerSearch from '@/components/players/player-search';
 import CharacterSearch from '@/components/character/character-search';
 import GameSearch from '@/components/games/game-search';
@@ -270,6 +297,7 @@ export default {
             currentStep: 'Video',
             comboInputsRaw: '',
             showErrorMessage: false,
+            error: null,
             video: {
                 id: '',
                 contentType: '',
@@ -311,12 +339,17 @@ export default {
                         }
                     ]
                 },
+                montage: {
+                    type: null,
+                    players: [],
+                    characters: []
+                },
                 tags: []
             },
             importVideoUrl: null,
             origin: 'web',
             isTournament: false,
-            contentTypes: ['Match', 'Combo', 'Analysis'],
+            contentTypes: ['Match', 'Combo', 'Montage'],
             isLoading: true
         };
     },
@@ -335,6 +368,12 @@ export default {
                 ) {
                     return true;
                 } else if (this.video.contentType === 'Combo' && this.video.combos[0].id) {
+                    return true;
+                } else if (
+                    this.video.contentType === 'Montage' &&
+                    this.video.montage.characters &&
+                    this.video.montage.players
+                ) {
                     return true;
                 } else {
                     return false;
@@ -386,6 +425,8 @@ export default {
                     this.currentStep = 'Combo';
                 } else if (this.video.contentType === 'Match') {
                     this.currentStep = 'Match';
+                } else if (this.video.contentType === 'Montage') {
+                    this.currentStep = 'Montage';
                 }
             } else {
                 this.showErrorMessage = true;
@@ -414,7 +455,7 @@ export default {
                     });
                     this.patchVideo();
                 }
-            } else {
+            } else if (this.video.contentType === 'Match') {
                 if (!this.videoId) {
                     this.addMatch();
                 } else {
@@ -439,6 +480,8 @@ export default {
                     });
                     this.patchVideo();
                 }
+            } else {
+                this.addMontage();
             }
         },
 
@@ -499,9 +542,37 @@ export default {
             }
         },
 
+        async addMontage() {
+            var montage = {
+                Players: this.video.montage.players.map(player => {
+                    return player;
+                }),
+                Characters: this.video.montage.characters.map(character => {
+                    return {
+                        Id: character.id
+                    };
+                }),
+                Type: this.video.montage.type,
+                VideoUrl: this.video.url,
+                GameId: this.video.gameId
+            };
+
+            var response = await MontagesService.addMontage(montage);
+            if (response.data.err) {
+                this.error = 'Montage already exist';
+                this.showErrorMessage = true;
+            } else {
+                if (this.video.type === 'uploaded') {
+                    this.$refs.videoUploader.upload();
+                } else {
+                    this.postVideo();
+                }
+            }
+        },
+
         async postVideo() {
             if (this.isValidated) {
-                await VideosService.addVideo({
+                var response = await VideosService.addVideo({
                     Url: this.video.url,
                     ContentType: this.video.contentType,
                     ContentCreatorId: this.video.contentCreatorId,
@@ -520,8 +591,13 @@ export default {
                     Tags: this.video.tags
                 });
 
-                this.$emit('closeModal');
-                eventbus.$emit('newVideoPosted');
+                if (response.data.err) {
+                    this.error = 'Video already exist';
+                    this.showErrorMessage = true;
+                } else {
+                    this.$emit('closeModal');
+                    eventbus.$emit('newVideoPosted');
+                }
             } else {
                 this.showErrorMessage = true;
             }
@@ -558,6 +634,7 @@ export default {
                     combo: video.ContentType === 'Combo' ? this.getCombos(video.Combo) : null,
                     isFavorited: false,
                     gameId: video.GameId,
+                    contentCreatorId: video.ContentCreatorId,
                     tags: video.Tags
                         ? video.Tags.map(tag => {
                               return tag._id;
@@ -704,6 +781,10 @@ export default {
             player.characterIds.push(character);
         },
 
+        addCharacterToMontage(character) {
+            this.video.montage.characters.push(character);
+        },
+
         addCharacter(player) {
             player.characterCount++;
         },
@@ -714,6 +795,10 @@ export default {
 
         addPlayerToTeam2(item, index) {
             this.video.match.team2Players[index].id = item.id;
+        },
+
+        addPlayerToMontage(item) {
+            this.video.montage.players.push(item.id);
         },
 
         setTags(tags, combo) {

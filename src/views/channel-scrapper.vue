@@ -84,7 +84,8 @@ export default {
             channelId: null,
             channelTitle: null,
             creators: null,
-            creatorId: null
+            creatorId: null,
+            limit: 100
         };
     },
 
@@ -95,7 +96,7 @@ export default {
     methods: {
         async fetch() {
             try {
-                const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyCYRdDi_twi0Xq-4W70LJoargI63fI6ljg&channelId=${this.channelId}&part=snippet,id&order=date&maxResults=20`;
+                const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyCYRdDi_twi0Xq-4W70LJoargI63fI6ljg&channelId=${this.channelId}&part=snippet,id&order=date&maxResults=${this.limit}`;
                 const response = await this.axios.get(url);
                 this.channelTitle = response.data.items[0].snippet.channelTitle;
                 this.videos = response.data.items.map(item => {

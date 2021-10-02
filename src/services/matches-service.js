@@ -21,4 +21,22 @@ export default {
   getMatch(params) {
     return Api().get('match/' + params) 
   },
+
+  getMatches(params) {
+    return Api().get('matches/' + params) 
+  },
+
+  deleteMatch(id) {
+    return Api().delete('match/' + id)
+  },
+
+  queryMatches (params) {
+    var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+    var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+    return Api().get('matchQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
+  },
+
+  patchMatches(params) {
+    return Api().put('matches/', params)
+  },
 } 

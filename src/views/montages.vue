@@ -1,27 +1,18 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="videos-view">
+    <div ref="videoViewRef" class="montages-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
                 :class="{ selected: video.selected }"
             >
-                <match-video-card
-                    v-if="video.contentType === 'Match'"
+                <montage-video-card
+                    v-if="video.contentType === 'Montage'"
                     v-model="video.isPlaying"
-                    :isFirst="video.isFirst"
-                    :matchId="video.matchId"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :montageId="video.montageId"
                     :account="account"
-                />
-                <combo-video-card
-                    v-if="video.contentType === 'Combo'"
-                    v-model="video.isPlaying"
-                    :isFirst="video.isFirst"
-                    :comboId="video.comboId"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
-                    :account="account"
+                    @video:delete="refreshDelete()"
                 />
             </div>
         </div>
@@ -30,16 +21,15 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import NewMatchVideoCard from '@/components/videos/match-video-card';
-import NewComboVideoCard from '@/components/videos/combo-video-card';
+import NewMontageVideoCard from '@/components/videos/montage-video-card';
+
 import { eventbus } from '@/main';
 
 export default {
     name: 'Videos',
 
     components: {
-        'match-video-card': NewMatchVideoCard,
-        'combo-video-card': NewComboVideoCard
+        'montage-video-card': NewMontageVideoCard
     },
 
     props: {
@@ -56,46 +46,82 @@ export default {
             query: null,
             savedQuery: null,
             favorites: [],
-            error: null,
-            results: null
+            filter: 'Montage',
+            sort: null
         };
     },
 
     computed: {
         skip: function() {
             return this.videos.length;
+        },
+
+        playerId: function() {
+            return this.$route.params.id;
         }
     },
 
-    created() {
-        this.fetch();
+    watch: {
+        playerId: function() {
+            this.isLoading = true;
+            this.videos = [];
+            this.queryVideos();
+            this.isLoading = false;
+        }
     },
 
     mounted() {
+        if (this.account) {
+            this.updateFavorites();
+        }
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
+        eventbus.$on('filter', this.applyFilter);
         eventbus.$on('search', this.queryVideos);
-        eventbus.$on('account:update', this.accountUpdate);
+        eventbus.$on('account:update', this.updateFavorites);
     },
 
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('search', this.queryVideos);
+        eventbus.$off('filter', this.applyFilter);
+        eventbus.$on('search', this.queryVideos);
+        eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
-        accountUpdate() {
+        refreshDelete() {
+            this.videos = [];
+            this.queryVideos();
+            alert('montage deleted');
+        },
+
+        applySort(sort) {
+            this.videos = [];
+            this.sort = sort;
             this.queryVideos();
         },
 
-        async queryVideos() {
+        applyFilter(filter) {
+            this.videos = [];
+            this.queryVideos(filter);
+        },
+
+        async queryVideos(query) {
             var queryParameter = {
-                skip: this.skip
+                skip: this.skip,
+                sortOption: this.sort,
+                filter: this.filter,
+                searchQuery: []
             };
 
+            if (query) {
+                queryParameter.searchQuery.push(query);
+            }
+
             const response = await VideosService.queryVideos(queryParameter);
+            console.log(response);
             this.hydrateVideos(response);
             // this.checkFavorites();
             if (this.videos.length < 6) {
@@ -106,16 +132,12 @@ export default {
         hydrateVideos(response) {
             response.data.videos.forEach(video => {
                 this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
-                    matchId: video.Match ? video.Match._id : null,
+                    montageId: video.Montage ? video.Montage._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isFirst: false
+                    isPlaying: false
                 });
             });
-            if (this.videos.length > 0) {
-                this.videos[0].isFirst = true;
-            }
         },
 
         playFirstVideo() {
@@ -125,7 +147,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
+            var featuredVideo = this.videos.find(video => video.montageId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -149,67 +171,57 @@ export default {
             this.queryVideos();
         },
 
-        checkFavorites() {
-            this.favorites.forEach(favorite => {
-                if (favorite.contentType === 'Combo') {
-                    this.videos.filter(
-                        video => video.combo.id === favorite.id
-                    )[0].isFavorited = true;
-                } else {
-                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
-                }
+        updateFavorites() {
+            this.favorites = this.account.favoriteVideos.map(video => {
+                return {
+                    contentType: video.contentType,
+                    id: video.id
+                };
             });
         },
 
-        async fetch() {
-            try {
-                const url = `https://www.googleapis.com/youtube/v3/search?key=936424237721-3988kr9bnjlqbmrsfu45nnm4ueba6pqc.apps.googleusercontent.com
-&channelId=UCVsmYrE8-v3VS7XWg3cXp9g&part=snippet,id&order=date&maxResults=20`;
-                const response = await this.axios.get(url);
-                const results = response.data.results;
-                this.results = results;
-            } catch (err) {
-                this.error = err;
-            }
+        checkFavorites() {
+            this.favorites.forEach(favorite => {
+                this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+            });
         }
     }
 };
 </script>
 
 <style>
-.videos-view {
+.montages-view {
     display: flex;
     align-items: flex-start;
     position: relative;
     justify-content: space-around;
-    padding-top: 30px;
     height: 100%;
-    overflow: hidden;
+    flex-direction: column;
 }
 
-.videos-view::-webkit-scrollbar-track {
+.montages-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar {
+.montages-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar-thumb {
+.montages-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.videos-view .videos-container {
+.montages-view .videos-container {
     position: relative;
-    padding: 0 40px;
+    margin-top: 0;
 }
 
-.videos-view .videos-container video {
+.montages-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

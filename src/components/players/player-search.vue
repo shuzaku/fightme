@@ -66,14 +66,15 @@ export default {
 
     methods: {
         async addPlayer(newPlayer) {
-            await PlayersService.addPlayer({
+            var response = await PlayersService.addPlayer({
                 Name: newPlayer.trim()
             });
-            this.getPlayers(newPlayer);
+            var playerId = response.data.playerId;
+            this.getPlayers(playerId);
             eventbus.$emit('add:new-player');
         },
 
-        async getPlayers(newPlayer) {
+        async getPlayers(newPlayerId) {
             const response = await PlayersService.fetchPlayers();
             this.players = response.data.players.map(player => {
                 return {
@@ -82,10 +83,8 @@ export default {
                 };
             });
 
-            if (newPlayer) {
-                this.selectedPlayer = this.players.filter(
-                    player => player.name === newPlayer.trim()
-                )[0];
+            if (newPlayerId) {
+                this.selectedPlayer = this.players.filter(player => player.id === newPlayerId)[0];
                 this.setPlayer();
             }
 

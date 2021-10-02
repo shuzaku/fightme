@@ -109,18 +109,16 @@
                     mdi-plus
                 </v-icon>
             </v-btn>
-            <!-- <span class="admin-only">
-                <v-btn @click="editVideo()">
-                    <v-icon dark>
-                        mdi-wrench
-                    </v-icon>
-                </v-btn>
-                <v-btn @click="deleteVideo()">
-                    <v-icon dark>
-                        mdi-delete
-                    </v-icon>
-                </v-btn>
-            </span> -->
+            <v-btn v-if="isAdmin" @click="editVideo()">
+                <v-icon dark>
+                    mdi-wrench
+                </v-icon>
+            </v-btn>
+            <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                <v-icon dark>
+                    mdi-delete
+                </v-icon>
+            </v-btn>
             <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
                 <v-icon light>
                     mdi-heart-outline
@@ -200,6 +198,9 @@ export default {
     computed: {
         formattedInputs() {
             return this.video.combo.inputs.join(' > ');
+        },
+        isAdmin() {
+            return this.account.role === 'Admin User';
         }
     },
 
@@ -332,7 +333,9 @@ export default {
 
         async deleteVideo() {
             await VideosService.deleteVideo(this.video.id);
-            this.$emit('video:delete', this.video);
+            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
+
+            this.$emit('video:delete', matchResponse);
         },
 
         queryPlayer(playerId) {

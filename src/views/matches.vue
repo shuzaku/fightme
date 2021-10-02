@@ -12,6 +12,7 @@
                     v-model="video.isPlaying"
                     :matchId="video.matchId"
                     :account="account"
+                    @video:delete="refreshDelete()"
                 />
             </div>
         </div>
@@ -90,6 +91,12 @@ export default {
     },
 
     methods: {
+        refreshDelete() {
+            this.videos = [];
+            this.queryVideos();
+            alert('combo deleted');
+        },
+
         applySort(sort) {
             this.videos = [];
             this.sort = sort;
