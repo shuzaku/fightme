@@ -37,7 +37,7 @@
 import { eventbus } from '@/main';
 import NewNav from '@/components/common/new-nav';
 import Modal from '@/components/common/modal';
-import Trending from '@/components/trending/trending';
+// import Trending from '@/components/trending/trending';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
 
@@ -46,8 +46,8 @@ export default {
 
     components: {
         'new-nav': NewNav,
-        modal: Modal,
-        trending: Trending
+        modal: Modal
+        // trending: Trending
     },
 
     data() {
