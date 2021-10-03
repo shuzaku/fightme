@@ -125,22 +125,29 @@ export default {
         },
 
         async fetchAccount(id) {
-            const response = await AccountsService.getAccount({ id: id });
-            var account = {
-                id: response.data.account[0]._id,
-                displayName: response.data.account[0].DisplayName,
-                email: response.data.account[0].Email,
-                favoriteVideos: response.data.account[0].FavoriteVideos
-                    ? response.data.account[0].FavoriteVideos.map(video => {
-                          return {
-                              contentType: video.ContentType,
-                              id: video.Id
-                          };
-                      })
-                    : [],
-                collections: response.data.account[0].Collections,
-                role: response.data.account[0].AccountType
-            };
+            if (id) {
+                const response = await AccountsService.getAccount({ id: id });
+                var account = {
+                    id: response.data.account[0]._id,
+                    displayName: response.data.account[0].DisplayName,
+                    email: response.data.account[0].Email,
+                    favoriteVideos: response.data.account[0].FavoriteVideos
+                        ? response.data.account[0].FavoriteVideos.map(video => {
+                              return {
+                                  contentType: video.ContentType,
+                                  id: video.Id
+                              };
+                          })
+                        : [],
+                    collections: response.data.account[0].Collections,
+                    role: response.data.account[0].AccountType
+                };
+            } else {
+                this.account = {
+                    id: null,
+                    role: 'unregistered user'
+                };
+            }
 
             this.setAccount(account);
         },
