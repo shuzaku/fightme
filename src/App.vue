@@ -70,6 +70,10 @@ export default {
     },
 
     created() {
+        this.account = {
+            id: null,
+            role: 'unregistered user'
+        };
         this.getPersistantUser();
         eventbus.$on('open:widget', this.openModal);
         eventbus.$on('account:login', this.setAccount);
@@ -141,11 +145,6 @@ export default {
                         : [],
                     collections: response.data.account[0].Collections,
                     role: response.data.account[0].AccountType
-                };
-            } else {
-                this.account = {
-                    id: null,
-                    role: 'unregistered user'
                 };
             }
 
