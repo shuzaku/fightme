@@ -65,7 +65,8 @@ export default {
             characters: [],
             isOpen: false,
             selectedItem: null,
-            characterMenuOpen: false
+            characterMenuOpen: false,
+            isLoading: false
         };
     },
 
@@ -102,6 +103,8 @@ export default {
             return `${name}`;
         },
         async getCharacters() {
+            this.isLoading = true;
+
             const response = await CharactersService.queryCharacters([
                 {
                     queryName: 'GameId',
@@ -116,6 +119,8 @@ export default {
                     imageUrl: character.AvatarUrl
                 };
             });
+
+            this.isLoading = false;
         },
 
         async getCharacter() {

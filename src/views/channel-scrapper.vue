@@ -9,6 +9,7 @@
                 placeholder="Creator Url"
             />
             <v-btn @click="getChannelId()">Search Creator</v-btn>
+            <v-btn v-if="videos" @click="getChannelId()">NextPage</v-btn>
         </div>
         <div v-if="videos" class="video-list-container">
             <div class="assign-all">
@@ -85,7 +86,8 @@ export default {
             channelTitle: null,
             creators: null,
             creatorId: null,
-            limit: 100
+            limit: 100,
+            nextPageToken: null
         };
     },
 
@@ -96,9 +98,15 @@ export default {
     methods: {
         async fetch() {
             try {
-                const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyCYRdDi_twi0Xq-4W70LJoargI63fI6ljg&channelId=${this.channelId}&part=snippet,id&order=date&maxResults=${this.limit}`;
+                var url = '';
+                if (this.nextPageToken) {
+                    url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyCYRdDi_twi0Xq-4W70LJoargI63fI6ljg&channelId=${this.channelId}&part=snippet,id&order=date&maxResults=${this.limit}&pageToken=${this.nextPageToken}`;
+                } else {
+                    url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyCYRdDi_twi0Xq-4W70LJoargI63fI6ljg&channelId=${this.channelId}&part=snippet,id&order=date&maxResults=${this.limit}`;
+                }
                 const response = await this.axios.get(url);
                 this.channelTitle = response.data.items[0].snippet.channelTitle;
+                this.nextPageToken = response.data.nextPageToken;
                 this.videos = response.data.items.map(item => {
                     return {
                         id: item.id.videoId,

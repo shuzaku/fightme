@@ -14,6 +14,7 @@ import ChannelScrapper from './views/channel-scrapper.vue';
 import FavoriteMatches from './views/favorite-matches.vue';
 import FavoriteCombos from './views/favorite-combos.vue';
 import Montages from './views/montages.vue';
+import MatchUps from './views/matchups.vue';
 import Test from './views/test.vue';
 import Counter from './views/counter.vue';
 
@@ -28,6 +29,8 @@ const routes = [
     {path: '/games', name: 'Games', component: Games},
     {path: '/game/:id', name: 'Game', component: Game},
     {path: '/montages/', name: 'Montages', component: Montages},
+    {path: '/matchups', name: 'MatchUps', component: MatchUps},
+    {path: '/matchups/:id/:id2', name: 'MatchUps', component: MatchUps},
     {path: '/player/:id', name: 'Player', component: Player},
     {path: '/character/:id', name: 'Character', component: Character},
     {path: '/collection/:id', name: 'Collection', component: Collection},

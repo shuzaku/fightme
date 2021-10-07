@@ -58,6 +58,19 @@
                             @character-selected="searchCharacter($event)"
                         />
                     </div>
+                    <div v-if="selectedMain.title === 'Matchups'" class="match-nav inner-list">
+                        <h2>Matchups</h2>
+                        <game-select-menu-item initialOpen @game-selected="searchGame($event)" />
+                        <character-select-menu-item
+                            :gameId="selectedGame.id"
+                            @character-selected="matchupCharacter1($event)"
+                        />
+                        <character-select-menu-item
+                            :title="'Matchup'"
+                            :gameId="selectedGame.id"
+                            @character-selected="matchupCharacter2($event)"
+                        />
+                    </div>
                     <div v-if="selectedMain.title === 'Games'" class="game-nav inner-list">
                         <h2>Games</h2>
                         <game-select-menu-item initialOpen @game-selected="updateGame($event)" />
@@ -116,6 +129,7 @@
                     </div>
 
                     <div v-if="selectedMain.title === 'Character'" class="character-nav inner-list">
+                        <h2>Characters</h2>
                         <character-select-menu-item
                             v-model="selectedCharacterId"
                             :gameId="selectedGame.id"
@@ -221,6 +235,8 @@ export default {
                 { title: 'Videos', icon: 'mdi-video', hasAccess: true },
                 { title: 'Combos', icon: 'mdi-mixed-martial-arts', hasAccess: true },
                 { title: 'Matches', icon: 'mdi-kabaddi', hasAccess: true },
+                { title: 'Montages', icon: 'mdi-film', hasAccess: true },
+                { title: 'Matchups', icon: 'mdi-fencing', hasAccess: true },
                 { title: 'Games', icon: 'mdi-gamepad-square', hasAccess: true },
                 { title: 'Favorites', icon: 'mdi-heart', hasAccess: this.hasAccount },
                 { title: 'Add', icon: 'mdi-plus', hasAccess: this.isAdmin },
@@ -261,11 +277,18 @@ export default {
             if (this.selectedMain.title === 'Collections') {
                 this.$router.push(`/collections/`);
             }
+
+            if (this.selectedMain.title === 'Montages') {
+                this.$router.push(`/montages/`);
+            }
         },
 
         routeName() {
             if (this.routeName === 'Character') {
                 this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
+            }
+            if (this.routeName === 'MatchUps') {
+                this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
             }
         },
 
@@ -278,6 +301,9 @@ export default {
         if (this.routeName === 'Character') {
             this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
             this.selectedCharacterId = this.$route.params.id;
+        }
+        if (this.routeName === 'MatchUps') {
+            this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
         }
     },
 
@@ -313,6 +339,14 @@ export default {
                 value: character.id
             };
             this.setSearch(searchQuery);
+        },
+
+        matchupCharacter1(character) {
+            eventbus.$emit('matchup-character1', character.id);
+        },
+
+        matchupCharacter2(character) {
+            eventbus.$emit('matchup-character2', character.id);
         },
 
         setSearch(searchQuery) {

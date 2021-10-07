@@ -64,6 +64,7 @@ export default {
   },
 
   queryMatchup(params) {
-    return Api().get(`characterMatchup?character1=${params.searchQuery.character1}&character2=${params.searchQuery.character2}`, params)
+    var skip = params.skip;
+    return Api().get(`characterMatchup?character1=${params.searchQuery.character1}&character2=${params.searchQuery.character2}&skip=${skip}`, params)
   }
 } 

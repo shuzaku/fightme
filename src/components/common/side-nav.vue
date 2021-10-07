@@ -41,6 +41,13 @@
                 </router-link>
             </div>
             <div class="menu-item">
+                <router-link to="/montages">
+                    <div class="menu-heading">
+                        <font-awesome-icon icon="film" /><span>Montages</span>
+                    </div>
+                </router-link>
+            </div>
+            <div class="menu-item">
                 <router-link to="/games">
                     <div class="menu-heading">
                         <font-awesome-icon icon="gamepad" /><span>Games</span>
