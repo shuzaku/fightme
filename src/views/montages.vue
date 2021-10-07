@@ -129,7 +129,6 @@ export default {
         },
 
         hydrateVideos(response) {
-            console.log(response);
             response.data.videos.forEach(video => {
                 this.videos.push({
                     montageId: video.Montage ? video.Montage._id : null,
