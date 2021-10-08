@@ -7,16 +7,33 @@
                 mdi-chevron-down
             </v-icon>
         </div>
-        <ul v-if="isOpen" class="games">
-            <li
-                v-for="game in games"
-                :key="game.id"
-                :class="[{ selected: game.selected }]"
-                @click="selectGame(game)"
+
+        <div v-if="isOpen" class="games">
+            <multiselect
+                v-model="selectedItem"
+                :options="games"
+                :close-on-select="true"
+                :clear-on-select="true"
+                :preserve-search="true"
+                :custom-label="customLabel"
+                @input="selectGame($event)"
+                placeholder="Games"
+                label="name"
+                track-by="id"
+                v-if="!isLoading"
             >
-                {{ game.title }}
-            </li>
-        </ul>
+                <template slot="singleLabel" slot-scope="props">
+                    <img class="option__image" :src="props.option.logoUrl" />
+                    <span class="option__name">{{ props.option.title }}</span>
+                </template>
+                <template slot="option" slot-scope="props"
+                    ><img class="option__image" :src="props.option.logoUrl" alt="No Man’s Sky" />
+                    <div class="option__desc">
+                        <span class="option__name">{{ props.option.title }}</span>
+                    </div>
+                </template>
+            </multiselect>
+        </div>
     </div>
 </template>
 
@@ -52,6 +69,10 @@ export default {
     },
 
     methods: {
+        customLabel({ name }) {
+            return `${name}`;
+        },
+
         async getGames() {
             const response = await GamesService.fetchGames();
             this.games = response.data.games.map(game => {
@@ -68,6 +89,7 @@ export default {
             this.games.forEach(game => {
                 game.selected = false;
             });
+
             game.selected = true;
             this.$emit('game-selected', game);
         },
@@ -79,39 +101,19 @@ export default {
 };
 </script>
 <style type="text/css">
-.game-selct-menu-item .logo-img {
-    width: 50px;
-    height: auto;
+.game-selct-menu-item .multiselect__option::after {
+    display: none;
+}
+
+.game-selct-menu-item .option__image {
+    max-width: 30px;
     border-radius: 50%;
+    margin-right: 10px;
 }
 
-.game-selct-menu-item li {
-    list-style: none;
-    font-weight: 400;
-    cursor: pointer;
-    padding: 10px 10px;
-}
-
-.game-selct-menu-item li:hover,
-.game-selct-menu-item li.selected {
-    background: #565656;
-}
-
-.game-selct-menu-item li:last-child {
-    margin-bottom: 0px;
-}
-
-.game-selct-menu-item .games {
-    background: #404040;
-}
-
-.game-selct-menu-item .mdi-chevron-down {
-    transform: rotate(0deg);
-    transition: all 0.3s linear;
-}
-
-.game-selct-menu-item.opened .mdi-chevron-down {
-    transform: rotate(180deg);
-    transition: all 0.3s linear;
+.game-selct-menu-item .multiselect__option,
+.game-selct-menu-item .multiselect__single {
+    display: flex;
+    align-items: center;
 }
 </style>

@@ -281,13 +281,17 @@ export default {
             if (this.selectedMain.title === 'Montages') {
                 this.$router.push(`/montages/`);
             }
+
+            if (this.selectedMain.title === 'Matchups' && this.routeName != 'MatchUps') {
+                this.$router.push(`/matchups/`);
+            }
         },
 
         routeName() {
             if (this.routeName === 'Character') {
                 this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
             }
-            if (this.routeName === 'MatchUps') {
+            if (this.routeName.contains('MatchUps')) {
                 this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
             }
         },
@@ -301,9 +305,6 @@ export default {
         if (this.routeName === 'Character') {
             this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
             this.selectedCharacterId = this.$route.params.id;
-        }
-        if (this.routeName === 'MatchUps') {
-            this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
         }
     },
 
