@@ -18,6 +18,9 @@
                 />
             </div>
         </div>
+        <div v-else class="no-videos">
+            <h2>Unable to find any videos</h2>
+        </div>
     </div>
 </template>
 
@@ -81,6 +84,7 @@ export default {
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('account:update', this.updateFavorites);
+        eventbus.$on('player-filter', this.refreshQuery);
     },
 
     beforeDestroy() {
@@ -88,6 +92,7 @@ export default {
         eventbus.$off('newVideoPosted', this.addedNewVideo);
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('account:update', this.updateFavorites);
+        eventbus.$off('player-filter', this.refreshQuery);
     },
 
     methods: {
@@ -97,17 +102,15 @@ export default {
             this.queryVideos();
         },
 
-        applyFilter(filter) {
+        refreshQuery(newQuery) {
             this.videos = [];
-            this.filter = filter;
-            this.queryVideos();
+            this.queryVideos(newQuery);
         },
 
-        async queryVideos() {
+        async queryVideos(newQuery) {
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
-                filter: this.filter,
                 searchQuery: [
                     {
                         queryName: 'PlayerId',
@@ -115,6 +118,10 @@ export default {
                     }
                 ]
             };
+
+            if (newQuery) {
+                queryParameter.searchQuery.push(newQuery);
+            }
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
@@ -188,7 +195,6 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 20px;
     height: 100%;
     flex-direction: column;
@@ -220,5 +226,9 @@ export default {
     max-width: 900px;
     margin: 0 auto;
     display: block;
+}
+
+.player-view .no-videos h2 {
+    color: #fff;
 }
 </style>

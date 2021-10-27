@@ -78,7 +78,7 @@ export default {
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('filter', this.applyFilter);
-        eventbus.$on('search', this.queryVideos);
+        eventbus.$on('search', this.newQuery);
         eventbus.$on('account:update', this.updateFavorites);
     },
 
@@ -86,11 +86,16 @@ export default {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
         eventbus.$off('filter', this.applyFilter);
-        eventbus.$on('search', this.queryVideos);
+        eventbus.$on('search', this.newQuery);
         eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
+        newQuery(query) {
+            this.videos = [];
+            this.queryVideos(query);
+        },
+
         refreshDelete() {
             this.videos = [];
             this.queryVideos();

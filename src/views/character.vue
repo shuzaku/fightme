@@ -86,7 +86,7 @@ export default {
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
-        eventbus.$on('character-filter', this.applyFilter);
+        eventbus.$on('character-filter', this.refreshQuery);
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('filter-tag:update', this.filterbyTag);
         eventbus.$on('matchup-filter', this.initiateQueryMatchup);
@@ -95,7 +95,7 @@ export default {
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('character-filter', this.applyFilter);
+        eventbus.$off('character-filter', this.refreshQuery);
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('filter-tag:update', this.filterbyTag);
         eventbus.$off('matchup-filter', this.initiateQueryMatchup);
@@ -108,24 +108,21 @@ export default {
             this.queryVideos();
         },
 
-        applyFilter(filter) {
-            this.videos = [];
-            this.filter = filter;
-            this.queryVideos();
-        },
-
         filterbyTag(filter) {
             this.videos = [];
             this.tagFilter = filter;
             this.queryVideos();
         },
 
-        async queryVideos() {
+        refreshQuery(newQuery) {
+            this.videos = [];
+            this.queryVideos(newQuery);
+        },
+
+        async queryVideos(newQuery) {
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
-                filter: this.filter,
-                tagFilter: this.tagFilter,
                 searchQuery: [
                     {
                         queryName: 'CharacterId',
@@ -133,6 +130,10 @@ export default {
                     }
                 ]
             };
+
+            if (newQuery) {
+                queryParameter.searchQuery.push(newQuery);
+            }
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);

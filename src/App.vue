@@ -3,8 +3,7 @@
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <div class="content">
             <div class="side-panel" :class="{ menuActive: showMobileMenu }">
-                <!-- <side-nav :account="account" /> -->
-                <new-nav :account="account" />
+                <new-nav v-if="!isLoading" :account="account" />
                 <div class="mobile-bar" v-if="isSmallMobile">
                     <v-list-item-avatar>
                         <v-img
@@ -25,7 +24,6 @@
                     <div v-if="!isLoading" class="main-content-container">
                         <router-view :account="account" />
                     </div>
-                    <!-- <character-recommended v-if="$route.name === 'Character'" /> -->
                 </div>
             </div>
         </div>
@@ -59,7 +57,12 @@ export default {
             isSmallMobile: false,
             account: null,
             isLoading: true,
-            showMobileMenu: false
+            showMobileMenu: false,
+            request: null,
+            followedPlayers: [],
+            followedGames: [],
+            followedCharacters: [],
+            collections: []
         };
     },
 
@@ -78,9 +81,16 @@ export default {
         eventbus.$on('open:widget', this.openModal);
         eventbus.$on('account:login', this.setAccount);
         eventbus.$on('video:favorite', this.addFavoriteVideo);
+        eventbus.$on('player:follow', this.followPlayer);
+        eventbus.$on('player:unfollow', this.unfollowPlayer);
+        eventbus.$on('game:follow', this.followgame);
+        eventbus.$on('game:unfollow', this.unfollowgame);
+        eventbus.$on('character:follow', this.followCharacter);
+        eventbus.$on('character:unfollow', this.unfollowCharacter);
+        eventbus.$on('game:follow', this.followGame);
+        eventbus.$on('game:unfollow', this.unfollowGame);
         eventbus.$on('video:unfavorite', this.removeFavoriteVideo);
         eventbus.$on('account:logout', this.logout);
-
         window.addEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -88,9 +98,16 @@ export default {
         eventbus.$off('open:widget', this.openModal);
         eventbus.$off('account:login', this.setAccount);
         eventbus.$off('video:favorite', this.addFavoriteVideo);
+        eventbus.$off('game:follow', this.followgame);
+        eventbus.$off('game:unfollow', this.unfollowgame);
+        eventbus.$off('player:follow', this.followPlayer);
+        eventbus.$off('player:unfollow', this.unfollowPlayer);
+        eventbus.$of('character:follow', this.followCharacter);
+        eventbus.$off('character:unfollow', this.unfollowCharacter);
         eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
+        eventbus.$off('game:follow', this.followGame);
+        eventbus.$off('game:unfollow', this.unfollowGame);
         eventbus.$off('account:logout', this.logout);
-
         window.removeEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -123,16 +140,13 @@ export default {
             // eventbus.$emit('screen-size:update', this.screenWidth);
         },
 
-        setAccount(account) {
-            this.account = account;
-            this.isLoading = false;
-        },
-
         async fetchAccount(id) {
+            this.loading = true;
             if (id) {
                 const response = await AccountsService.getAccount({ id: id });
-                var account = {
+                this.account = {
                     id: response.data.account[0]._id,
+                    uid: id,
                     displayName: response.data.account[0].DisplayName,
                     email: response.data.account[0].Email,
                     favoriteVideos: response.data.account[0].FavoriteVideos
@@ -143,12 +157,42 @@ export default {
                               };
                           })
                         : [],
-                    collections: response.data.account[0].Collections,
+                    followedPlayers:
+                        response.data.account[0].FollowedPlayers.map(player => {
+                            return {
+                                id: player._id,
+                                name: player.Name,
+                                imageUrl: player.PlayerImg
+                            };
+                        }) || [],
+                    followedCharacters:
+                        response.data.account[0].FollowedCharacters.map(character => {
+                            return {
+                                id: character._id,
+                                name: character.Name,
+                                imageUrl: character.ImageUrl
+                            };
+                        }) || [],
+                    followedGames:
+                        response.data.account[0].FollowedGames.map(game => {
+                            return {
+                                id: game._id,
+                                title: game.Title,
+                                imageUrl: game.LogoUrl
+                            };
+                        }) || [],
+                    collections:
+                        response.data.account[0].Collections.map(collection => {
+                            return {
+                                id: collection._id,
+                                title: collection.Name
+                            };
+                        }) || [],
                     role: response.data.account[0].AccountType
                 };
             }
-
-            this.setAccount(account);
+            eventbus.$emit('account:update', this.account);
+            this.isLoading = false;
         },
 
         getPersistantUser() {
@@ -172,9 +216,19 @@ export default {
                 .catch(() => {});
         },
 
-        async addFavoriteVideo(video) {
+        getRequest() {
+            this.request = {
+                id: this.account.id,
+                FavoriteVideos: this.account.favoriteVideos,
+                Collections: this.mapCollections(),
+                FollowedPlayers: this.mapPlayers(),
+                FollowedGames: this.mapGames(),
+                FollowedCharacters: this.mapCharacters()
+            };
+        },
+
+        addFavoriteVideo(video) {
             var targetId = null;
-            var request = null;
 
             if (video.contentType === 'Combo') {
                 targetId = video.combo.id;
@@ -182,18 +236,56 @@ export default {
                 targetId = video.id;
             }
 
+            var favoriteVideos = this.createFavoriteVideoRequest(targetId, video);
+            this.request.FavoriteVideos = favoriteVideos;
+
+            this.patchAccount();
+        },
+
+        followPlayer(player) {
+            this.cloneFollowed();
+
+            if (this.followedPlayers.length == 0) {
+                this.followedPlayers = [player];
+            } else {
+                this.followedPlayers.push(player);
+            }
+
+            this.patchAccount();
+        },
+
+        followCharacter(character) {
+            this.cloneFollowed();
+
+            if (this.followedCharacters.length == 0) {
+                this.followedCharacters = [character];
+            } else {
+                this.followedCharacters.push(character);
+            }
+
+            this.patchAccount();
+        },
+
+        followGame(game) {
+            this.cloneFollowed();
+
+            if (this.followedGames.length == 0) {
+                this.followedGames = [game];
+            } else {
+                this.followedGames.push(game);
+            }
+
+            this.patchAccount();
+        },
+
+        createFavoriteVideoRequest(targetId, video) {
             if (this.account.favoriteVideos.length == 0) {
-                this.account.favoriteVideos = [
+                return [
                     {
                         ContentType: video.contentType,
                         Id: targetId
                     }
                 ];
-
-                request = {
-                    id: this.account.id,
-                    FavoriteVideos: this.account.favoriteVideos
-                };
             } else {
                 var favoriteVideos = this.account.favoriteVideos.map(video => {
                     return {
@@ -207,16 +299,11 @@ export default {
                     Id: targetId
                 });
 
-                request = {
-                    id: this.account.id,
-                    FavoriteVideos: favoriteVideos
-                };
+                return favoriteVideos;
             }
-
-            await AccountsService.patchAccount(request);
         },
 
-        async removeFavoriteVideo(video) {
+        removeFavoriteVideo(video) {
             var targetId = null;
 
             if (video.contentType === 'Combo') {
@@ -231,12 +318,79 @@ export default {
                 }
             }
 
-            var request = {
-                id: this.account.id,
-                FavoriteVideos: this.account.favoriteVideos
-            };
+            this.patchAccount();
+        },
 
-            await AccountsService.patchAccount(request);
+        unfollowPlayer(player) {
+            this.cloneFollowed();
+
+            for (var i = 0; i < this.followedPlayers.length; i++) {
+                if (this.followedPlayers[i].id === player.id) {
+                    this.followedPlayers.splice(i, 1);
+                }
+            }
+
+            this.patchAccount();
+        },
+
+        unfollowCharacter(character) {
+            this.cloneFollowed();
+
+            for (var i = 0; i < this.followedCharacters.length; i++) {
+                if (this.followedCharacters[i].id === character.id) {
+                    this.followedCharacters.splice(i, 1);
+                }
+            }
+
+            this.patchAccount();
+        },
+
+        unfollowGame(game) {
+            this.cloneFollowed();
+            for (var i = 0; i < this.followedGames.length; i++) {
+                if (this.followedGames[i] === game.id) {
+                    this.followedGames.splice(i, 1);
+                }
+            }
+
+            this.patchAccount();
+        },
+
+        mapPlayers() {
+            return this.followedPlayers.map(player => {
+                return player.id;
+            });
+        },
+
+        mapCharacters() {
+            return this.followedCharacters.map(character => {
+                return character.id;
+            });
+        },
+
+        mapGames() {
+            return this.followedGames.map(game => {
+                return game.id;
+            });
+        },
+
+        mapCollections() {
+            return this.collections.map(collection => {
+                return collection.id;
+            });
+        },
+
+        async patchAccount() {
+            this.getRequest();
+            await AccountsService.patchAccount(this.request);
+            this.fetchAccount(this.account.uid);
+        },
+
+        cloneFollowed() {
+            this.followedPlayers = this.account.followedPlayers;
+            this.followedCharacters = this.account.followedCharacters;
+            this.followedGames = this.account.followedGames;
+            this.collections = this.account.collections;
         }
     }
 };

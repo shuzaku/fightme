@@ -1,8 +1,8 @@
 <!-- @format -->
 <template>
     <div :class="[{ opened: isOpen }, 'player-select-menu-item']">
-        <div class="menu-item" @click="open">
-            Players
+        <div class="menu-item" @click="toggleOpen">
+            {{ title }}
             <v-icon>
                 mdi-chevron-down
             </v-icon>
@@ -10,7 +10,7 @@
 
         <div v-if="isOpen" class="players">
             <v-autocomplete
-                v-model="selectedItem"
+                v-model="value"
                 :items="players"
                 :menu-props="{ closeOnContentClick: true }"
                 label="Players"
@@ -37,6 +37,14 @@ export default {
         initialOpen: {
             type: Boolean,
             default: false
+        },
+        value: {
+            type: Object,
+            default: null
+        },
+        title: {
+            type: String,
+            default: 'Players'
         }
     },
 
@@ -44,7 +52,6 @@ export default {
         return {
             players: [],
             isOpen: false,
-            selectedItem: null,
             isLoading: false
         };
     },
@@ -84,8 +91,12 @@ export default {
             this.$emit('player-selected', item);
         },
 
-        open() {
+        toggleOpen() {
             this.isOpen = !this.isOpen;
+        },
+
+        collapse() {
+            this.isOpen = false;
         }
     }
 };

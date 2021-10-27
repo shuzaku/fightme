@@ -28,5 +28,5 @@ export default {
 
   patchAccount (params) {
     return Api().put('accounts/' + params.id, params)
-  },
+  }
 } 

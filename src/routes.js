@@ -31,6 +31,7 @@ const routes = [
     {path: '/montages/', name: 'Montages', component: Montages},
     {path: '/matchups', name: 'MatchUps', component: MatchUps},
     {path: '/matchups/:id/:id2', name: 'MatchUps', component: MatchUps},
+    {path: '/players/', name: 'Players', component: Player},
     {path: '/player/:id', name: 'Player', component: Player},
     {path: '/character/:id', name: 'Character', component: Character},
     {path: '/collection/:id', name: 'Collection', component: Collection},

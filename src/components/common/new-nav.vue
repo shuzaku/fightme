@@ -35,29 +35,39 @@
 
                 <v-list>
                     <general-search />
-                    <div v-if="selectedMain.title === 'Videos'" class="video-nav inner-list ">
-                        <h2>Videos</h2>
-                        <game-select-menu-item initialOpen @game-selected="updateGame($event)" />
-                        <player-select-menu-item @player-selected="updatePlayer($event)" />
-                    </div>
-                    <div v-if="selectedMain.title === 'Combos'" class="combo-nav inner-list ">
-                        <h2>Combos</h2>
-                        <game-select-menu-item initialOpen @game-selected="updateGame($event)" />
-                        <character-select-menu-item
-                            v-if="selectedGame"
-                            :gameId="selectedGame.id"
-                            @character-selected="updateCharacter($event)"
-                        />
-                    </div>
-                    <div v-if="selectedMain.title === 'Matches'" class="match-nav inner-list">
-                        <h2>Matches</h2>
-                        <game-select-menu-item initialOpen @game-selected="searchGame($event)" />
-                        <character-select-menu-item
-                            v-if="selectedGame"
-                            :gameId="selectedGame.id"
-                            @character-selected="searchCharacter($event)"
-                        />
-                    </div>
+                    <video-menu
+                        v-if="selectedMain.title === 'Videos'"
+                        :account="account"
+                        @set-search="setSearch($event)"
+                    />
+                    <combo-menu
+                        v-if="selectedMain.title === 'Combos'"
+                        @set-search="setSearch($event)"
+                    />
+
+                    <match-menu
+                        v-if="selectedMain.title === 'Matches'"
+                        @set-search="setSearch($event)"
+                    />
+
+                    <player-menu
+                        v-if="selectedMain.title === 'Players'"
+                        :account="account"
+                        @set-search="setSearch($event)"
+                    />
+
+                    <game-menu
+                        v-if="selectedMain.title === 'Games'"
+                        :account="account"
+                        @set-search="setSearch($event)"
+                    />
+
+                    <character-menu
+                        v-if="selectedMain.title === 'Character'"
+                        :account="account"
+                        @set-search="setSearch($event)"
+                    />
+
                     <div v-if="selectedMain.title === 'Matchups'" class="match-nav inner-list">
                         <h2>Matchups</h2>
                         <game-select-menu-item initialOpen @game-selected="searchGame($event)" />
@@ -71,15 +81,7 @@
                             @character-selected="matchupCharacter2($event)"
                         />
                     </div>
-                    <div v-if="selectedMain.title === 'Games'" class="game-nav inner-list">
-                        <h2>Games</h2>
-                        <game-select-menu-item initialOpen @game-selected="updateGame($event)" />
-                        <character-select-menu-item
-                            v-if="selectedGame"
-                            :gameId="selectedGame.id"
-                            @character-selected="updateCharacter($event)"
-                        />
-                    </div>
+
                     <div
                         v-if="selectedMain.title === 'Favorites' && account"
                         class="favorite-nav inner-list"
@@ -128,7 +130,7 @@
                         </div>
                     </div>
 
-                    <div v-if="selectedMain.title === 'Character'" class="character-nav inner-list">
+                    <!-- <div v-if="selectedMain.title === 'Character'" class="character-nav inner-list">
                         <h2>Characters</h2>
                         <character-select-menu-item
                             v-model="selectedCharacterId"
@@ -148,7 +150,7 @@
                         <div class="menu-item" @click="emitCombo()">
                             Combos
                         </div>
-                    </div>
+                    </div> -->
 
                     <div v-if="selectedMain.title === 'Account'" class="account-nav inner-list">
                         <h2>Account</h2>
@@ -162,19 +164,28 @@
 
 <script>
 import GameSelectMenuItem from '@/components/games/game-select-menu-item';
-import PlayerSelectMenuItem from '@/components/players/player-select-menu-item';
-import CharacterSelectMenuItem from '@/components/character/character-select-menu-item';
 import CollectionSelectMenuItem from '@/components/collection/collection-select-menu-item';
 import GeneralSearch from '@/components/common/general-search';
 import User from '@/components/account/user';
+import VideoMenu from '@/components/common/sub-nav/video-menu';
+import ComboMenu from '@/components/common/sub-nav/combo-menu';
+import MatchMenu from '@/components/common/sub-nav/match-menu';
+import PlayerMenu from '@/components/common/sub-nav/player-menu';
+import GameMenu from '@/components/common/sub-nav/game-menu';
+import CharacterMenu from '@/components/common/sub-nav/character-menu';
+
 import { eventbus } from '@/main';
 
 export default {
     components: {
         'game-select-menu-item': GameSelectMenuItem,
-        'player-select-menu-item': PlayerSelectMenuItem,
-        'character-select-menu-item': CharacterSelectMenuItem,
         'collection-select-menu-item': CollectionSelectMenuItem,
+        'video-menu': VideoMenu,
+        'combo-menu': ComboMenu,
+        'match-menu': MatchMenu,
+        'player-menu': PlayerMenu,
+        'game-menu': GameMenu,
+        'character-menu': CharacterMenu,
         'general-search': GeneralSearch,
         user: User
     },
@@ -263,6 +274,10 @@ export default {
 
     watch: {
         selectedMain() {
+            this.selectedGame = {
+                id: null
+            };
+            this.selectedCharacterId = null;
             if (this.selectedMain.title === 'Videos') {
                 this.$router.push(`/`);
             }
@@ -291,8 +306,14 @@ export default {
             if (this.routeName === 'Character') {
                 this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
             }
-            if (this.routeName.contains('MatchUps')) {
+            if (this.routeName === 'MatchUps') {
                 this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
+            }
+            if (this.routeName === 'Players' || this.routeName === 'Player') {
+                this.selectedMain = { title: 'Players', icon: 'mdi-human-handsup' };
+            }
+            if (this.routeName === 'Game') {
+                this.selectedMain = { title: 'Games', icon: 'mdi-human-handsup' };
             }
         },
 
@@ -305,6 +326,15 @@ export default {
         if (this.routeName === 'Character') {
             this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
             this.selectedCharacterId = this.$route.params.id;
+        }
+        if (this.routeName === 'MatchUps') {
+            this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
+        }
+        if (this.routeName === 'Game') {
+            this.selectedMain = { title: 'Games', icon: 'mdi-human-handsup' };
+        }
+        if (this.routeName === 'Players' || this.routeName === 'Player') {
+            this.selectedMain = { title: 'Players', icon: 'mdi-human-handsup' };
         }
     },
 

@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div :class="[{ opened: isOpen }, 'game-selct-menu-item']">
-        <div class="menu-item" @click="open">
+        <div class="menu-item" @click="toggleOpen">
             Games
             <v-icon>
                 mdi-chevron-down
@@ -10,7 +10,7 @@
 
         <div v-if="isOpen" class="games">
             <multiselect
-                v-model="selectedItem"
+                v-model="value"
                 :options="games"
                 :close-on-select="true"
                 :clear-on-select="true"
@@ -20,7 +20,6 @@
                 placeholder="Games"
                 label="name"
                 track-by="id"
-                v-if="!isLoading"
             >
                 <template slot="singleLabel" slot-scope="props">
                     <img class="option__image" :src="props.option.logoUrl" />
@@ -46,14 +45,17 @@ export default {
         initialOpen: {
             type: Boolean,
             default: false
+        },
+        value: {
+            type: Object,
+            default: null
         }
     },
 
     data() {
         return {
             games: [],
-            isOpen: false,
-            selectedItem: null
+            isOpen: false
         };
     },
 
@@ -94,8 +96,13 @@ export default {
             this.$emit('game-selected', game);
         },
 
-        open() {
+        toggleOpen() {
+            this.$emit('selectExpand');
             this.isOpen = !this.isOpen;
+        },
+
+        collapse() {
+            this.isOpen = false;
         }
     }
 };

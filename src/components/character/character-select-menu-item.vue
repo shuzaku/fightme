@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div :class="[{ opened: isOpen }, 'character-select-menu-item']">
-        <div class="menu-item" @click="open">
+        <div class="menu-item" @click="toggleOpen">
             {{ title }}
             <v-icon>
                 mdi-chevron-down
@@ -9,7 +9,7 @@
         </div>
         <div v-if="isOpen" class="characters">
             <multiselect
-                v-model="selectedItem"
+                v-model="value"
                 :options="characters"
                 :close-on-select="true"
                 :clear-on-select="true"
@@ -64,7 +64,6 @@ export default {
         return {
             characters: [],
             isOpen: false,
-            selectedItem: null,
             characterMenuOpen: false,
             isLoading: false
         };
@@ -104,13 +103,17 @@ export default {
         },
         async getCharacters() {
             this.isLoading = true;
-
-            const response = await CharactersService.queryCharacters([
-                {
-                    queryName: 'GameId',
-                    queryValue: this.gameId
-                }
-            ]);
+            var response = null;
+            if (this.value != 'all') {
+                response = await CharactersService.queryCharacters([
+                    {
+                        queryName: 'GameId',
+                        queryValue: this.gameId
+                    }
+                ]);
+            } else {
+                response = await CharactersService.fetchCharacters();
+            }
 
             this.characters = response.data.characters.map(character => {
                 return {
@@ -132,7 +135,7 @@ export default {
                 gameId: response.data.GameId
             });
 
-            this.selectedItem = {
+            this.value = {
                 id: response.data._id,
                 name: response.data.Name,
                 imageUrl: response.data.AvatarUrl
@@ -149,13 +152,18 @@ export default {
             this.characterMenuOpen = false;
         },
 
-        open() {
+        toggleOpen() {
+            this.$emit('selectExpand');
             this.isOpen = !this.isOpen;
         },
 
         clearCharater() {
             this.isOpen = false;
-            this.selectedItem = null;
+            this.value = null;
+        },
+
+        collapse() {
+            this.isOpen = false;
         }
     }
 };
