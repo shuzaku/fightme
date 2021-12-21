@@ -86,7 +86,8 @@ export default {
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
-        eventbus.$on('character-filter', this.refreshQuery);
+        eventbus.$on('character-query', this.refreshQuery);
+        eventbus.$on('character-filter', this.filterQuery);
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('filter-tag:update', this.filterbyTag);
         eventbus.$on('matchup-filter', this.initiateQueryMatchup);
@@ -95,7 +96,8 @@ export default {
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('character-filter', this.refreshQuery);
+        eventbus.$off('character-query', this.refreshQuery);
+        eventbus.$off('character-filter', this.filterQuery);
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('filter-tag:update', this.filterbyTag);
         eventbus.$off('matchup-filter', this.initiateQueryMatchup);
@@ -117,6 +119,12 @@ export default {
         refreshQuery(newQuery) {
             this.videos = [];
             this.queryVideos(newQuery);
+        },        
+        
+        filterQuery(filter) {
+            this.videos = [];
+            this.filter = filter;
+            this.queryVideos();
         },
 
         async queryVideos(newQuery) {
@@ -128,7 +136,8 @@ export default {
                         queryName: 'CharacterId',
                         queryValue: this.characterId
                     }
-                ]
+                ],
+                filter: this.filter
             };
 
             if (newQuery) {

@@ -26,14 +26,8 @@ export default {
     if(params.sortOption){
       queryParams.push(`sort=${params.sortOption}`)
     }
-    // if(params.filter){
-    //   queryParams.push(`filter=${params.filter}`)
-    // }
     if(params.filter){
-      var filterName =  params.filter.filterName;
-      var filterValue =  params.filter.filterValue;
-      queryParams.push(`filterName=${filterName}`);
-      queryParams.push(`filterValue=${filterValue}`)
+      queryParams.push(`filter=${params.filter}`)
     }
     if(params.tagFilter){
       queryParams.push(`tag=${params.tagFilter}`)

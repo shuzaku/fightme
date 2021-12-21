@@ -18,6 +18,7 @@ import firebase from 'firebase/app'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
+import VTooltip from 'v-tooltip'
 
 
 library.add(faDiscord)
@@ -28,6 +29,7 @@ Object.defineProperty(Vue.prototype, '$_', { value: _ });
 Vue.use(VueWaypoint)
 Vue.use(VueRouter);
 Vue.use(moment);
+Vue.use(VTooltip)
 Vue.component('multiselect', Multiselect)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })

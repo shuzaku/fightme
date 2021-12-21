@@ -38,6 +38,7 @@ import Modal from '@/components/common/modal';
 // import Trending from '@/components/trending/trending';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
+import moment from 'moment';
 
 export default {
     name: 'App',
@@ -102,7 +103,7 @@ export default {
         eventbus.$off('game:unfollow', this.unfollowgame);
         eventbus.$off('player:follow', this.followPlayer);
         eventbus.$off('player:unfollow', this.unfollowPlayer);
-        eventbus.$of('character:follow', this.followCharacter);
+        eventbus.$off('character:follow', this.followCharacter);
         eventbus.$off('character:unfollow', this.unfollowCharacter);
         eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
         eventbus.$off('game:follow', this.followGame);
@@ -127,10 +128,10 @@ export default {
 
         calculateScreenWidth() {
             this.screenWidth = this.$refs.mainPanel.clientWidth;
-            if (this.screenWidth < 1000) {
+            if (this.screenWidth < 900) {
                 this.isSmallMobile = true;
                 this.isMobile = true;
-            } else if (this.screenWidth < 1000) {
+            } else if (this.screenWidth < 900) {
                 this.isMobile = true;
                 this.isSmallMobile = false;
             } else {
@@ -144,6 +145,7 @@ export default {
             this.loading = true;
             if (id) {
                 const response = await AccountsService.getAccount({ id: id });
+                console.log(response.data)
                 this.account = {
                     id: response.data.account[0]._id,
                     uid: id,
@@ -158,27 +160,35 @@ export default {
                           })
                         : [],
                     followedPlayers:
-                        response.data.account[0].FollowedPlayers.map(player => {
+                        response.data.account[0].FollowedPlayersDetails.map(player => {
                             return {
                                 id: player._id,
                                 name: player.Name,
-                                imageUrl: player.PlayerImg
+                                imageUrl: player.PlayerImg,
+                                type:"player",
+                                addedDate: this.getAddedDate("player" , player._id, response.data.account[0]),
                             };
                         }) || [],
                     followedCharacters:
-                        response.data.account[0].FollowedCharacters.map(character => {
+                        response.data.account[0].FollowedCharactersDetails.map(character => {
                             return {
                                 id: character._id,
                                 name: character.Name,
-                                imageUrl: character.ImageUrl
+                                imageUrl: character.AvatarUrl,
+                                type:"character",
+                                addedDate: this.getAddedDate("character" , character._id, response.data.account[0]),
+
                             };
                         }) || [],
                     followedGames:
-                        response.data.account[0].FollowedGames.map(game => {
+                        response.data.account[0].FollowedGamesDetails.map(game => {
                             return {
                                 id: game._id,
-                                title: game.Title,
-                                imageUrl: game.LogoUrl
+                                name: game.Title,
+                                imageUrl: game.LogoUrl,
+                                type:"game",
+                                addedDate: this.getAddedDate("game" , game._id, response.data.account[0]),
+
                             };
                         }) || [],
                     collections:
@@ -193,6 +203,26 @@ export default {
             }
             eventbus.$emit('account:update', this.account);
             this.isLoading = false;
+        },
+
+        getAddedDate(type, id, response) {
+            switch(type) {
+                case 'player':
+                    var date = response.FollowedPlayers.filter(player => player.PlayerId === id)[0].AddedDate;
+                    return date;
+                    break;
+                case 'game':
+                    var date = response.FollowedGames.filter(game => game.GameId === id)[0].AddedDate;
+                    return date;                    
+                    break;
+                case 'character':
+                    var date = response.FollowedCharacters.filter(character => character.CharacterId === id)[0].AddedDate;
+                    return date;                    
+                    break;
+                default :
+                    return null;
+                    break
+            }
         },
 
         getPersistantUser() {
@@ -244,11 +274,12 @@ export default {
 
         followPlayer(player) {
             this.cloneFollowed();
+             var newFollowPlayer = {'id': player.id, addedDate: moment().format()};
 
             if (this.followedPlayers.length == 0) {
-                this.followedPlayers = [player];
+                this.followedPlayers = [newFollowPlayer];
             } else {
-                this.followedPlayers.push(player);
+                this.followedPlayers.push(newFollowPlayer);
             }
 
             this.patchAccount();
@@ -256,11 +287,12 @@ export default {
 
         followCharacter(character) {
             this.cloneFollowed();
+            var newFollowCharacter = {'id': character.id, addedDate: moment().format()};
 
             if (this.followedCharacters.length == 0) {
-                this.followedCharacters = [character];
+                this.followedCharacters = [newFollowCharacter];
             } else {
-                this.followedCharacters.push(character);
+                this.followedCharacters.push(newFollowCharacter);
             }
 
             this.patchAccount();
@@ -268,11 +300,12 @@ export default {
 
         followGame(game) {
             this.cloneFollowed();
+            var newFollowedGame = {'id': game.id, addedDate: moment().format()};
 
             if (this.followedGames.length == 0) {
-                this.followedGames = [game];
+                this.followedGames = [newFollowedGame];
             } else {
-                this.followedGames.push(game);
+                this.followedGames.push(newFollowedGame);
             }
 
             this.patchAccount();
@@ -348,7 +381,7 @@ export default {
         unfollowGame(game) {
             this.cloneFollowed();
             for (var i = 0; i < this.followedGames.length; i++) {
-                if (this.followedGames[i] === game.id) {
+                if (this.followedGames[i].id === game.id) {
                     this.followedGames.splice(i, 1);
                 }
             }
@@ -357,22 +390,29 @@ export default {
         },
 
         mapPlayers() {
-            return this.followedPlayers.map(player => {
-                return player.id;
-            });
+            return this.followedPlayers.map(player => { 
+                return {
+                    PlayerId: player.id,
+                    AddedDate: player.addedDate
+                }}
+            );
         },
 
         mapCharacters() {
-            return this.followedCharacters.map(character => {
-                return character.id;
-            });
-        },
+            return this.followedCharacters.map(character => { 
+                return {
+                    CharacterId: character.id,
+                    AddedDate: character.addedDate
+                }}
+            );        },
 
         mapGames() {
-            return this.followedGames.map(game => {
-                return game.id;
-            });
-        },
+            return this.followedGames.map(game => { 
+                return {
+                    GameId: game.id,
+                    AddedDate: game.addedDate
+                }}
+            );        },
 
         mapCollections() {
             return this.collections.map(collection => {
@@ -481,6 +521,13 @@ export default {
 #app .trending-container {
     width: 350px;
     padding-top: 80px;
+}
+
+.tooltip {
+    background: #fff;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-family: "Roboto"
 }
 
 .trending-container h2 {

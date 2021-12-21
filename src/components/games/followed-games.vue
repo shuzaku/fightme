@@ -10,21 +10,29 @@
 
         <div v-if="isOpen" class="games">
             <div v-for="game in games" :key="game.id">
-                {{ game.title }}
+                <div class="followed-game" @click="routeToGame(game.id)">
+                    <div class="avatar">
+                        <img v-if="game.imageUrl" :src="game.imageUrl" />
+                        <div v-else class="blank-avatar"></div>
+                    </div>
+                    {{ game.title }}
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import GamesService from '@/services/games-service';
-
 export default {
     name: 'followed-games',
     props: {
         initialOpen: {
             type: Boolean,
             default: false
+        },
+        followedGames: {
+            type: Array,
+            default: null
         }
     },
 
@@ -35,28 +43,26 @@ export default {
             isLoading: false
         };
     },
-
     computed: {
         componentStyle() {
             return '[{opened: }]';
         }
     },
 
+    watch: {
+        followedGames() {
+            this.getGames();
+        }
+    },
+
     mounted() {
-        this.getGames();
         this.isOpen = this.initialOpen;
     },
 
     methods: {
-        async getGames() {
+        getGames() {
             this.isLoading = true;
-            const response = await GamesService.fetchGames();
-            this.games = response.data.games.map(game => {
-                return {
-                    id: game._id,
-                    title: game.Title
-                };
-            });
+            this.games = this.followedGames;
             this.isLoading = false;
         },
 
@@ -66,6 +72,10 @@ export default {
 
         collapse() {
             this.isOpen = false;
+        },
+
+        routeToGame(gameId) {
+            this.$router.push(`/game/${gameId}`);
         }
     }
 };
@@ -79,5 +89,28 @@ export default {
 .followed-games.opened .mdi-chevron-down {
     transform: rotate(-90deg);
     transition: all 0.3s linear;
+}
+.followed-games .followed-game {
+    color: #fff;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.followed-games .avatar {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 10px;
+    background: #fff;
+}
+
+.followed-games .avatar img {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #3eb489;
 }
 </style>

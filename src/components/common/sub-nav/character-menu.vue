@@ -34,8 +34,8 @@
                     @character-selected="matchupCharacterFilter($event)"
                 />
             </div>
-            <h3>Matches</h3>
-            <h3>Combos</h3>
+            <h3 @click="filterMatches()">Matches</h3>
+            <h3 @click="filterCombos()">Combos</h3>
             <h3>Montages</h3>
             <h3>Top Players</h3>
             <div>Coming soon...</div>
@@ -140,7 +140,15 @@ export default {
                 queryValue: character.id
             };
 
-            eventbus.$emit('character-filter', queryParams);
+            eventbus.$emit('character-query', queryParams);
+        },
+
+        filterMatches() {
+            eventbus.$emit('character-filter', "Match");
+        },
+
+        filterCombos() {
+            eventbus.$emit('character-filter', "Combo");
         },
 
         collapseSelect() {

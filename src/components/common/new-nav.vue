@@ -16,6 +16,7 @@
                     <v-divider></v-divider>
 
                     <v-list dense nav>
+                        <follows :account="account" />
                         <v-list-item
                             v-for="item in mainItems"
                             :key="item.title"
@@ -67,6 +68,13 @@
                         :account="account"
                         @set-search="setSearch($event)"
                     />
+
+                    <follow-menu
+                        v-if="selectedMain.title === 'Follow'"
+                        :account="account"
+                        @set-search="setSearch($event)"
+                    />
+
 
                     <div v-if="selectedMain.title === 'Matchups'" class="match-nav inner-list">
                         <h2>Matchups</h2>
@@ -187,7 +195,7 @@ export default {
         'game-menu': GameMenu,
         'character-menu': CharacterMenu,
         'general-search': GeneralSearch,
-        user: User
+        user: User,
     },
 
     props: {
@@ -243,19 +251,17 @@ export default {
         },
         mainItems: function() {
             return [
-                { title: 'Videos', icon: 'mdi-video', hasAccess: true },
-                { title: 'Combos', icon: 'mdi-mixed-martial-arts', hasAccess: true },
-                { title: 'Matches', icon: 'mdi-kabaddi', hasAccess: true },
-                { title: 'Montages', icon: 'mdi-film', hasAccess: true },
-                { title: 'Matchups', icon: 'mdi-fencing', hasAccess: true },
-                { title: 'Games', icon: 'mdi-gamepad-square', hasAccess: true },
-                { title: 'Favorites', icon: 'mdi-heart', hasAccess: this.hasAccount },
+                { title: 'Explore', icon: 'mdi-gamepad-square', hasAccess: true, subMenu: false },
+                { title: 'Favorites', icon: 'mdi-heart', hasAccess: this.hasAccount, subMenu: true },
                 { title: 'Add', icon: 'mdi-plus', hasAccess: this.isAdmin },
                 {
                     title: 'Collections',
                     icon: 'mdi-book-variant-multiple',
-                    hasAccess: this.hasAccount
-                }
+                    hasAccess: this.hasAccount,
+                    subMenu: true
+                },
+                { title: 'Search', icon: 'mdi-magnify', hasAccess: this.isAdmin,subMenu: false },
+
             ];
         },
 
@@ -297,6 +303,10 @@ export default {
                 this.$router.push(`/montages/`);
             }
 
+            if (this.selectedMain.title === 'Explore') {
+                this.$router.push(`/explore/`);
+            }
+
             if (this.selectedMain.title === 'Matchups' && this.routeName != 'MatchUps') {
                 this.$router.push(`/matchups/`);
             }
@@ -311,6 +321,9 @@ export default {
             }
             if (this.routeName === 'Players' || this.routeName === 'Player') {
                 this.selectedMain = { title: 'Players', icon: 'mdi-human-handsup' };
+            }
+            if (this.routeName === 'Explore') {
+                this.selectedMain = { title: 'Explore', icon: 'mdi-human-handsup' };
             }
             if (this.routeName === 'Game') {
                 this.selectedMain = { title: 'Games', icon: 'mdi-human-handsup' };
@@ -459,8 +472,8 @@ export default {
     padding: 0 5px;
 }
 
-.navigation .v-list {
-    width: 235px;
+.navigation  .v-navigation-drawer  .v-list {
+    width: 80%;
 }
 
 .navigation .menu-item {
@@ -517,5 +530,22 @@ export default {
 .navigation .account {
     position: absolute;
     bottom: 20px;
+}
+
+.navigation .v-list{
+    width: 100%
+}
+
+.navigation .v-list--nav {
+    padding: 0px;
+}
+
+.navigation .v-list-item {
+    padding: 0px;
+    justify-content: space-around;
+}
+
+.navigation .v-list-item::after {
+    display: none;
 }
 </style>

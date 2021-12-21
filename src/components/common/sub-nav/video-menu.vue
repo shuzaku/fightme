@@ -1,22 +1,16 @@
 <!-- @format -->
 <template>
     <div class="video-nav inner-list ">
-        <followed-players initialOpen :followedPlayers="followedPlayers" />
-        <followed-characters initialOpen :followedCharacters="followedCharacters" />
-        <followed-games initialOpen :followedGames="followedGames" />
+        <follows initialOpen :account="account" />
     </div>
 </template>
 
 <script>
-import FollowedPlayers from '@/components/players/followed-players';
-import FollowedCharacters from '@/components/character/followed-characters';
-import FollowedGames from '@/components/games/followed-games';
+import Follows from '@/components/account/follows';
 
 export default {
     components: {
-        'followed-players': FollowedPlayers,
-        'followed-characters': FollowedCharacters,
-        'followed-games': FollowedGames
+        'follows': Follows,
     },
 
     props: {
@@ -35,9 +29,6 @@ export default {
     },
 
     mounted() {
-        (this.followedCharacters = this.account.followedCharacters),
-            (this.followedGames = this.account.followedGames),
-            (this.followedPlayers = this.account.followedPlayers);
     }
 };
 </script>
