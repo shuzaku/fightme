@@ -13,6 +13,7 @@
         <new-video
             v-if="options.name === 'video'"
             :videoId="options.videoId"
+            :account="this.account"
             @closeModal="closeModal()"
         />
 
@@ -54,18 +55,18 @@ export default {
         'new-character': newCharacter,
         register: register,
         login: login,
-        collections: collections
+        collections: collections,
     },
 
     props: {
         options: {
             type: Object,
-            default: null
+            default: null,
         },
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data: () => ({}),
@@ -75,8 +76,8 @@ export default {
     methods: {
         closeModal() {
             this.$emit('closeModal');
-        }
-    }
+        },
+    },
 };
 </script>
 

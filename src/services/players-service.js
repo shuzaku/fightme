@@ -21,5 +21,11 @@ export default {
   
   deletePlayer(id) {
     return Api().delete('players/' + id)
-  }
+  },
+
+  queryPlayers (params) {
+    var queryNames = params.map(param => { return param.queryName}); 
+    var queryValue = params.map(param => { return param.queryValue}); 
+    return Api().get('playerQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
+  },
 } 

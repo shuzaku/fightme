@@ -40,30 +40,11 @@
                             type="text"
                             placeholder="Video Url"
                         />
-                        <v-btn
-                            v-if="!isVideoClipped && video.type === 'youtube'"
-                            class="players-btn"
-                            tile
-                            color="indigo"
-                            @click="isVideoClipped = !isVideoClipped"
-                        >
-                            Clip Video
-                        </v-btn>
-                        <div v-if="isVideoClipped" class="video-clip-container">
-                            <div class="startTime">
-                                <v-text-field
-                                    v-model="video.startTime"
-                                    type="Number"
-                                    placeholder="Start Time"
-                                />
-                            </div>
-                            <div class="endTime">
-                                <v-text-field
-                                    v-model="video.endTime"
-                                    type="Number"
-                                    placeholder="End Time"
-                                />
-                            </div>
+                        <div class="creator-container">
+                            <creator-search
+                                v-model="video.contentCreatorId"
+                                @update:creator="setCreator($event)"
+                            />
                         </div>
                     </div>
                     <div v-else class="upload-video-container">
@@ -74,183 +55,34 @@
                     </div>
                 </div>
             </div>
-            <div v-if="currentStep === 'Match'" class="match-step">
-                <!--- tournament --->
-                <v-checkbox v-model="isTournament" :label="`Tournament Match?`"></v-checkbox>
-                <tournament-search v-if="isTournament" v-model="video.match.tournamentId" />
+            <match-video-settings
+                v-if="currentStep === 'Match'"
+                :gameId="video.gameId"
+                @update:match="updateMatch($event)"
+            />
+            <combo-video-settings
+                v-if="currentStep === 'Combo'"
+                :gameId="video.gameId"
+                :videoUrl="video.url"
+                @update:match="updateCombo($event)"
+            />
 
-                <!--- creator --->
-                <div class="creator-container">
-                    <creator-search
-                        v-model="video.contentCreatorId"
-                        @update:creator="setCreator($event)"
-                    />
-                </div>
+            <montage-video-settings
+                v-if="currentStep === 'Montage'"
+                :gameId="video.gameId"
+                @update:match="updateMontage($event)"
+            />
 
-                <!--- players --->
-                <div class="players-container">
-                    <h2>Players</h2>
-                    <div class="team1">
-                        <div v-for="(player, index) in video.match.team1Players" :key="index">
-                            <player-search
-                                v-model="player.id"
-                                @update:player="addPlayerToTeam1($event, index)"
-                            />
-                            <div class="character-container">
-                                <h3>Characters</h3>
-                                <character-search
-                                    v-model="player.characterIds"
-                                    :gameId="video.gameId"
-                                    @update:character="addCharacterToPlayer($event, player)"
-                                />
-                                <v-btn @click="addCharacter(player)">addCharacter</v-btn>
-                            </div>
-                        </div>
-                        <v-btn @click="addToTeam1()">AddPlayers</v-btn>
-                    </div>
-                    <div class="versus">Vs.</div>
-                    <div class="team2">
-                        <div v-for="(player, index) in video.match.team2Players" :key="index">
-                            <player-search
-                                v-model="player.id"
-                                @update:player="addPlayerToTeam2($event, index)"
-                            />
-                            <div class="character-container">
-                                <h3>Characters</h3>
-                                <character-search
-                                    v-model="player.characterIds"
-                                    :gameId="video.gameId"
-                                    @update:character="addCharacterToPlayer($event, player)"
-                                />
-                                <v-btn @click="addCharacter(player)">addCharacter</v-btn>
-                            </div>
-                        </div>
-                        <v-btn @click="addToTeam2()">AddPlayers</v-btn>
-                    </div>
-                    <div class="tag">
-                        <tag-search
-                            v-model="video.tags"
-                            :taggable="true"
-                            @update:tags="setTags($event)"
-                        />
-                    </div>
-                </div>
-            </div>
-            <div v-if="currentStep === 'Combo'" class="combo-step">
-                <div class="combos-container">
-                    <youtube-media
-                        v-if="video.type === 'youtube'"
-                        :video-id="video.url"
-                        :player-width="400"
-                        :player-height="225"
-                        :player-vars="{ rel: 0 }"
-                    />
-                    <div v-for="(combo, index) in video.combos" :key="index" class="combo">
-                        <div class="combo-title" @click="expandComboMenu(index)">
-                            <h3>Combo {{ index + 1 }}</h3>
-                        </div>
-                        <div v-show="combo.isExpanded" class="combo-container">
-                            <div v-if="showErrorMessage" class="error-container">
-                                <p class="error-msg">
-                                    Please finish this combo before adding a new one.
-                                </p>
-                            </div>
-                            <div class="character-container">
-                                <character-search
-                                    v-model="combo.characterId"
-                                    :gameId="video.gameId"
-                                    @update:character="setComboCharacter($event, combo)"
-                                />
-                            </div>
-                            <div class="inputs-container">
-                                <v-textarea v-model="combo.inputs" placeholder="Combo Inputs" />
-                            </div>
-                            <div class="combo-stats ">
-                                <div class="startTime input-container">
-                                    <v-text-field
-                                        v-model="combo.startTime"
-                                        type="Number"
-                                        placeholder="Start Time"
-                                    />
-                                </div>
-                                <div class="endTime input-container">
-                                    <v-text-field
-                                        v-model="combo.endTime"
-                                        type="Number"
-                                        placeholder="End Time"
-                                    />
-                                </div>
-                                <div class="damage input-container">
-                                    <v-text-field
-                                        v-model="combo.damage"
-                                        class="damage"
-                                        type="Number"
-                                        placeholder="Damage"
-                                    />
-                                </div>
-                                <div class="hits input-container">
-                                    <v-text-field
-                                        v-model="combo.hits"
-                                        class="hits"
-                                        placeholder="Hits"
-                                        type="Number"
-                                    />
-                                </div>
-                            </div>
-                            <div class="tag">
-                                <tag-search
-                                    v-model="video.tags"
-                                    :taggable="true"
-                                    @update:tags="setTags($event, combo)"
-                                />
-                            </div>
-                            <v-btn class="add-combo-btn" rounded @click="addCombo(index)"
-                                >Add More Combo</v-btn
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div v-if="currentStep === 'Montage'" class="match-step">
-                <p class="error-msg">
-                    {{ error }}
-                </p>
-                <!--- creator --->
-                <div class="creator-container">
-                    <creator-search
-                        v-model="video.contentCreatorId"
-                        @update:creator="setCreator($event)"
-                    />
-                </div>
+            <tournament-video-settings
+                v-if="currentStep === 'Tournament Match'"
+                :gameId="video.gameId"
+                @update:tournament="updateTournament($event)"
+            />
 
-                <!--- montage --->
-                <div class="players-container">
-                    <h2>Players</h2>
-                    <player-search
-                        v-model="video.montage.playerIds"
-                        @update:player="addPlayerToMontage($event)"
-                    />
-                    <div class="character-container">
-                        <h3>Characters</h3>
-                        <character-search
-                            v-model="video.montage.characterIds"
-                            :gameId="video.gameId"
-                            @update:character="addCharacterToMontage($event)"
-                        />
-                    </div>
-                    <div class="tag">
-                        <tag-search
-                            v-model="video.tags"
-                            :taggable="true"
-                            @update:tags="setTags($event)"
-                        />
-                    </div>
-                </div>
-            </div>
             <v-btn v-if="currentStep === 'Video'" class="video-btn" rounded @click="nextStep()">
                 Next
             </v-btn>
-            <v-btn v-else class="submit-btn" rounded @click="setUpVideo()">Submit</v-btn>
+            <v-btn v-else class="submit-btn" rounded @click="submitVideo()">Submit</v-btn>
         </div>
     </div>
 </template>
@@ -262,12 +94,12 @@ import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
 import MatchesService from '@/services/matches-service';
 import MontagesService from '@/services/montages-service';
-import PlayerSearch from '@/components/players/player-search';
-import CharacterSearch from '@/components/character/character-search';
 import GameSearch from '@/components/games/game-search';
 import CreatorSearch from '@/components/content-creator/creator-search';
-import TournamentSearch from '@/components/tournament/tournament-search';
-import TagSearch from '@/components/tags/tag-search';
+import MatchVideoSettings from '@/components/videos/match-video-settings';
+import ComboVideoSettings from '@/components/videos/combo-video-settings';
+import MontageVideoSettings from '@/components/videos/montage-video-settings';
+import TournamentVideoSettings from '@/components/videos/tournament-video-settings';
 
 import { eventbus } from '@/main';
 
@@ -276,19 +108,23 @@ export default {
 
     components: {
         'upload-video': UploadVideo,
-        'player-search': PlayerSearch,
         'creator-search': CreatorSearch,
         'game-search': GameSearch,
-        'character-search': CharacterSearch,
-        'tournament-search': TournamentSearch,
-        'tag-search': TagSearch
+        'match-video-settings': MatchVideoSettings,
+        'combo-video-settings': ComboVideoSettings,
+        'montage-video-settings': MontageVideoSettings,
+        'tournament-video-settings': TournamentVideoSettings,
     },
 
     props: {
         videoId: {
             type: String,
-            default: null
-        }
+            default: null,
+        },
+        account: {
+            type: Object,
+            default: null,
+        },
     },
 
     data() {
@@ -308,58 +144,26 @@ export default {
                 startTime: '',
                 endTime: '',
                 gameId: '',
-                combos: [
-                    {
-                        id: '',
-                        characterId: '',
-                        damage: '',
-                        hits: '',
-                        inputs: '',
-                        startTime: '',
-                        endTime: '',
-                        note: '',
-                        isExpanded: true
-                    }
-                ],
-                match: {
-                    team1Players: [
-                        {
-                            id: null,
-                            characterIds: [],
-                            slot: null,
-                            characterCount: 1
-                        }
-                    ],
-                    team2Players: [
-                        {
-                            id: null,
-                            characterIds: [],
-                            slot: null,
-                            characterCount: 1
-                        }
-                    ]
-                },
-                montage: {
-                    type: null,
-                    players: [],
-                    characters: []
-                },
-                tags: []
+                combos: null,
+                match: null,
+                montage: null,
+                tournament: null,
+                tags: [],
             },
             importVideoUrl: null,
             origin: 'web',
             isTournament: false,
-            contentTypes: ['Match', 'Combo', 'Montage'],
-            isLoading: true
+            contentTypes: ['Match', 'Combo', 'Montage', 'Tournament Match'],
+            isLoading: true,
         };
     },
 
     computed: {
-        timeStamp: function() {
+        timeStamp: function () {
             return moment().format();
         },
 
-        isValidated: function() {
+        isValidated: function () {
             if (this.video.url && this.video.gameId) {
                 if (
                     this.video.contentType === 'Match' &&
@@ -375,13 +179,19 @@ export default {
                     this.video.montage.players
                 ) {
                     return true;
+                } else if (
+                    this.video.contentType === 'Tournament Match' &&
+                    this.video.tournament.id &&
+                    this.video.tournament.matches.length > 0
+                ) {
+                    return true;
                 } else {
                     return false;
                 }
             } else {
                 return false;
             }
-        }
+        },
     },
 
     watch: {
@@ -408,7 +218,7 @@ export default {
             if (this.video.combo) {
                 this.video.combo.inputs = this.comboInputsRaw.split('>');
             }
-        }
+        },
     },
 
     mounted() {
@@ -427,6 +237,8 @@ export default {
                     this.currentStep = 'Match';
                 } else if (this.video.contentType === 'Montage') {
                     this.currentStep = 'Montage';
+                } else if (this.video.contentType === 'Tournament Match') {
+                    this.currentStep = 'Tournament Match';
                 }
             } else {
                 this.showErrorMessage = true;
@@ -440,55 +252,62 @@ export default {
             this.postVideo();
         },
 
-        async setUpVideo() {
-            if (this.video.contentType === 'Combo') {
-                if (!this.videoId) {
-                    this.addCombos();
-                } else {
-                    await CombosService.patchCombo({
-                        id: this.video.combo.id,
-                        CharacterId: this.video.combo.characterId,
-                        Inputs: this.video.combo.inputs,
-                        Damage: this.video.combo.damage,
-                        Hits: this.video.combo.hits,
-                        Tags: this.video.combo.tags
-                    });
-                    this.patchVideo();
-                }
-            } else if (this.video.contentType === 'Match') {
-                if (!this.videoId) {
-                    this.addMatch();
-                } else {
-                    await MatchesService.patchMatch({
-                        id: this.video.match.id,
-                        Team1Players: this.video.match.team1Players.map(player => {
-                            return {
-                                Id: player.id,
-                                Slot: 1,
-                                CharacterIds: player.characterIds
-                            };
-                        }),
-                        Team2Players: this.video.match.team2Players.map(player => {
-                            return {
-                                Id: player.id,
-                                Slot: 2,
-                                CharacterIds: player.characterIds
-                            };
-                        }),
-                        VideoUrl: this.video.url,
-                        GameId: this.video.gameId
-                    });
-                    this.patchVideo();
-                }
-            } else {
-                this.addMontage();
+        async submitVideo() {
+            switch (this.video.contentType) {
+                case 'Combo':
+                    if (!this.videoId) {
+                        this.postCombos();
+                    } else {
+                        await CombosService.patchCombo({
+                            id: this.video.combo.id,
+                            CharacterId: this.video.combo.characterId,
+                            Inputs: this.video.combo.inputs,
+                            Damage: this.video.combo.damage,
+                            Hits: this.video.combo.hits,
+                            Tags: this.video.combo.tags,
+                        });
+                        this.patchVideo();
+                    }
+                    break;
+                case 'Match':
+                    if (!this.videoId) {
+                        this.postMatch();
+                    } else {
+                        await MatchesService.patchMatch({
+                            id: this.video.match.id,
+                            Team1Players: this.video.match.team1Players.map((player) => {
+                                return {
+                                    Id: player.id,
+                                    Slot: 1,
+                                    CharacterIds: player.characterIds,
+                                };
+                            }),
+                            Team2Players: this.video.match.team2Players.map((player) => {
+                                return {
+                                    Id: player.id,
+                                    Slot: 2,
+                                    CharacterIds: player.characterIds,
+                                };
+                            }),
+                            VideoUrl: this.video.url,
+                            GameId: this.video.gameId,
+                        });
+                        this.patchVideo();
+                    }
+                    break;
+                case 'Tournament Match':
+                    this.postTournamentMatch();
+                    break;
+                case 'Montage':
+                    this.postMontage();
+                    break;
             }
         },
 
-        async addCombos() {
+        async postCombos() {
             var combos = this.video.combos;
             const response = await CombosService.addBulkCombos(
-                combos.map(combo => {
+                combos.map((combo) => {
                     return {
                         CharacterId: combo.characterId,
                         Inputs: combo.inputs,
@@ -496,7 +315,7 @@ export default {
                         Hits: combo.hits,
                         StartTime: combo.startTime,
                         EndTime: combo.endTime,
-                        Tags: combo.tags
+                        Tags: combo.tags,
                     };
                 })
             );
@@ -513,24 +332,26 @@ export default {
             }
         },
 
-        async addMatch() {
+        async postMatch() {
             var match = {
-                Team1Players: this.video.match.team1Players.map(player => {
+                Team1Players: this.video.match.team1Players.map((player) => {
                     return {
                         Id: player.id,
                         Slot: 1,
-                        CharacterIds: player.characterIds
+                        CharacterIds: player.characterIds,
                     };
                 }),
-                Team2Players: this.video.match.team2Players.map(player => {
+                Team2Players: this.video.match.team2Players.map((player) => {
                     return {
                         Id: player.id,
                         Slot: 2,
-                        CharacterIds: player.characterIds
+                        CharacterIds: player.characterIds,
                     };
                 }),
                 VideoUrl: this.video.url,
-                GameId: this.video.gameId
+                GameId: this.video.gameId,
+                SubmittedBy: this.account.id,
+                UpdatedBy: this.account.id,
             };
 
             await MatchesService.addMatch(match);
@@ -542,19 +363,61 @@ export default {
             }
         },
 
-        async addMontage() {
+        async postTournamentMatch() {
+            var matches = this.video.tournament.matches.map((match) => {
+                return {
+                    Team1Players: match.team1Players.map((player) => {
+                        return {
+                            Id: player.id,
+                            Slot: 1,
+                            CharacterIds: player.characterIds,
+                        };
+                    }),
+                    Team2Players: match.team2Players.map((player) => {
+                        return {
+                            Id: player.id,
+                            Slot: 2,
+                            CharacterIds: player.characterIds,
+                        };
+                    }),
+                    StartTime: match.startTime,
+                    EndTime: match.endTime,
+                    WinningPlayersId: match.winningPlayers,
+                    LosingPlayersId: match.losingPlayers,
+                    VideoUrl: this.video.url,
+                    GameId: this.video.gameId,
+                    TournamentId: this.video.tournament.id,
+                    SubmittedBy: this.account.id,
+                    UpdatedBy: this.account.id,
+                };
+            });
+
+            if (this.video.tournament.isSingleMatch) {
+                await MatchesService.addMatch(matches[0]);
+            }
+
+            if (this.video.type === 'uploaded') {
+                this.$refs.videoUploader.upload();
+            } else {
+                this.postVideo();
+            }
+        },
+
+        async postMontage() {
             var montage = {
-                Players: this.video.montage.players.map(player => {
+                Players: this.video.montage.players.map((player) => {
                     return player;
                 }),
-                Characters: this.video.montage.characters.map(character => {
+                Characters: this.video.montage.characters.map((character) => {
                     return {
-                        Id: character.id
+                        Id: character.id,
                     };
                 }),
                 Type: this.video.montage.type,
                 VideoUrl: this.video.url,
-                GameId: this.video.gameId
+                GameId: this.video.gameId,
+                SubmittedBy: this.account.id,
+                UpdatedBy: this.account.id,
             };
 
             var response = await MontagesService.addMontage(montage);
@@ -572,6 +435,10 @@ export default {
 
         async postVideo() {
             if (this.isValidated) {
+                if (this.video.contentType === 'Tournament Match') {
+                    this.video.contentType = 'Match';
+                }
+
                 var response = await VideosService.addVideo({
                     Url: this.video.url,
                     ContentType: this.video.contentType,
@@ -581,14 +448,19 @@ export default {
                     StartTime: this.video.startTime,
                     EndTime: this.video.endTime,
                     GameId: this.video.gameId,
-                    Combos: this.video.combos.map(combo => {
-                        return {
-                            Id: combo.id,
-                            StartTime: combo.startTime,
-                            EndTime: combo.endTime
-                        };
-                    }),
-                    Tags: this.video.tags
+                    Combos:
+                        this.video.contentType === 'Combo'
+                            ? this.video.combos.map((combo) => {
+                                  return {
+                                      Id: combo.id,
+                                      StartTime: combo.startTime,
+                                      EndTime: combo.endTime,
+                                  };
+                              })
+                            : null,
+                    Tags: this.video.tags,
+                    SubmittedBy: this.account.id,
+                    UpdatedBy: this.account.id,
                 });
 
                 if (response.data.err) {
@@ -601,10 +473,6 @@ export default {
             } else {
                 this.showErrorMessage = true;
             }
-        },
-
-        setComboCharacter(characterId, target) {
-            target.characterId = characterId;
         },
 
         setGame(game) {
@@ -622,7 +490,7 @@ export default {
         async getVideo() {
             const response = await VideosService.getVideo(this.videoId);
             var videoResponse = response.data.video;
-            this.video = videoResponse.map(video => {
+            this.video = videoResponse.map((video) => {
                 return {
                     id: video._id,
                     contentType: video.ContentType,
@@ -636,49 +504,49 @@ export default {
                     gameId: video.GameId,
                     contentCreatorId: video.ContentCreatorId,
                     tags: video.Tags
-                        ? video.Tags.map(tag => {
+                        ? video.Tags.map((tag) => {
                               return tag._id;
                           })
                         : null,
                     game: {
                         id: video.Game._id,
                         Title: video.Game.Title,
-                        LogoUrl: video.Game.LogoUrl
+                        LogoUrl: video.Game.LogoUrl,
                     },
                     match:
                         video.ContentType === 'Match'
                             ? {
                                   id: video.Match._id,
-                                  team1Players: video.Match.Team1Players.map(player => {
+                                  team1Players: video.Match.Team1Players.map((player) => {
                                       return {
                                           id: player.Id,
                                           slot: player.Slot,
                                           name: video.Match.Team1Player.filter(
-                                              searchPlayer => searchPlayer._id === player.Id
+                                              (searchPlayer) => searchPlayer._id === player.Id
                                           )[0].Name,
                                           characterIds: this.hydrateCharacters(
                                               player.CharacterIds,
                                               video.Match.Team1PlayerCharacters
                                           ),
-                                          characterCount: player.CharacterIds.length
+                                          characterCount: player.CharacterIds.length,
                                       };
                                   }),
-                                  team2Players: video.Match.Team2Players.map(player => {
+                                  team2Players: video.Match.Team2Players.map((player) => {
                                       return {
                                           id: player.Id,
                                           slot: player.Slot,
                                           name: video.Match.Team2Player.filter(
-                                              searchPlayer => searchPlayer._id === player.Id
+                                              (searchPlayer) => searchPlayer._id === player.Id
                                           )[0].Name,
                                           characterIds: this.hydrateCharacters(
                                               player.CharacterIds,
                                               video.Match.Team2PlayerCharacters
                                           ),
-                                          characterCount: player.CharacterIds.length
+                                          characterCount: player.CharacterIds.length,
                                       };
-                                  })
+                                  }),
                               }
-                            : null
+                            : null,
                 };
             })[0];
             this.isLoading = false;
@@ -687,8 +555,8 @@ export default {
         hydrateCharacters(characterIds, characters) {
             var playerCharacters = [];
 
-            characterIds.forEach(id => {
-                var filteredCharacter = characters.filter(character => character._id === id);
+            characterIds.forEach((id) => {
+                var filteredCharacter = characters.filter((character) => character._id === id);
                 playerCharacters.push(filteredCharacter[0]._id);
             });
             return playerCharacters;
@@ -707,9 +575,9 @@ export default {
                     ? {
                           name: comboResponse.Character.Name,
                           imageUrl: comboResponse.Character.ImageUrl,
-                          id: comboResponse.Character._id
+                          id: comboResponse.Character._id,
                       }
-                    : null
+                    : null,
             };
         },
         async patchVideo() {
@@ -720,10 +588,10 @@ export default {
                     GameId: this.video.gameid,
                     Combos:
                         this.video.ContentType === 'Combo'
-                            ? this.video.combos.map(combo => {
+                            ? this.video.combos.map((combo) => {
                                   return combo.id;
                               })
-                            : null
+                            : null,
                 };
 
                 await VideosService.patchVideo(videoRequest);
@@ -735,84 +603,22 @@ export default {
             }
         },
 
-        addCombo(index) {
-            if (!this.video.combos[index].inputs) {
-                this.showErrorMessage = true;
-            } else {
-                this.video.combos[index].isExpanded = false;
-                this.video.combos.push({
-                    id: '',
-                    characterId: '',
-                    damage: '',
-                    hits: '',
-                    inputs: '',
-                    startTime: '',
-                    endTime: '',
-                    isExpanded: true,
-                    tags: []
-                });
-            }
+        updateMatch(match) {
+            this.video.match = match;
         },
 
-        expandComboMenu(index) {
-            this.video.combos.forEach(combo => (combo.isExpanded = false));
-            this.video.combos[index].isExpanded = true;
+        updateCombo(combo) {
+            this.video.combo = combo;
         },
 
-        addToTeam1() {
-            this.video.match.team1Players.push({
-                id: null,
-                characterIds: [],
-                slot: null,
-                characterCount: 1
-            });
+        updateMontage(montage) {
+            this.video.montage = montage;
         },
 
-        addToTeam2() {
-            this.video.match.team2Players.push({
-                id: null,
-                characterIds: [],
-                slot: null,
-                characterCount: 1
-            });
+        updateTournament(tournament) {
+            this.video.tournament = tournament;
         },
-
-        addCharacterToPlayer(character, player) {
-            player.characterIds.push(character);
-        },
-
-        addCharacterToMontage(character) {
-            this.video.montage.characters.push(character);
-        },
-
-        addCharacter(player) {
-            player.characterCount++;
-        },
-
-        addPlayerToTeam1(item, index) {
-            this.video.match.team1Players[index].id = item.id;
-        },
-
-        addPlayerToTeam2(item, index) {
-            this.video.match.team2Players[index].id = item.id;
-        },
-
-        addPlayerToMontage(item) {
-            this.video.montage.players.push(item.id);
-        },
-
-        setTags(tags, combo) {
-            if (combo) {
-                combo.tags = tags.map(tag => {
-                    return tag.id;
-                });
-            } else {
-                this.video.tags = tags.map(tag => {
-                    return tag.id;
-                });
-            }
-        }
-    }
+    },
 };
 </script>
 
@@ -861,7 +667,7 @@ export default {
 }
 
 .post-video .players-container .multiselect {
-    margin: 10px 0 20px;
+    margin: 10px 0 0px;
 }
 
 .post-video .players-container h2 {

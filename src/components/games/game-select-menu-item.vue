@@ -3,30 +3,29 @@
     <div :class="[{ opened: isOpen }, 'game-selct-menu-item']">
         <div class="menu-item" @click="toggleOpen">
             Games
-            <v-icon>
-                mdi-chevron-down
-            </v-icon>
+            <v-icon> mdi-chevron-down </v-icon>
         </div>
 
         <div v-if="isOpen" class="games">
             <multiselect
-                v-model="value"
+                v-if="!isLoading"
+                :value="value"
                 :options="games"
                 :close-on-select="true"
                 :clear-on-select="true"
                 :preserve-search="true"
                 :custom-label="customLabel"
-                @input="selectGame($event)"
                 placeholder="Games"
                 label="name"
                 track-by="id"
+                @input="selectGame($event)"
             >
                 <template slot="singleLabel" slot-scope="props">
                     <img class="option__image" :src="props.option.logoUrl" />
                     <span class="option__name">{{ props.option.title }}</span>
                 </template>
                 <template slot="option" slot-scope="props"
-                    ><img class="option__image" :src="props.option.logoUrl" alt="No Man’s Sky" />
+                    ><img class="option__image" :src="props.option.logoUrl" />
                     <div class="option__desc">
                         <span class="option__name">{{ props.option.title }}</span>
                     </div>
@@ -44,25 +43,25 @@ export default {
     props: {
         initialOpen: {
             type: Boolean,
-            default: false
+            default: false,
         },
         value: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             games: [],
-            isOpen: false
+            isOpen: false,
         };
     },
 
     computed: {
         componentStyle() {
             return '[{opened: }]';
-        }
+        },
     },
 
     mounted() {
@@ -77,18 +76,18 @@ export default {
 
         async getGames() {
             const response = await GamesService.fetchGames();
-            this.games = response.data.games.map(game => {
+            this.games = response.data.games.map((game) => {
                 return {
                     id: game._id,
                     title: game.Title,
                     logoUrl: game.LogoUrl,
-                    selected: false
+                    selected: false,
                 };
             });
         },
 
         selectGame(game) {
-            this.games.forEach(game => {
+            this.games.forEach((game) => {
                 game.selected = false;
             });
 
@@ -103,8 +102,8 @@ export default {
 
         collapse() {
             this.isOpen = false;
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css">

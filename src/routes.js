@@ -17,6 +17,7 @@ import Montages from './views/montages.vue';
 import MatchUps from './views/matchups.vue';
 import Test from './views/test.vue';
 import Counter from './views/counter.vue';
+import Explore from './views/explore.vue';
 
 const routes = [
     {path: '/', name: 'Videos', component: Videos},
@@ -24,7 +25,11 @@ const routes = [
     {path: '/  200', name: 'Videos', component: Videos},
     {path: '/combos', name: 'Combos', component: Combos},
     {path: '/combo/:id', name: 'Combo', component: Combo},
+    {path: '/combos/game/:gameId', name: 'Combos', component: Combos},
+    {path: '/combos/character/:characterId', name: 'Combos', component: Combos},
     {path: '/matches', name: 'Matches', component: Matches},
+    {path: '/matches/game/:gameId', name: 'Matches', component: Matches},
+    {path: '/matches/character/:characterId', name: 'Matches', component: Matches},
     {path: '/match/:id', name: 'Match', component: Match},
     {path: '/games', name: 'Games', component: Games},
     {path: '/game/:id', name: 'Game', component: Game},
@@ -40,6 +45,8 @@ const routes = [
     {path: '/favorite-combos', name: 'Favorites Combos', component: FavoriteCombos},
     {path: '/test', name: 'test', component: Test},
     {path: '/counter', name: 'counter', component: Counter},
+    {path: '/explore', name: 'explore', component: Explore},
+
 ] 
 
 export default routes;   

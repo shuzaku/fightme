@@ -178,12 +178,14 @@ export default {
         },
 
         updateFavorites() {
-            this.favorites = this.account.favoriteVideos.map(video => {
-                return {
-                    contentType: video.contentType,
-                    id: video.id
-                };
-            });
+            if(this.account.id){
+                this.favorites = this.account.favoriteVideos.map(video => {
+                    return {
+                        contentType: video.contentType,
+                        id: video.id
+                    };
+                });
+            }
         },
 
         checkFavorites() {

@@ -4,24 +4,24 @@
         <div v-if="isLoading" />
         <div v-else class="combo-card card video-card">
             <div
-                :id="comboId"
+                :id="comboClipId"
                 v-waypoint="{
                     active: true,
                     callback: onComboWaypoint,
-                    options: intersectionOptions
+                    options: intersectionOptions,
                 }"
                 class="video-container"
             >
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
                     ref="youtubeRef"
-                    :video-id="video.url"
+                    :videoId="video.combo.clipUrl"
                     :player-width="556"
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
                         start: video.combo.startTime,
-                        end: video.combo.endTime
+                        end: video.combo.endTime,
                     }"
                     :mute="true"
                     :playsinline="1"
@@ -46,7 +46,7 @@
                 <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
             </div>
             <div class="combo-input">
-                <p class="inputs">{{ video.combo.inputs.join(' > ') }}</p>
+                <p class="inputs">{{ video.combo.inputs }}</p>
             </div>
             <div v-if="video.combo.tags" class="combo-tags">
                 <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
@@ -64,34 +64,22 @@
                     class="favorite-button"
                     @click="showCollections = !showCollections"
                 >
-                    <v-icon light>
-                        mdi-plus
-                    </v-icon>
+                    <v-icon light> mdi-plus </v-icon>
                 </v-btn>
                 <v-btn v-if="isAdmin" @click="editVideo()">
-                    <v-icon dark>
-                        mdi-wrench
-                    </v-icon>
+                    <v-icon dark> mdi-wrench </v-icon>
                 </v-btn>
                 <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
-                    <v-icon dark>
-                        mdi-delete
-                    </v-icon>
+                    <v-icon dark> mdi-delete </v-icon>
                 </v-btn>
                 <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
-                    <v-icon light>
-                        mdi-heart-outline
-                    </v-icon>
+                    <v-icon light> mdi-heart-outline </v-icon>
                 </v-btn>
                 <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
-                    <v-icon>
-                        mdi-heart
-                    </v-icon>
+                    <v-icon> mdi-heart </v-icon>
                 </v-btn>
                 <v-btn class="share-button" @click="copyLink()">
-                    <v-icon light>
-                        mdi-link
-                    </v-icon>
+                    <v-icon light> mdi-link </v-icon>
                 </v-btn>
             </div>
         </div>
@@ -107,32 +95,32 @@ import CollectionSearch from '@/components/collection/collection-search';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'NewVideoCard',
+    name: 'ComboCard',
     components: {
-        'collection-search': CollectionSearch
+        'collection-search': CollectionSearch,
     },
 
     props: {
-        comboId: {
+        comboClipId: {
             type: String,
-            default: null
+            default: null,
         },
         value: {
             type: Boolean,
-            default: false
+            default: false,
         },
         isFirst: {
             type: Boolean,
-            default: false
+            default: false,
         },
         favoriteVideos: {
             type: Array,
-            default: null
+            default: null,
         },
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -142,23 +130,23 @@ export default {
             video: {
                 videoType: null,
                 isPlaying: false,
-                isFavorited: false
+                isFavorited: false,
             },
             intersectionOptions: {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
-                threshold: 1
+                threshold: 1,
             },
             player: null,
             collections: null,
-            showCollections: false
+            showCollections: false,
         };
     },
 
     computed: {
         isAdmin() {
             return this.account.role === 'Admin User';
-        }
+        },
     },
 
     watch: {
@@ -183,70 +171,74 @@ export default {
         },
 
         videoCurrentTime() {
-            if (this.videoCurrentTime > parseInt(this.video.combo.endTime)) {
+            if (this.videoCurrentTime > this.video.combo.endTime) {
                 this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
             }
-        }
+        },
     },
 
     created() {
-        this.getCollections();
+        if (this.account.id) {
+            this.getCollections();
+        }
         this.getCombo();
         this.playVideo();
     },
 
     methods: {
         async getCombo() {
-            const response = await CombosService.getCombo(this.comboId);
-            var comboResponse = response.data.combos[0];
+            const response = await CombosService.getComboClip(this.comboClipId);
+            var comboResponse = response.data.comboClip[0];
+
             this.video.combo = {
+                id: comboResponse._id,
                 character: {
                     id: comboResponse.Character._id,
                     name: comboResponse.Character.Name,
-                    imageUrl: comboResponse.Character.AvatarUrl
+                    imageUrl: comboResponse.Character.AvatarUrl,
                 },
-                damage: comboResponse.Damage,
-                hits: comboResponse.Hits,
-                tags:
-                    comboResponse.Tags.length > 0
-                        ? comboResponse.Tags.map(tag => {
-                              return {
-                                  name: tag.TagName,
-                                  id: tag._id
-                              };
-                          })
-                        : null,
-                inputs: comboResponse.Inputs,
-                startTime: null,
-                endtime: null
+                damage: comboResponse.Combo.Damage,
+                hits: comboResponse.Combo.Hits,
+                inputs: comboResponse.Combo.ComboInputs,
+                startTime: this.convertTime(comboResponse.StartTime),
+                endTime: this.convertTime(comboResponse.EndTime),
+                clipUrl: comboResponse.Url,
             };
             this.getVideo();
         },
 
+        convertTime(time) {
+            var a = time.split(':');
+            var n = a.length;
+
+            var seconds = 0;
+            if (n > 0) {
+                var minutesToSeconds = parseInt(a[0]) * 60;
+                seconds = minutesToSeconds + parseInt(a[1]);
+            } else {
+                return parseInt(a[0]);
+            }
+
+            return seconds;
+        },
+
         async getVideo() {
-            const response = await VideosService.getComboVideo(this.comboId);
-
+            const response = await VideosService.getComboVideo(this.video.combo.clipUrl);
             var videoResponse = response.data.videos[0];
-
-            this.video.id = videoResponse._id;
-            this.video.url = videoResponse.Url;
             this.video.videoType = videoResponse.VideoType;
             this.video.game = {
                 title: videoResponse.Game.Title,
                 logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id
+                id: videoResponse.Game._id,
             };
-
-            this.video.combo.startTime = parseInt(videoResponse.Combos.StartTime);
-            this.video.combo.endTime = parseInt(videoResponse.Combos.Endtime);
-            this.video.combo.id = this.comboId;
             this.video.isPlaying = false;
+            this.video.id = videoResponse._id;
+            this.isLoading = false;
+            this.video.combo.id = this.comboClipId;
             this.video.contentType = 'Combo';
             this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some(video => video.id === this.comboId)
+                ? this.favoriteVideos.some((video) => video.id === this.video.id)
                 : null;
-            this.video.collections = this.assignCollection(this.comboId);
-            this.isLoading = false;
         },
 
         playVideo() {
@@ -279,26 +271,26 @@ export default {
                 await VideosService.deleteVideo(this.video.id);
             } else {
                 var videos = response.data.video;
-                var filteredCombos = videos.filter(video => {
-                    return video.Combo._id != this.comboId;
+                var filteredCombos = videos.filter((video) => {
+                    return video.Combo._id != this.comboClipId;
                 });
 
-                filteredCombos = filteredCombos.map(combo => {
+                filteredCombos = filteredCombos.map((combo) => {
                     return {
                         Id: combo.ComboId,
                         StartTime: combo.Combo.StartTime,
-                        EndTime: combo.Combo.EndTime
+                        EndTime: combo.Combo.EndTime,
                     };
                 });
 
                 var request = {
                     id: this.video.id,
                     Combos: filteredCombos,
-                    GameId: this.video.game.id
+                    GameId: this.video.game.id,
                 };
                 await VideosService.patchVideo(request);
             }
-            var comboResponse = await CombosService.deleteCombo(this.comboId);
+            var comboResponse = await CombosService.deleteCombo(this.comboClipId);
             this.$emit('video:delete', comboResponse);
         },
 
@@ -307,7 +299,7 @@ export default {
         },
 
         setTimer() {
-            this.$nextTick(function() {
+            this.$nextTick(function () {
                 var setTimer = window.setInterval(() => {
                     this.getTimeStamp();
                 }, 1000);
@@ -328,12 +320,12 @@ export default {
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
                 name: 'video',
-                videoId: this.video.id
+                videoId: this.video.id,
             });
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/combo/${this.comboId}`).then(() => {
+            this.$copyText(`https://fighters-edge.com/combo/${this.comboClipId}`).then(() => {
                 alert('combo copied');
             });
         },
@@ -361,18 +353,18 @@ export default {
         },
 
         updateCollections(collections) {
-            var collectionIds = collections.map(collection => {
+            var collectionIds = collections.map((collection) => {
                 return collection.id;
             });
 
-            var comboObject = { id: this.comboId, contentType: 'Combo' };
+            var comboObject = { id: this.comboClipId, contentType: 'Combo' };
 
-            this.collections.forEach(collection => {
-                var collectionHasVideo = collection.videos.some(videos => {
-                    return videos.id === this.comboId;
+            this.collections.forEach((collection) => {
+                var collectionHasVideo = collection.videos.some((videos) => {
+                    return videos.id === this.comboClipId;
                 });
 
-                var collectionShouldHaveVideo = collectionIds.some(collectionId => {
+                var collectionShouldHaveVideo = collectionIds.some((collectionId) => {
                     return collectionId === collection.id;
                 });
 
@@ -393,7 +385,7 @@ export default {
             var patchRequest = {
                 id: collection.id,
                 Videos: collection.videos,
-                Name: collection.name
+                Name: collection.name,
             };
 
             await CollectionsService.updateCollection(patchRequest);
@@ -403,26 +395,26 @@ export default {
             var searchQuery = [
                 {
                     queryName: 'OwnerId',
-                    queryValue: this.account.id
-                }
+                    queryValue: this.account.id,
+                },
             ];
 
             var queryParameter = {
-                searchQuery: searchQuery
+                searchQuery: searchQuery,
             };
 
             const response = await CollectionsService.queryCollections(queryParameter);
-            this.collections = response.data.collections.map(collection => {
+            this.collections = response.data.collections.map((collection) => {
                 return {
                     id: collection._id,
                     name: collection.Name,
                     ownerId: collection.OwnerId,
-                    videos: collection.Videos.map(video => {
+                    videos: collection.Videos.map((video) => {
                         return {
                             id: video.Id,
-                            contentType: video.ContentType
+                            contentType: video.ContentType,
                         };
-                    })
+                    }),
                 };
             });
         },
@@ -430,9 +422,9 @@ export default {
         assignCollection() {
             if (this.collections) {
                 var collections = [];
-                this.collections.forEach(collection => {
-                    var hasVideo = collection.videos.some(video => {
-                        return video.id === this.comboId;
+                this.collections.forEach((collection) => {
+                    var hasVideo = collection.videos.some((video) => {
+                        return video.id === this.comboClipId;
                     });
                     if (hasVideo) {
                         collections.push(collection.id);
@@ -445,10 +437,10 @@ export default {
         openCollections(video) {
             eventbus.$emit('open:widget', {
                 name: 'collections',
-                video: video
+                video: video,
             });
-        }
-    }
+        },
+    },
 };
 </script>
 
@@ -478,7 +470,6 @@ export default {
 }
 
 .video-card {
-    /* background-image: linear-gradient(#515b89, #171b33); */
     background: #444;
     border: 5px solid #444;
     border-radius: 15px;
@@ -501,22 +492,6 @@ export default {
     font-weight: 600;
 }
 
-.video-card .match-card .player2 .player-name p {
-    text-align: right;
-}
-
-.video-card .match-card .characters {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.video-card .match-card .versus {
-    font-size: 25px;
-    color: #ffff00;
-    text-transform: uppercase;
-}
-
 .video-card .card-label {
     position: absolute;
     width: 70px;
@@ -532,40 +507,15 @@ export default {
     font-weight: 600;
 }
 
-.video-card .match-card .card-label {
-    background: #3c73a8;
-}
-
 .video-card video {
     width: 100%;
 }
 
-.video-card .character-name {
-    padding: 20px 20px 0;
-    color: #fff;
-    font-size: 20px;
-}
-
-.video-card .player-name {
-    color: #fff;
-    font-size: 20px;
-    padding: 0 20px;
-}
-
-.video-card .match-card .character-name {
-    padding-top: 0px;
-    font-size: 13px;
-}
-
-.video-card .match-card .character-name p {
-    font-size: 14px;
+.video-card .combo-card .character-name p {
+    font-size: 30px;
     color: #3eb489;
-    font-weight: 300;
+    font-weight: 600;
     margin-top: 3px;
-}
-
-.video-card .match-card .player2 .character-name p {
-    text-align: right;
 }
 
 .video-card .combo-stats {
@@ -609,27 +559,6 @@ export default {
 .video-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
-}
-
-.video-card .character-2 {
-    top: 40px;
-}
-
-.video-card .character-3 {
-    top: 120px;
-}
-
-.video-card .character-bubble.narmaya,
-.video-card .character-bubble.vaseraga,
-.video-card .character-bubble.charlotta,
-.video-card .character-bubble.anre,
-.video-card .character-bubble.arizona,
-.video-card .character-bubble.jacqui {
-    background-position-y: 25%;
-}
-
-.video-card .character-bubble.arizona {
-    background-position-y: 65%;
 }
 
 .video-card .admin-controls {

@@ -4,6 +4,13 @@
         <div class="formcontainer">
             <h2>Login</h2>
             <div v-if="error" class="error">{{ error }}</div>
+            <button
+                v-if="error === 'Email not verified.'"
+                class="error"
+                @click="resendVerification()"
+            >
+                Resend Confirmation
+            </button>
 
             <v-text-field
                 id="email"
@@ -43,9 +50,9 @@ export default {
             user: null,
             form: {
                 email: '',
-                password: ''
+                password: '',
             },
-            error: null
+            error: null,
         };
     },
     methods: {
@@ -57,30 +64,45 @@ export default {
                     return firebase
                         .auth()
                         .signInWithEmailAndPassword(this.form.email, this.form.password)
-                        .then(data => {
+                        .then((data) => {
                             this.user = {
-                                id: data.user.uid
+                                id: data.user.uid,
+                                emailVerified: data.user.emailVerified,
                             };
-                            this.getAccount(this.user.id);
+                            if (this.user.emailVerified) {
+                                this.getAccount(this.user);
+                            } else {
+                                this.error = 'Email not verified.';
+                            }
                         });
                 })
                 .catch(() => {});
         },
 
-        async getAccount(id) {
-            const response = await AccountsService.getAccount({ id: id });
+        async getAccount(user) {
+            const response = await AccountsService.getAccount({ id: user.id });
             this.account = {
                 id: response.data.account[0]._id,
                 displayName: response.data.account[0].DisplayName,
                 email: response.data.account[0].Email,
                 favoriteVideos: response.data.account[0].FavoriteVideos,
-                collections: response.data.account[0].Collections
+                collections: response.data.account[0].Collections,
+                accountType: response.data.account[0].AccountType,
             };
 
             eventbus.$emit('account:login', this.account);
             this.$emit('closeModal');
-        }
-    }
+        },
+
+        resendVerification() {
+            firebase
+                .auth()
+                .signInWithEmailAndPassword(this.form.email, this.form.password)
+                .then((data) => {
+                    data.user.sendEmailVerification();
+                });
+        },
+    },
 };
 </script>
 

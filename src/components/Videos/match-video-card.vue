@@ -233,7 +233,9 @@ export default {
     },
 
     created() {
-        this.getCollections();
+        if(this.account.id){
+            this.getCollections();
+        }
         this.getMatch();
         this.playVideo();
     },

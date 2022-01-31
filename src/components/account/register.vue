@@ -52,9 +52,9 @@ export default {
             form: {
                 name: '',
                 email: '',
-                password: ''
+                password: '',
             },
-            error: null
+            error: null,
         };
     },
     methods: {
@@ -62,19 +62,20 @@ export default {
             firebase
                 .auth()
                 .createUserWithEmailAndPassword(this.form.email, this.form.password)
-                .then(data => {
+                .then((data) => {
                     data.user
                         .updateProfile({
                             displayName: this.form.name,
-                            email: this.form.email
+                            email: this.form.email,
                         })
                         .then(() => {
+                            data.user.sendEmailVerification();
                             var newUser = {
                                 DisplayName: data.user.displayName,
                                 Email: data.user.email,
                                 IsEmailVerified: data.user.emailVerified,
                                 Uid: data.user.uid,
-                                AccountType: 'Standard User'
+                                AccountType: 'Standard User',
                             };
                             this.addAccount(newUser);
 
@@ -82,15 +83,15 @@ export default {
                             this.$emit('closeModal');
                         });
                 })
-                .catch(err => {
+                .catch((err) => {
                     this.error = err.message;
                 });
         },
 
         async addAccount(newUser) {
             await AccountsService.addAccount(newUser);
-        }
-    }
+        },
+    },
 };
 </script>
 <style>

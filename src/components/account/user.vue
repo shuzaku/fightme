@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="account-menu">
-        <div v-if="!account">
+        <div v-if="!account.id">
             <div class="menu-item" @click="openRegisterModal()">
                 <span class="menu-heading">Register</span>
             </div>
@@ -25,15 +25,15 @@ export default {
     data() {
         return {
             displayName: null,
-            isLoading: true
+            isLoading: true,
         };
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     // created() {
@@ -59,8 +59,8 @@ export default {
 
         logout() {
             eventbus.$emit('account:logout');
-        }
-    }
+        },
+    },
 };
 </script>
 <style>

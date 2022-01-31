@@ -10,7 +10,7 @@
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
-                    :comboId="video.comboId"
+                    :comboClipId="video.comboClipId"
                     :account="account"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     @video:delete="refreshDelete()"
@@ -30,14 +30,14 @@ export default {
     name: 'Videos',
 
     components: {
-        'combo-video-card': ComboVideoCard
+        'combo-video-card': ComboVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -48,14 +48,53 @@ export default {
             savedQuery: null,
             favorites: [],
             filter: null,
-            sort: null
+            sort: null,
         };
     },
 
     computed: {
-        skip: function() {
+        gameId() {
+            return this.$route.params.gameId;
+        },
+
+        characterId() {
+            return this.$route.params.characterId;
+        },
+
+        skip: function () {
             return this.videos.length;
-        }
+        },
+
+        searchQuery() {
+            var searchQuery = [];
+            if (this.gameId) {
+                searchQuery = [
+                    {
+                        queryName: 'GameId',
+                        queryValue: this.gameId,
+                    },
+                ];
+            } else if (this.characterId) {
+                searchQuery = [
+                    {
+                        queryName: 'CharacterId',
+                        queryValue: this.characterId,
+                    },
+                ];
+            }
+            return searchQuery;
+        },
+
+        path: function () {
+            return this.$route.path;
+        },
+    },
+
+    watch: {
+        path: function () {
+            this.videos = [];
+            this.queryVideos();
+        },
     },
 
     mounted() {
@@ -93,13 +132,9 @@ export default {
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
-                filter: this.filter,
-                searchQuery: [
-                    {
-                        queryName: 'ContentType',
-                        queryValue: 'Combo'
-                    }
-                ]
+                filter: 'Combo',
+                searchQuery: this.searchQuery,
+                sort: null,
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -110,19 +145,21 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
 
         playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
+            if (this.videos.length) {
+                this.videos[0].isPlaying = true;
+                this.isLoading = false;
+            }
         },
 
         handleScroll() {
@@ -137,8 +174,8 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        }
-    }
+        },
+    },
 };
 </script>
 

@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="combo-nav inner-list ">
+    <div class="combo-nav inner-list">
         <h2>Combos</h2>
         <game-select-menu-item
             ref="gameSelect"
@@ -25,23 +25,24 @@ import CharacterSelectMenuItem from '@/components/character/character-select-men
 export default {
     components: {
         'game-select-menu-item': GameSelectMenuItem,
-        'character-select-menu-item': CharacterSelectMenuItem
+        'character-select-menu-item': CharacterSelectMenuItem,
     },
 
     data() {
         return {
             selectedGame: {
-                id: null
+                id: null,
             },
-            selectedCharacter: null
+            selectedCharacter: null,
         };
     },
 
     methods: {
         updateGame(game) {
             var searchQuery = {
-                type: 'Game',
-                value: game.id
+                type: 'game',
+                value: game.id,
+                route: 'combos',
             };
             this.$refs.gameSelect.collapse();
             this.selectedGame = game;
@@ -50,12 +51,13 @@ export default {
 
         updateCharacter(character) {
             var searchQuery = {
-                type: 'Character',
-                value: character.id
+                type: 'character',
+                value: character.id,
+                route: 'combos',
             };
             this.selectedCharacter = character;
             this.$emit('set-search', searchQuery);
-        }
-    }
+        },
+    },
 };
 </script>

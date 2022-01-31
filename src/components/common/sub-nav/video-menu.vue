@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="video-nav inner-list ">
-        <follows initialOpen :account="account" />
+        <follows v-if="account.id" initialOpen :account="account" />
     </div>
 </template>
 

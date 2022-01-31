@@ -29,14 +29,14 @@ export default {
     name: 'Videos',
 
     components: {
-        'match-video-card': NewMatchVideoCard
+        'match-video-card': NewMatchVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -47,27 +47,64 @@ export default {
             savedQuery: null,
             favorites: [],
             filter: 'Match',
-            sort: null
+            sort: null,
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        playerId: function() {
+        playerId: function () {
             return this.$route.params.id;
-        }
+        },
+
+        path: function () {
+            return this.$route.path;
+        },
+
+        gameId() {
+            return this.$route.params.gameId;
+        },
+
+        characterId() {
+            return this.$route.params.characterId;
+        },
+
+        searchQuery() {
+            var searchQuery = [];
+            if (this.gameId) {
+                searchQuery = [
+                    {
+                        queryName: 'GameId',
+                        queryValue: this.gameId,
+                    },
+                ];
+            } else if (this.characterId) {
+                searchQuery = [
+                    {
+                        queryName: 'CharacterId',
+                        queryValue: this.characterId,
+                    },
+                ];
+            }
+            return searchQuery;
+        },
     },
 
     watch: {
-        playerId: function() {
+        playerId: function () {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();
             this.isLoading = false;
-        }
+        },
+
+        path: function () {
+            this.videos = [];
+            this.queryVideos();
+        },
     },
 
     mounted() {
@@ -99,7 +136,6 @@ export default {
         refreshDelete() {
             this.videos = [];
             this.queryVideos();
-            alert('combo deleted');
         },
 
         applySort(sort) {
@@ -118,7 +154,7 @@ export default {
                 skip: this.skip,
                 sortOption: this.sort,
                 filter: this.filter,
-                searchQuery: []
+                searchQuery: this.searchQuery,
             };
 
             if (query) {
@@ -134,12 +170,12 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
@@ -151,7 +187,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -176,20 +212,22 @@ export default {
         },
 
         updateFavorites() {
-            this.favorites = this.account.favoriteVideos.map(video => {
-                return {
-                    contentType: video.contentType,
-                    id: video.id
-                };
-            });
+            if (this.account.id) {
+                this.favorites = this.account.favoriteVideos.map((video) => {
+                    return {
+                        contentType: video.contentType,
+                        id: video.id,
+                    };
+                });
+            }
         },
 
         checkFavorites() {
-            this.favorites.forEach(favorite => {
-                this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+            this.favorites.forEach((favorite) => {
+                this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
             });
-        }
-    }
+        },
+    },
 };
 </script>
 

@@ -8,6 +8,7 @@
                         <img v-if="follow.imageUrl" :src="follow.imageUrl" />
                         <div v-else class="blank-avatar"></div>
                     </div>
+                    <p>{{ follow.name }}</p>
                 </div>
             </div>
         </div>
@@ -20,46 +21,45 @@ export default {
     props: {
         initialOpen: {
             type: Boolean,
-            default: false
+            default: false,
         },
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             follows: [],
             isOpen: false,
-            isLoading: false
+            isLoading: false,
         };
     },
     computed: {
         componentStyle() {
             return '[{opened: }]';
-        }
+        },
     },
 
     mounted() {
-        this.getFollows()
+        this.getFollows();
         this.isOpen = this.initialOpen;
     },
 
     methods: {
         getFollows() {
-            if(this.account.followedGames.length > 0){
+            if (this.account.followedGames.length > 0) {
                 this.follows.push(...this.account.followedGames);
             }
-            if(this.account.followedCharacters.length > 0){
+            if (this.account.followedCharacters.length > 0) {
                 this.follows.push(...this.account.followedCharacters);
             }
-            if(this.account.followedPlayers.length > 0){
+            if (this.account.followedPlayers.length > 0) {
                 this.follows.push(...this.account.followedPlayers);
             }
 
-
-            this.follows.sort((a, b) => (a.addedDate > b.addedDate) ? 1 : -1);
+            this.follows.sort((a, b) => (a.addedDate > b.addedDate ? 1 : -1));
             this.isLoading = true;
             this.games = this.followedGames;
             this.isLoading = false;
@@ -79,8 +79,8 @@ export default {
 
         navigate(follow) {
             this.$router.push(`/${follow.type}/${follow.id}`);
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css">
@@ -99,7 +99,6 @@ export default {
     align-items: center;
     cursor: pointer;
     margin-bottom: 5px;
-    justify-content: space-around;
 }
 
 .follows .avatar {
@@ -108,7 +107,7 @@ export default {
     border-radius: 50%;
     margin: 7px 0px;
     background: #fff;
-
+    margin-right: 20px;
 }
 
 .follows .avatar img {

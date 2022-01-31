@@ -17,9 +17,7 @@
                 <h2>{{ selectedCharacter.name }}</h2>
             </div>
             <v-btn v-if="!isFollowed" class="follow-btn" @click="followCharacter()">
-                <v-icon>
-                    mdi-heart
-                </v-icon>
+                <v-icon> mdi-heart </v-icon>
             </v-btn>
             <v-btn v-else class="unfollow-btn" @click="unfollowCharacter()">
                 <v-icon> mdi-heart-outline </v-icon>
@@ -28,6 +26,7 @@
             <div>
                 <character-select-menu-item
                     ref="characterMatchupSelect"
+                    v-model="selectedCharacter.id"
                     :title="'Matchup'"
                     :gameId="selectedCharacter.gameId"
                     @selectExpand="collapseSelect()"
@@ -36,9 +35,9 @@
             </div>
             <h3 @click="filterMatches()">Matches</h3>
             <h3 @click="filterCombos()">Combos</h3>
-            <h3>Montages</h3>
-            <h3>Top Players</h3>
-            <div>Coming soon...</div>
+            <h3 @click="filterMontages()">Montages</h3>
+            <!-- <h3>Top Players</h3>
+            <div>Coming soon...</div> -->
         </div>
     </div>
 </template>
@@ -51,7 +50,7 @@ import { eventbus } from '@/main';
 
 export default {
     components: {
-        'character-select-menu-item': CharacterSelectMenuItem
+        'character-select-menu-item': CharacterSelectMenuItem,
     },
 
     props: {},
@@ -60,7 +59,7 @@ export default {
         return {
             selectedCharacter: null,
             characters: null,
-            isFollowed: false
+            isFollowed: false,
         };
     },
 
@@ -71,13 +70,13 @@ export default {
             } else {
                 return null;
             }
-        }
+        },
     },
 
     watch: {
         selectedCharacterId() {
             this.getCharacters();
-        }
+        },
     },
 
     created() {
@@ -96,12 +95,12 @@ export default {
         async getCharacters() {
             this.isLoading = true;
             const response = await CharactersService.fetchCharacters();
-            this.characters = response.data.characters.map(character => {
+            this.characters = response.data.characters.map((character) => {
                 return {
                     id: character._id,
                     name: character.Name,
                     gameId: character.GameId,
-                    avatarUrl: character.AvatarUrl
+                    avatarUrl: character.AvatarUrl,
                 };
             });
 
@@ -111,7 +110,7 @@ export default {
 
         setActiveCharacter() {
             if (this.$route.params && this.$route.params.id) {
-                this.selectedCharacter = this.characters.filter(character => {
+                this.selectedCharacter = this.characters.filter((character) => {
                     return character.id === this.$route.params.id;
                 })[0];
             }
@@ -120,14 +119,14 @@ export default {
 
         isCharacterFollowed() {
             this.isFollowed = this.$attrs.account.followedCharacters.some(
-                character => character.id === this.selectedCharacter.id
+                (character) => character.id === this.selectedCharacter.id
             );
         },
 
         updateCharacter(character) {
             var searchQuery = {
                 type: 'Character',
-                value: character.id
+                value: character.id,
             };
             this.$refs.characterSelect.collapse();
             this.selectedCharacter = character;
@@ -137,18 +136,22 @@ export default {
         matchupCharacterFilter(character) {
             var queryParams = {
                 queryName: 'CharacterMatchupCharacterId',
-                queryValue: character.id
+                queryValue: character.id,
             };
 
             eventbus.$emit('character-query', queryParams);
         },
 
         filterMatches() {
-            eventbus.$emit('character-filter', "Match");
+            eventbus.$emit('character-filter', 'Match');
         },
 
         filterCombos() {
-            eventbus.$emit('character-filter', "Combo");
+            eventbus.$emit('character-filter', 'Combo');
+        },
+
+        filterMontages() {
+            eventbus.$emit('character-filter', 'Montage');
         },
 
         collapseSelect() {
@@ -163,8 +166,8 @@ export default {
 
         unfollowCharacter() {
             eventbus.$emit('character:unfollow', this.selectedCharacter);
-        }
-    }
+        },
+    },
 };
 </script>
 

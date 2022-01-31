@@ -18,8 +18,8 @@ export default {
     return Api().put('combo/' + params.id, params)
   },
 
-  getCombo(params) {
-    return Api().get('combo/' + params) 
+  getComboClip(params) {
+    return Api().get('comboClip/' + params) 
   },
 
   findCombo(params) {

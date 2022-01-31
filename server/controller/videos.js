@@ -72,8 +72,6 @@ function addVideo(req, res) {
     new_video.WinnerId = WinnerId;
   }
 
-  console.log(new_video);
-
   new_video.save(function (error) {
     if (error) {
       console.log(error)
@@ -280,6 +278,7 @@ function queryVideo(req, res) {
 
   Video.aggregate(aggregate, function (error, videos) {
     if (error) { console.error(error); }
+    console.log(videos)
     res.send({
       videos: videos
     })

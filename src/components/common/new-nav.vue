@@ -16,7 +16,6 @@
                     <v-divider></v-divider>
 
                     <v-list dense nav>
-                        <follows :account="account" />
                         <v-list-item
                             v-for="item in mainItems"
                             :key="item.title"
@@ -36,6 +35,10 @@
 
                 <v-list>
                     <general-search />
+                    <!-- <explore-menu
+                        v-if="selectedMain.title === 'Explore'"
+                        @set-search="setSearch($event)"
+                    /> -->
                     <video-menu
                         v-if="selectedMain.title === 'Videos'"
                         :account="account"
@@ -45,36 +48,30 @@
                         v-if="selectedMain.title === 'Combos'"
                         @set-search="setSearch($event)"
                     />
-
                     <match-menu
                         v-if="selectedMain.title === 'Matches'"
                         @set-search="setSearch($event)"
                     />
-
                     <player-menu
                         v-if="selectedMain.title === 'Players'"
                         :account="account"
                         @set-search="setSearch($event)"
                     />
-
                     <game-menu
                         v-if="selectedMain.title === 'Games'"
                         :account="account"
                         @set-search="setSearch($event)"
                     />
-
                     <character-menu
                         v-if="selectedMain.title === 'Character'"
                         :account="account"
                         @set-search="setSearch($event)"
                     />
-
                     <follow-menu
                         v-if="selectedMain.title === 'Follow'"
                         :account="account"
                         @set-search="setSearch($event)"
                     />
-
 
                     <div v-if="selectedMain.title === 'Matchups'" class="match-nav inner-list">
                         <h2>Matchups</h2>
@@ -95,12 +92,8 @@
                         class="favorite-nav inner-list"
                     >
                         <h2>Favorites</h2>
-                        <div class="menu-item" @click="goToFavoriteMatch()">
-                            Matches
-                        </div>
-                        <div class="menu-item" @click="goToFavoriteCombo()">
-                            Combos
-                        </div>
+                        <div class="menu-item" @click="goToFavoriteMatch()">Matches</div>
+                        <div class="menu-item" @click="goToFavoriteCombo()">Combos</div>
                     </div>
                     <div
                         v-if="selectedMain.title === 'Add' && account"
@@ -175,12 +168,15 @@ import GameSelectMenuItem from '@/components/games/game-select-menu-item';
 import CollectionSelectMenuItem from '@/components/collection/collection-select-menu-item';
 import GeneralSearch from '@/components/common/general-search';
 import User from '@/components/account/user';
+import ExploreMenu from '@/components/common/sub-nav/explore-menu';
 import VideoMenu from '@/components/common/sub-nav/video-menu';
 import ComboMenu from '@/components/common/sub-nav/combo-menu';
 import MatchMenu from '@/components/common/sub-nav/match-menu';
 import PlayerMenu from '@/components/common/sub-nav/player-menu';
 import GameMenu from '@/components/common/sub-nav/game-menu';
 import CharacterMenu from '@/components/common/sub-nav/character-menu';
+import CharacterSelectMenuItem from '@/components/character/character-select-menu-item';
+import Follows from '@/components/account/follows';
 
 import { eventbus } from '@/main';
 
@@ -194,15 +190,18 @@ export default {
         'player-menu': PlayerMenu,
         'game-menu': GameMenu,
         'character-menu': CharacterMenu,
+        'explore-menu': ExploreMenu,
         'general-search': GeneralSearch,
         user: User,
+        'character-select-menu-item': CharacterSelectMenuItem,
+        follows: Follows,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -210,78 +209,94 @@ export default {
             mini: true,
             selectedMain: { title: 'Videos', icon: 'mdi-video' },
             selectedGame: {
-                id: null
+                id: null,
             },
             selectedCharacterId: null,
             createOptions: [
                 {
                     name: 'Video',
-                    value: 'video'
+                    value: 'video',
                 },
                 {
                     name: 'Game',
-                    value: 'game'
+                    value: 'game',
                 },
                 {
                     name: 'Player',
-                    value: 'player'
+                    value: 'player',
                 },
                 {
                     name: 'Creator',
-                    value: 'creator'
+                    value: 'creator',
                 },
                 {
                     name: 'Character',
-                    value: 'character'
+                    value: 'character',
                 },
                 {
                     name: 'Tournament',
-                    value: 'tournament'
-                }
-            ]
+                    value: 'tournament',
+                },
+            ],
         };
     },
 
     computed: {
-        routeName: function() {
+        routeName: function () {
             return this.$route.name;
         },
-        routeValue: function() {
+        routeValue: function () {
             return this.$route.params.id;
         },
-        mainItems: function() {
-            return [
+
+        mainItems: function () {
+            var menuItems = [
                 { title: 'Explore', icon: 'mdi-gamepad-square', hasAccess: true, subMenu: false },
-                { title: 'Favorites', icon: 'mdi-heart', hasAccess: this.hasAccount, subMenu: true },
-                { title: 'Add', icon: 'mdi-plus', hasAccess: this.isAdmin },
-                {
+                { title: 'Combos', icon: 'mdi-mixed-martial-arts', hasAccess: true },
+                { title: 'Matches', icon: 'mdi-kabaddi', hasAccess: true },
+                { title: 'Montages', icon: 'mdi-film', hasAccess: true },
+                { title: 'Matchups', icon: 'mdi-fencing', hasAccess: true },
+                { title: 'Games', icon: 'mdi-gamepad-square', hasAccess: true },
+            ];
+
+            if (this.hasAccount) {
+                menuItems.push({
+                    title: 'Favorites',
+                    icon: 'mdi-heart',
+                    hasAccess: this.hasAccount,
+                });
+                menuItems.push({
                     title: 'Collections',
                     icon: 'mdi-book-variant-multiple',
                     hasAccess: this.hasAccount,
-                    subMenu: true
-                },
-                { title: 'Search', icon: 'mdi-magnify', hasAccess: this.isAdmin,subMenu: false },
+                });
+                menuItems.push({
+                    title: 'Add',
+                    icon: 'mdi-plus',
+                    hasAccess: this.isAdmin,
+                });
+            }
 
-            ];
+            return menuItems;
         },
 
-        hasAccount: function() {
-            return this.account ? true : false;
+        hasAccount: function () {
+            return this.account.id ? true : false;
         },
 
-        isAdmin: function() {
+        isAdmin: function () {
             if (this.hasAccount && this.account.role === 'Admin User') {
                 return true;
             } else {
                 return false;
             }
-        }
+        },
     },
 
     watch: {
         selectedMain() {
             this.selectedGame = {
-                id: null
+                id: null,
             };
             this.selectedCharacterId = null;
             if (this.selectedMain.title === 'Videos') {
@@ -326,27 +341,24 @@ export default {
                 this.selectedMain = { title: 'Explore', icon: 'mdi-human-handsup' };
             }
             if (this.routeName === 'Game') {
-                this.selectedMain = { title: 'Games', icon: 'mdi-human-handsup' };
+                this.selectedMain = this.menuItems[0];
             }
         },
 
         routeValue() {
             this.selectedCharacterId = this.routeValue;
-        }
+        },
     },
 
     created() {
         if (this.routeName === 'Character') {
             this.selectedMain = { title: 'Character', icon: 'mdi-human-handsup' };
             this.selectedCharacterId = this.$route.params.id;
-        }
-        if (this.routeName === 'MatchUps') {
+        } else if (this.routeName === 'MatchUps') {
             this.selectedMain = { title: 'Matchups', icon: 'mdi-human-handsup' };
-        }
-        if (this.routeName === 'Game') {
+        } else if (this.routeName === 'Game') {
             this.selectedMain = { title: 'Games', icon: 'mdi-human-handsup' };
-        }
-        if (this.routeName === 'Players' || this.routeName === 'Player') {
+        } else if (this.routeName === 'Players' || this.routeName === 'Player') {
             this.selectedMain = { title: 'Players', icon: 'mdi-human-handsup' };
         }
     },
@@ -359,7 +371,7 @@ export default {
         updateGame(game) {
             var searchQuery = {
                 type: 'Game',
-                value: game.id
+                value: game.id,
             };
             this.selectedGame = game;
             this.setSearch(searchQuery);
@@ -372,7 +384,7 @@ export default {
         updatePlayer(player) {
             var searchQuery = {
                 type: 'Player',
-                value: player.id
+                value: player.id,
             };
             this.setSearch(searchQuery);
         },
@@ -380,7 +392,7 @@ export default {
         updateCharacter(character) {
             var searchQuery = {
                 type: 'Character',
-                value: character.id
+                value: character.id,
             };
             this.setSearch(searchQuery);
         },
@@ -396,10 +408,10 @@ export default {
         setSearch(searchQuery) {
             var query = {
                 name: searchQuery.type,
-                value: searchQuery.value
+                value: searchQuery.value,
             };
 
-            this.$router.push(`/${query.name}/${query.value}`);
+            this.$router.push(`/${searchQuery.route}/${query.name}/${query.value}`);
         },
 
         searchGame(game) {
@@ -421,19 +433,19 @@ export default {
 
         openCreateWidget(createType) {
             eventbus.$emit('open:widget', {
-                name: createType
+                name: createType,
             });
         },
 
         openLoginWidget() {
             eventbus.$emit('open:widget', {
-                name: 'login'
+                name: 'login',
             });
         },
 
         openRegisterWidget() {
             eventbus.$emit('open:widget', {
-                name: 'register'
+                name: 'register',
             });
         },
 
@@ -450,10 +462,10 @@ export default {
         setMatchup(character) {
             eventbus.$emit('matchup-filter', {
                 character1: this.selectedCharacterId,
-                character2: character.id
+                character2: character.id,
             });
-        }
-    }
+        },
+    },
 };
 </script>
 
@@ -472,8 +484,12 @@ export default {
     padding: 0 5px;
 }
 
-.navigation  .v-navigation-drawer  .v-list {
-    width: 80%;
+.navigation .v-navigation-drawer.v-navigation-drawer--mini-variant .v-list {
+    width: 100%;
+}
+
+.navigation .v-navigation-drawer .v-list {
+    width: 83%;
 }
 
 .navigation .menu-item {
@@ -532,8 +548,8 @@ export default {
     bottom: 20px;
 }
 
-.navigation .v-list{
-    width: 100%
+.navigation .v-list {
+    width: 100%;
 }
 
 .navigation .v-list--nav {

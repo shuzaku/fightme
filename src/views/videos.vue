@@ -19,7 +19,7 @@
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
                     :isFirst="video.isFirst"
-                    :comboId="video.comboId"
+                    :comboClipId="video.comboClipId"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :account="account"
                 />
@@ -39,14 +39,14 @@ export default {
 
     components: {
         'match-video-card': NewMatchVideoCard,
-        'combo-video-card': NewComboVideoCard
+        'combo-video-card': NewComboVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -57,14 +57,14 @@ export default {
             savedQuery: null,
             favorites: [],
             error: null,
-            results: null
+            results: null,
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
-        }
+        },
     },
 
     created() {
@@ -92,7 +92,7 @@ export default {
 
         async queryVideos() {
             var queryParameter = {
-                skip: this.skip
+                skip: this.skip,
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -104,13 +104,13 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isFirst: false
+                    isFirst: false,
                 });
             });
             if (this.videos.length > 0) {
@@ -125,7 +125,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -150,13 +150,13 @@ export default {
         },
 
         checkFavorites() {
-            this.favorites.forEach(favorite => {
+            this.favorites.forEach((favorite) => {
                 if (favorite.contentType === 'Combo') {
                     this.videos.filter(
-                        video => video.combo.id === favorite.id
+                        (video) => video.combo.id === favorite.id
                     )[0].isFavorited = true;
                 } else {
-                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+                    this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
                 }
             });
         },
@@ -171,8 +171,8 @@ export default {
             } catch (err) {
                 this.error = err;
             }
-        }
-    }
+        },
+    },
 };
 </script>
 

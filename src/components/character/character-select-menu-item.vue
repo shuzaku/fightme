@@ -3,23 +3,21 @@
     <div :class="[{ opened: isOpen }, 'character-select-menu-item']">
         <div class="menu-item" @click="toggleOpen">
             {{ title }}
-            <v-icon>
-                mdi-chevron-down
-            </v-icon>
+            <v-icon> mdi-chevron-down </v-icon>
         </div>
         <div v-if="isOpen" class="characters">
             <multiselect
+                v-if="!isLoading"
                 v-model="value"
                 :options="characters"
                 :close-on-select="true"
                 :clear-on-select="true"
                 :preserve-search="true"
                 :custom-label="customLabel"
-                @input="selectCharacter($event)"
                 placeholder="Characters"
                 label="name"
                 track-by="id"
-                v-if="!isLoading"
+                @input="selectCharacter($event)"
             >
                 <template slot="singleLabel" slot-scope="props">
                     <img class="option__image" :src="props.option.imageUrl" />
@@ -40,24 +38,24 @@
 import CharactersService from '@/services/characters-service';
 
 export default {
-    name: 'character-menu-select',
+    name: 'character-menu-select-item',
     props: {
         initialOpen: {
             type: Boolean,
-            default: false
+            default: false,
         },
         gameId: {
             type: String,
-            default: null
+            default: null,
         },
         value: {
             type: String,
-            default: null
+            default: null,
         },
         title: {
             type: String,
-            default: 'Characters'
-        }
+            default: 'Characters',
+        },
     },
 
     data() {
@@ -65,7 +63,8 @@ export default {
             characters: [],
             isOpen: false,
             characterMenuOpen: false,
-            isLoading: false
+            isLoading: false,
+            selectedCharacter: null,
         };
     },
 
@@ -76,7 +75,7 @@ export default {
             } else {
                 return null;
             }
-        }
+        },
     },
 
     watch: {
@@ -85,7 +84,7 @@ export default {
         },
         routeCharacterId() {
             this.getCharacter();
-        }
+        },
     },
 
     mounted() {
@@ -94,6 +93,9 @@ export default {
         } else {
             this.getCharacters();
         }
+        if (this.value) {
+            this.selectedCharacter = this.value;
+        }
         this.isOpen = this.initialOpen;
     },
 
@@ -101,25 +103,26 @@ export default {
         customLabel({ name }) {
             return `${name}`;
         },
+
         async getCharacters() {
             this.isLoading = true;
             var response = null;
-            if (this.value != 'all') {
+            if (this.selectedCharacter != 'all') {
                 response = await CharactersService.queryCharacters([
                     {
                         queryName: 'GameId',
-                        queryValue: this.gameId
-                    }
+                        queryValue: this.gameId,
+                    },
                 ]);
             } else {
                 response = await CharactersService.fetchCharacters();
             }
 
-            this.characters = response.data.characters.map(character => {
+            this.characters = response.data.characters.map((character) => {
                 return {
                     id: character._id,
                     name: character.Name,
-                    imageUrl: character.AvatarUrl
+                    imageUrl: character.AvatarUrl,
                 };
             });
 
@@ -128,22 +131,22 @@ export default {
 
         async getCharacter() {
             const response = await CharactersService.getCharacter({
-                id: this.value
+                id: this.selectedCharacter.id,
             });
 
             this.$emit('gameUpdate', {
-                gameId: response.data.GameId
+                gameId: response.data.GameId,
             });
 
-            this.value = {
+            this.selectedCharacter = {
                 id: response.data._id,
                 name: response.data.Name,
-                imageUrl: response.data.AvatarUrl
+                imageUrl: response.data.AvatarUrl,
             };
         },
 
         selectCharacter(character) {
-            this.characters.forEach(character => {
+            this.characters.forEach((character) => {
                 character.selected = false;
             });
             character.selected = true;
@@ -159,13 +162,13 @@ export default {
 
         clearCharater() {
             this.isOpen = false;
-            this.value = null;
+            this.selectedCharacter = null;
         },
 
         collapse() {
             this.isOpen = false;
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css">

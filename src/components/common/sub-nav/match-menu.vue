@@ -26,29 +26,39 @@ import { eventbus } from '@/main';
 export default {
     components: {
         'game-select-menu-item': GameSelectMenuItem,
-        'character-select-menu-item': CharacterSelectMenuItem
+        'character-select-menu-item': CharacterSelectMenuItem,
     },
 
     data() {
         return {
             selectedGame: {
-                id: null
+                id: null,
             },
-            selectedCharacter: null
+            selectedCharacter: null,
         };
     },
 
     methods: {
         updateGame(game) {
+            var searchQuery = {
+                type: 'game',
+                value: game.id,
+                route: 'matches',
+            };
             this.$refs.gameSelect.collapse();
             this.selectedGame = game;
-            eventbus.$emit('search', { queryName: 'GameId', queryValue: game.id });
+            this.$emit('set-search', searchQuery);
         },
 
         updateCharacter(character) {
+            var searchQuery = {
+                type: 'character',
+                value: character.id,
+                route: 'matches',
+            };
             this.selectedCharacter = character;
-            eventbus.$emit('search', { queryName: 'CharacterId', queryValue: character.id });
-        }
-    }
+            this.$emit('set-search', searchQuery);
+        },
+    },
 };
 </script>

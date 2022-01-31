@@ -34,19 +34,19 @@ export default {
     props: {
         player: {
             type: Number,
-            default: null
+            default: null,
         },
         value: {
             type: String,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             players: [],
             selectedPlayer: null,
-            isLoading: true
+            isLoading: true,
         };
     },
 
@@ -67,7 +67,7 @@ export default {
     methods: {
         async addPlayer(newPlayer) {
             var response = await PlayersService.addPlayer({
-                Name: newPlayer.trim()
+                Name: newPlayer.trim(),
             });
             var playerId = response.data.playerId;
             this.getPlayers(playerId);
@@ -76,20 +76,20 @@ export default {
 
         async getPlayers(newPlayerId) {
             const response = await PlayersService.fetchPlayers();
-            this.players = response.data.players.map(player => {
+            this.players = response.data.players.map((player) => {
                 return {
                     id: player._id,
-                    playerName: player.Name
+                    playerName: player.Name,
                 };
             });
 
             if (newPlayerId) {
-                this.selectedPlayer = this.players.filter(player => player.id === newPlayerId)[0];
+                this.selectedPlayer = this.players.filter((player) => player.id === newPlayerId)[0];
                 this.setPlayer();
             }
 
             if (this.value) {
-                this.selectedPlayer = this.players.filter(player => player.id === this.value);
+                this.selectedPlayer = this.players.filter((player) => player.id === this.value);
             }
 
             this.isLoading = false;
@@ -97,8 +97,8 @@ export default {
 
         setPlayer() {
             this.$emit('update:player', this.selectedPlayer);
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css"></style>

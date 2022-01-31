@@ -45,7 +45,7 @@ export default {
 
     components: {
         'new-nav': NewNav,
-        modal: Modal
+        modal: Modal,
         // trending: Trending
     },
 
@@ -63,20 +63,20 @@ export default {
             followedPlayers: [],
             followedGames: [],
             followedCharacters: [],
-            collections: []
+            collections: [],
         };
     },
 
     watch: {
         account() {
             eventbus.$emit('account:update', this.account);
-        }
+        },
     },
 
     created() {
         this.account = {
             id: null,
-            role: 'unregistered user'
+            role: 'unregistered user',
         };
         this.getPersistantUser();
         eventbus.$on('open:widget', this.openModal);
@@ -141,95 +141,109 @@ export default {
             // eventbus.$emit('screen-size:update', this.screenWidth);
         },
 
-        async fetchAccount(id) {
+        async fetchAccount(user) {
             this.loading = true;
-            if (id) {
-                const response = await AccountsService.getAccount({ id: id });
-                console.log(response.data)
-                this.account = {
-                    id: response.data.account[0]._id,
-                    uid: id,
-                    displayName: response.data.account[0].DisplayName,
-                    email: response.data.account[0].Email,
-                    favoriteVideos: response.data.account[0].FavoriteVideos
-                        ? response.data.account[0].FavoriteVideos.map(video => {
-                              return {
-                                  contentType: video.ContentType,
-                                  id: video.Id
-                              };
-                          })
-                        : [],
-                    followedPlayers:
-                        response.data.account[0].FollowedPlayersDetails.map(player => {
-                            return {
-                                id: player._id,
-                                name: player.Name,
-                                imageUrl: player.PlayerImg,
-                                type:"player",
-                                addedDate: this.getAddedDate("player" , player._id, response.data.account[0]),
-                            };
-                        }) || [],
-                    followedCharacters:
-                        response.data.account[0].FollowedCharactersDetails.map(character => {
-                            return {
-                                id: character._id,
-                                name: character.Name,
-                                imageUrl: character.AvatarUrl,
-                                type:"character",
-                                addedDate: this.getAddedDate("character" , character._id, response.data.account[0]),
-
-                            };
-                        }) || [],
-                    followedGames:
-                        response.data.account[0].FollowedGamesDetails.map(game => {
-                            return {
-                                id: game._id,
-                                name: game.Title,
-                                imageUrl: game.LogoUrl,
-                                type:"game",
-                                addedDate: this.getAddedDate("game" , game._id, response.data.account[0]),
-
-                            };
-                        }) || [],
-                    collections:
-                        response.data.account[0].Collections.map(collection => {
-                            return {
-                                id: collection._id,
-                                title: collection.Name
-                            };
-                        }) || [],
-                    role: response.data.account[0].AccountType
-                };
+            if (user.emailVerified) {
+                const response = await AccountsService.getAccount({ id: user.uid });
+                if (response.data.account[0]) {
+                    this.account = {
+                        id: response.data.account[0]._id,
+                        uid: user.id,
+                        displayName: response.data.account[0].DisplayName,
+                        email: response.data.account[0].Email,
+                        favoriteVideos: response.data.account[0].FavoriteVideos
+                            ? response.data.account[0].FavoriteVideos.map((video) => {
+                                  return {
+                                      contentType: video.ContentType,
+                                      id: video.Id,
+                                  };
+                              })
+                            : [],
+                        followedPlayers:
+                            response.data.account[0].FollowedPlayersDetails.map((player) => {
+                                return {
+                                    id: player._id,
+                                    name: player.Name,
+                                    imageUrl: player.PlayerImg,
+                                    type: 'player',
+                                    addedDate: this.getAddedDate(
+                                        'player',
+                                        player._id,
+                                        response.data.account[0]
+                                    ),
+                                };
+                            }) || [],
+                        followedCharacters:
+                            response.data.account[0].FollowedCharactersDetails.map((character) => {
+                                return {
+                                    id: character._id,
+                                    name: character.Name,
+                                    imageUrl: character.AvatarUrl,
+                                    type: 'character',
+                                    addedDate: this.getAddedDate(
+                                        'character',
+                                        character._id,
+                                        response.data.account[0]
+                                    ),
+                                };
+                            }) || [],
+                        followedGames:
+                            response.data.account[0].FollowedGamesDetails.map((game) => {
+                                return {
+                                    id: game._id,
+                                    name: game.Title,
+                                    imageUrl: game.LogoUrl,
+                                    type: 'game',
+                                    addedDate: this.getAddedDate(
+                                        'game',
+                                        game._id,
+                                        response.data.account[0]
+                                    ),
+                                };
+                            }) || [],
+                        collections:
+                            response.data.account[0].Collections.map((collection) => {
+                                return {
+                                    id: collection._id,
+                                    title: collection.Name,
+                                };
+                            }) || [],
+                        role: response.data.account[0].AccountType,
+                    };
+                }
+                eventbus.$emit('account:update', this.account);
+                this.isLoading = false;
+            } else {
+                eventbus.$emit('error:verification');
+                this.isLoading = false;
             }
-            eventbus.$emit('account:update', this.account);
-            this.isLoading = false;
         },
 
         getAddedDate(type, id, response) {
-            switch(type) {
+            var date = null;
+            switch (type) {
                 case 'player':
-                    var date = response.FollowedPlayers.filter(player => player.PlayerId === id)[0].AddedDate;
+                    date = response.FollowedPlayers.filter((player) => player.PlayerId === id)[0]
+                        .AddedDate;
                     return date;
-                    break;
                 case 'game':
-                    var date = response.FollowedGames.filter(game => game.GameId === id)[0].AddedDate;
-                    return date;                    
-                    break;
+                    date = response.FollowedGames.filter((game) => game.GameId === id)[0].AddedDate;
+                    return date;
                 case 'character':
-                    var date = response.FollowedCharacters.filter(character => character.CharacterId === id)[0].AddedDate;
-                    return date;                    
-                    break;
-                default :
+                    date = response.FollowedCharacters.filter(
+                        (character) => character.CharacterId === id
+                    )[0].AddedDate;
+                    return date;
+                default:
                     return null;
-                    break
             }
         },
 
         getPersistantUser() {
             var globalScope = this;
-            firebase.auth().onAuthStateChanged(function(user) {
+            firebase.auth().onAuthStateChanged(function (user) {
                 if (user) {
-                    globalScope.fetchAccount(user.uid);
+                    globalScope.fetchAccount(user);
                 } else {
                     globalScope.isLoading = false;
                 }
@@ -253,7 +267,7 @@ export default {
                 Collections: this.mapCollections(),
                 FollowedPlayers: this.mapPlayers(),
                 FollowedGames: this.mapGames(),
-                FollowedCharacters: this.mapCharacters()
+                FollowedCharacters: this.mapCharacters(),
             };
         },
 
@@ -274,7 +288,7 @@ export default {
 
         followPlayer(player) {
             this.cloneFollowed();
-             var newFollowPlayer = {'id': player.id, addedDate: moment().format()};
+            var newFollowPlayer = { id: player.id, addedDate: moment().format() };
 
             if (this.followedPlayers.length == 0) {
                 this.followedPlayers = [newFollowPlayer];
@@ -287,7 +301,7 @@ export default {
 
         followCharacter(character) {
             this.cloneFollowed();
-            var newFollowCharacter = {'id': character.id, addedDate: moment().format()};
+            var newFollowCharacter = { id: character.id, addedDate: moment().format() };
 
             if (this.followedCharacters.length == 0) {
                 this.followedCharacters = [newFollowCharacter];
@@ -300,7 +314,7 @@ export default {
 
         followGame(game) {
             this.cloneFollowed();
-            var newFollowedGame = {'id': game.id, addedDate: moment().format()};
+            var newFollowedGame = { id: game.id, addedDate: moment().format() };
 
             if (this.followedGames.length == 0) {
                 this.followedGames = [newFollowedGame];
@@ -316,20 +330,20 @@ export default {
                 return [
                     {
                         ContentType: video.contentType,
-                        Id: targetId
-                    }
+                        Id: targetId,
+                    },
                 ];
             } else {
-                var favoriteVideos = this.account.favoriteVideos.map(video => {
+                var favoriteVideos = this.account.favoriteVideos.map((video) => {
                     return {
                         ContentType: video.contentType,
-                        Id: video.id
+                        Id: video.id,
                     };
                 });
 
                 favoriteVideos.push({
                     ContentType: video.contentType,
-                    Id: targetId
+                    Id: targetId,
                 });
 
                 return favoriteVideos;
@@ -390,32 +404,34 @@ export default {
         },
 
         mapPlayers() {
-            return this.followedPlayers.map(player => { 
+            return this.followedPlayers.map((player) => {
                 return {
                     PlayerId: player.id,
-                    AddedDate: player.addedDate
-                }}
-            );
+                    AddedDate: player.addedDate,
+                };
+            });
         },
 
         mapCharacters() {
-            return this.followedCharacters.map(character => { 
+            return this.followedCharacters.map((character) => {
                 return {
                     CharacterId: character.id,
-                    AddedDate: character.addedDate
-                }}
-            );        },
+                    AddedDate: character.addedDate,
+                };
+            });
+        },
 
         mapGames() {
-            return this.followedGames.map(game => { 
+            return this.followedGames.map((game) => {
                 return {
                     GameId: game.id,
-                    AddedDate: game.addedDate
-                }}
-            );        },
+                    AddedDate: game.addedDate,
+                };
+            });
+        },
 
         mapCollections() {
-            return this.collections.map(collection => {
+            return this.collections.map((collection) => {
                 return collection.id;
             });
         },
@@ -423,7 +439,7 @@ export default {
         async patchAccount() {
             this.getRequest();
             await AccountsService.patchAccount(this.request);
-            this.fetchAccount(this.account.uid);
+            this.fetchAccount(this.account);
         },
 
         cloneFollowed() {
@@ -431,8 +447,12 @@ export default {
             this.followedCharacters = this.account.followedCharacters;
             this.followedGames = this.account.followedGames;
             this.collections = this.account.collections;
-        }
-    }
+        },
+
+        setAccount(account) {
+            this.account = account;
+        },
+    },
 };
 </script>
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
@@ -527,7 +547,7 @@ export default {
     background: #fff;
     border-radius: 20px;
     padding: 5px 10px;
-    font-family: "Roboto"
+    font-family: 'Roboto';
 }
 
 .trending-container h2 {

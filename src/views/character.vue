@@ -20,8 +20,15 @@
                     v-model="video.isPlaying"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
-                    :comboId="video.comboId"
+                    :comboClipId="video.comboClipId"
                     :account="account"
+                />
+                <montage-video-card
+                    v-if="video.contentType === 'Montage'"
+                    v-model="video.isPlaying"
+                    :montageId="video.montageId"
+                    :account="account"
+                    @video:delete="refreshDelete()"
                 />
             </div>
         </div>
@@ -32,6 +39,7 @@
 import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
+import MontageVideoCard from '@/components/videos/montage-video-card';
 
 import { eventbus } from '@/main';
 
@@ -40,14 +48,15 @@ export default {
 
     components: {
         'match-video-card': MatchVideoCard,
-        'combo-video-card': ComboVideoCard
+        'combo-video-card': ComboVideoCard,
+        'montage-video-card': MontageVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -59,27 +68,27 @@ export default {
             favorites: [],
             filter: null,
             sort: null,
-            tagFilter: null
+            tagFilter: null,
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        characterId: function() {
+        characterId: function () {
             return this.$route.params.id;
-        }
+        },
     },
 
     watch: {
-        characterId: function() {
+        characterId: function () {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();
             this.isLoading = false;
-        }
+        },
     },
 
     mounted() {
@@ -119,8 +128,8 @@ export default {
         refreshQuery(newQuery) {
             this.videos = [];
             this.queryVideos(newQuery);
-        },        
-        
+        },
+
         filterQuery(filter) {
             this.videos = [];
             this.filter = filter;
@@ -134,10 +143,10 @@ export default {
                 searchQuery: [
                     {
                         queryName: 'CharacterId',
-                        queryValue: this.characterId
-                    }
+                        queryValue: this.characterId,
+                    },
                 ],
-                filter: this.filter
+                filter: this.filter,
             };
 
             if (newQuery) {
@@ -150,13 +159,14 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
                     matchId: video.Match ? video.Match._id : null,
+                    montageId: video.Montage ? video.Montage._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isFirst: false
+                    isFirst: false,
                 });
             });
             if (this.videos.length > 0) {
@@ -166,7 +176,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -198,14 +208,14 @@ export default {
         async queryMatchup(searchQuery) {
             var queryParameter = {
                 skip: this.skip,
-                searchQuery: searchQuery
+                searchQuery: searchQuery,
             };
 
             const response = await VideosService.queryMatchup(queryParameter);
             this.hydrateVideos(response);
             this.isLoading = false;
-        }
-    }
+        },
+    },
 };
 </script>
 

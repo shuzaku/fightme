@@ -75,7 +75,9 @@ export default {
     },
 
     mounted() {
-        this.getCollections();
+        if(this.account.id){
+            this.getCollections();
+        }
     },
 
     methods: {

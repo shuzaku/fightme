@@ -2,6 +2,7 @@
 <template>
     <div class="tournamnets-search">
         <multiselect
+            v-if="!isLoading"
             v-model="selectedTournament"
             :options="tournaments"
             :multiple="false"
@@ -9,13 +10,13 @@
             :clear-on-select="false"
             :preserve-search="true"
             :taggable="true"
-            @tag="addTournament"
-            @input="setTournament"
             placeholder="Search or add a Tournament"
             label="name"
+            @tag="addTournament($event)"
+            @input="setTournament"
         >
             <template slot="selection" slot-scope="{ values, isOpen }">
-                <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">
+                <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
                     Select Tournament
                 </span>
             </template>
@@ -25,68 +26,78 @@
 
 <script>
 import TournamentsService from '@/services/tournaments-service';
+import { eventbus } from '@/main';
 
 export default {
-    inject: ['video'],
     name: 'tournaments-search',
     props: {
         tournament: {
-            type: Number
-        }
+            type: Number,
+        },
     },
     data() {
         return {
+            isLoading: false,
             tournaments: [],
-            selectedTournament: null
+            selectedTournament: null,
         };
     },
 
-    watch: {
-        selectedTournament: function() {
-            this.video.tournament = this.selectedTournament;
-        }
+    mounted() {
+        this.getTournaments();
+    },
+
+    created() {
+        eventbus.$on('add:new-tournament', this.getTournaments);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('add:new-tournament', this.getTournaments);
     },
 
     methods: {
         async addTournament(newTournament) {
-            await TournamentsService.addTournament({
+            var response = await TournamentsService.addTournament({
                 Name: newTournament,
-                CreatedDate: this.timestamp,
-                UpdatedDate: null
             });
-            this.getTournaments();
+            var tournamentId = response.data.tournamentId;
+            this.getTournaments(tournamentId);
+            eventbus.$emit('add:new-creator');
         },
 
-        async getTournaments() {
+        async getTournaments(newTournamentId) {
+            this.isLoading = true;
+
             const response = await TournamentsService.fetchTournaments();
-            this.tournaments = response.data.tournaments.map(tournament => {
+            this.tournaments = response.data.tournaments.map((tournament) => {
                 return {
                     id: tournament._id,
                     name: tournament.Name,
                     games: tournament.Games
-                        ? tournament.Games.map(game => {
+                        ? tournament.Games.map((game) => {
                               return {
                                   id: game._id,
-                                  title: game.title
+                                  title: game.title,
                               };
                           })
-                        : null
+                        : null,
                 };
             });
+
+            if (newTournamentId) {
+                this.selectedTournament = this.tournaments.filter(
+                    (tournament) => tournament.id === newTournamentId
+                )[0];
+                this.setTournament();
+            }
+
+            this.isLoading = false;
         },
 
         setTournament() {
             this.$emit('update:tournament', this.selectedTournament);
-        }
+        },
     },
-
-    mounted() {
-        if (this.video) {
-            this.selectedTournament = this.video.Tournament;
-        }
-
-        this.getTournaments();
-    }
 };
 </script>
 <style type="text/css"></style>

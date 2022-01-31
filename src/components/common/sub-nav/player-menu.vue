@@ -120,7 +120,9 @@ export default {
                 })[0];
             }
 
-            this.isPlayerFollowed();
+            if (this.account.id){
+                this.isPlayerFollowed();
+            }
         },
 
         isPlayerFollowed() {
