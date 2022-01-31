@@ -115,7 +115,7 @@ export default {
                     return character.id === this.$route.params.id;
                 })[0];
             }
-            if (this.account.id) {
+            if (this.account && this.account.id) {
                 this.isCharacterFollowed();
             }
         },
