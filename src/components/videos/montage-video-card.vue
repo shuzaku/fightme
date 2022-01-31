@@ -25,7 +25,7 @@
                 />
             </div>
             <div class="card-label">Montage</div>
-            <div v-for="character in video.montage.characters" :key="character.id">
+            <div v-for="(character, index) in video.montage.characters" :key="character.id">
                 <div
                     :class="[
                         'character-bubble',

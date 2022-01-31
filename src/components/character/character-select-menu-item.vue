@@ -130,19 +130,21 @@ export default {
         },
 
         async getCharacter() {
-            const response = await CharactersService.getCharacter({
-                id: this.selectedCharacter.id,
-            });
+            if (this.selectedCharacter) {
+                const response = await CharactersService.getCharacter({
+                    id: this.selectedCharacter.id,
+                });
 
-            this.$emit('gameUpdate', {
-                gameId: response.data.GameId,
-            });
+                this.$emit('gameUpdate', {
+                    gameId: response.data.GameId,
+                });
 
-            this.selectedCharacter = {
-                id: response.data._id,
-                name: response.data.Name,
-                imageUrl: response.data.AvatarUrl,
-            };
+                this.selectedCharacter = {
+                    id: response.data._id,
+                    name: response.data.Name,
+                    imageUrl: response.data.AvatarUrl,
+                };
+            }
         },
 
         selectCharacter(character) {

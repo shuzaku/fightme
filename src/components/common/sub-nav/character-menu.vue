@@ -60,6 +60,7 @@ export default {
             selectedCharacter: null,
             characters: null,
             isFollowed: false,
+            isLoading: false,
         };
     },
 

@@ -90,7 +90,7 @@ export default {
     background-size: cover;
     width: 100%;
     height: 100%;
-    background-position: top center;
+    background-position: center center;
 }
 
 .character-spotlight h2 {
