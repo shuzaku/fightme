@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="player-nav inner-list ">
+    <div class="player-nav inner-list">
         <div v-if="!selectedPlayer">
             <h2>Players</h2>
             <player-select-menu-item
@@ -14,14 +14,14 @@
         <div v-else>
             <div class="player-header">
                 <h2>{{ selectedPlayer.name }}</h2>
-                <v-btn v-if="!isFollowed" class="follow-btn" @click="followPlayer()">
-                    <v-icon>
-                        mdi-heart
-                    </v-icon>
-                </v-btn>
-                <v-btn v-else class="unfollow-btn" @click="unfollowPlayer()">
-                    <v-icon> mdi-heart-outline </v-icon>
-                </v-btn>
+                <div v-if="account" class="followed-container">
+                    <v-btn v-if="!isFollowed" class="follow-btn" @click="followPlayer()">
+                        <v-icon> mdi-heart </v-icon>
+                    </v-btn>
+                    <v-btn v-else class="unfollow-btn" @click="unfollowPlayer()">
+                        <v-icon> mdi-heart-outline </v-icon>
+                    </v-btn>
+                </div>
             </div>
             <h3>Filter videos by...</h3>
             <div>
@@ -64,14 +64,14 @@ export default {
     components: {
         'player-select-menu-item': PlayerSelectMenuItem,
         'game-select-menu-item': GameSelectMenuItem,
-        'character-select-menu-item': CharacterSelectMenuItem
+        'character-select-menu-item': CharacterSelectMenuItem,
     },
 
     data() {
         return {
             selectedPlayer: null,
             players: null,
-            isFollowed: false
+            isFollowed: false,
         };
     },
 
@@ -82,7 +82,7 @@ export default {
             } else {
                 return null;
             }
-        }
+        },
     },
 
     mounted() {
@@ -101,11 +101,11 @@ export default {
         async getPlayers() {
             this.isLoading = true;
             const response = await PlayersService.fetchPlayers();
-            this.players = response.data.players.map(player => {
+            this.players = response.data.players.map((player) => {
                 return {
                     id: player._id,
                     name: player.Name,
-                    selected: false
+                    selected: false,
                 };
             });
 
@@ -115,26 +115,26 @@ export default {
 
         setActivePlayer() {
             if (this.$route.params && this.$route.params.id) {
-                this.selectedPlayer = this.players.filter(player => {
+                this.selectedPlayer = this.players.filter((player) => {
                     return player.id === this.$route.params.id;
                 })[0];
             }
 
-            if (this.account.id){
+            if (this.account.id) {
                 this.isPlayerFollowed();
             }
         },
 
         isPlayerFollowed() {
             this.isFollowed = this.$attrs.account.followedPlayers.some(
-                player => player.id === this.selectedPlayer.id
+                (player) => player.id === this.selectedPlayer.id
             );
         },
 
         updatePlayer(player) {
             var searchQuery = {
                 type: 'Player',
-                value: player.id
+                value: player.id,
             };
             this.$refs.playerSelect.collapse();
             this.selectedPlayer = player;
@@ -144,7 +144,7 @@ export default {
         gameQuery(game) {
             var queryParams = {
                 queryName: 'GameId',
-                queryValue: game.id
+                queryValue: game.id,
             };
 
             eventbus.$emit('player-filter', queryParams);
@@ -153,7 +153,7 @@ export default {
         characterQuery(character) {
             var queryParams = {
                 queryName: 'CharacterId',
-                queryValue: character.id
+                queryValue: character.id,
             };
 
             eventbus.$emit('player-filter', queryParams);
@@ -162,7 +162,7 @@ export default {
         matchupCharacterQuery(character) {
             var queryParams = {
                 queryName: 'PlayerMatchupCharacterId',
-                queryValue: character.id
+                queryValue: character.id,
             };
 
             eventbus.$emit('player-filter', queryParams);
@@ -180,8 +180,8 @@ export default {
 
         unfollowPlayer() {
             eventbus.$emit('player:unfollow', this.selectedPlayer);
-        }
-    }
+        },
+    },
 };
 </script>
 

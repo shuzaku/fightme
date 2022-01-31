@@ -527,4 +527,14 @@ export default {
     box-shadow: none;
     border-radius: 50%;
 }
+
+#app .montage-video-card .admin-controls button {
+    width: 50px;
+    height: 50px;
+    min-width: initial;
+    background-color: transparent;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border-radius: 50%;
+}
 </style>

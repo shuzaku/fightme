@@ -16,12 +16,14 @@
                 <img class="character-avatar" :src="selectedCharacter.avatarUrl" />
                 <h2>{{ selectedCharacter.name }}</h2>
             </div>
-            <v-btn v-if="!isFollowed" class="follow-btn" @click="followCharacter()">
-                <v-icon> mdi-heart </v-icon>
-            </v-btn>
-            <v-btn v-else class="unfollow-btn" @click="unfollowCharacter()">
-                <v-icon> mdi-heart-outline </v-icon>
-            </v-btn>
+            <div v-if="account" class="followed-container">
+                <v-btn v-if="!isFollowed" class="follow-btn" @click="followCharacter()">
+                    <v-icon> mdi-heart </v-icon>
+                </v-btn>
+                <v-btn v-else class="unfollow-btn" @click="unfollowCharacter()">
+                    <v-icon> mdi-heart-outline </v-icon>
+                </v-btn>
+            </div>
             <h3>Filter videos by...</h3>
             <div>
                 <character-select-menu-item
@@ -191,6 +193,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 20px;
 }
 
 .character-nav.inner-list .character-header h2 {
