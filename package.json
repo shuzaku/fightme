@@ -21,7 +21,6 @@
     "es6-promise": "^4.2.8",
     "eslint-config-prettier": "^8.2.0",
     "eslint-loader": "^4.0.2",
-    "firebase": "^8.2.4",
     "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "npm": "^7.3.0",
