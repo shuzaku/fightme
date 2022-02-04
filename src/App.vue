@@ -30,7 +30,7 @@
         <div class="svg-container"></div>
     </div>
 </template>
-
+<script lang="ts"></script>
 <script>
 import { eventbus } from '@/main';
 import NewNav from '@/components/common/new-nav';

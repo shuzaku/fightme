@@ -7,7 +7,6 @@ import moment from 'moment';
 import VueWaypoint from 'vue-waypoint'
 import Multiselect from 'vue-multiselect'
 import VueYouTubeEmbed from 'vue-youtube-embed'
-import vuetify from '@/plugins/vuetify' // path to vuetify export
 import VueClipboard from 'vue-clipboard2'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -56,7 +55,6 @@ firebase.initializeApp(configOptions);
 
 new Vue({
   router,
-  vuetify,
   components: { App },
   render: h => h(App)
 }).$mount('#app');
