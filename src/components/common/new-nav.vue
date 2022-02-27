@@ -461,8 +461,10 @@ export default {
 
         setMatchup(character) {
             eventbus.$emit('matchup-filter', {
-                character1: this.selectedCharacterId,
-                character2: character.id,
+                characters: {
+                    character1: this.selectedCharacterId,
+                    character2: character.id,
+                },
             });
         },
     },

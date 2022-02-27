@@ -1,20 +1,21 @@
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Videos
-  fetchVideos (params) {
-    return Api().get('videos?skip='+ params, params)
+  fetchVideos (params: Params) {
+    return Api().get('videos?skip='+ params)
   },
 
-  addVideo (params) {
+  addVideo (params: Params) {
     return Api().post('video', params)
   },
   
-  addVideos (params) {
+  addVideos (params: Params) {
     return Api().post('video?bulk=true', params)
   },
 
-  queryVideos (params) {
+  queryVideos (params: Params) {
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];
     if(params.searchQuery){
@@ -32,18 +33,18 @@ export default {
     if(params.tagFilter){
       queryParams.push(`tag=${params.tagFilter}`)
     }
-    return Api().get(`videoQuery?${queryParams.join('&')}`, params)
+    return Api().get(`videoQuery?${queryParams.join('&')}`)
   },
 
-  patchVideo (params) {
+  patchVideo (params: Params) {
     return Api().put('video/' + params.id, params)
   },
 
-  getVideo (id) {
+  getVideo (id: string) {
     return Api().get('video/' + id) 
   },
 
-  deleteVideo (id) {
+  deleteVideo (id: string) {
     return Api().delete('videos/' + id)
   },
 
@@ -55,16 +56,16 @@ export default {
     return Api().post('getVideos/')
   },
 
-  getComboVideo (id) {
+  getComboVideo (id: string) {
     return Api().get('comboVideo/' + id) 
   },
 
-  getMatchVideo (url) {
+  getMatchVideo (url: string) {
     return Api().get('matchVideo/' + url) 
   },
 
-  queryMatchup(params) {
+  queryMatchup(params: Params) {
     var skip = params.skip;
-    return Api().get(`characterMatchup?character1=${params.searchQuery.character1}&character2=${params.searchQuery.character2}&skip=${skip}`, params)
+    return Api().get(`characterMatchup?character1=${params.searchQuery[0].characters.character1}&character2=${params.searchQuery[0].characters.character2}&skip=${skip}`)
   }
 } 

@@ -38,40 +38,40 @@ export default {
             createOptions: [
                 {
                     name: 'Video',
-                    value: 'video',
+                    value: 'video'
                 },
                 {
                     name: 'Game',
-                    value: 'game',
+                    value: 'game'
                 },
                 {
                     name: 'Player',
-                    value: 'player',
+                    value: 'player'
                 },
                 {
                     name: 'Creator',
-                    value: 'creator',
+                    value: 'creator'
                 },
                 {
                     name: 'Character',
-                    value: 'character',
+                    value: 'character'
                 },
                 {
                     name: 'Tournament',
-                    value: 'tournament',
-                },
-            ],
+                    value: 'tournament'
+                }
+            ]
         };
     },
 
     computed: {
-        characters: function () {
+        characters: function() {
             return this.searchValues[1].values
-                .filter((value) => value.valueType === 'Character')
-                .map((character) => {
+                .filter(value => value.valueType === 'Character')
+                .map(character => {
                     return character.value;
                 });
-        },
+        }
     },
 
     mounted() {
@@ -89,12 +89,11 @@ export default {
     methods: {
         async getSearch() {
             const response = await GeneralService.fetchForSearch();
-            console.log(response);
-            var searchValues = response.data.searchValues.map((value) => {
+            var searchValues = response.data.searchValues.map(value => {
                 var searchValue = {
                     id: value._id,
                     value: '',
-                    valueType: '',
+                    valueType: ''
                 };
                 if (value.GamesPlayed) {
                     (searchValue.value = value.Name), (searchValue.valueType = 'Player');
@@ -112,20 +111,20 @@ export default {
             this.searchValues = [
                 {
                     category: 'Player',
-                    values: searchValues.filter((value) => value.valueType === 'Player'),
+                    values: searchValues.filter(value => value.valueType === 'Player')
                 },
                 {
                     category: 'Character',
-                    values: searchValues.filter((value) => value.valueType === 'Character'),
+                    values: searchValues.filter(value => value.valueType === 'Character')
                 },
                 {
                     category: 'Content Creator',
-                    values: searchValues.filter((value) => value.valueType === 'ContentCreator'),
+                    values: searchValues.filter(value => value.valueType === 'ContentCreator')
                 },
                 {
                     category: 'Game',
-                    values: searchValues.filter((value) => value.valueType === 'Game'),
-                },
+                    values: searchValues.filter(value => value.valueType === 'Game')
+                }
             ];
 
             this.isLoading = false;
@@ -134,7 +133,7 @@ export default {
         setSearch() {
             var query = {
                 name: this.searchValue.valueType,
-                value: this.searchValue.id,
+                value: this.searchValue.id
             };
 
             this.$router.push(`/${query.name}/${query.value}`);
@@ -156,8 +155,8 @@ export default {
 
         closeLoginModal() {
             this.isLoginModalOpen = false;
-        },
-    },
+        }
+    }
 };
 </script>
 
