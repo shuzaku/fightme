@@ -1,5 +1,6 @@
 
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Players
@@ -7,25 +8,25 @@ export default {
     return Api().get('players')
   },
 
-  addPlayer(params) {
+  addPlayer(params: Params) {
     return Api().post('player', params)
   },
 
-  updatePlayer(params) {
+  updatePlayer(params: Params) {
     return Api().put('players/' + params.id, params)
   },
 
-  getPlayer(params) {
+  getPlayer(params: Params) {
     return Api().get('players/' + params.id) 
   },
   
-  deletePlayer(id) {
+  deletePlayer(id: string) {
     return Api().delete('players/' + id)
   },
 
-  queryPlayers (params) {
-    var queryNames = params.map(param => { return param.queryName}); 
-    var queryValue = params.map(param => { return param.queryValue}); 
-    return Api().get('playerQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
+  queryPlayers (params: Params) {
+    var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+    var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+    return Api().get('playerQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
   },
 } 

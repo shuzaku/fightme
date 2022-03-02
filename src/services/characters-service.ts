@@ -1,5 +1,6 @@
 
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Characters
@@ -7,29 +8,29 @@ export default {
     return Api().get('characters')
   },
 
-  addCharacter (params) {
+  addCharacter (params: Params) {
     return Api().post('characters', params)
   },
 
-  addBulkCharacters (params) {
+  addBulkCharacters (params: Params) {
     return Api().post('characters?bulk=true', params)
   },
 
-  queryCharacters (params) {
-    var queryNames = params.map(param => { return param.queryName}); 
-    var queryValue = params.map(param => { return param.queryValue}); 
-    return Api().get('characterQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
+  queryCharacters (params: Params) {
+    var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+    var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+    return Api().get('characterQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
   },
 
-  updateCharacter (params) {
+  updateCharacter (params: Params) {
     return Api().put('characters/' + params.id, params)
   },
 
-  getCharacter (params) {
+  getCharacter (params: Params) {
     return Api().get('characters/' + params.id) 
   },
 
-  deleteCharacter (id) {
+  deleteCharacter (id: string) {
     return Api().delete('characters/' + id)
   }
 }

@@ -1,4 +1,5 @@
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Combos
@@ -6,27 +7,23 @@ export default {
     return Api().get('combos')
   },
 
-  addCombo(params) {
+  addCombo(params: Params) {
     return Api().post('combos', params)
   },
 
-  addBulkCombos (params) {
+  addBulkCombos (params: Params) {
     return Api().post('combos?bulk=true', params)
   },
 
-  patchCombo(params) {
+  patchCombo(params: Params) {
     return Api().put('combo/' + params.id, params)
   },
 
-  getComboClip(params) {
+  getComboClip(params: Params) {
     return Api().get('comboClip/' + params) 
   },
 
-  findCombo(params) {
-    return Api().findOne('combos/' + params) 
-  },
-
-  deleteCombo(id) {
+  deleteCombo(id: string) {
     return Api().delete('combo/' + id)
   },
 } 

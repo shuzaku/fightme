@@ -1,4 +1,5 @@
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Accounts
@@ -6,27 +7,23 @@ export default {
     return Api().get('accounts')
   },
 
-  addAccount(params) {
+  addAccount(params: Params) {
     return Api().post('accounts', params)
   },
 
-  updateAccount(params) {
+  updateAccount(params: Params) {
     return Api().put('accounts/' + params.id, params)
   },
 
-  getAccount(params) {
+  getAccount(params: Params) {
     return Api().get('accounts/'  + params.id) 
   },
 
-  findAccount(params) {
-    return Api().findOne('accounts/' + params) 
-  },
-
-  deleteAccount(id) {
+  deleteAccount(id: string) {
     return Api().delete('accounts/' + id)
   },
 
-  patchAccount (params) {
+  patchAccount (params: Params) {
     return Api().put('accounts/' + params.id, params)
   }
 } 

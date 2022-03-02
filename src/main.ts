@@ -3,7 +3,6 @@ import App from './App.vue';
 import VueRouter from 'vue-router';
 
 import routes from './routes.js';
-import moment from 'moment';
 import VueWaypoint from 'vue-waypoint'
 import Multiselect from 'vue-multiselect'
 import VueYouTubeEmbed from 'vue-youtube-embed'
@@ -28,7 +27,6 @@ Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
 Vue.use(VueWaypoint)
 Vue.use(VueRouter);
-Vue.use(moment);
 Vue.use(VTooltip)
 Vue.component('multiselect', Multiselect)
 Vue.component('font-awesome-icon', FontAwesomeIcon)

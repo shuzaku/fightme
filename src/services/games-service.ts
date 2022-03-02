@@ -1,5 +1,6 @@
 
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Games
@@ -7,25 +8,25 @@ export default {
     return Api().get('games')
   },
 
-  addGame (params) {
+  addGame (params: Params) {
     return Api().post('games', params)
   },
 
-  queryGames (params) {
-    var queryNames = params.map(param => { return param.queryName}); 
-    var queryValue = params.map(param => { return param.queryValue}); 
-    return Api().get('gameQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','), params)
+  queryGames (params: Params) {
+    var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+    var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+    return Api().get('gameQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
   },
 
-  updateGame (params) {
+  updateGame (params: Params) {
     return Api().put('games/' + params.id, params)
   },
 
-  getGame (params) {
+  getGame (params: Params) {
     return Api().get('games/' + params.id) 
   },
 
-  deleteGame (id) {
+  deleteGame (id: string) {
     return Api().delete('games/' + id)
   }
 }

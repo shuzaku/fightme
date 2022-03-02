@@ -1,13 +1,14 @@
 
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Collections
-  addCollection (params) {
+  addCollection (params: Params) {
     return Api().post('collections', params)
   },
 
-  queryCollections (params) {
+  queryCollections (params: Params) {
     var queryParams = [];
     if(params.searchQuery){
       var queryNames = params.searchQuery.map(param => { return param.queryName}); 
@@ -15,14 +16,14 @@ export default {
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
-    return Api().get(`collectionQuery?${queryParams.join('&')}`, params)
+    return Api().get(`collectionQuery?${queryParams.join('&')}`)
   },
 
-  queryCollection (id) {
+  queryCollection (id: string) {
     return Api().get('collection/' + id) 
   },
 
-  updateCollection (params) {
+  updateCollection (params: Params) {
     return Api().put('collections/' + params.id, params)
   },
 }

@@ -1,4 +1,5 @@
 import Api from '@/services/Api'
+import Params from '@/types/params'
 
 export default {
   //Tags
@@ -6,11 +7,11 @@ export default {
     return Api().get('tags')
   },
 
-  addTag(params) {
+  addTag(params: Params) {
     return Api().post('tags', params)
   },
 
-  updateTag(params) {
+  updateTag(params: Params) {
     return Api().put('tags/' + params.id, params)
   },
 
@@ -18,11 +19,7 @@ export default {
     return Api().get('tags/') 
   },
 
-  findTag(params) {
-    return Api().findOne('tags/' + params) 
-  },
-
-  deleteTag(id) {
+  deleteTag(id: string) {
     return Api().delete('tags/' + id)
   },
 } 
