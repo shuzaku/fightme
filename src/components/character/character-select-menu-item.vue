@@ -8,7 +8,7 @@
         <div v-if="isOpen" class="characters">
             <multiselect
                 v-if="!isLoading"
-                v-model="value"
+                :value="value"
                 :options="characters"
                 :close-on-select="true"
                 :clear-on-select="true"
@@ -49,7 +49,7 @@ export default {
             default: null,
         },
         value: {
-            type: String,
+            type: Object,
             default: null,
         },
         title: {
@@ -108,12 +108,16 @@ export default {
             this.isLoading = true;
             var response = null;
             if (this.selectedCharacter != 'all') {
-                response = await CharactersService.queryCharacters([
+                var searchQuery = [
                     {
                         queryName: 'GameId',
                         queryValue: this.gameId,
                     },
-                ]);
+                ];
+                var queryParameter = {
+                    searchQuery: searchQuery,
+                };
+                response = await CharactersService.queryCharacters(queryParameter);
             } else {
                 response = await CharactersService.fetchCharacters();
             }

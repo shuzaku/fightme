@@ -46,12 +46,18 @@ export default {
 
     methods: {
         async getPlayers() {
-            const response = await PlayersService.queryPlayers([
+            var searchQuery = [
                 {
                     queryName: 'Id',
                     queryValue: this.playerId,
                 },
-            ]);
+            ];
+
+            var queryParameter = {
+                searchQuery: searchQuery,
+            };
+
+            const response = await PlayersService.queryPlayers(queryParameter);
             var responsePlayer = response.data.players[0];
             this.player = {
                 id: responsePlayer._id,

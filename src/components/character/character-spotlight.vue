@@ -49,12 +49,18 @@ export default {
 
     methods: {
         async getCharacters() {
-            const response = await CharactersService.queryCharacters([
+            var searchQuery = [
                 {
                     queryName: 'Id',
                     queryValue: this.characterId,
                 },
-            ]);
+            ];
+
+            var queryParameter = {
+                searchQuery: searchQuery,
+            };
+
+            const response = await CharactersService.queryCharacters(queryParameter);
             var responseCharacter = response.data.characters[0];
             this.character = {
                 id: responseCharacter._id,

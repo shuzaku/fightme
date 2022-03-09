@@ -73,19 +73,11 @@
                         @set-search="setSearch($event)"
                     />
 
-                    <div v-if="selectedMain.title === 'Matchups'" class="match-nav inner-list">
-                        <h2>Matchups</h2>
-                        <game-select-menu-item initialOpen @game-selected="searchGame($event)" />
-                        <character-select-menu-item
-                            :gameId="selectedGame.id"
-                            @character-selected="matchupCharacter1($event)"
-                        />
-                        <character-select-menu-item
-                            :title="'Matchup'"
-                            :gameId="selectedGame.id"
-                            @character-selected="matchupCharacter2($event)"
-                        />
-                    </div>
+                    <matchups-menu
+                        v-if="selectedMain.title === 'Matchups'"
+                        :account="account"
+                        @set-search="setSearch($event)"
+                    />
 
                     <div
                         v-if="selectedMain.title === 'Favorites' && account"
@@ -164,7 +156,6 @@
 </template>
 
 <script>
-import GameSelectMenuItem from '@/components/games/game-select-menu-item';
 import CollectionSelectMenuItem from '@/components/collection/collection-select-menu-item';
 import GeneralSearch from '@/components/common/general-search';
 import User from '@/components/account/user';
@@ -174,15 +165,15 @@ import ComboMenu from '@/components/common/sub-nav/combo-menu';
 import MatchMenu from '@/components/common/sub-nav/match-menu';
 import PlayerMenu from '@/components/common/sub-nav/player-menu';
 import GameMenu from '@/components/common/sub-nav/game-menu';
+import MatchupMenu from '@/components/common/sub-nav/matchups-menu';
+
 import CharacterMenu from '@/components/common/sub-nav/character-menu';
-import CharacterSelectMenuItem from '@/components/character/character-select-menu-item';
 import Follows from '@/components/account/follows';
 
 import { eventbus } from '@/main';
 
 export default {
     components: {
-        'game-select-menu-item': GameSelectMenuItem,
         'collection-select-menu-item': CollectionSelectMenuItem,
         'video-menu': VideoMenu,
         'combo-menu': ComboMenu,
@@ -190,10 +181,10 @@ export default {
         'player-menu': PlayerMenu,
         'game-menu': GameMenu,
         'character-menu': CharacterMenu,
+        'matchups-menu': MatchupMenu,
         'explore-menu': ExploreMenu,
         'general-search': GeneralSearch,
         user: User,
-        'character-select-menu-item': CharacterSelectMenuItem,
         follows: Follows,
     },
 
@@ -256,7 +247,6 @@ export default {
                 { title: 'Matches', icon: 'mdi-kabaddi', hasAccess: true },
                 { title: 'Montages', icon: 'mdi-film', hasAccess: true },
                 { title: 'Matchups', icon: 'mdi-fencing', hasAccess: true },
-                { title: 'Games', icon: 'mdi-gamepad-square', hasAccess: true },
             ];
 
             if (this.hasAccount) {

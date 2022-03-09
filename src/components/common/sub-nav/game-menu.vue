@@ -17,9 +17,7 @@
                 <h2>{{ selectedGame.title }}</h2>
             </div>
             <v-btn v-if="!isFollowed" class="follow-btn" @click="followGame()">
-                <v-icon>
-                    mdi-heart
-                </v-icon>
+                <v-icon> mdi-heart </v-icon>
             </v-btn>
             <v-btn v-else class="unfollow-btn" @click="unfollowGame()">
                 <v-icon> mdi-heart-outline </v-icon>
@@ -47,13 +45,14 @@
 import GameSelectMenuItem from '@/components/games/game-select-menu-item';
 import CharacterSelectMenuItem from '@/components/character/character-select-menu-item';
 import GamesService from '@/services/games-service';
+import Games from '@/types/games';
 
 import { eventbus } from '@/main';
 
 export default {
     components: {
         'game-select-menu-item': GameSelectMenuItem,
-        'character-select-menu-item': CharacterSelectMenuItem
+        'character-select-menu-item': CharacterSelectMenuItem,
     },
 
     props: {},
@@ -63,7 +62,7 @@ export default {
             selectedGame: null,
             games: null,
             isFollowed: false,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -74,13 +73,13 @@ export default {
             } else {
                 return null;
             }
-        }
+        },
     },
 
     watch: {
         selectedGameId() {
             this.getGames();
-        }
+        },
     },
 
     created() {
@@ -99,11 +98,11 @@ export default {
         async getGames() {
             this.isLoading = true;
             const response = await GamesService.fetchGames();
-            this.games = response.data.games.map(game => {
+            this.games = response.data.games.map((game) => {
                 return {
                     id: game._id,
                     title: game.Title,
-                    avatarUrl: game.LogoUrl
+                    avatarUrl: game.LogoUrl,
                 };
             });
 
@@ -113,8 +112,8 @@ export default {
 
         setActiveGame() {
             if (this.$route.params && this.$route.params.id) {
-                this.selectedGame = this.games.filter(game => {
-                    return game.id === this.$route.params.id;
+                this.selectedGame = this.games.filter((Game) => {
+                    return Game.id === this.$route.params.id;
                 })[0];
             }
             this.isGameFollowed();
@@ -122,14 +121,14 @@ export default {
 
         isGameFollowed() {
             this.isFollowed = this.$attrs.account.followedGames.some(
-                game => game.id === this.selectedGame.id
+                (game) => game.id === this.selectedGame.id
             );
         },
 
         updateCharacter(character) {
             var searchQuery = {
                 type: 'Character',
-                value: character.id
+                value: character.id,
             };
             this.$emit('set-search', searchQuery);
         },
@@ -137,7 +136,7 @@ export default {
         matchupGameFilter(game) {
             var queryParams = {
                 queryName: 'GameMatchupGameId',
-                queryValue: game.id
+                queryValue: game.id,
             };
 
             eventbus.$emit('game-filter', queryParams);
@@ -155,8 +154,8 @@ export default {
 
         unfollowGame() {
             eventbus.$emit('game:unfollow', this.selectedGame);
-        }
-    }
+        },
+    },
 };
 </script>
 

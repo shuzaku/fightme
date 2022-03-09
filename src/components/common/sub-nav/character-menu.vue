@@ -28,7 +28,7 @@
             <div>
                 <character-select-menu-item
                     ref="characterMatchupSelect"
-                    v-model="selectedCharacter.id"
+                    v-model="selectedMatchupCharacter"
                     :title="'Matchup'"
                     :gameId="selectedCharacter.gameId"
                     @selectExpand="collapseSelect()"
@@ -55,7 +55,12 @@ export default {
         'character-select-menu-item': CharacterSelectMenuItem,
     },
 
-    props: {},
+    props: {
+        account: {
+            type: Object,
+            default: null,
+        },
+    },
 
     data() {
         return {
@@ -63,6 +68,7 @@ export default {
             characters: null,
             isFollowed: false,
             isLoading: false,
+            selectedMatchupCharacter: null,
         };
     },
 
@@ -123,7 +129,7 @@ export default {
         },
 
         isCharacterFollowed() {
-            this.isFollowed = this.$attrs.account.followedCharacters.some(
+            this.isFollowed = this.account.followedCharacters.some(
                 (character) => character.id === this.selectedCharacter.id
             );
         },

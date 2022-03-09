@@ -55,6 +55,7 @@ export default {
         return {
             games: [],
             isOpen: false,
+            isLoading: false,
         };
     },
 
@@ -75,6 +76,7 @@ export default {
         },
 
         async getGames() {
+            this.isLoading = true;
             const response = await GamesService.fetchGames();
             this.games = response.data.games.map((game) => {
                 return {
@@ -84,6 +86,7 @@ export default {
                     selected: false,
                 };
             });
+            this.isLoading = false;
         },
 
         selectGame(game) {

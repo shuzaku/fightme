@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="explore-row" @click="navigateToCharacter()">
+    <div class="explore-row">
         <div
             class="cover-art"
             :style="[

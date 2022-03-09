@@ -10,9 +10,10 @@
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
-                    :comboId="video.comboId"
+                    :comboClipId="video.comboClipId"
                     :account="account"
-                    :favoriteVideos="account.favoriteVideos"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    @video:delete="refreshDelete()"
                 />
             </div>
         </div>
@@ -28,14 +29,14 @@ export default {
     name: 'FavoriteCombos',
 
     components: {
-        'combo-video-card': ComboVideoCard
+        'combo-video-card': ComboVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -48,15 +49,15 @@ export default {
             intersectionOptions: {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
-                threshold: 1
-            }
+                threshold: 1,
+            },
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
-        }
+        },
     },
 
     mounted() {
@@ -83,19 +84,19 @@ export default {
             }
 
             var filteredCombos = this.account.favoriteVideos.filter(
-                video => video.contentType === 'Combo'
+                (video) => video.contentType === 'Combo'
             );
 
-            searchQuery = filteredCombos.map(combo => {
+            searchQuery = filteredCombos.map((combo) => {
                 return {
                     queryName: 'ComboId',
-                    queryValue: combo.id
+                    queryValue: combo.id,
                 };
             });
 
             var queryParameter = {
                 skip: this.skip,
-                searchQuery: searchQuery
+                searchQuery: searchQuery,
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -106,12 +107,12 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
@@ -137,8 +138,8 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        }
-    }
+        },
+    },
 };
 </script>
 

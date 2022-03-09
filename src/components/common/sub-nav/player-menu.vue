@@ -67,6 +67,13 @@ export default {
         'character-select-menu-item': CharacterSelectMenuItem,
     },
 
+    props: {
+        account: {
+            type: Object,
+            default: null,
+        },
+    },
+
     data() {
         return {
             selectedPlayer: null,
@@ -126,7 +133,7 @@ export default {
         },
 
         isPlayerFollowed() {
-            this.isFollowed = this.$attrs.account.followedPlayers.some(
+            this.isFollowed = this.account.followedPlayers.some(
                 (player) => player.id === this.selectedPlayer.id
             );
         },
