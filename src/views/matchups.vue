@@ -29,14 +29,14 @@ export default {
     name: 'Videos',
 
     components: {
-        'match-video-card': NewMatchVideoCard
+        'match-video-card': NewMatchVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -49,18 +49,18 @@ export default {
             filter: 'Match',
             sort: null,
             character1: this.$route.params ? this.$route.params.id : null,
-            character2: this.$route.params ? this.$route.params.id2 : null
+            character2: this.$route.params ? this.$route.params.id2 : null,
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        path: function() {
+        path: function () {
             return this.$route.path;
-        }
+        },
     },
 
     watch: {
@@ -69,7 +69,7 @@ export default {
             this.character1 = this.$route.params.id;
             this.character2 = this.$route.params.id2;
             this.queryVideos();
-        }
+        },
     },
 
     mounted() {
@@ -94,14 +94,17 @@ export default {
 
     methods: {
         async queryVideos() {
+            var searchQuery = [
+                {
+                    characters: { character1: this.character1, character2: this.character2 },
+                },
+            ];
+
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
                 filter: this.filter,
-                searchQuery: {
-                    character1: this.character1,
-                    character2: this.character2
-                }
+                searchQuery: searchQuery,
             };
 
             const response = await VideosService.queryMatchup(queryParameter);
@@ -113,12 +116,12 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
@@ -130,7 +133,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -155,19 +158,19 @@ export default {
         },
 
         updateFavorites() {
-            if(this.account.id){
-                this.favorites = this.account.favoriteVideos.map(video => {
+            if (this.account.id) {
+                this.favorites = this.account.favoriteVideos.map((video) => {
                     return {
                         contentType: video.contentType,
-                        id: video.id
+                        id: video.id,
                     };
                 });
             }
         },
 
         checkFavorites() {
-            this.favorites.forEach(favorite => {
-                this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+            this.favorites.forEach((favorite) => {
+                this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
             });
         },
 
@@ -185,8 +188,8 @@ export default {
             } else {
                 this.character2 = characterId;
             }
-        }
-    }
+        },
+    },
 };
 </script>
 

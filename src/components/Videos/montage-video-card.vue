@@ -1,10 +1,10 @@
 <!-- @format -->
 <template>
-    <div ref="videoList">
+    <div ref="videoList" class="montage-video-card">
         <div v-if="isLoading"></div>
-        <div v-else class="match-card card">
+        <div v-else class="montage-card card">
             <div
-                :id="matchId"
+                :id="montageId"
                 v-waypoint="{
                     active: true,
                     callback: onWaypoint,
@@ -24,11 +24,8 @@
                     @ready="ready"
                 />
             </div>
-            <div class="card-label">Match</div>
-            <div
-                v-for="(character, index) in video.match.team1Players[0].characters"
-                :key="character.id"
-            >
+            <div class="card-label">Montage</div>
+            <div v-for="(character, index) in video.montage.characters" :key="character.id">
                 <div
                     :class="[
                         'character-bubble',
@@ -38,51 +35,17 @@
                     :style="{ backgroundImage: `url('${character.imageUrl}')` }"
                 />
             </div>
-            <div
-                v-for="(character, index) in video.match.team2Players[0].characters"
-                :key="character.id"
-            >
-                <div
-                    :class="[
-                        'character-bubble',
-                        'player2',
-                        `character-${index}`,
-                        character.name.toLowerCase(),
-                    ]"
-                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
-                />
-            </div>
             <div v-if="!video.isEditing" class="characters">
-                <div class="player1 player">
+                <div class="player">
                     <div
+                        v-for="player in video.montage.players"
+                        :key="player.id"
                         class="heavy-weight player-name"
-                        @click="queryPlayer(video.match.team1Players[0].id)"
+                        @click="queryPlayer(player.id)"
                     >
-                        <p>{{ video.match.team1Players[0].name }}</p>
+                        <p>{{ player.name }}</p>
                     </div>
-                    <div
-                        v-for="(character, index) in video.match.team1Players[0].characters"
-                        :key="index"
-                    >
-                        <div class="character-name" @click="queryCharacter(character.id)">
-                            <p>
-                                <span>{{ character.name }}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="versus heavy-weight">vs</div>
-                <div class="player2 player">
-                    <div
-                        class="heavy-weight player-name"
-                        @click="queryPlayer(video.match.team2Players[0].id)"
-                    >
-                        <p>{{ video.match.team2Players[0].name }}</p>
-                    </div>
-                    <div
-                        v-for="(character, index) in video.match.team2Players[0].characters"
-                        :key="index"
-                    >
+                    <div v-for="(character, index) in video.montage.characters" :key="index">
                         <div class="character-name" @click="queryCharacter(character.id)">
                             <p>
                                 <span>{{ character.name }}</span>
@@ -91,44 +54,44 @@
                     </div>
                 </div>
             </div>
-            <div class="admin-controls">
-                <collection-search
-                    v-if="showCollections"
-                    v-model="video.collections"
-                    :account="account"
-                    multiple
-                    @update:collection="updateCollections($event, video)"
-                />
-                <v-btn
-                    v-if="account"
-                    class="favorite-button"
-                    @click="showCollections = !showCollections"
-                >
-                    <v-icon light> mdi-plus </v-icon>
-                </v-btn>
-                <v-btn v-if="isAdmin" @click="editVideo()">
-                    <v-icon dark> mdi-wrench </v-icon>
-                </v-btn>
-                <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
-                    <v-icon dark> mdi-delete </v-icon>
-                </v-btn>
-                <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
-                    <v-icon light> mdi-heart-outline </v-icon>
-                </v-btn>
-                <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
-                    <v-icon> mdi-heart </v-icon>
-                </v-btn>
-                <v-btn class="share-button" @click="copyLink()">
-                    <v-icon light> mdi-link </v-icon>
-                </v-btn>
-            </div>
+        </div>
+        <div class="admin-controls">
+            <collection-search
+                v-if="showCollections"
+                v-model="video.collections"
+                :account="account"
+                multiple
+                @update:collection="updateCollections($event, video)"
+            />
+            <v-btn
+                v-if="account"
+                class="favorite-button"
+                @click="showCollections = !showCollections"
+            >
+                <v-icon light> mdi-plus </v-icon>
+            </v-btn>
+            <v-btn v-if="isAdmin" @click="editVideo()">
+                <v-icon dark> mdi-wrench </v-icon>
+            </v-btn>
+            <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                <v-icon dark> mdi-delete </v-icon>
+            </v-btn>
+            <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
+                <v-icon light> mdi-heart-outline </v-icon>
+            </v-btn>
+            <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                <v-icon> mdi-heart </v-icon>
+            </v-btn>
+            <v-btn class="share-button" @click="copyLink()">
+                <v-icon light> mdi-link </v-icon>
+            </v-btn>
         </div>
     </div>
 </template>
 
 <script>
 import VideosService from '@/services/videos-service';
-import MatchesService from '@/services/matches-service';
+import MontagesService from '@/services/montages-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
@@ -140,7 +103,7 @@ export default {
     },
 
     props: {
-        matchId: {
+        montageId: {
             type: String,
             default: null,
         },
@@ -224,59 +187,32 @@ export default {
         if (this.account.id) {
             this.getCollections();
         }
-        this.getMatch();
+        this.getMontage();
         this.playVideo();
     },
 
     methods: {
-        async getMatch() {
-            const response = await MatchesService.getMatch(this.matchId);
-            var matchResponse = response.data.matches[0];
-            this.video.match = {
-                team1Players: matchResponse.Team1Players.map((player) => {
+        async getMontage() {
+            const response = await MontagesService.getMontage(this.montageId);
+            var montageResponse = response.data.montages[0];
+            this.video.montage = {
+                players: montageResponse.Player.map((player) => {
                     return {
-                        id: player.Id,
-                        slot: player.Slot,
-                        name: matchResponse.Team1Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
-                        characters: this.hydrateCharacters(
-                            player.CharacterIds,
-                            matchResponse.Team1PlayerCharacters
-                        ),
+                        id: player._id,
+                        name: player.Name,
                     };
                 }),
-                team2Players: matchResponse.Team2Players.map((player) => {
+                characters: montageResponse.Characters.map((character) => {
                     return {
-                        id: player.Id,
-                        slot: player.Slot,
-                        name: matchResponse.Team2Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
-                        characters: this.hydrateCharacters(
-                            player.CharacterIds,
-                            matchResponse.Team2PlayerCharacters
-                        ),
+                        id: character._id,
+                        imageUrl: character.AvatarUrl,
+                        name: character.Name,
                     };
                 }),
-                collections: this.assignCollection(this.matchId),
+                collections: this.assignCollection(this.montageId),
             };
-            this.video.url = matchResponse.VideoUrl;
+            this.video.url = montageResponse.VideoUrl;
             this.getVideo();
-        },
-
-        hydrateCharacters(characterIds, characters) {
-            var playerCharacters = [];
-
-            characterIds.forEach((id) => {
-                var filteredCharacter = characters.filter((character) => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].AvatarUrl,
-                });
-            });
-            return playerCharacters;
         },
 
         async getVideo() {
@@ -292,8 +228,8 @@ export default {
             this.video.isPlaying = false;
             this.video.id = videoResponse._id;
             this.isLoading = false;
-            this.video.match.id = this.matchId;
-            this.video.contentType = 'Match';
+            this.video.montage.id = this.montageId;
+            this.video.contentType = 'Montage';
             this.video.isFavorited = this.favoriteVideos
                 ? this.favoriteVideos.some((video) => video.id === this.video.id)
                 : null;
@@ -323,9 +259,9 @@ export default {
 
         async deleteVideo() {
             await VideosService.deleteVideo(this.video.id);
-            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
+            var montageResponse = await MontagesService.deleteMatch(this.video.montageId.id);
 
-            this.$emit('video:delete', matchResponse);
+            this.$emit('video:delete', montageResponse);
         },
 
         queryPlayer(playerId) {
@@ -357,8 +293,8 @@ export default {
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/match/${this.video.id}`).then(() => {
-                alert('match copied');
+            this.$copyText(`https://fighters-edge.com/montage/${this.video.id}`).then(() => {
+                alert('montage copied');
             });
         },
 
@@ -389,11 +325,11 @@ export default {
                 return collection.id;
             });
 
-            var comboObject = { id: this.matchId, contentType: 'Match' };
+            var comboObject = { id: this.montageId, contentType: 'Montage' };
 
             this.collections.forEach((collection) => {
                 var collectionHasVideo = collection.videos.some((videos) => {
-                    return videos.id === this.matchId;
+                    return videos.id === this.montageId;
                 });
 
                 var collectionShouldHaveVideo = collectionIds.some((collectionId) => {
@@ -456,7 +392,7 @@ export default {
                 var collections = [];
                 this.collections.forEach((collection) => {
                     var hasVideo = collection.videos.some((video) => {
-                        return video.id === this.matchId;
+                        return video.id === this.montageId;
                     });
                     if (hasVideo) {
                         collections.push(collection.id);
@@ -472,16 +408,16 @@ export default {
 </script>
 
 <style>
-.match-card {
+.montage-video-card {
     margin: 60px 0;
 }
 
-.match-card .character-bubble {
+.montage-video-card .character-bubble {
     height: 50px;
     width: 50px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #4447e2;
+    border: 2px solid #3eb489;
     background-position: top center;
     position: absolute;
     top: -15px;
@@ -490,15 +426,10 @@ export default {
     background-size: contain;
 }
 
-.match-card .character-bubble.player2 {
-    right: -25px;
-    left: auto;
-}
-
-.match-card {
+.montage-video-card {
     /* background-image: linear-gradient(#515b89, #171b33); */
-    background: #242832;
-    border: 5px solid #242832;
+    background: #444;
+    border: 5px solid #444;
     border-radius: 15px;
     margin-bottom: 30px;
     position: relative;
@@ -508,23 +439,7 @@ export default {
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.match-card .player2 .player-name p {
-    text-align: right;
-}
-
-.match-card .characters {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.match-card .versus {
-    font-size: 25px;
-    color: #ffff00;
-    text-transform: uppercase;
-}
-
-.match-card .card-label {
+.montage-video-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -539,101 +454,72 @@ export default {
     font-weight: 600;
 }
 
-.match-card .card-label {
-    background: #3c73a8;
+.montage-video-card .montage-card .card-label {
+    background: #fc73c4;
 }
 
-.match-card video {
+.montage-video-card video {
     width: 100%;
 }
 
-.match-card .character-name {
+.montage-video-card .character-name {
     padding: 20px 20px 0;
     color: #fff;
     font-size: 20px;
 }
 
-.match-card .player-name {
+.montage-video-card .player-name {
     color: #fff;
     font-size: 20px;
     padding: 0 20px;
 }
 
-.match-card .character-name {
+.montage-video-card .character-name {
     padding-top: 0px;
     font-size: 13px;
 }
 
-.match-card .character-name p {
+.montage-video-card .character-name p {
     font-size: 14px;
     color: #3eb489;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.match-card .player2 .character-name p {
-    text-align: right;
-}
-
-.match-card .combo-stats {
-    padding: 5px 20px 5px;
-}
-
-.match-card .characters {
+.montage-video-card .characters {
     padding: 10px 10px 15px;
 }
 
-.match-card .video-ghost {
+.montage-video-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.match-card .combo-input {
-    padding: 0 20px;
-    margin: 10px 0;
-    font-style: italic;
-}
-
-.match-card .inputs {
-    border-radius: 3px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #4a5689;
-}
-
-.match-card.card .edit-btn-container {
+.montage-video-card .card .edit-btn-container {
     padding: 10px;
 }
 
-.match-card.card .edit-btn-container button {
+.montage-video-card .card .edit-btn-container button {
     padding: 20px 10px;
-    background-color: #4447e2 !important;
+    background-color: #1ab097 !important;
     border-radius: 50%;
     min-width: 0px;
     color: #fff;
 }
 
-.match-card .video-container {
+.montage-video-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
 }
 
-.match-card .character-2 {
-    top: 40px;
-}
-
-.match-card .character-3 {
-    top: 120px;
-}
-
-.match-card .admin-controls {
+.montage-video-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
 }
 
-#app .match-card .admin-controls button {
+#app .montage-video-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -642,16 +528,13 @@ export default {
     border-radius: 50%;
 }
 
-.match-card .admin-controls button.share-button {
+#app .montage-video-card .admin-controls button {
     width: 50px;
     height: 50px;
     min-width: initial;
     background-color: transparent;
+    -webkit-box-shadow: none;
     box-shadow: none;
     border-radius: 50%;
-}
-
-.match-card .player {
-    width: 40%;
 }
 </style>

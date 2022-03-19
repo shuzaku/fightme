@@ -1,6 +1,11 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="characters-view">
+        <character-nav
+            :characterId="characterId"
+            :account="account"
+            @character-filter:update="filterQuery($event)"
+        />
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -40,6 +45,7 @@ import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import MontageVideoCard from '@/components/videos/montage-video-card';
+import CharacterNav from '@/components/character/character-nav';
 
 import { eventbus } from '@/main';
 
@@ -50,6 +56,7 @@ export default {
         'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard,
         'montage-video-card': MontageVideoCard,
+        'character-nav': CharacterNav,
     },
 
     props: {
@@ -100,6 +107,7 @@ export default {
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('filter-tag:update', this.filterbyTag);
         eventbus.$on('matchup-filter', this.initiateQueryMatchup);
+        eventbus.$on('account:update', this.isCharacterFollowed);
     },
 
     beforeDestroy() {
@@ -110,6 +118,7 @@ export default {
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('filter-tag:update', this.filterbyTag);
         eventbus.$off('matchup-filter', this.initiateQueryMatchup);
+        eventbus.$off('account:update', this.isCharacterFollowed);
     },
 
     methods: {
@@ -152,6 +161,8 @@ export default {
             if (newQuery) {
                 queryParameter.searchQuery.push(newQuery);
             }
+
+            console.log(queryParameter);
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);

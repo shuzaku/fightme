@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="characters-view">
+    <div ref="videoViewRef" class="combos-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -180,7 +180,7 @@ export default {
 </script>
 
 <style>
-.characters-view {
+.combos-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -189,35 +189,35 @@ export default {
     flex-direction: column;
 }
 
-.characters-view::-webkit-scrollbar-track {
+.combos-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar {
+.combos-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar-thumb {
+.combos-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.characters-view .videos-container {
+.combos-view .videos-container {
     position: relative;
     margin-top: 0;
 }
 
-.characters-view .videos-container video {
+.combos-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
 }
 
-.characters-view .combo-card:first-child {
+.combos-view .combo-card:first-child {
     margin-top: 30px;
 }
 </style>
