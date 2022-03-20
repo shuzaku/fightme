@@ -7,7 +7,8 @@
             :account="account"
             @game-filter:update="applyFilter($event)"
         />
-        <div v-if="videos.length > 0" class="videos-container">
+        <loading v-if="loading && videos.length <= 0"></loading>
+        <div v-else-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -38,6 +39,7 @@ import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import GameNav from '@/components/games/game-nav';
+import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
 
@@ -48,6 +50,7 @@ export default {
         'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard,
         'game-nav': GameNav,
+        loading: Loading,
     },
 
     props: {
@@ -66,6 +69,7 @@ export default {
             favorites: [],
             filter: null,
             sort: null,
+            loading: false,
         };
     },
 
@@ -120,6 +124,7 @@ export default {
         },
 
         async queryVideos() {
+            this.loading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -138,6 +143,7 @@ export default {
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
+            this.loading = false;
         },
 
         hydrateVideos(response) {

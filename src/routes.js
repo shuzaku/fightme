@@ -8,7 +8,6 @@ import Match from './views/match.vue';
 import Matches from './views/matches.vue';
 import Games from './views/games.vue';
 import Game from './views/game.vue';
-import Collection from './views/collections.vue';
 
 import ChannelScrapper from './views/channel-scrapper.vue';
 import FavoriteMatches from './views/favorites.vue';
@@ -19,11 +18,14 @@ import Test from './views/test.vue';
 import Counter from './views/counter.vue';
 import Explore from './views/explore.vue';
 import Favorites from './views/favorites.vue';
+import Collections from './views/collections.vue';
+import Collection from './views/collection.vue';
 
 const routes = [
     {path: '/', name: 'Videos', component: Videos},
     {path: '/* ', name: 'Videos', component: Videos},
     {path: '/  200', name: 'Videos', component: Videos},
+    {path: '/collections', name: 'Collections', component: Collections},
     {path: '/combos', name: 'Combos', component: Combos},
     {path: '/combo/:id', name: 'Combo', component: Combo},
     {path: '/combos/game/:gameId', name: 'Combos', component: Combos},

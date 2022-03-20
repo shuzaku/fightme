@@ -411,6 +411,7 @@ export default {
                     this.patchCollection(collection);
                 }
             });
+            this.showCollections = false;
         },
 
         async patchCollection(collection) {
@@ -520,7 +521,7 @@ export default {
 
 .match-card .versus {
     font-size: 25px;
-    color: #ffff00;
+    color: #3eb489;
     text-transform: uppercase;
 }
 
@@ -548,7 +549,7 @@ export default {
 }
 
 .match-card .character-name {
-    padding: 20px 20px 0;
+    padding: 20px 0px 0;
     color: #fff;
     font-size: 20px;
 }
@@ -556,7 +557,6 @@ export default {
 .match-card .player-name {
     color: #fff;
     font-size: 20px;
-    padding: 0 20px;
 }
 
 .match-card .character-name {
@@ -640,6 +640,15 @@ export default {
     background-color: transparent;
     box-shadow: none;
     border-radius: 50%;
+}
+
+#app .match-card .admin-controls button:hover i::before {
+    opacity: 1;
+}
+
+#app .match-card .admin-controls button i::before {
+    color: #242832;
+    opacity: 0.9;
 }
 
 .match-card .admin-controls button.share-button {

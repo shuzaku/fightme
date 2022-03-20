@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="favorite-matches-view">
+    <div class="collection">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -10,9 +10,18 @@
                 <match-video-card
                     v-if="video.contentType === 'Match'"
                     v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :isFirst="video.isFirst"
                     :matchId="video.matchId"
                     :account="account"
-                    :favoriteVideos="account.favoriteVideos"
+                />
+                <combo-video-card
+                    v-if="video.contentType === 'Combo'"
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :isFirst="video.isFirst"
+                    :comboClipId="video.comboClipId"
+                    :account="account"
                 />
             </div>
         </div>
@@ -20,15 +29,19 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
+import ComboVideoCard from '@/components/videos/combo-video-card';
+
+import CollectionsService from '@/services/collections-service';
+
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Favorites',
+    name: 'Collection',
 
     components: {
         'match-video-card': MatchVideoCard,
+        'combo-video-card': ComboVideoCard,
     },
 
     props: {
@@ -57,10 +70,19 @@ export default {
         skip: function () {
             return this.videos.length;
         },
+        collectionId: function () {
+            return this.$route.params.id;
+        },
+    },
+
+    watch: {
+        collectionId: function () {
+            this.getCollection();
+        },
     },
 
     mounted() {
-        this.queryVideos(this.$route.params);
+        this.getCollection(this.$route.params);
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
@@ -73,45 +95,25 @@ export default {
     },
 
     methods: {
-        async queryVideos(query) {
-            var searchQuery = null;
-            var searchParameter = query || this.savedQuery;
-
-            if (this.savedQuery !== searchParameter) {
-                this.videos = [];
-                this.savedQuery = query;
-            }
-
-            var filteredMatches = this.account.favoriteVideos.filter(
-                (video) => video.contentType === 'Match'
-            );
-
-            searchQuery = filteredMatches.map((match) => {
-                return {
-                    queryName: 'VideoId',
-                    queryValue: match.id,
-                };
-            });
-
-            var queryParameter = {
-                skip: this.skip,
-                searchQuery: searchQuery,
-            };
-
-            const response = await VideosService.queryVideos(queryParameter);
-
+        async getCollection() {
+            const response = await CollectionsService.queryCollection(this.collectionId);
             this.hydrateVideos(response);
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            response.data.collection[0].Videos.forEach((video) => {
                 this.videos.push({
-                    matchId: video.Match ? video.Match._id : null,
+                    comboClipId: video.ContentType === 'Combo' ? video.Id : null,
+                    matchId: video.ContentType === 'Match' ? video.Id : null,
+                    montageId: video.Montage ? video.Montage._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false,
+                    isFirst: false,
                 });
             });
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         handleScroll() {
@@ -119,7 +121,7 @@ export default {
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
             if (bottomOfWindow) {
-                this.queryVideos();
+                // this.queryVideos();
             }
         },
 

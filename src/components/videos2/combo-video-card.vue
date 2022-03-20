@@ -1,13 +1,13 @@
 <!-- @format -->
 <template>
-    <div ref="videoList" class="montage-video-card">
-        <div v-if="isLoading"></div>
-        <div v-else class="montage-card card">
+    <div ref="videoList">
+        <div v-if="isLoading" />
+        <div v-else class="combo-card card">
             <div
-                :id="montageId"
+                :id="comboClipId"
                 v-waypoint="{
                     active: true,
-                    callback: onWaypoint,
+                    callback: onComboWaypoint,
                     options: intersectionOptions,
                 }"
                 class="video-container"
@@ -15,95 +15,93 @@
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
                     ref="youtubeRef"
-                    :video-id="video.url"
+                    :videoId="video.combo.clipUrl"
                     :player-width="556"
                     :player-height="313"
-                    :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
+                    :player-vars="{
+                        rel: 0,
+                        start: video.combo.startTime,
+                        end: video.combo.endTime,
+                    }"
                     :mute="true"
                     :playsinline="1"
                     @ready="ready"
                 />
+                <video v-else ref="videoRef" loop controls muted>
+                    <source :src="video.url" type="video/mp4" />
+                </video>
             </div>
-            <div class="card-label">Montage</div>
-            <div v-for="(character, index) in video.montage.characters" :key="character.id">
-                <div
-                    :class="[
-                        'character-bubble',
-                        `character-${index + 1}`,
-                        character.name.toLowerCase(),
-                    ]"
-                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
-                />
-            </div>
-            <div v-if="!video.isEditing" class="characters">
-                <div class="player">
-                    <div
-                        v-for="player in video.montage.players"
-                        :key="player.id"
-                        class="heavy-weight player-name"
-                        @click="queryPlayer(player.id)"
-                    >
-                        <p>{{ player.name }}</p>
-                    </div>
-                    <div v-for="(character, index) in video.montage.characters" :key="index">
-                        <div class="character-name" @click="queryCharacter(character.id)">
-                            <p>
-                                <span>{{ character.name }}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="admin-controls">
-            <collection-search
-                v-if="showCollections"
-                v-model="video.collections"
-                :account="account"
-                multiple
-                @update:collection="updateCollections($event, video)"
+            <div class="card-label">Combo</div>
+            <div
+                class="character-bubble"
+                :style="{ backgroundImage: `url('${video.combo.character.imageUrl}')` }"
             />
-            <v-btn
-                v-if="account"
-                class="favorite-button"
-                @click="showCollections = !showCollections"
-            >
-                <v-icon light> mdi-plus </v-icon>
-            </v-btn>
-            <v-btn v-if="isAdmin" @click="editVideo()">
-                <v-icon dark> mdi-wrench </v-icon>
-            </v-btn>
-            <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
-                <v-icon dark> mdi-delete </v-icon>
-            </v-btn>
-            <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
-                <v-icon light> mdi-heart-outline </v-icon>
-            </v-btn>
-            <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
-                <v-icon> mdi-heart </v-icon>
-            </v-btn>
-            <v-btn class="share-button" @click="copyLink()">
-                <v-icon light> mdi-link </v-icon>
-            </v-btn>
+            <div class="heavy-weight character-name">
+                <p @click="queryCharacter(video.combo.character.id)">
+                    {{ video.combo.character.name }}
+                </p>
+            </div>
+            <div class="combo-stats">
+                <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
+                <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
+            </div>
+            <div class="combo-input">
+                <p class="inputs">{{ video.combo.inputs }}</p>
+            </div>
+            <div v-if="video.combo.tags" class="combo-tags">
+                <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
+            </div>
+            <div class="admin-controls">
+                <collection-search
+                    v-if="showCollections"
+                    v-model="video.collections"
+                    :account="account"
+                    multiple
+                    @update:collection="updateCollections($event, video)"
+                />
+                <v-btn
+                    v-if="account"
+                    class="favorite-button"
+                    @click="showCollections = !showCollections"
+                >
+                    <v-icon light> mdi-plus </v-icon>
+                </v-btn>
+                <v-btn v-if="isAdmin" @click="editVideo()">
+                    <v-icon dark> mdi-wrench </v-icon>
+                </v-btn>
+                <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                    <v-icon dark> mdi-delete </v-icon>
+                </v-btn>
+                <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
+                    <v-icon light> mdi-heart-outline </v-icon>
+                </v-btn>
+                <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                    <v-icon> mdi-heart </v-icon>
+                </v-btn>
+                <v-btn class="share-button" @click="copyLink()">
+                    <v-icon light> mdi-link </v-icon>
+                </v-btn>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import VideosService from '@/services/videos-service';
-import MontagesService from '@/services/montages-service';
-import CollectionSearch from '@/components/collection/collection-search';
+import CombosService from '@/services/combos-service';
 import CollectionsService from '@/services/collections-service';
+import CollectionSearch from '@/components/collection/collection-search';
+
 import { eventbus } from '@/main';
 
 export default {
-    name: 'VideoCard',
+    name: 'ComboCard',
     components: {
         'collection-search': CollectionSearch,
     },
 
     props: {
-        montageId: {
+        comboClipId: {
             type: String,
             default: null,
         },
@@ -132,7 +130,6 @@ export default {
             video: {
                 videoType: null,
                 isPlaying: false,
-                url: null,
                 isFavorited: false,
             },
             intersectionOptions: {
@@ -147,9 +144,6 @@ export default {
     },
 
     computed: {
-        formattedInputs() {
-            return this.video.combo.inputs.join(' > ');
-        },
         isAdmin() {
             return this.account.role === 'Admin User';
         },
@@ -171,13 +165,13 @@ export default {
                 }
             }
 
-            if (this.value === true && this.video.combo.startTime) {
+            if (this.video.isPlaying && this.video.combo.startTime) {
                 this.setTimer();
             }
         },
 
         videoCurrentTime() {
-            if (this.videoCurrentTime > parseInt(this.video.combo.endTime)) {
+            if (this.videoCurrentTime > this.video.combo.endTime) {
                 this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
             }
         },
@@ -187,37 +181,49 @@ export default {
         if (this.account.id) {
             this.getCollections();
         }
-        this.getMontage();
+        this.getCombo();
         this.playVideo();
     },
 
     methods: {
-        async getMontage() {
-            const response = await MontagesService.getMontage(this.montageId);
-            var montageResponse = response.data.montages[0];
-            this.video.montage = {
-                players: montageResponse.Player.map((player) => {
-                    return {
-                        id: player._id,
-                        name: player.Name,
-                    };
-                }),
-                characters: montageResponse.Characters.map((character) => {
-                    return {
-                        id: character._id,
-                        imageUrl: character.AvatarUrl,
-                        name: character.Name,
-                    };
-                }),
-                collections: this.assignCollection(this.montageId),
+        async getCombo() {
+            const response = await CombosService.getComboClip(this.comboClipId);
+            var comboResponse = response.data.comboClip[0];
+
+            this.video.combo = {
+                id: comboResponse._id,
+                character: {
+                    id: comboResponse.Character._id,
+                    name: comboResponse.Character.Name,
+                    imageUrl: comboResponse.Character.AvatarUrl,
+                },
+                damage: comboResponse.Combo.Damage,
+                hits: comboResponse.Combo.Hits,
+                inputs: comboResponse.Combo.ComboInputs,
+                startTime: this.convertTime(comboResponse.StartTime),
+                endTime: this.convertTime(comboResponse.EndTime),
+                clipUrl: comboResponse.Url,
             };
-            this.video.url = montageResponse.VideoUrl;
             this.getVideo();
         },
 
-        async getVideo() {
-            const response = await VideosService.getMatchVideo(this.video.url);
+        convertTime(time) {
+            var a = time.split(':');
+            var n = a.length;
 
+            var seconds = 0;
+            if (n > 0) {
+                var minutesToSeconds = parseInt(a[0]) * 60;
+                seconds = minutesToSeconds + parseInt(a[1]);
+            } else {
+                return parseInt(a[0]);
+            }
+
+            return seconds;
+        },
+
+        async getVideo() {
+            const response = await VideosService.getComboVideo(this.video.combo.clipUrl);
             var videoResponse = response.data.videos[0];
             this.video.videoType = videoResponse.VideoType;
             this.video.game = {
@@ -228,8 +234,8 @@ export default {
             this.video.isPlaying = false;
             this.video.id = videoResponse._id;
             this.isLoading = false;
-            this.video.montage.id = this.montageId;
-            this.video.contentType = 'Montage';
+            this.video.combo.id = this.comboClipId;
+            this.video.contentType = 'Combo';
             this.video.isFavorited = this.favoriteVideos
                 ? this.favoriteVideos.some((video) => video.id === this.video.id)
                 : null;
@@ -251,21 +257,41 @@ export default {
             this.player = event.target;
             if (this.video.isPlaying || this.isFirst) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.isPlaying && this.video.combo.startTime) {
                     this.setTimer();
                 }
             }
         },
 
         async deleteVideo() {
-            await VideosService.deleteVideo(this.video.id);
-            var montageResponse = await MontagesService.deleteMatch(this.video.montageId.id);
+            const response = await VideosService.getVideo(this.video.id);
 
-            this.$emit('video:delete', montageResponse);
-        },
+            var comboCount = response.data.video.length;
+            if (comboCount < 1) {
+                await VideosService.deleteVideo(this.video.id);
+            } else {
+                var videos = response.data.video;
+                var filteredCombos = videos.filter((video) => {
+                    return video.Combo._id != this.comboClipId;
+                });
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+                filteredCombos = filteredCombos.map((combo) => {
+                    return {
+                        Id: combo.ComboId,
+                        StartTime: combo.Combo.StartTime,
+                        EndTime: combo.Combo.EndTime,
+                    };
+                });
+
+                var request = {
+                    id: this.video.id,
+                    Combos: filteredCombos,
+                    GameId: this.video.game.id,
+                };
+                await VideosService.patchVideo(request);
+            }
+            var comboResponse = await CombosService.deleteCombo(this.comboClipId);
+            this.$emit('video:delete', comboResponse);
         },
 
         queryCharacter(characterId) {
@@ -274,14 +300,20 @@ export default {
 
         setTimer() {
             this.$nextTick(function () {
-                window.setInterval(() => {
+                var setTimer = window.setInterval(() => {
                     this.getTimeStamp();
                 }, 1000);
+                if (!this.video.isPlaying) {
+                    clearInterval(setTimer);
+                }
+                setTimer;
             });
         },
 
         getTimeStamp() {
-            this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
+            if (this.player) {
+                this.videoCurrentTime = this.player.getCurrentTime();
+            }
         },
 
         editVideo() {
@@ -293,8 +325,8 @@ export default {
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/montage/${this.video.id}`).then(() => {
-                alert('montage copied');
+            this.$copyText(`https://fighters-edge.com/combo/${this.comboClipId}`).then(() => {
+                alert('combo copied');
             });
         },
 
@@ -308,7 +340,7 @@ export default {
             this.video.isFavorited = false;
         },
 
-        onWaypoint({ el, going, direction }) {
+        onComboWaypoint({ el, going, direction }) {
             var objectId = el.id;
             if (objectId) {
                 if (going === this.$waypointMap.GOING_IN && direction) {
@@ -325,11 +357,11 @@ export default {
                 return collection.id;
             });
 
-            var comboObject = { id: this.montageId, contentType: 'Montage' };
+            var comboObject = { id: this.comboClipId, contentType: 'Combo' };
 
             this.collections.forEach((collection) => {
                 var collectionHasVideo = collection.videos.some((videos) => {
-                    return videos.id === this.montageId;
+                    return videos.id === this.comboClipId;
                 });
 
                 var collectionShouldHaveVideo = collectionIds.some((collectionId) => {
@@ -347,6 +379,7 @@ export default {
                     this.patchCollection(collection);
                 }
             });
+            this.showCollections = false;
         },
 
         async patchCollection(collection) {
@@ -392,45 +425,54 @@ export default {
                 var collections = [];
                 this.collections.forEach((collection) => {
                     var hasVideo = collection.videos.some((video) => {
-                        return video.id === this.montageId;
+                        return video.id === this.comboClipId;
                     });
                     if (hasVideo) {
                         collections.push(collection.id);
                     }
                 });
                 return collections;
-            } else {
-                return [];
             }
+        },
+
+        openCollections(video) {
+            eventbus.$emit('open:widget', {
+                name: 'collections',
+                video: video,
+            });
         },
     },
 };
 </script>
 
 <style>
-.montage-video-card {
+.combo-card {
     margin: 60px 0;
+    min-height: 446px;
 }
 
-.montage-video-card .character-bubble {
+.combo-card .character-bubble {
     height: 50px;
     width: 50px;
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid #3eb489;
+    background-size: cover;
     background-position: top center;
     position: absolute;
     top: -15px;
     left: -25px;
     background-color: #e8e8e8;
-    background-size: contain;
 }
 
-.montage-video-card {
-    /* background-image: linear-gradient(#515b89, #171b33); */
+.combo-card .character-bubble.player2 {
+    right: -25px;
+    left: auto;
+}
+
+.combo-card {
     background: #444;
     border: 5px solid #444;
-    border-radius: 15px;
     margin-bottom: 30px;
     position: relative;
     cursor: pointer;
@@ -439,7 +481,18 @@ export default {
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.montage-video-card .card-label {
+.combo-card .combo-card .combo-stats {
+    display: flex;
+    justify-content: space-between;
+}
+
+.combo-card .combo-card .combo-stats p {
+    font-size: 14px;
+    color: #1ab097;
+    font-weight: 600;
+}
+
+.combo-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -454,52 +507,53 @@ export default {
     font-weight: 600;
 }
 
-.montage-video-card .montage-card .card-label {
-    background: #fc73c4;
-}
-
-.montage-video-card video {
+.combo-card video {
     width: 100%;
 }
 
-.montage-video-card .character-name {
-    padding: 20px 20px 0;
-    color: #fff;
-    font-size: 20px;
+.combo-card .character-name {
+    margin-top: 20px;
 }
 
-.montage-video-card .player-name {
+.combo-card .character-name p {
     color: #fff;
     font-size: 20px;
     padding: 0 20px;
 }
 
-.montage-video-card .character-name {
-    padding-top: 0px;
-    font-size: 13px;
+.combo-card .combo-stats {
+    padding: 5px 20px 5px;
+    display: flex;
+    justify-content: space-between;
 }
 
-.montage-video-card .character-name p {
-    font-size: 14px;
-    color: #3eb489;
-    font-weight: 300;
-    margin-top: 3px;
-}
-
-.montage-video-card .characters {
+.combo-card .characters {
     padding: 10px 10px 15px;
 }
 
-.montage-video-card .video-ghost {
+.combo-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.montage-video-card .card .edit-btn-container {
+.combo-card .combo-input {
+    padding: 0 20px;
+    margin: 10px 0;
+    font-style: italic;
+}
+
+.combo-card .inputs {
+    border-radius: 3px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #4a5689;
+}
+
+.combo-card .card .edit-btn-container {
     padding: 10px;
 }
 
-.montage-video-card .card .edit-btn-container button {
+.combo-card .card .edit-btn-container button {
     padding: 20px 10px;
     background-color: #1ab097 !important;
     border-radius: 50%;
@@ -507,19 +561,19 @@ export default {
     color: #fff;
 }
 
-.montage-video-card .video-container {
+.combo-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
 }
 
-.montage-video-card .admin-controls {
+.combo-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
 }
 
-#app .montage-video-card .admin-controls button.share-button {
+#app .combo-card .admin-controls button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -528,13 +582,29 @@ export default {
     border-radius: 50%;
 }
 
-#app .montage-video-card .admin-controls button {
-    width: 50px;
-    height: 50px;
-    min-width: initial;
-    background-color: transparent;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    border-radius: 50%;
+#app .combo-card .mdi-heart {
+    color: #fff;
+}
+
+#app .combo-card .tag {
+    background: #3eb489;
+    color: #fff;
+    border-radius: 10px;
+    padding: 3px 10px;
+}
+
+#app .combo-card .combo-tags {
+    display: flex;
+    width: 100%;
+    padding: 5px 20px;
+}
+
+#app .combo-card .admin-controls button:hover i::before {
+    opacity: 1;
+}
+
+#app .combo-card .admin-controls button i::before {
+    color: #242832;
+    opacity: 0.9;
 }
 </style>
