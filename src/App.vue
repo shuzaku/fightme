@@ -1,6 +1,8 @@
 <!-- @format -->
 <template>
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
+        <top-bar :account="account" />
+
         <div class="content">
             <div class="side-panel" :class="{ menuActive: showMobileMenu }">
                 <new-nav v-if="!isLoading" :account="account" />
@@ -23,6 +25,7 @@
                 <div class="content-container">
                     <div v-if="!isLoading" class="main-content-container">
                         <router-view :account="account" />
+                        <more-info-panel />
                     </div>
                 </div>
             </div>
@@ -35,10 +38,11 @@
 import { eventbus } from '@/main';
 import NewNav from '@/components/common/new-nav';
 import Modal from '@/components/common/modal';
-// import Trending from '@/components/trending/trending';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
 import moment from 'moment';
+import TopBar from '@/components/common/top-bar';
+import MoreInfoPanel from '@/components/common/more-info-panel';
 
 export default {
     name: 'App',
@@ -46,7 +50,8 @@ export default {
     components: {
         'new-nav': NewNav,
         modal: Modal,
-        // trending: Trending
+        'top-bar': TopBar,
+        'more-info-panel': MoreInfoPanel,
     },
 
     data() {
@@ -59,7 +64,7 @@ export default {
             account: null,
             isLoading: true,
             showMobileMenu: false,
-            request: null,
+            request: { FavoriteVideos: null },
             followedPlayers: [],
             followedGames: [],
             followedCharacters: [],
@@ -84,12 +89,11 @@ export default {
         eventbus.$on('video:favorite', this.addFavoriteVideo);
         eventbus.$on('player:follow', this.followPlayer);
         eventbus.$on('player:unfollow', this.unfollowPlayer);
-        eventbus.$on('game:follow', this.followgame);
-        eventbus.$on('game:unfollow', this.unfollowgame);
-        eventbus.$on('character:follow', this.followCharacter);
-        eventbus.$on('character:unfollow', this.unfollowCharacter);
         eventbus.$on('game:follow', this.followGame);
         eventbus.$on('game:unfollow', this.unfollowGame);
+        eventbus.$on('character:follow', this.followCharacter);
+        eventbus.$on('character:unfollow', this.unfollowCharacter);
+
         eventbus.$on('video:unfavorite', this.removeFavoriteVideo);
         eventbus.$on('account:logout', this.logout);
         window.addEventListener('resize', this.calculateScreenWidth);
@@ -99,15 +103,13 @@ export default {
         eventbus.$off('open:widget', this.openModal);
         eventbus.$off('account:login', this.setAccount);
         eventbus.$off('video:favorite', this.addFavoriteVideo);
-        eventbus.$off('game:follow', this.followgame);
-        eventbus.$off('game:unfollow', this.unfollowgame);
+        eventbus.$off('game:follow', this.followGame);
+        eventbus.$off('game:unfollow', this.unfollowGame);
         eventbus.$off('player:follow', this.followPlayer);
         eventbus.$off('player:unfollow', this.unfollowPlayer);
         eventbus.$off('character:follow', this.followCharacter);
         eventbus.$off('character:unfollow', this.unfollowCharacter);
         eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
-        eventbus.$off('game:follow', this.followGame);
-        eventbus.$off('game:unfollow', this.unfollowGame);
         eventbus.$off('account:logout', this.logout);
         window.removeEventListener('resize', this.calculateScreenWidth);
     },
@@ -148,9 +150,10 @@ export default {
                 if (response.data.account[0]) {
                     this.account = {
                         id: response.data.account[0]._id,
-                        uid: user.id,
+                        uid: user.uid,
                         displayName: response.data.account[0].DisplayName,
                         email: response.data.account[0].Email,
+                        emailVerified: response.data.account[0].IsEmailVerified,
                         favoriteVideos: response.data.account[0].FavoriteVideos
                             ? response.data.account[0].FavoriteVideos.map((video) => {
                                   return {
@@ -281,14 +284,14 @@ export default {
             }
 
             var favoriteVideos = this.createFavoriteVideoRequest(targetId, video);
-            this.request.FavoriteVideos = favoriteVideos;
-
+            this.account.favoriteVideos = favoriteVideos;
+            this.cloneFollowed();
             this.patchAccount();
         },
 
-        followPlayer(player) {
+        followPlayer(playerId) {
             this.cloneFollowed();
-            var newFollowPlayer = { id: player.id, addedDate: moment().format() };
+            var newFollowPlayer = { id: playerId, addedDate: moment().format() };
 
             if (this.followedPlayers.length == 0) {
                 this.followedPlayers = [newFollowPlayer];
@@ -299,9 +302,9 @@ export default {
             this.patchAccount();
         },
 
-        followCharacter(character) {
+        followCharacter(characterId) {
             this.cloneFollowed();
-            var newFollowCharacter = { id: character.id, addedDate: moment().format() };
+            var newFollowCharacter = { id: characterId, addedDate: moment().format() };
 
             if (this.followedCharacters.length == 0) {
                 this.followedCharacters = [newFollowCharacter];
@@ -312,9 +315,9 @@ export default {
             this.patchAccount();
         },
 
-        followGame(game) {
+        followGame(gameId) {
             this.cloneFollowed();
-            var newFollowedGame = { id: game.id, addedDate: moment().format() };
+            var newFollowedGame = { id: gameId, addedDate: moment().format() };
 
             if (this.followedGames.length == 0) {
                 this.followedGames = [newFollowedGame];
@@ -368,11 +371,11 @@ export default {
             this.patchAccount();
         },
 
-        unfollowPlayer(player) {
+        unfollowPlayer(playerId) {
             this.cloneFollowed();
 
             for (var i = 0; i < this.followedPlayers.length; i++) {
-                if (this.followedPlayers[i].id === player.id) {
+                if (this.followedPlayers[i].id === playerId) {
                     this.followedPlayers.splice(i, 1);
                 }
             }
@@ -380,11 +383,11 @@ export default {
             this.patchAccount();
         },
 
-        unfollowCharacter(character) {
+        unfollowCharacter(characterid) {
             this.cloneFollowed();
 
             for (var i = 0; i < this.followedCharacters.length; i++) {
-                if (this.followedCharacters[i].id === character.id) {
+                if (this.followedCharacters[i].id === characterid) {
                     this.followedCharacters.splice(i, 1);
                 }
             }
@@ -460,15 +463,10 @@ export default {
 #app {
     font-family: 'Roboto';
     min-height: 100vh;
-    background: #171733;
-    display: flex;
+    background: #242832;
     overflow: hidden;
     align-items: center;
     justify-content: center;
-}
-
-#app h1 {
-    margin-bottom: 40px;
 }
 
 #app .main-panel {
@@ -478,7 +476,7 @@ export default {
 }
 
 #app .content {
-    background: #333333;
+    background: #131419;
     display: flex;
     overflow: auto;
     width: 100%;
@@ -491,6 +489,7 @@ export default {
     flex-basis: auto;
     height: 100%;
     min-height: 100%;
+    padding-top: 50px;
 }
 
 #app .top-nav {
@@ -515,12 +514,16 @@ export default {
 #app .side-panel {
     flex-grow: 1;
     display: flex;
-    align-items: flex-end;
     flex-direction: column;
     position: relative;
-    width: 50vw;
-    min-width: 255px;
+    min-width: 200px;
     border-right: 1px dashed #3eb489;
+    padding-left: 10px;
+}
+
+#app .sidebar {
+    position: fixed;
+    top: 70px;
 }
 
 #app .main-panel {
@@ -536,6 +539,7 @@ export default {
     position: relative;
     min-height: 100vh;
     min-width: 600px;
+    display: flex;
 }
 
 #app .trending-container {
@@ -570,10 +574,6 @@ textarea {
 .multiselect input {
     border: none;
     margin-bottom: 0;
-}
-
-.multiselect {
-    margin-bottom: 20px;
 }
 
 #app.mobile .main-content-container {

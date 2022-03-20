@@ -8,7 +8,10 @@
                         <img v-if="follow.imageUrl" :src="follow.imageUrl" />
                         <div v-else class="blank-avatar"></div>
                     </div>
-                    <p>{{ follow.name }}</p>
+                    <div class="follow-text">
+                        <p>{{ follow.name }}</p>
+                        <p class="follow-type">{{ follow.type }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -16,6 +19,8 @@
 </template>
 
 <script>
+import { eventbus } from '@/main';
+
 export default {
     name: 'follows',
     props: {
@@ -41,6 +46,13 @@ export default {
             return '[{opened: }]';
         },
     },
+    created() {
+        eventbus.$on('account:update', this.getFollows);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('account:update', this.getFollows);
+    },
 
     mounted() {
         this.getFollows();
@@ -48,15 +60,18 @@ export default {
     },
 
     methods: {
-        getFollows() {
-            if (this.account.followedGames.length > 0) {
-                this.follows.push(...this.account.followedGames);
+        getFollows(response) {
+            this.follows = [];
+            var account = response || this.account;
+
+            if (account.followedGames.length > 0) {
+                this.follows.push(...account.followedGames);
             }
-            if (this.account.followedCharacters.length > 0) {
-                this.follows.push(...this.account.followedCharacters);
+            if (account.followedCharacters.length > 0) {
+                this.follows.push(...account.followedCharacters);
             }
-            if (this.account.followedPlayers.length > 0) {
-                this.follows.push(...this.account.followedPlayers);
+            if (account.followedPlayers.length > 0) {
+                this.follows.push(...account.followedPlayers);
             }
 
             this.follows.sort((a, b) => (a.addedDate > b.addedDate ? 1 : -1));
@@ -84,6 +99,10 @@ export default {
 };
 </script>
 <style type="text/css">
+.follows {
+    padding-top: 20px;
+}
+
 .follows .mdi-chevron-down {
     transform: rotate(0deg);
     transition: all 0.3s linear;
@@ -98,16 +117,23 @@ export default {
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
+    margin-left: 0px;
+    transition: all 0.1s linear;
+}
+
+.follows .follow:hover {
+    margin-left: 5px;
+    transition: all 0.1s linear;
 }
 
 .follows .avatar {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    margin: 7px 0px;
+    margin: 7px 0px 0;
     background: #fff;
-    margin-right: 20px;
+    margin-right: 10px;
 }
 
 .follows .avatar img {
@@ -116,5 +142,10 @@ export default {
     margin-right: 0px;
     border-radius: 50%;
     border: 2px solid #3eb489;
+}
+
+.follows .follow-type {
+    text-transform: capitalize;
+    font-size: 10px;
 }
 </style>

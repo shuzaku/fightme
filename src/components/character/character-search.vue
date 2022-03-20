@@ -37,20 +37,20 @@ export default {
     props: {
         taggable: {
             type: Boolean,
-            default: false
+            default: false,
         },
         gameId: {
             type: String,
-            default: null
+            default: null,
         },
         value: {
             type: Array,
-            default: null
+            default: null,
         },
         multiple: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -58,14 +58,14 @@ export default {
             selectedCharacters: [],
             games: [],
             characterList: [],
-            characters: []
+            characters: [],
         };
     },
 
     watch: {
         gameId() {
             this.getCharacters();
-        }
+        },
     },
 
     mounted() {
@@ -82,30 +82,36 @@ export default {
         },
 
         async getCharacters() {
-            const response = await CharactersService.queryCharacters([
+            var searchQuery = [
                 {
                     queryName: 'GameId',
-                    queryValue: this.gameId
-                }
-            ]);
+                    queryValue: this.gameId,
+                },
+            ];
 
-            this.characters = response.data.characters.map(character => {
+            var queryParameter = {
+                searchQuery: searchQuery,
+            };
+
+            const response = await CharactersService.queryCharacters(queryParameter);
+
+            this.characters = response.data.characters.map((character) => {
                 return {
                     id: character._id,
                     name: character.Name,
-                    imageUrl: character.AvatarUrl
+                    imageUrl: character.AvatarUrl,
                 };
             });
 
             if (this.value) {
-                this.value.forEach(characterId => {
+                this.value.forEach((characterId) => {
                     this.selectedCharacters.push(
-                        this.characters.filter(character => character.id === characterId)[0]
+                        this.characters.filter((character) => character.id === characterId)[0]
                     );
                 });
             }
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css">

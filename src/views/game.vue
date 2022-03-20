@@ -1,8 +1,14 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="characters-view">
-        <game-nav v-if="!isLoading" :gameId="gameId" @game-filter:update="applyFilter($event)" />
-        <div v-if="videos.length > 0" class="videos-container">
+    <div ref="videoViewRef" class="games-view">
+        <game-nav
+            v-if="!isLoading"
+            :gameId="gameId"
+            :account="account"
+            @game-filter:update="applyFilter($event)"
+        />
+        <loading v-if="loading && videos.length <= 0"></loading>
+        <div v-else-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -18,9 +24,10 @@
                 <combo-video-card
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :comboClipId="video.comboClipId"
                     :account="account"
-                    :comboId="video.comboId"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    @video:delete="refreshDelete()"
                 />
             </div>
         </div>
@@ -32,6 +39,7 @@ import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import GameNav from '@/components/games/game-nav';
+import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
 
@@ -41,45 +49,47 @@ export default {
     components: {
         'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard,
-        'game-nav': GameNav
+        'game-nav': GameNav,
+        loading: Loading,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             videos: [],
-            loading: true,
+            isLoading: true,
             query: null,
             savedQuery: null,
             favorites: [],
             filter: null,
-            sort: null
+            sort: null,
+            loading: false,
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        gameId: function() {
+        gameId: function () {
             return this.$route.params.id;
-        }
+        },
     },
 
     watch: {
-        gameId: function() {
+        gameId: function () {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();
             this.isLoading = false;
-        }
+        },
     },
 
     mounted() {
@@ -114,6 +124,7 @@ export default {
         },
 
         async queryVideos() {
+            this.loading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -121,9 +132,9 @@ export default {
                 searchQuery: [
                     {
                         queryName: 'GameId',
-                        queryValue: this.gameId
-                    }
-                ]
+                        queryValue: this.gameId,
+                    },
+                ],
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -132,16 +143,17 @@ export default {
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
+            this.loading = false;
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
@@ -153,7 +165,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.matchId === objectId);
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -178,70 +190,71 @@ export default {
         },
 
         updateFavorites() {
-            if(this.account.id){
-                this.favorites = this.account.favoriteVideos.map(video => {
+            if (this.account.id) {
+                this.favorites = this.account.favoriteVideos.map((video) => {
                     return {
                         contentType: video.contentType,
-                        id: video.id
+                        id: video.id,
                     };
                 });
             }
         },
 
         checkFavorites() {
-            this.favorites.forEach(favorite => {
+            this.favorites.forEach((favorite) => {
                 if (favorite.contentType === 'Combo') {
                     this.videos.filter(
-                        video => video.combo.id === favorite.id
+                        (video) => video.combo.id === favorite.id
                     )[0].isFavorited = true;
                 } else {
-                    this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+                    this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
                 }
             });
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style>
-.characters-view {
+.games-view {
     display: flex;
     align-items: flex-start;
     position: relative;
     padding-top: 20px;
     height: 100%;
     flex-direction: column;
+    overflow: visible;
 }
 
-.characters-view::-webkit-scrollbar-track {
+.games-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar {
+.games-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar-thumb {
+.games-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.characters-view .videos-container {
+.games-view .videos-container {
     position: relative;
     margin-top: 0;
 }
 
-.characters-view .videos-container video {
+.games-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
 }
 
-.characters-view .combo-card:first-child {
+.games-view .combo-card:first-child {
     margin-top: 30px;
 }
 </style>

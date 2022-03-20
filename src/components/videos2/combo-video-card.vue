@@ -2,7 +2,7 @@
 <template>
     <div ref="videoList">
         <div v-if="isLoading" />
-        <div v-else class="combo-card card video-card">
+        <div v-else class="combo-card card">
             <div
                 :id="comboClipId"
                 v-waypoint="{
@@ -379,6 +379,7 @@ export default {
                     this.patchCollection(collection);
                 }
             });
+            this.showCollections = false;
         },
 
         async patchCollection(collection) {
@@ -445,12 +446,12 @@ export default {
 </script>
 
 <style>
-.video-card {
+.combo-card {
     margin: 60px 0;
     min-height: 446px;
 }
 
-.video-card .character-bubble {
+.combo-card .character-bubble {
     height: 50px;
     width: 50px;
     border-radius: 50%;
@@ -464,15 +465,14 @@ export default {
     background-color: #e8e8e8;
 }
 
-.video-card .character-bubble.player2 {
+.combo-card .character-bubble.player2 {
     right: -25px;
     left: auto;
 }
 
-.video-card {
+.combo-card {
     background: #444;
     border: 5px solid #444;
-    border-radius: 15px;
     margin-bottom: 30px;
     position: relative;
     cursor: pointer;
@@ -481,18 +481,18 @@ export default {
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.video-card .combo-card .combo-stats {
+.combo-card .combo-card .combo-stats {
     display: flex;
     justify-content: space-between;
 }
 
-.video-card .combo-card .combo-stats p {
+.combo-card .combo-card .combo-stats p {
     font-size: 14px;
     color: #1ab097;
     font-weight: 600;
 }
 
-.video-card .card-label {
+.combo-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -507,48 +507,53 @@ export default {
     font-weight: 600;
 }
 
-.video-card video {
+.combo-card video {
     width: 100%;
 }
 
-.video-card .combo-card .character-name p {
-    font-size: 30px;
-    color: #3eb489;
-    font-weight: 600;
-    margin-top: 3px;
+.combo-card .character-name {
+    margin-top: 20px;
 }
 
-.video-card .combo-stats {
+.combo-card .character-name p {
+    color: #fff;
+    font-size: 20px;
+    padding: 0 20px;
+}
+
+.combo-card .combo-stats {
     padding: 5px 20px 5px;
+    display: flex;
+    justify-content: space-between;
 }
 
-.video-card .characters {
+.combo-card .characters {
     padding: 10px 10px 15px;
 }
 
-.video-card .video-ghost {
+.combo-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.video-card .combo-input {
+.combo-card .combo-input {
     padding: 0 20px;
     margin: 10px 0;
     font-style: italic;
 }
 
-.video-card .inputs {
+.combo-card .inputs {
     border-radius: 3px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid #4a5689;
 }
 
-.video-card .card .edit-btn-container {
+.combo-card .card .edit-btn-container {
     padding: 10px;
 }
 
-.video-card .card .edit-btn-container button {
+.combo-card .card .edit-btn-container button {
     padding: 20px 10px;
     background-color: #1ab097 !important;
     border-radius: 50%;
@@ -556,19 +561,19 @@ export default {
     color: #fff;
 }
 
-.video-card .video-container {
+.combo-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
 }
 
-.video-card .admin-controls {
+.combo-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
 }
 
-#app .video-card .admin-controls button {
+#app .combo-card .admin-controls button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -577,20 +582,29 @@ export default {
     border-radius: 50%;
 }
 
-#app .video-card .mdi-heart {
+#app .combo-card .mdi-heart {
     color: #fff;
 }
 
-#app .video-card .tag {
+#app .combo-card .tag {
     background: #3eb489;
     color: #fff;
     border-radius: 10px;
     padding: 3px 10px;
 }
 
-#app .video-card .combo-tags {
+#app .combo-card .combo-tags {
     display: flex;
     width: 100%;
     padding: 5px 20px;
+}
+
+#app .combo-card .admin-controls button:hover i::before {
+    opacity: 1;
+}
+
+#app .combo-card .admin-controls button i::before {
+    color: #242832;
+    opacity: 0.9;
 }
 </style>

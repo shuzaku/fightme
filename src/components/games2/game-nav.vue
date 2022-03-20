@@ -1,48 +1,46 @@
 <!-- @format -->
 <template>
-    <div class="character-nav">
-        <div class="character-header" :style="characterbubbleStyle">
+    <div class="game-nav">
+        <div v-if="game" class="game-header" :style="trendingStyle">
             <div class="options">
-                <h2>{{ name }}</h2>
+                <h2>{{ game.title }}</h2>
             </div>
         </div>
         <div class="quick-nav">
             <div v-if="account" class="followed-container">
-                <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
+                <div v-if="!isFollowed" class="follow-btn info-card" @click="followGame()">
                     <v-icon> mdi-heart-outline </v-icon>
                 </div>
-                <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
+                <div v-else class="unfollow-btn info-card" @click="unfollowGame()">
                     <v-icon> mdi-heart </v-icon>
                 </div>
             </div>
             <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <div class="info-card montages" @click="filter('Montage')">Montages</div>
-            <div class="info-card matchup">
-                Matchup
+            <div class="info-card character">
+                Characters
                 <v-icon @click="togglePopup()"> mdi-chevron-down </v-icon>
             </div>
         </div>
         <div v-show="popupActive" class="popup">
-            <character-search :gameId="gameId" @update:character="goToMatchup($event)" />
+            <character-search :gameId="gameId" @update:character="goToCharacter($event)" />
         </div>
     </div>
 </template>
 
 <script>
-import CharactersService from '@/services/characters-service';
+import GamesService from '@/services/games-service';
 import CharacterSearch from '@/components/character/character-search';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'CharacterNav',
-
+    name: 'GameNav',
     components: {
         'character-search': CharacterSearch,
     },
-
     props: {
-        characterId: {
+        gameId: {
             type: String,
             default: '',
         },
@@ -55,92 +53,86 @@ export default {
 
     data() {
         return {
-            name: null,
-            imageUrl: null,
-            gameId: null,
+            game: null,
             popupActive: false,
             isFollowed: false,
         };
     },
 
     computed: {
-        characterbubbleStyle() {
+        trendingStyle() {
             return {
-                'background-image': `url(${this.imageUrl})`,
-                'background-size': '30%',
+                'background-image': `url(${this.game.logoUrl})`,
+                'background-size': 'contain',
                 'background-repeat': 'no-repeat',
-                'background-position': '0% 20%',
+                'background-position': '5% 50%',
             };
         },
     },
 
     watch: {
-        characterId() {
-            this.getCharacter();
+        gameId() {
+            this.getGame();
         },
     },
 
     created() {
-        eventbus.$on('account:update', this.isCharacterFollowed);
+        eventbus.$on('account:update', this.isGameFollowed);
+        this.getGame();
+        this.isGameFollowed();
     },
 
     beforeDestroy() {
-        eventbus.$off('account:update', this.isCharacterFollowed);
-    },
-
-    mounted() {
-        this.getCharacter();
-        this.isCharacterFollowed();
+        eventbus.$off('account:update', this.isGameFollowed);
     },
 
     methods: {
-        async getCharacter() {
-            const response = await CharactersService.getCharacter({
-                id: this.characterId,
+        async getGame() {
+            const response = await GamesService.getGame({
+                id: this.gameId,
             });
-            this.name = response.data.Name;
-            this.imageUrl = response.data.AvatarUrl;
-            this.gameId = response.data.GameId;
+            this.game = {
+                title: response.data.Title,
+                logoUrl: response.data.LogoUrl,
+            };
         },
 
         filter(filterType) {
-            this.$emit('character-filter:update', filterType);
+            this.$emit('game-filter:update', filterType);
         },
 
         togglePopup() {
             this.popupActive = !this.popupActive;
         },
 
-        goToMatchup(character) {
-            this.$router.push(`/matchups/${this.characterId}/${character.id}`);
+        goToGame() {
+            this.$router.push(`/game/${this.gameId}`);
         },
 
-        unfollowCharacter() {
-            eventbus.$emit('character:unfollow', this.characterId);
+        unfollowGame() {
+            eventbus.$emit('game:unfollow', this.gameId);
         },
 
-        followCharacter() {
-            eventbus.$emit('character:follow', this.characterId);
+        followGame() {
+            eventbus.$emit('game:follow', this.gameId);
         },
 
-        isCharacterFollowed(response) {
+        isGameFollowed(response) {
             var account = response || this.account;
-            this.isFollowed = account.followedCharacters.some(
-                (character) => character.id === this.characterId
-            );
+            this.isFollowed = account.followedGames.some((game) => game.id === this.gameId);
         },
     },
 };
 </script>
 <style type="text/css">
-.character-nav {
+.game-nav {
     width: 100%;
-    min-width: 500px;
+    align-items: center;
+    justify-content: space-between;
     width: 566px;
-    z-index: 99;
 }
 
-.character-nav .character-header {
+.game-nav .game-header {
     height: 80px;
     background: #242832;
     color: #4447e2;
@@ -153,11 +145,31 @@ export default {
     border-radius: 15px;
 }
 
-.character-nav .character-header h2 {
+.game-nav .game-header h2 {
     text-align: right;
 }
 
-.character-nav .info-card {
+.game-nav .game-header .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-nav .game-header .divider {
+    margin: 0 10px;
+}
+
+.game-nav .game-header select {
+    margin: 0 5px;
+    border-bottom: 1px solid #3eb489;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.game-nav .sort-filter-container .divider {
+    margin: 0;
+}
+.game-nav .info-card {
     width: 130px;
     height: 40px;
     border-radius: 15px;
@@ -169,17 +181,16 @@ export default {
     background: #242832;
     cursor: pointer;
     margin-right: 5px;
-    position: relative;
 }
 
-.character-nav .quick-nav {
+.game-nav .quick-nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 20px;
 }
 
-.character-nav .popup {
+.game-nav .popup {
     background: #4447e2;
     width: 100%;
     margin-top: 20px;
@@ -187,17 +198,17 @@ export default {
     border-radius: 5px;
 }
 
-.character-nav .mdi-chevron-down::before {
+.game-nav .mdi-chevron-down::before {
     content: '\F0140';
     color: #4447e2;
 }
 
-.character-nav .follow-btn,
-.character-nav .unfollow-btn {
+.game-nav .follow-btn,
+.game-nav .unfollow-btn {
     width: 50px;
 }
 
-.character-nav .v-icon.v-icon {
+.game-nav .v-icon.v-icon {
     color: #4447e2;
 }
 </style>

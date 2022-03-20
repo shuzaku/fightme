@@ -1,169 +1,115 @@
 <!-- @format -->
 <template>
-    <div class="favorite-matches-view">
-        <div v-if="videos.length > 0" class="videos-container">
+    <div class="collections">
+        <loading v-if="loading"></loading>
+
+        <div v-else class="collection-cards">
             <div
-                v-for="(video, index) in videos"
+                v-for="(collection, index) in collections"
                 :key="index"
-                :class="{ selected: video.selected }"
+                class="card"
+                @click="routeToCollection(collection.id)"
             >
-                <match-video-card
-                    v-if="video.contentType === 'Match'"
-                    v-model="video.isPlaying"
-                    :isFirst="video.isFirst"
-                    :matchId="video.id"
-                    :account="account"
-                    :favoriteVideos="account.favoriteVideos"
-                />
-                <combo-video-card
-                    v-if="video.contentType === 'Combo'"
-                    v-model="video.isPlaying"
-                    :isFirst="video.isFirst"
-                    :comboId="video.id"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
-                    :account="account"
-                />
+                {{ collection.name }}
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import MatchVideoCard from '@/components/videos/match-video-card';
-import ComboVideoCard from '@/components/videos/combo-video-card';
-
 import CollectionsService from '@/services/collections-service';
-
-import { eventbus } from '@/main';
+import Loading from '@/components/common/loading';
 
 export default {
-    name: 'Collection',
+    name: 'Collections',
 
     components: {
-        'match-video-card': MatchVideoCard,
-        'combo-video-card': ComboVideoCard
+        loading: Loading,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            videos: [],
             loading: true,
-            query: null,
-            savedQuery: null,
-            favorites: [],
-            intersectionOptions: {
-                root: null,
-                rootMargin: '0px 0px 0px 0px',
-                threshold: 1
-            }
+            collections: null,
         };
     },
 
-    computed: {
-        skip: function() {
-            return this.videos.length;
-        },
-        collectionId: function() {
-            return this.$route.params.id;
-        }
-    },
+    computed: {},
 
-    watch: {
-        collectionId: function() {
-            this.getCollection();
-        }
-    },
+    watch: {},
 
     mounted() {
-        this.getCollection(this.$route.params);
-        window.addEventListener('scroll', this.handleScroll);
-        eventbus.$on('newVideoPosted', this.addedNewVideo);
-        eventbus.$on('search', this.queryVideos);
+        this.getCollections();
     },
 
-    beforeDestroy() {
-        window.removeEventListener('scroll', this.handleScroll);
-        eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('search', this.queryVideos);
-    },
+    beforeDestroy() {},
 
     methods: {
-        async getCollection() {
-            const response = await CollectionsService.queryCollection(this.collectionId);
-            this.videos = response.data.collection[0].Videos.map(video => {
+        async getCollections() {
+            this.loading = true;
+            var searchQuery = [
+                {
+                    queryName: 'OwnerId',
+                    queryValue: this.account.id,
+                },
+            ];
+
+            var queryParameter = {
+                searchQuery: searchQuery,
+            };
+
+            const response = await CollectionsService.queryCollections(queryParameter);
+            this.collections = response.data.collections.map((collection) => {
                 return {
-                    id: video.Id,
-                    contentType: video.ContentType,
-                    isEditing: false,
-                    isPlaying: false
+                    id: collection._id,
+                    name: collection.Name,
+                    ownerId: collection.OwnerId,
+                    videos: collection.Videos,
                 };
             });
-        },
 
-        handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow) {
-                this.queryVideos();
+            if (this.value) {
+                this.value.forEach((id) => {
+                    this.selectedCollection = this.collections.filter(
+                        (collection) => collection.id === id
+                    );
+                });
             }
+
+            this.loading = false;
         },
 
-        spliceVideo(video) {
-            this.videos.splice(this.videos.indexOf(video), 1);
+        routeToCollection(collectionId) {
+            this.$router.push(`/collection/${collectionId}`);
         },
-
-        addedNewVideo() {
-            this.videos = [];
-            this.queryVideos();
-        }
-    }
+    },
 };
 </script>
 
 <style>
-.videos-view {
+.collections {
+    width: 100%;
+    padding-top: 50px;
+}
+
+.collections .collection-cards {
     display: flex;
-    align-items: flex-start;
-    position: relative;
-    justify-content: space-around;
-    padding-top: 30px;
-    height: 100%;
-    overflow: hidden;
 }
 
-.videos-view::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    background-color: #1f1d2b;
-}
-
-.videos-view::-webkit-scrollbar {
-    width: 12px;
-    background-color: #1f1d2b;
-}
-
-.videos-view::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-    background-color: #515b89;
-}
-
-.videos-view .videos-container {
-    position: relative;
-    padding: 0 40px;
-}
-
-.videos-view .videos-container video {
-    max-width: 900px;
-    margin: 0 auto;
-    display: block;
+.collections .card {
+    background: #1c1c24;
+    height: 200px;
+    width: 200px;
+    margin: 20px;
+    padding: 20px;
+    color: #fff;
+    cursor: pointer;
 }
 </style>

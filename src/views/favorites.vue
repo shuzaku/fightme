@@ -25,17 +25,17 @@ import MatchVideoCard from '@/components/videos/match-video-card';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'FavoriteMatches',
+    name: 'Favorites',
 
     components: {
-        'match-video-card': MatchVideoCard
+        'match-video-card': MatchVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -48,15 +48,15 @@ export default {
             intersectionOptions: {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
-                threshold: 1
-            }
+                threshold: 1,
+            },
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
-        }
+        },
     },
 
     mounted() {
@@ -83,19 +83,19 @@ export default {
             }
 
             var filteredMatches = this.account.favoriteVideos.filter(
-                video => video.contentType === 'Match'
+                (video) => video.contentType === 'Match'
             );
 
-            searchQuery = filteredMatches.map(match => {
+            searchQuery = filteredMatches.map((match) => {
                 return {
-                    queryName: 'Id',
-                    queryValue: match.id
+                    queryName: 'VideoId',
+                    queryValue: match.id,
                 };
             });
 
             var queryParameter = {
                 skip: this.skip,
-                searchQuery: searchQuery
+                searchQuery: searchQuery,
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -104,12 +104,12 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
@@ -130,8 +130,8 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        }
-    }
+        },
+    },
 };
 </script>
 

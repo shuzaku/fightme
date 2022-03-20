@@ -1,48 +1,40 @@
 <!-- @format -->
 <template>
-    <div class="character-nav">
-        <div class="character-header" :style="characterbubbleStyle">
+    <div class="player-nav">
+        <div class="player-header" :style="playerbubbleStyle">
             <div class="options">
                 <h2>{{ name }}</h2>
             </div>
         </div>
         <div class="quick-nav">
             <div v-if="account" class="followed-container">
-                <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
+                <div v-if="!isFollowed" class="follow-btn info-card" @click="followPlayer()">
                     <v-icon> mdi-heart-outline </v-icon>
                 </div>
-                <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
+                <div v-else class="unfollow-btn info-card" @click="unfollowPlayer()">
                     <v-icon> mdi-heart </v-icon>
                 </div>
             </div>
-            <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <div class="info-card montages" @click="filter('Montage')">Montages</div>
-            <div class="info-card matchup">
-                Matchup
-                <v-icon @click="togglePopup()"> mdi-chevron-down </v-icon>
-            </div>
-        </div>
-        <div v-show="popupActive" class="popup">
-            <character-search :gameId="gameId" @update:character="goToMatchup($event)" />
         </div>
     </div>
 </template>
 
 <script>
-import CharactersService from '@/services/characters-service';
-import CharacterSearch from '@/components/character/character-search';
+import PlayersService from '@/services/players-service';
+import PlayerSearch from '@/components/players/player-search';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'CharacterNav',
+    name: 'PlayerNav',
 
     components: {
-        'character-search': CharacterSearch,
+        'player-search': PlayerSearch,
     },
 
     props: {
-        characterId: {
+        playerId: {
             type: String,
             default: '',
         },
@@ -64,7 +56,7 @@ export default {
     },
 
     computed: {
-        characterbubbleStyle() {
+        playerbubbleStyle() {
             return {
                 'background-image': `url(${this.imageUrl})`,
                 'background-size': '30%',
@@ -75,28 +67,28 @@ export default {
     },
 
     watch: {
-        characterId() {
-            this.getCharacter();
+        playerId() {
+            this.getPlayer();
         },
     },
 
     created() {
-        eventbus.$on('account:update', this.isCharacterFollowed);
+        eventbus.$on('account:update', this.isPlayerFollowed);
     },
 
     beforeDestroy() {
-        eventbus.$off('account:update', this.isCharacterFollowed);
+        eventbus.$off('account:update', this.isPlayerFollowed);
     },
 
     mounted() {
-        this.getCharacter();
-        this.isCharacterFollowed();
+        this.getPlayer();
+        this.isPlayerFollowed();
     },
 
     methods: {
-        async getCharacter() {
-            const response = await CharactersService.getCharacter({
-                id: this.characterId,
+        async getPlayer() {
+            const response = await PlayersService.getPlayer({
+                id: this.playerId,
             });
             this.name = response.data.Name;
             this.imageUrl = response.data.AvatarUrl;
@@ -104,43 +96,35 @@ export default {
         },
 
         filter(filterType) {
-            this.$emit('character-filter:update', filterType);
+            this.$emit('player-filter:update', filterType);
         },
 
-        togglePopup() {
-            this.popupActive = !this.popupActive;
+        unfollowPlayer() {
+            eventbus.$emit('player:unfollow', this.playerId);
         },
 
-        goToMatchup(character) {
-            this.$router.push(`/matchups/${this.characterId}/${character.id}`);
+        followPlayer() {
+            eventbus.$emit('player:follow', this.playerId);
         },
 
-        unfollowCharacter() {
-            eventbus.$emit('character:unfollow', this.characterId);
-        },
-
-        followCharacter() {
-            eventbus.$emit('character:follow', this.characterId);
-        },
-
-        isCharacterFollowed(response) {
+        isPlayerFollowed(response) {
             var account = response || this.account;
-            this.isFollowed = account.followedCharacters.some(
-                (character) => character.id === this.characterId
+            this.isFollowed = account.followedPlayers.some(
+                (player) => player.id === this.playerId
             );
         },
     },
 };
 </script>
 <style type="text/css">
-.character-nav {
+.player-nav {
     width: 100%;
     min-width: 500px;
     width: 566px;
     z-index: 99;
 }
 
-.character-nav .character-header {
+.player-nav .player-header {
     height: 80px;
     background: #242832;
     color: #4447e2;
@@ -153,11 +137,11 @@ export default {
     border-radius: 15px;
 }
 
-.character-nav .character-header h2 {
+.player-nav .player-header h2 {
     text-align: right;
 }
 
-.character-nav .info-card {
+.player-nav .info-card {
     width: 130px;
     height: 40px;
     border-radius: 15px;
@@ -172,14 +156,13 @@ export default {
     position: relative;
 }
 
-.character-nav .quick-nav {
+.player-nav .quick-nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-top: 20px;
 }
 
-.character-nav .popup {
+.player-nav .popup {
     background: #4447e2;
     width: 100%;
     margin-top: 20px;
@@ -187,17 +170,17 @@ export default {
     border-radius: 5px;
 }
 
-.character-nav .mdi-chevron-down::before {
+.player-nav .mdi-chevron-down::before {
     content: '\F0140';
     color: #4447e2;
 }
 
-.character-nav .follow-btn,
-.character-nav .unfollow-btn {
+.player-nav .follow-btn,
+.player-nav .unfollow-btn {
     width: 50px;
 }
 
-.character-nav .v-icon.v-icon {
+.player-nav .v-icon.v-icon {
     color: #4447e2;
 }
 </style>

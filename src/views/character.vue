@@ -1,7 +1,13 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="characters-view">
-        <div v-if="videos.length > 0" class="videos-container">
+        <character-nav
+            :characterId="characterId"
+            :account="account"
+            @character-filter:update="filterQuery($event)"
+        />
+        <loading v-if="loading && videos.length <= 0"></loading>
+        <div v-else-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -40,6 +46,8 @@ import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import MontageVideoCard from '@/components/videos/montage-video-card';
+import CharacterNav from '@/components/character/character-nav';
+import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
 
@@ -50,6 +58,8 @@ export default {
         'match-video-card': MatchVideoCard,
         'combo-video-card': ComboVideoCard,
         'montage-video-card': MontageVideoCard,
+        'character-nav': CharacterNav,
+        loading: Loading,
     },
 
     props: {
@@ -62,7 +72,7 @@ export default {
     data() {
         return {
             videos: [],
-            isLoading: true,
+            loading: true,
             query: null,
             savedQuery: null,
             favorites: [],
@@ -100,6 +110,7 @@ export default {
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('filter-tag:update', this.filterbyTag);
         eventbus.$on('matchup-filter', this.initiateQueryMatchup);
+        eventbus.$on('account:update', this.isCharacterFollowed);
     },
 
     beforeDestroy() {
@@ -110,6 +121,7 @@ export default {
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('filter-tag:update', this.filterbyTag);
         eventbus.$off('matchup-filter', this.initiateQueryMatchup);
+        eventbus.$off('account:update', this.isCharacterFollowed);
     },
 
     methods: {
@@ -137,6 +149,7 @@ export default {
         },
 
         async queryVideos(newQuery) {
+            this.loading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -155,7 +168,7 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
-            this.isLoading = false;
+            this.loading = false;
         },
 
         hydrateVideos(response) {
