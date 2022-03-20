@@ -59,7 +59,7 @@
                     <font-awesome-icon icon="heart" /><span>Favorites</span>
                 </div>
                 <div v-if="showFavorites" class="sub-menu">
-                    <router-link to="/favorite-matches">
+                    <router-link to="/favorites">
                         <div class="menu-heading">
                             <span>Matches</span>
                         </div>

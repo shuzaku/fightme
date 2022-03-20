@@ -11,13 +11,14 @@ import Game from './views/game.vue';
 import Collection from './views/collections.vue';
 
 import ChannelScrapper from './views/channel-scrapper.vue';
-import FavoriteMatches from './views/favorite-matches.vue';
+import FavoriteMatches from './views/favorites.vue';
 import FavoriteCombos from './views/favorite-combos.vue';
 import Montages from './views/montages.vue';
 import MatchUps from './views/matchups.vue';
 import Test from './views/test.vue';
 import Counter from './views/counter.vue';
 import Explore from './views/explore.vue';
+import Favorites from './views/favorites.vue';
 
 const routes = [
     {path: '/', name: 'Videos', component: Videos},
@@ -46,7 +47,7 @@ const routes = [
     {path: '/test', name: 'test', component: Test},
     {path: '/counter', name: 'counter', component: Counter},
     {path: '/explore', name: 'explore', component: Explore},
-
+    {path: '/favorites', name: 'favorites', component: Favorites}
 ] 
 
 export default routes;   

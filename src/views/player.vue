@@ -1,7 +1,13 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="player-view">
-        <div v-if="videos.length > 0" class="videos-container">
+        <player-nav
+            :playerId="playerId"
+            :account="account"
+            @player-filter:update="filterQuery($event)"
+        />
+        <loading v-if="loading"></loading>
+        <div v-else-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -27,14 +33,17 @@
 <script>
 import VideosService from '@/services/videos-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
-
+import PlayerNav from '@/components/players/player-nav';
+import Loading from '@/components/common/loading'
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Videos',
+    name: 'Player',
 
     components: {
-        'match-video-card': NewMatchVideoCard
+        'match-video-card': NewMatchVideoCard,
+        'player-nav': PlayerNav,
+        'loading': Loading
     },
 
     props: {
@@ -108,6 +117,7 @@ export default {
         },
 
         async queryVideos(newQuery) {
+            this.loading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -128,6 +138,7 @@ export default {
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
+            this.loading = false;
         },
 
         hydrateVideos(response) {

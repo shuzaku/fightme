@@ -285,13 +285,13 @@ export default {
 
             var favoriteVideos = this.createFavoriteVideoRequest(targetId, video);
             this.account.favoriteVideos = favoriteVideos;
-
+            this.cloneFollowed();
             this.patchAccount();
         },
 
-        followPlayer(player) {
+        followPlayer(playerId) {
             this.cloneFollowed();
-            var newFollowPlayer = { id: player.id, addedDate: moment().format() };
+            var newFollowPlayer = { id: playerId, addedDate: moment().format() };
 
             if (this.followedPlayers.length == 0) {
                 this.followedPlayers = [newFollowPlayer];
@@ -371,11 +371,11 @@ export default {
             this.patchAccount();
         },
 
-        unfollowPlayer(player) {
+        unfollowPlayer(playerId) {
             this.cloneFollowed();
 
             for (var i = 0; i < this.followedPlayers.length; i++) {
-                if (this.followedPlayers[i].id === player.id) {
+                if (this.followedPlayers[i].id === playerId) {
                     this.followedPlayers.splice(i, 1);
                 }
             }
