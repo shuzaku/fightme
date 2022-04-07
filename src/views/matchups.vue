@@ -73,7 +73,7 @@ export default {
     },
 
     mounted() {
-        if (this.account.id) {
+        if (this.account && this.account.id) {
             this.updateFavorites();
         }
         if (this.character1 && this.character2) {

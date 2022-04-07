@@ -124,10 +124,12 @@ export default {
         },
 
         isCharacterFollowed(response) {
-            var account = response || this.account;
-            this.isFollowed = account.followedCharacters.some(
-                (character) => character.id === this.characterId
-            );
+            if (this.account) {
+                var account = response || this.account;
+                this.isFollowed = account.followedCharacters.some(
+                    (character) => character.id === this.characterId
+                );
+            }
         },
     },
 };
