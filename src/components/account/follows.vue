@@ -55,7 +55,9 @@ export default {
     },
 
     mounted() {
-        this.getFollows();
+        if (this.account.id) {
+            this.getFollows();
+        }
         this.isOpen = this.initialOpen;
     },
 

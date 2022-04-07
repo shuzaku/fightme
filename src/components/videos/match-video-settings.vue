@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="match-step">
-        <add-match @update-match="updateMatch()" />
+        <add-match :gameId="gameId" @update:match="updateMatch($event)" />
     </div>
 </template>
 

@@ -74,7 +74,7 @@ export default {
     components: {
         'game-search': GameSearch,
         'player-search': PlayerSearch,
-        'character-search': CharacterSearch
+        'character-search': CharacterSearch,
     },
 
     data() {
@@ -86,8 +86,8 @@ export default {
             channelTitle: null,
             creators: null,
             creatorId: null,
-            limit: 100,
-            nextPageToken: null
+            limit: 20,
+            nextPageToken: null,
         };
     },
 
@@ -107,7 +107,7 @@ export default {
                 const response = await this.axios.get(url);
                 this.channelTitle = response.data.items[0].snippet.channelTitle;
                 this.nextPageToken = response.data.nextPageToken;
-                this.videos = response.data.items.map(item => {
+                this.videos = response.data.items.map((item) => {
                     return {
                         id: item.id.videoId,
                         title: item.snippet.title,
@@ -115,13 +115,13 @@ export default {
                         selected: false,
                         player1: {
                             id: null,
-                            characters: []
+                            characters: [],
                         },
                         player2: {
                             id: null,
-                            characters: []
+                            characters: [],
                         },
-                        gameId: null
+                        gameId: null,
                     };
                 });
                 this.getCreators();
@@ -131,7 +131,7 @@ export default {
         },
 
         setGame(game) {
-            this.videos.forEach(video => {
+            this.videos.forEach((video) => {
                 video.gameId = game.id;
             });
         },
@@ -145,8 +145,8 @@ export default {
         },
 
         async submit() {
-            var selected = this.videos.filter(video => video.selected);
-            var matchRequest = selected.map(video => {
+            var selected = this.videos.filter((video) => video.selected);
+            var matchRequest = selected.map((video) => {
                 return {
                     VideoUrl: video.id,
                     GameId: video.gameId,
@@ -154,16 +154,16 @@ export default {
                         {
                             Slot: 1,
                             Id: video.player1.id,
-                            CharacterIds: video.player1.characters
-                        }
+                            CharacterIds: video.player1.characters,
+                        },
                     ],
                     Team2Players: [
                         {
                             Slot: 2,
                             Id: video.player2.id,
-                            CharacterIds: video.player2.characters
-                        }
-                    ]
+                            CharacterIds: video.player2.characters,
+                        },
+                    ],
                 };
             });
 
@@ -173,14 +173,14 @@ export default {
         },
 
         async postVideo() {
-            var selected = this.videos.filter(video => video.selected);
-            var videoRequest = selected.map(video => {
+            var selected = this.videos.filter((video) => video.selected);
+            var videoRequest = selected.map((video) => {
                 return {
                     Url: video.id,
                     ContentType: 'Match',
                     ContentCreatorId: this.creatorId,
                     VideoType: 'youtube',
-                    GameId: video.gameId
+                    GameId: video.gameId,
                 };
             });
             await VideosService.addVideos(videoRequest);
@@ -195,13 +195,13 @@ export default {
         },
 
         setPlayer1Characters(characters, video) {
-            video.player1.characters = characters.map(character => {
+            video.player1.characters = characters.map((character) => {
                 return character.id;
             });
         },
 
         setPlayer2Characters(characters, video) {
-            video.player2.characters = characters.map(character => {
+            video.player2.characters = characters.map((character) => {
                 return character.id;
             });
         },
@@ -212,7 +212,7 @@ export default {
 
         getContentCreatorId() {
             var channelId = this.channelId;
-            var creatorMatch = this.creators.filter(creator => {
+            var creatorMatch = this.creators.filter((creator) => {
                 return creator.youtubeId === channelId;
             });
 
@@ -226,11 +226,11 @@ export default {
         async getCreators() {
             const response = await CreatorsService.fetchCreators();
 
-            this.creators = response.data.creators.map(creator => {
+            this.creators = response.data.creators.map((creator) => {
                 return {
                     id: creator._id,
                     name: creator.Name,
-                    youtubeId: creator.YoutubeId
+                    youtubeId: creator.YoutubeId,
                 };
             });
 
@@ -240,11 +240,11 @@ export default {
         async addCreator() {
             var response = await CreatorsService.addCreator({
                 Name: this.channelTitle,
-                YoutubeId: this.channelId
+                YoutubeId: this.channelId,
             });
             this.creatorId = response.data.id;
-        }
-    }
+        },
+    },
 };
 </script>
 

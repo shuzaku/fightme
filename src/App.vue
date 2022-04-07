@@ -2,7 +2,6 @@
 <template>
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <top-bar :account="account" />
-
         <div class="content">
             <div class="side-panel" :class="{ menuActive: showMobileMenu }">
                 <new-nav v-if="!isLoading" :account="account" />
@@ -10,7 +9,8 @@
                     <v-list-item-avatar>
                         <v-img
                             src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
-                        ></v-img>
+                        >
+                        </v-img>
                     </v-list-item-avatar>
                     <v-icon @click="showMobileMenu = !showMobileMenu">mdi-menu</v-icon>
                 </div>
@@ -79,10 +79,6 @@ export default {
     },
 
     created() {
-        this.account = {
-            id: null,
-            role: 'unregistered user',
-        };
         this.getPersistantUser();
         eventbus.$on('open:widget', this.openModal);
         eventbus.$on('account:login', this.setAccount);
@@ -93,9 +89,11 @@ export default {
         eventbus.$on('game:unfollow', this.unfollowGame);
         eventbus.$on('character:follow', this.followCharacter);
         eventbus.$on('character:unfollow', this.unfollowCharacter);
-
         eventbus.$on('video:unfavorite', this.removeFavoriteVideo);
         eventbus.$on('account:logout', this.logout);
+        eventbus.$on('account:loggedOut', this.resetAccount);
+        eventbus.$on('account:loggedIn', this.getPersistantUser);
+
         window.addEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -111,6 +109,9 @@ export default {
         eventbus.$off('character:unfollow', this.unfollowCharacter);
         eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
         eventbus.$off('account:logout', this.logout);
+        eventbus.$on('account:loggedOut', this.resetAccount);
+        eventbus.$off('account:loggedIn', this.getPersistantUser);
+
         window.removeEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -119,6 +120,13 @@ export default {
     },
 
     methods: {
+        resetAccount() {
+            this.account = {
+                id: null,
+                role: 'unregistered user',
+            };
+        },
+
         openModal(options) {
             this.options = options;
             this.isWidgetOpen = true;
@@ -133,9 +141,6 @@ export default {
             if (this.screenWidth < 900) {
                 this.isSmallMobile = true;
                 this.isMobile = true;
-            } else if (this.screenWidth < 900) {
-                this.isMobile = true;
-                this.isSmallMobile = false;
             } else {
                 this.isMobile = false;
                 this.isSmallMobile = false;
@@ -259,6 +264,7 @@ export default {
                 .signOut()
                 .then(() => {
                     this.account = null;
+                    eventbus.$emit('account:loggedOut', this.account);
                 })
                 .catch(() => {});
         },

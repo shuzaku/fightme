@@ -94,7 +94,6 @@ export default {
             var queryParameter = {
                 skip: this.skip,
             };
-
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
             // this.checkFavorites();

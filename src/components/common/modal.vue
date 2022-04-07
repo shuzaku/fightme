@@ -24,6 +24,7 @@
         <register v-if="options.name === 'register'" @closeModal="closeModal()" />
 
         <login v-if="options.name === 'login'" @closeModal="closeModal()" />
+
         <collections
             v-if="options.name === 'collections'"
             :account="account"
