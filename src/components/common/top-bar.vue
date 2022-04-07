@@ -9,7 +9,7 @@
             <a class="menu-item" href="/favorites">Favorites</a>
             <a class="menu-item" href="/collections">Collections</a>
             <a
-                v-if="(account.role = 'Admin User')"
+                v-if="account && (account.role = 'Admin User')"
                 class="menu-item add-item"
                 @click="toggleAddPopup()"
             >
@@ -61,13 +61,9 @@ export default {
 
     computed: {},
 
-    created() {
-        eventbus.$on('account:update', this.updateAccount);
-    },
+    created() {},
 
-    beforeDestroy() {
-        eventbus.$off('account:update', this.updateAccount);
-    },
+    beforeDestroy() {},
 
     methods: {
         toggleAccountPopup() {
@@ -79,12 +75,12 @@ export default {
         },
 
         logOut() {
-            this.togglePopup();
+            this.toggleAccountPopup();
             eventbus.$emit('account:logout');
         },
 
         logIn() {
-            this.togglePopup();
+            this.toggleAccountPopup();
             eventbus.$emit('open:widget', { name: 'login' });
         },
     },

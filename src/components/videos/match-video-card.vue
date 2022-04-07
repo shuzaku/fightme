@@ -184,11 +184,8 @@ export default {
     },
 
     computed: {
-        formattedInputs() {
-            return this.video.combo.inputs.join(' > ');
-        },
         isAdmin() {
-            return this.account.role === 'Admin User';
+            return this.account ? this.account.role === 'Admin User' : null;
         },
     },
 
@@ -221,7 +218,7 @@ export default {
     },
 
     created() {
-        if (this.account.id) {
+        if (this.account && this.account.id) {
             this.getCollections();
         }
         this.getMatch();

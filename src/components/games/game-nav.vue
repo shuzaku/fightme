@@ -118,8 +118,10 @@ export default {
         },
 
         isGameFollowed(response) {
-            var account = response || this.account;
-            this.isFollowed = account.followedGames.some((game) => game.id === this.gameId);
+            if (account) {
+                var account = response || this.account;
+                this.isFollowed = account.followedGames.some((game) => game.id === this.gameId);
+            }
         },
     },
 };
