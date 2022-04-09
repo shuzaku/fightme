@@ -107,6 +107,7 @@ export default {
                 const response = await this.axios.get(url);
                 this.channelTitle = response.data.items[0].snippet.channelTitle;
                 this.nextPageToken = response.data.nextPageToken;
+                this.videos = [];
                 this.videos = response.data.items.map((item) => {
                     return {
                         id: item.id.videoId,

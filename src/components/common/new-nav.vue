@@ -30,4 +30,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.sidebar {
+    width: 200px;
+}
+</style>

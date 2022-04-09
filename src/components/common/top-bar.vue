@@ -2,12 +2,14 @@
 <template>
     <div class="top-bar">
         <div class="top-bar-nav">
-            <img
-                src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
-            />
+            <a href="/">
+                <img
+                    src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
+                />
+            </a>
             <a class="menu-item" href="/explore">Explore</a>
-            <a class="menu-item" href="/favorites">Favorites</a>
-            <a class="menu-item" href="/collections">Collections</a>
+            <a v-if="account" class="menu-item" href="/favorites">Favorites</a>
+            <a v-if="account" class="menu-item" href="/collections">Collections</a>
             <a
                 v-if="account && (account.role = 'Admin User')"
                 class="menu-item add-item"
@@ -18,19 +20,19 @@
             </a>
         </div>
         <general-search />
-        <div class="account">
+        <div class="account" @click="toggleAccountPopup()">
             <div class="avatar"></div>
-            <div class="account-arrow" @click="toggleAccountPopup()">
+            <div class="account-arrow">
                 <v-icon> mdi-chevron-down </v-icon>
             </div>
         </div>
         <div v-if="accountPopupActive" class="account-popup">
-            <div v-if="account.id" class="name-row">
+            <div v-if="account" class="name-row">
                 <div class="avatar"></div>
                 {{ account.displayName }}
             </div>
             <div class="account-actions">
-                <button v-if="account.id" @click="logOut()">Log Out</button>
+                <button v-if="account" @click="logOut()">Log Out</button>
                 <button v-else @click="logIn()">Log In</button>
             </div>
         </div>
@@ -56,7 +58,10 @@ export default {
     },
 
     data() {
-        return { accountPopupActive: false, addPopupActive: false };
+        return {
+            accountPopupActive: false,
+            addPopupActive: false,
+        };
     },
 
     computed: {},

@@ -19,8 +19,8 @@
                 <img class="option__image" :src="props.option.imageUrl" />
                 <span class="option__name">{{ props.option.name }}</span>
             </template>
-            <template slot="option" slot-scope="props"
-                ><img class="option__image" :src="props.option.imageUrl" alt="No Man’s Sky" />
+            <template slot="option" slot-scope="props">
+                <img class="option__image" :src="props.option.imageUrl" alt="No Man’s Sky" />
                 <div class="option__desc">
                     <span class="option__name">{{ props.option.name }}</span>
                 </div>

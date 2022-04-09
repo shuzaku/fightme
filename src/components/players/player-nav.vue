@@ -91,8 +91,7 @@ export default {
                 id: this.playerId,
             });
             this.name = response.data.Name;
-            this.imageUrl = response.data.AvatarUrl;
-            this.gameId = response.data.GameId;
+            this.imageUrl = response.data.playerImg;
         },
 
         filter(filterType) {
@@ -108,10 +107,12 @@ export default {
         },
 
         isPlayerFollowed(response) {
-            var account = response || this.account;
-            this.isFollowed = account.followedPlayers.some(
-                (player) => player.id === this.playerId
-            );
+            if (account) {
+                var account = response || this.account;
+                this.isFollowed = account.followedPlayers.some(
+                    (player) => player.id === this.playerId
+                );
+            }
         },
     },
 };
