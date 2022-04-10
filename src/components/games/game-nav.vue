@@ -16,9 +16,9 @@
             <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <div class="info-card montages" @click="filter('Montage')">Montages</div>
-            <div class="info-card character">
+            <div class="info-card character" @click="togglePopup()">
                 Characters
-                <v-icon @click="togglePopup()"> mdi-chevron-down </v-icon>
+                <v-icon> mdi-chevron-down </v-icon>
             </div>
         </div>
         <div v-show="popupActive" class="popup">
@@ -135,7 +135,6 @@ export default {
     align-items: center;
     justify-content: space-between;
     width: 566px;
-    height: 80px;
 }
 
 .game-nav .game-header {

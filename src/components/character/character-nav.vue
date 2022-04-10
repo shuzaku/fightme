@@ -135,7 +135,6 @@ export default {
         },
 
         hydrateCharacter(response) {
-            console.log(response);
             return {
                 name: response.Name,
                 imageUrl: response.AvatarUrl,
@@ -189,7 +188,6 @@ export default {
         },
 
         goToPlayer(input) {
-            console.log(input);
             this.$router.push(`/player/${input.id}`);
         },
     },

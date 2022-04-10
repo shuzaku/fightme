@@ -9,7 +9,6 @@ export default {
   },
 
   search(params: Params) {
-    console.log(params)
     return Api().get(`search?value=${params.searchQuery[0].queryValue}`)
   }
 } 

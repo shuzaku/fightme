@@ -4,7 +4,9 @@
         <h2 class="matchup-heading">Explore More</h2>
         <loading v-if="isLoading"></loading>
         <div v-else class="matchup-container">
-            <game-nav :gameId="characters[0].gameId" :showMenu="false" />
+            <div @click="goToGame()">
+                <game-nav v-if="gameId" :gameId="gameId" :showMenu="false" />
+            </div>
 
             <div class="column-container">
                 <div class="character-column" v-for="character in characters" :key="character.id">
@@ -46,6 +48,7 @@ export default {
             character1Id: this.$route.params ? this.$route.params.id : null,
             character2Id: this.$route.params ? this.$route.params.id2 : null,
             characters: [],
+            gameId: null,
             isLoading: false,
         };
     },
@@ -83,6 +86,8 @@ export default {
 
             const response = await CharactersService.queryMatchup(queryParameter);
             this.characters = [];
+            this.gameId = response.data.characters[0].GameId;
+
             this.hydrateCharacters(response);
             this.isLoading = false;
         },
@@ -98,7 +103,6 @@ export default {
                             fullImage: character.ImageUrl,
                             id: character._id,
                             featuredPlayers: character.FeaturedPlayers,
-                            gameId: character.GameId,
                         };
                     })[0]
             );
@@ -113,10 +117,13 @@ export default {
                             fullImage: character.ImageUrl,
                             id: character._id,
                             featuredPlayers: character.featuredPlayers,
-                            gameId: character.GameId,
                         };
                     })[0]
             );
+        },
+
+        goToGame() {
+            this.$router.push(`/game/${this.gameId}`);
         },
     },
 };
