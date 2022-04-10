@@ -5,15 +5,6 @@
         <div class="content">
             <div class="side-panel" :class="{ menuActive: showMobileMenu }">
                 <new-nav v-if="!isLoading" :account="account" />
-                <div class="mobile-bar" v-if="isSmallMobile">
-                    <v-list-item-avatar>
-                        <v-img
-                            src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
-                        >
-                        </v-img>
-                    </v-list-item-avatar>
-                    <v-icon @click="showMobileMenu = !showMobileMenu">mdi-menu</v-icon>
-                </div>
             </div>
             <div ref="mainPanel" class="main-panel">
                 <modal
@@ -138,7 +129,7 @@ export default {
 
         calculateScreenWidth() {
             this.screenWidth = this.$refs.mainPanel.clientWidth;
-            if (this.screenWidth < 900) {
+            if (this.screenWidth < 820) {
                 this.isSmallMobile = true;
                 this.isMobile = true;
             } else {
@@ -641,18 +632,16 @@ textarea {
     display: none;
 }
 
-#app.mobile.small-mobile .side-panel {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    height: 50px;
-    width: 100%;
-    background: #151515;
-    z-index: 99;
-    padding: 5px 10px 0;
+#app.mobile.small-mobile .content-container {
+    padding: 0 20px;
 }
 
-#app.mobile.small-mobile .side-panel .navigation {
+#app.mobile.small-mobile .side-panel,
+#app.mobile.small-mobile .more-info-panel {
+    display: none;
+}
+
+/* #app.mobile.small-mobile .side-panel .navigation {
     top: 0;
     left: -400px;
     transition: all 0.3s linear;
@@ -660,7 +649,7 @@ textarea {
 
 #app.mobile.small-mobile .side-panel.menuActive .navigation {
     left: 0;
-}
+} */
 
 #app.mobile.small-mobile .side-nav {
     width: 100%;
@@ -729,10 +718,10 @@ textarea {
 }
 
 @media only screen and (max-width: 1000px) {
-    #app .side-panel {
+    /* #app .side-panel {
         width: 70px;
         min-width: 70px;
-    }
+    } */
 
     #app .side-nav .menu-item span,
     #app .side-nav .title {
