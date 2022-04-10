@@ -12,7 +12,7 @@
             :taggable="taggable"
             :custom-label="customLabel"
             label="name"
-            placeholder="Search or add a Character"
+            :placeholder="placeHolder"
             @input="setCharacter($event)"
         >
             <template slot="singleLabel" slot-scope="props">
@@ -50,6 +50,10 @@ export default {
         multiple: {
             type: Boolean,
             default: false,
+        },
+        placeHolder: {
+            type: String,
+            default: 'Search or add a Character',
         },
     },
 
@@ -110,6 +114,10 @@ export default {
                     );
                 });
             }
+        },
+
+        clearInput() {
+            this.selectedCharacters = null;
         },
     },
 };

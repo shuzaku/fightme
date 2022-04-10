@@ -3,10 +3,10 @@
     <div class="character-nav">
         <div class="character-header" :style="characterbubbleStyle">
             <div class="options">
-                <h2>{{ name }}</h2>
+                <h2>{{ character.name }}</h2>
             </div>
         </div>
-        <div class="quick-nav">
+        <div v-if="showMenu" class="quick-nav">
             <div v-if="account" class="followed-container">
                 <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
                     <v-icon> mdi-heart-outline </v-icon>
@@ -18,13 +18,37 @@
             <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <div class="info-card montages" @click="filter('Montage')">Montages</div>
-            <div class="info-card matchup">
+            <div class="info-card players" @click="togglePlayerPopup()">
+                Players
+                <v-icon> mdi-chevron-down </v-icon>
+            </div>
+            <div class="info-card matchup" @click="toggleMatchupPopup()">
                 Matchup
-                <v-icon @click="togglePopup()"> mdi-chevron-down </v-icon>
+                <v-icon> mdi-chevron-down </v-icon>
             </div>
         </div>
-        <div v-show="popupActive" class="popup">
-            <character-search :gameId="gameId" @update:character="goToMatchup($event)" />
+        <div v-if="matchupPopupActive" class="popup">
+            <character-search :gameId="character.gameId" @update:character="goToMatchup($event)" />
+        </div>
+        <div v-if="playerPopupActive" class="popup">
+            <multiselect
+                :options="character.players"
+                :multiple="false"
+                :clear-on-select="true"
+                :preserve-search="true"
+                label="name"
+                :placeholder="'Featured Players'"
+                @input="goToPlayer($event)"
+            >
+                <template slot="singleLabel" slot-scope="props">
+                    <span class="option__name">{{ props.option.name }}</span>
+                </template>
+                <template slot="option" slot-scope="props">
+                    <div class="option__desc">
+                        <span class="option__name">{{ props.option.name }}</span>
+                    </div>
+                </template>
+            </multiselect>
         </div>
     </div>
 </template>
@@ -51,14 +75,23 @@ export default {
             type: Object,
             default: null,
         },
+
+        showMenu: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     data() {
         return {
-            name: null,
-            imageUrl: null,
-            gameId: null,
-            popupActive: false,
+            character: {
+                name: null,
+                imageUrl: null,
+                gameId: null,
+                featuredPlayers: null,
+            },
+            matchupPopupActive: false,
+            playerPopupActive: false,
             isFollowed: false,
         };
     },
@@ -66,7 +99,7 @@ export default {
     computed: {
         characterbubbleStyle() {
             return {
-                'background-image': `url(${this.imageUrl})`,
+                'background-image': `url(${this.character.imageUrl})`,
                 'background-size': '30%',
                 'background-repeat': 'no-repeat',
                 'background-position': '0% 20%',
@@ -98,17 +131,40 @@ export default {
             const response = await CharactersService.getCharacter({
                 id: this.characterId,
             });
-            this.name = response.data.Name;
-            this.imageUrl = response.data.AvatarUrl;
-            this.gameId = response.data.GameId;
+            this.character = this.hydrateCharacter(response.data.characters[0]);
+        },
+
+        hydrateCharacter(response) {
+            console.log(response);
+            return {
+                name: response.Name,
+                imageUrl: response.AvatarUrl,
+                gameId: response.GameId,
+                players: this.hydratePlayer(response.Players),
+            };
+        },
+
+        hydratePlayer(featuredPlayers) {
+            return featuredPlayers.map((player) => {
+                return {
+                    name: player.Name,
+                    id: player._id,
+                };
+            });
         },
 
         filter(filterType) {
             this.$emit('character-filter:update', filterType);
         },
 
-        togglePopup() {
-            this.popupActive = !this.popupActive;
+        toggleMatchupPopup() {
+            this.matchupPopupActive = !this.matchupPopupActive;
+            this.playerPopupActive = false;
+        },
+
+        togglePlayerPopup() {
+            this.playerPopupActive = !this.playerPopupActive;
+            this.matchupPopupActive = false;
         },
 
         goToMatchup(character) {
@@ -130,6 +186,11 @@ export default {
                     (character) => character.id === this.characterId
                 );
             }
+        },
+
+        goToPlayer(input) {
+            console.log(input);
+            this.$router.push(`/player/${input.id}`);
         },
     },
 };

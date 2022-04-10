@@ -236,7 +236,6 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     height: 100%;
     flex-direction: column;
 }

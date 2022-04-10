@@ -2,18 +2,19 @@
 <template>
     <div class="general-search" placeholder="Search Category">
         <multiselect
+            v-if="!isLoading"
             v-model="searchValue"
             :options="searchValues"
             :close-on-select="true"
             :clear-on-select="true"
             :preserve-search="true"
-            @input="setSearch()"
             placeholder="Search..."
             group-label="category"
             group-values="values"
             label="value"
             track-by="value"
-            v-if="!isLoading"
+            @input="setSearch()"
+            @search-change="asyncFind"
         >
         </multiselect>
     </div>
@@ -89,43 +90,7 @@ export default {
     methods: {
         async getSearch() {
             const response = await GeneralService.fetchForSearch();
-            var searchValues = response.data.searchValues.map((value) => {
-                var searchValue = {
-                    id: value._id,
-                    value: '',
-                    valueType: '',
-                };
-                if (value.GamesPlayed) {
-                    (searchValue.value = value.Name), (searchValue.valueType = 'Player');
-                } else if (value.GameId) {
-                    (searchValue.value = value.Name), (searchValue.valueType = 'Character');
-                } else if (value.YoutubeUrl) {
-                    (searchValue.value = value.Name), (searchValue.valueType = 'ContentCreator');
-                } else if (value.Title) {
-                    (searchValue.value = value.Title), (searchValue.valueType = 'Game');
-                }
-
-                return searchValue;
-            });
-
-            this.searchValues = [
-                {
-                    category: 'Player',
-                    values: searchValues.filter((value) => value.valueType === 'Player'),
-                },
-                {
-                    category: 'Character',
-                    values: searchValues.filter((value) => value.valueType === 'Character'),
-                },
-                {
-                    category: 'Content Creator',
-                    values: searchValues.filter((value) => value.valueType === 'ContentCreator'),
-                },
-                {
-                    category: 'Game',
-                    values: searchValues.filter((value) => value.valueType === 'Game'),
-                },
-            ];
+            this.hydrateResults(response);
 
             this.isLoading = false;
         },
@@ -155,6 +120,67 @@ export default {
 
         closeLoginModal() {
             this.isLoginModalOpen = false;
+        },
+
+        async asyncFind(query) {
+            this.loading = true;
+            var queryParameter = {
+                searchQuery: [
+                    {
+                        queryName: 'Value',
+                        queryValue: query,
+                    },
+                ],
+            };
+
+            const response = await GeneralService.search(queryParameter);
+            if (response.data.searchValues) {
+                this.hydrateResults(response);
+            }
+            this.loading = false;
+        },
+
+        hydrateResults(response) {
+            this.searchValues = [];
+            var searchValues = response.data.searchValues.map((value) => {
+                var searchValue = {
+                    id: value._id,
+                    value: '',
+                    valueType: '',
+                };
+                if (value.GamesPlayed) {
+                    (searchValue.value = value.Name), (searchValue.valueType = 'Player');
+                } else if (value.GameId) {
+                    (searchValue.value = value.Name), (searchValue.valueType = 'Character');
+                } else if (value.YoutubeUrl) {
+                    (searchValue.value = value.Name), (searchValue.valueType = 'ContentCreator');
+                } else if (value.Title) {
+                    (searchValue.value = value.Title), (searchValue.valueType = 'Game');
+                } else {
+                    (searchValue.value = value.Name), (searchValue.valueType = 'Player');
+                }
+
+                return searchValue;
+            });
+
+            this.searchValues = [
+                {
+                    category: 'Player',
+                    values: searchValues.filter((value) => value.valueType === 'Player'),
+                },
+                {
+                    category: 'Character',
+                    values: searchValues.filter((value) => value.valueType === 'Character'),
+                },
+                {
+                    category: 'Content Creator',
+                    values: searchValues.filter((value) => value.valueType === 'ContentCreator'),
+                },
+                {
+                    category: 'Game',
+                    values: searchValues.filter((value) => value.valueType === 'Game'),
+                },
+            ];
         },
     },
 };

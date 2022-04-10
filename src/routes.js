@@ -42,6 +42,7 @@ const routes = [
     {path: '/players/', name: 'Players', component: Player},
     {path: '/player/:id', name: 'Player', component: Player},
     {path: '/character/:id', name: 'Character', component: Character},
+    {path: '/character/:id/combos', name: 'CharacterCombo', component: Character},
     {path: '/collection/:id', name: 'Collection', component: Collection},
     {path: '/channel-scrapper', name: 'ChannelScrapper', component: ChannelScrapper},
     {path: '/favorite-matches', name: 'Favorites Matches', component: FavoriteMatches},

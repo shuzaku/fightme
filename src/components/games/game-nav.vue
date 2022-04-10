@@ -2,11 +2,9 @@
 <template>
     <div class="game-nav">
         <div v-if="game" class="game-header" :style="trendingStyle">
-            <div class="options">
-                <h2>{{ game.title }}</h2>
-            </div>
+            <img :src="game.logoUrl" />
         </div>
-        <div class="quick-nav">
+        <div v-if="showMenu" class="quick-nav">
             <div v-if="account" class="followed-container">
                 <div v-if="!isFollowed" class="follow-btn info-card" @click="followGame()">
                     <v-icon> mdi-heart-outline </v-icon>
@@ -49,6 +47,11 @@ export default {
             type: Object,
             default: null,
         },
+
+        showMenu: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     data() {
@@ -62,10 +65,9 @@ export default {
     computed: {
         trendingStyle() {
             return {
-                'background-image': `url(${this.game.logoUrl})`,
-                'background-size': 'contain',
+                'background-image': `url(${this.game.banner})`,
+                'background-size': 'cover',
                 'background-repeat': 'no-repeat',
-                'background-position': '5% 50%',
             };
         },
     },
@@ -94,6 +96,7 @@ export default {
             this.game = {
                 title: response.data.Title,
                 logoUrl: response.data.LogoUrl,
+                banner: response.data.Banner,
             };
         },
 
@@ -132,6 +135,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     width: 566px;
+    height: 80px;
 }
 
 .game-nav .game-header {
@@ -141,20 +145,13 @@ export default {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     padding: 0 20px;
-    border: 2px solid #4447e2;
-    border-radius: 15px;
 }
 
-.game-nav .game-header h2 {
-    text-align: right;
-}
-
-.game-nav .game-header .options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.game-nav .game-header img {
+    height: 100%;
+    width: auto;
 }
 
 .game-nav .game-header .divider {

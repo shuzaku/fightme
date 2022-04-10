@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="combos-view">
+    <div ref="videoViewRef" class="combo-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -13,7 +13,7 @@
                     v-waypoint="{
                         active: true,
                         callback: onComboWaypoint,
-                        options: intersectionOptions
+                        options: intersectionOptions,
                     }"
                     :video="video"
                     :account="account"
@@ -33,7 +33,7 @@ export default {
     name: 'Combo',
 
     components: {
-        'combo-video-card': ComboVideoCard
+        'combo-video-card': ComboVideoCard,
     },
 
     data() {
@@ -45,19 +45,19 @@ export default {
             intersectionOptions: {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
-                threshold: 1
-            }
+                threshold: 1,
+            },
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        comboId: function() {
+        comboId: function () {
             return this.$route.params.id;
-        }
+        },
     },
 
     mounted() {
@@ -86,48 +86,48 @@ export default {
                     searchQuery = [
                         {
                             queryName: 'GameId',
-                            queryValue: searchParameter.queryValue
-                        }
+                            queryValue: searchParameter.queryValue,
+                        },
                     ];
                 }
                 if (searchParameter.queryName === 'Player') {
                     searchQuery = [
                         {
                             queryName: 'Player1Id',
-                            queryValue: searchParameter.queryValue
+                            queryValue: searchParameter.queryValue,
                         },
                         {
                             queryName: 'Player2Id',
-                            queryValue: searchParameter.queryValue
-                        }
+                            queryValue: searchParameter.queryValue,
+                        },
                     ];
                 }
                 if (searchParameter.queryName === 'Character') {
                     searchQuery = [
                         {
                             queryName: 'Player1CharacterId',
-                            queryValue: searchParameter.queryValue
+                            queryValue: searchParameter.queryValue,
                         },
                         {
                             queryName: 'Player2CharacterId',
-                            queryValue: searchParameter.queryValue
+                            queryValue: searchParameter.queryValue,
                         },
                         {
                             queryName: 'Combo.CharacterId',
-                            queryValue: searchParameter.queryValue
-                        }
+                            queryValue: searchParameter.queryValue,
+                        },
                     ];
                 }
             }
 
             searchQuery.push({
                 queryName: 'ComboId',
-                queryValue: this.comboId
+                queryValue: this.comboId,
             });
 
             var queryParameter = {
                 skip: this.skip,
-                searchQuery: searchQuery
+                searchQuery: searchQuery,
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -147,7 +147,7 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
                     id: video._id,
                     contentType: video.ContentType,
@@ -160,7 +160,7 @@ export default {
                     combo: this.getCombos(video.Combo),
                     inview: false,
                     isPlaying: false,
-                    isEditing: false
+                    isEditing: false,
                 });
             });
         },
@@ -177,15 +177,15 @@ export default {
                     ? {
                           name: comboResponse.Character.Name,
                           imageUrl: comboResponse.Character.ImageUrl,
-                          id: comboResponse.Character._id
+                          id: comboResponse.Character._id,
                       }
-                    : null
+                    : null,
             };
         },
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.id == objectId);
+            var featuredVideo = this.videos.find((video) => video.id == objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.inview = true;
                 featuredVideo.isPlaying = true;
@@ -198,7 +198,7 @@ export default {
 
         onComboWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.combo.id === objectId);
+            var featuredVideo = this.videos.find((video) => video.combo.id === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.inview = true;
                 featuredVideo.isPlaying = true;
@@ -224,45 +224,44 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        }
-    }
+        },
+    },
 };
 </script>
 
 <style>
-.combos-view {
+.combo-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 30px;
     height: 100%;
     overflow: hidden;
 }
 
-.combos-view::-webkit-scrollbar-track {
+.combo-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.combos-view::-webkit-scrollbar {
+.combo-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.combos-view::-webkit-scrollbar-thumb {
+.combo-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.combos-view .videos-container {
+.combo-view .videos-container {
     position: relative;
     padding: 0 40px;
 }
 
-.combos-view .videos-container video {
+.combo-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

@@ -93,7 +93,7 @@ export default {
     },
 
     watch: {
-        characterId: function () {
+        'route.params.id': function () {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();
@@ -149,6 +149,10 @@ export default {
         },
 
         async queryVideos(newQuery) {
+            if (this.$route.name == 'CharacterCombo') {
+                this.filter = 'Combo';
+            }
+
             this.loading = true;
             var queryParameter = {
                 skip: this.skip,

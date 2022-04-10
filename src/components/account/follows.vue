@@ -156,7 +156,7 @@ export default {
                 },
 
                 {
-                    id: '6068c573847e1c36147de001',
+                    id: '615deb4bbc77b1002228c551',
                     name: 'Latif',
                     type: 'player',
                     imageUrl:

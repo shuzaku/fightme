@@ -1,6 +1,18 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="matches-view">
+    <div ref="videoViewRef" class="matchups-view">
+        <div class="header">
+            <h1>Character Matchup</h1>
+            <div class="character-pills">
+                <div @click="navigateToCharacter(character1Id)">
+                    <character-nav :characterId="character1Id" :showMenu="false" />
+                </div>
+                <p class="versus">Vs.</p>
+                <div @click="navigateToCharacter(character2Id)">
+                    <character-nav :characterId="character2Id" :showMenu="false" />
+                </div>
+            </div>
+        </div>
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -22,6 +34,7 @@
 <script>
 import VideosService from '@/services/videos-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
+import CharacterNav from '@/components/character/character-nav';
 
 import { eventbus } from '@/main';
 
@@ -30,6 +43,7 @@ export default {
 
     components: {
         'match-video-card': NewMatchVideoCard,
+        'character-nav': CharacterNav,
     },
 
     props: {
@@ -48,8 +62,8 @@ export default {
             favorites: [],
             filter: 'Match',
             sort: null,
-            character1: this.$route.params ? this.$route.params.id : null,
-            character2: this.$route.params ? this.$route.params.id2 : null,
+            character1Id: this.$route.params ? this.$route.params.id : null,
+            character2Id: this.$route.params ? this.$route.params.id2 : null,
         };
     },
 
@@ -66,8 +80,8 @@ export default {
     watch: {
         path() {
             this.videos = [];
-            this.character1 = this.$route.params.id;
-            this.character2 = this.$route.params.id2;
+            this.character1Id = this.$route.params.id;
+            this.character2Id = this.$route.params.id2;
             this.queryVideos();
         },
     },
@@ -76,7 +90,7 @@ export default {
         if (this.account && this.account.id) {
             this.updateFavorites();
         }
-        if (this.character1 && this.character2) {
+        if (this.character1Id && this.character2Id) {
             this.queryVideos();
         }
         window.addEventListener('scroll', this.handleScroll);
@@ -96,7 +110,7 @@ export default {
         async queryVideos() {
             var searchQuery = [
                 {
-                    characters: { character1: this.character1, character2: this.character2 },
+                    characters: { character1: this.character1Id, character2: this.character2Id },
                 },
             ];
 
@@ -127,8 +141,10 @@ export default {
         },
 
         playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
+            if (this.videos) {
+                this.videos[0].isPlaying = true;
+                this.isLoading = false;
+            }
         },
 
         onWaypoint({ el, going, direction }) {
@@ -175,59 +191,95 @@ export default {
         },
 
         addCharacter1(characterId) {
-            if (this.character2) {
-                this.$router.push(`/matchups/${characterId}/${this.character2}`);
+            if (this.character2Id) {
+                this.$router.push(`/matchups/${characterId}/${this.character2Id}`);
             } else {
-                this.character1 = characterId;
+                this.character1Id = characterId;
             }
         },
 
         addCharacter2(characterId) {
-            if (this.character1) {
-                this.$router.push(`/matchups/${this.character1}/${characterId}`);
+            if (this.character1Id) {
+                this.$router.push(`/matchups/${this.character1Id}/${characterId}`);
             } else {
-                this.character2 = characterId;
+                this.character2Id = characterId;
             }
+        },
+
+        navigateToCharacter(characterId) {
+            this.$router.push(`/character/${characterId}`);
         },
     },
 };
 </script>
 
 <style>
-.matches-view {
+.matchups-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     height: 100%;
     flex-direction: column;
+    width: 566px;
+    padding-top: 40px;
 }
 
-.matches-view::-webkit-scrollbar-track {
+.matchups-view h1 {
+    color: #fff;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.matchups-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.matches-view::-webkit-scrollbar {
+.matchups-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.matches-view::-webkit-scrollbar-thumb {
+.matchups-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.matches-view .videos-container {
+.matchups-view .videos-container {
     position: relative;
     margin-top: 0;
 }
 
-.matches-view .videos-container video {
+.matchups-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
+}
+
+.matchups-view .character-pills {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.matchups-view .character-pills .character-nav {
+    width: 250px;
+    min-width: initial;
+    cursor: pointer;
+}
+
+.matchups-view .character-pills .character-header {
+    height: 50px;
+}
+
+.matchups-view .header {
+    width: 100%;
+}
+
+.matchups-view .versus {
+    font-size: 30px;
+    color: #fff;
 }
 </style>

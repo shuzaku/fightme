@@ -1,13 +1,17 @@
 <!-- @format -->
 <template>
-    <div class="more-info-panel"></div>
+    <div class="more-info-panel">
+        <more-matchup-info v-if="routeName === 'MatchUps'" />
+    </div>
 </template>
 
 <script>
-import CharactersService from '@/services/characters-service';
+import MoreMatchupInfo from '@/components/matchup/more-matchup-info';
 
 export default {
-    components: {},
+    components: {
+        'more-matchup-info': MoreMatchupInfo,
+    },
 
     props: {
         account: {
@@ -23,39 +27,12 @@ export default {
     },
 
     data() {
-        return {
-            isLoading: false,
-            character: {
-                id: null,
-                name: null,
-                imageUrl: null,
-            },
-        };
+        return {};
     },
 
-    created() {
-        this.getData();
-    },
+    created() {},
 
-    methods: {
-        getData() {
-            this.isLoading = true;
-            switch (this.routeName) {
-                case 'Character':
-                    this.character.id = this.$route.params.id;
-                    this.getCharacter(this.character.id);
-            }
-            this.isLoading = false;
-        },
-
-        async getCharacter(id) {
-            const response = await CharactersService.getCharacter({
-                id: id,
-            });
-            this.character.name = response.data.Name;
-            this.character.imageUrl = response.data.AvatarUrl;
-        },
-    },
+    methods: {},
 };
 </script>
 
