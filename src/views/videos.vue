@@ -1,7 +1,8 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="videos-view">
-        <div v-if="videos.length > 0" class="videos-container">
+        <loading v-if="isLoading"></loading>
+        <div v-else class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -32,6 +33,9 @@
 import VideosService from '@/services/videos-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import NewComboVideoCard from '@/components/videos/combo-video-card';
+
+import Loading from '@/components/common/loading';
+
 import { eventbus } from '@/main';
 
 export default {
@@ -40,6 +44,7 @@ export default {
     components: {
         'match-video-card': NewMatchVideoCard,
         'combo-video-card': NewComboVideoCard,
+        loading: Loading,
     },
 
     props: {
@@ -52,7 +57,7 @@ export default {
     data() {
         return {
             videos: [],
-            loading: true,
+            isLoading: false,
             query: null,
             savedQuery: null,
             favorites: [],
@@ -91,6 +96,7 @@ export default {
         },
 
         async queryVideos() {
+            this.isLoading = true;
             var queryParameter = {
                 skip: this.skip,
             };
@@ -100,6 +106,8 @@ export default {
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
+
+            this.isLoading = false;
         },
 
         hydrateVideos(response) {

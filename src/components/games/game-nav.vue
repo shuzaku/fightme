@@ -126,6 +126,10 @@ export default {
                 this.isFollowed = account.followedGames.some((game) => game.id === this.gameId);
             }
         },
+
+        goToCharacter(character) {
+            this.$router.push(`/character/${character.id}`);
+        },
     },
 };
 </script>

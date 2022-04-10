@@ -93,7 +93,7 @@ export default {
     },
 
     watch: {
-        'route.params.id': function () {
+        characterId: function () {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();

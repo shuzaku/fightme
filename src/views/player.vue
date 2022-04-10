@@ -212,6 +212,7 @@ export default {
     height: 100%;
     flex-direction: column;
     max-width: 100%;
+    width: 100%;
 }
 
 .player-view::-webkit-scrollbar-track {
