@@ -220,7 +220,7 @@ export default {
     position: relative;
     height: 100%;
     flex-direction: column;
-    width: 595px;
+    width: 100%;
     padding-top: 40px;
 }
 

@@ -2,8 +2,8 @@
 <template>
     <div class="matchup-box" :style="boxStyle">
         <character-search
-            v-model="selectedCharacter"
             ref="characterSearch"
+            v-model="selectedCharacter"
             :gameId="character.gameId"
             :placeHolder="'Search Matchup'"
             @update:character="goToMatchup($event)"

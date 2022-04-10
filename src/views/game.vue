@@ -224,6 +224,7 @@ export default {
     height: 100%;
     flex-direction: column;
     overflow: visible;
+    width: 100%;
 }
 
 .games-view::-webkit-scrollbar-track {

@@ -539,6 +539,10 @@ export default {
     display: flex;
 }
 
+.app .multiselect__tags {
+    min-width: initial;
+}
+
 #app .trending-container {
     width: 350px;
     padding-top: 80px;
@@ -641,6 +645,15 @@ textarea {
     display: none;
 }
 
+#app.mobile.small-mobile .character-nav .info-card {
+    margin: 5px;
+    width: 47%;
+}
+
+#app.mobile.small-mobile .general-search {
+    min-width: 230px;
+}
+
 /* #app.mobile.small-mobile .side-panel .navigation {
     top: 0;
     left: -400px;
@@ -658,6 +671,11 @@ textarea {
     justify-content: space-around;
 }
 
+#app.mobile.small-mobile .video-container iframe {
+    max-width: 100%;
+    height: 47vw;
+}
+
 #app.mobile.small-mobile .menu-heading svg {
     margin: 0 auto;
 }
@@ -671,6 +689,14 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-around;
+}
+
+#app.mobile.small-mobile .matchups-view .character-pills {
+    flex-direction: column;
+}
+
+#app.mobile.small-mobile .matchups-view h1 {
+    text-align: center;
 }
 
 #app.mobile.small-mobile .side-nav {

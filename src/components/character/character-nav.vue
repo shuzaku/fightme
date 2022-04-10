@@ -17,7 +17,7 @@
             </div>
             <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
-            <div class="info-card montages" @click="filter('Montage')">Montages</div>
+            <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
             <div class="info-card players" @click="togglePlayerPopup()">
                 Players
                 <v-icon> mdi-chevron-down </v-icon>
@@ -196,8 +196,6 @@ export default {
 <style type="text/css">
 .character-nav {
     width: 100%;
-    min-width: 500px;
-    width: 566px;
     z-index: 99;
 }
 
@@ -238,6 +236,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .character-nav .popup {

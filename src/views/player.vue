@@ -211,6 +211,7 @@ export default {
     padding-top: 20px;
     height: 100%;
     flex-direction: column;
+    max-width: 100%;
 }
 
 .player-view::-webkit-scrollbar-track {

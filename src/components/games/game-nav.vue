@@ -134,7 +134,6 @@ export default {
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    width: 566px;
 }
 
 .game-nav .game-header {

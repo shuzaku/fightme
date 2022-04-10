@@ -120,8 +120,6 @@ export default {
 <style type="text/css">
 .player-nav {
     width: 100%;
-    min-width: 500px;
-    width: 566px;
     z-index: 99;
 }
 
