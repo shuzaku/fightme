@@ -647,7 +647,7 @@ textarea {
 
 #app.mobile.small-mobile .character-nav .info-card {
     margin: 5px;
-    width: 47%;
+    width: 46%;
 }
 
 #app.mobile.small-mobile .general-search {
