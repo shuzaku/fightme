@@ -15,7 +15,7 @@
             </div>
             <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
-            <div class="info-card montages" @click="filter('Montage')">Montages</div>
+            <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
             <div class="info-card character" @click="togglePopup()">
                 Characters
                 <v-icon> mdi-chevron-down </v-icon>

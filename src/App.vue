@@ -651,7 +651,7 @@ textarea {
 }
 
 #app.mobile.small-mobile .general-search {
-    min-width: 230px;
+    min-width: 200px;
 }
 
 /* #app.mobile.small-mobile .side-panel .navigation {
