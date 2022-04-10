@@ -103,6 +103,7 @@ export default {
                             fullImage: character.ImageUrl,
                             id: character._id,
                             featuredPlayers: character.FeaturedPlayers,
+                            gameId: character.GameId,
                         };
                     })[0]
             );
@@ -117,6 +118,7 @@ export default {
                             fullImage: character.ImageUrl,
                             id: character._id,
                             featuredPlayers: character.featuredPlayers,
+                            gameId: character.GameId,
                         };
                     })[0]
             );

@@ -60,4 +60,9 @@ export default {
     justify-content: space-around;
     padding-bottom: 30px;
 }
+
+.matchup-box .character-search {
+    max-width: 270px;
+    width: 100%;
+}
 </style>
