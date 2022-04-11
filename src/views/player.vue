@@ -212,6 +212,7 @@ export default {
     height: 100%;
     flex-direction: column;
     max-width: 100%;
+    max-width: 566px;
     width: 100%;
 }
 

@@ -2,15 +2,18 @@
 <template>
     <div class="more-info-panel">
         <more-matchup-info v-if="routeName === 'MatchUps'" />
+        <more-character-info v-if="routeName === 'Character'" />
     </div>
 </template>
 
 <script>
 import MoreMatchupInfo from '@/components/matchup/more-matchup-info';
+import MoreCharacterInfo from '@/components/character/more-character-info';
 
 export default {
     components: {
         'more-matchup-info': MoreMatchupInfo,
+        'more-character-info': MoreCharacterInfo,
     },
 
     props: {

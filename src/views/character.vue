@@ -244,6 +244,7 @@ export default {
     padding-top: 20px;
     height: 100%;
     width: 100%;
+    max-width: 566px;
     flex-direction: column;
 }
 
