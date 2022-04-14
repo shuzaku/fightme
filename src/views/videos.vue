@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="videos-view">
-        <loading v-if="isLoading"></loading>
+        <loading v-if="videos < 1 && isLoading"></loading>
         <div v-else class="videos-container">
             <div
                 v-for="(video, index) in videos"
