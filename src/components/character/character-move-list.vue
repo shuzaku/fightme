@@ -3,65 +3,56 @@
     <div class="character-move-list">
         <multiselect
             v-if="moves"
-            v-model="selectedMove"
+            v-model="selectedMoves"
             :options="moves"
-            :multiple="false"
-            :close-on-select="true"
-            :clear-on-select="true"
-            :preserve-search="true"
-            :taggable="false"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            track-by="name"
             label="name"
             :placeholder="'Select Move'"
-            @input="setMoves($event)"
         >
-            <template slot="singleLabel" slot-scope="props">
-                <span class="option__name">{{ props.option.name }}</span>
-            </template>
-            <template slot="option" slot-scope="props">
-                <div class="option__desc">
-                    <span class="option__name">{{ props.option.name }}</span>
-                </div>
-            </template>
         </multiselect>
-
-        <table v-if="selectedMove">
-            <tr>
-                <td class="label">Name</td>
-                <td class="value">{{ selectedMove.name }}</td>
-            </tr>
-            <tr>
-                <td class="label">Command</td>
-                <td class="value">{{ selectedMove.command }}</td>
-            </tr>
-            <tr>
-                <td class="label">Damage</td>
-                <td class="value">{{ selectedMove.damage }}</td>
-            </tr>
-            <tr>
-                <td class="label">Guard</td>
-                <td class="value">{{ selectedMove.guard }}</td>
-            </tr>
-            <tr>
-                <td class="label">Startup</td>
-                <td class="value">{{ selectedMove.startUp }}</td>
-            </tr>
-            <tr>
-                <td class="label">Active</td>
-                <td class="value">{{ selectedMove.active }}</td>
-            </tr>
-            <tr>
-                <td class="label">Recovery</td>
-                <td class="value">{{ selectedMove.recovery }}</td>
-            </tr>
-            <tr>
-                <td class="label">On Block</td>
-                <td class="value">{{ selectedMove.onBlock }}</td>
-            </tr>
-            <tr>
-                <td class="label">Invuln</td>
-                <td class="value">{{ selectedMove.invulnerability }}</td>
-            </tr>
-        </table>
+        <div v-if="selectedMoves" class="table-container">
+            <table v-for="move in selectedMoves" :key="move.id">
+                <tr>
+                    <td class="label">Name</td>
+                    <td class="value">{{ move.name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Command</td>
+                    <td class="value">{{ move.command }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Damage</td>
+                    <td class="value">{{ move.damage }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Guard</td>
+                    <td class="value">{{ move.guard }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Startup</td>
+                    <td class="value">{{ move.startUp }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Active</td>
+                    <td class="value">{{ move.active }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Recovery</td>
+                    <td class="value">{{ move.recovery }}</td>
+                </tr>
+                <tr>
+                    <td class="label">On Block</td>
+                    <td class="value">{{ move.onBlock }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Invulnability</td>
+                    <td class="value">{{ move.invulnerability }}</td>
+                </tr>
+            </table>
+        </div>
     </div>
 </template>
 
@@ -84,7 +75,7 @@ export default {
     data() {
         return {
             moves: [],
-            selectedMove: null,
+            selectedMoves: null,
         };
     },
 
@@ -99,10 +90,6 @@ export default {
     },
 
     methods: {
-        setMoves() {
-            this.$emit('update:move', this.selectedMoves);
-        },
-
         async getMoves() {
             this.isLoading = true;
             const response = await MovesService.getCharacterMoves({
@@ -147,9 +134,11 @@ export default {
 
 .character-move-list table .label {
     font-weight: 600;
+    text-transform: capitalize;
 }
 
 .character-move-list table .value {
     text-align: center;
+    width: 180px;
 }
 </style>

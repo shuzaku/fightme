@@ -210,8 +210,4 @@ export default {
 .more-matchup-info .drop-down-container .character-move-list:first-child table {
     margin: 10px 0 auto auto;
 }
-
-.more-matchup-info .drop-down-container .character-move-list:nth-child(2) .label {
-    display: none;
-}
 </style>
