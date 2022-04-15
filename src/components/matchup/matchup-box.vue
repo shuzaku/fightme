@@ -45,7 +45,7 @@ export default {
     methods: {
         goToMatchup(character) {
             this.$refs.characterSearch.clearInput();
-            this.$router.push(`/matchups/${this.character.id}/${character.id}`);
+            this.$emit('update-matchup', character);
         },
     },
 };

@@ -9,13 +9,33 @@
             </div>
 
             <div class="column-container">
-                <div class="character-column" v-for="character in characters" :key="character.id">
-                    <matchup-box :character="character" />
+                <div
+                    v-for="(character, index) in characters"
+                    :key="character.id"
+                    class="character-column"
+                >
+                    <matchup-box
+                        :character="character"
+                        @update-matchup="updateMatchup($event, index)"
+                    />
                     <!-- <div class="info-row">
                         <combo-box :character="character" />
                         <match-box :character="character" />
                     </div>
                     <featured-player-box :character="character" /> -->
+                </div>
+            </div>
+            <div class="move-comparison-button">
+                <h2>Compare Moves</h2>
+                <div class="drop-down-container">
+                    <character-move-list
+                        :characterId="characters[0].id"
+                        @update:move="setCharacter1Move($event)"
+                    />
+                    <character-move-list
+                        :characterId="characters[1].id"
+                        @update:move="setCharacter2Move($event)"
+                    />
                 </div>
             </div>
         </div>
@@ -25,22 +45,19 @@
 <script>
 import CharactersService from '@/services/characters-service';
 import MatchupBox from '@/components/matchup/matchup-box';
-import ComboBox from '@/components/combo/combo-box';
-import MatchBox from '@/components/match/match-box';
-import FeaturedPlayerBox from '@/components/players/featured-player-box';
+
 import GameNav from '@/components/games/game-nav';
 import Loading from '@/components/common/loading';
-
+import CharacterMoveList from '@/components/character/character-move-list';
 export default {
     name: 'MoreMatchupInfo',
 
     components: {
         'matchup-box': MatchupBox,
-        'match-box': MatchBox,
-        'combo-box': ComboBox,
-        'featured-player-box': FeaturedPlayerBox,
+
         'game-nav': GameNav,
         loading: Loading,
+        'character-move-list': CharacterMoveList,
     },
 
     data() {
@@ -127,6 +144,14 @@ export default {
         goToGame() {
             this.$router.push(`/game/${this.gameId}`);
         },
+
+        updateMatchup(character, index) {
+            if (index === 0) {
+                this.$router.push(`/matchups/${character.id}/${this.characters[1].id}`);
+            } else {
+                this.$router.push(`/matchups/${this.characters[0].id}/${character.id}`);
+            }
+        },
     },
 };
 </script>
@@ -163,5 +188,30 @@ export default {
 .more-matchup-info .character-column:nth-child(2) .matchup-box {
     background: #3eb489;
     border: 2px solid #3eb489;
+}
+
+.more-matchup-info .move-comparison-button {
+    background: #db8c10;
+    text-align: center;
+    padding: 25px 10px;
+}
+
+.more-matchup-info .drop-down-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.more-matchup-info .drop-down-container .character-move-list {
+    max-width: 49%;
+    width: 100%;
+}
+
+.more-matchup-info .drop-down-container .character-move-list:first-child table {
+    margin: 10px 0 auto auto;
+}
+
+.more-matchup-info .drop-down-container .character-move-list:nth-child(2) .label {
+    display: none;
 }
 </style>
