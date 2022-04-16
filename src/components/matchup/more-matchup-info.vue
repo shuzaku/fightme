@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="more-matchup-info">
+    <div class="character-move-list">
         <h2 class="matchup-heading">Explore More</h2>
         <loading v-if="isLoading"></loading>
         <div v-else class="matchup-container">
@@ -157,57 +157,57 @@ export default {
 </script>
 
 <style type="text/css">
-.more-matchup-info .column-container {
+.character-move-list .column-container {
     display: flex;
     justify-content: space-between;
 }
 
-.more-matchup-info h2 {
+.character-move-list h2 {
     color: #fff;
     font-size: 25px;
 }
 
-.more-matchup-info h2.matchup-heading {
+.character-move-list h2.matchup-heading {
     margin-bottom: 30px;
     font-size: 20px;
 }
 
-.more-matchup-info .game-nav {
+.character-move-list .game-nav {
     width: 100%;
 }
 
-.more-matchup-info .info-row {
+.character-move-list .info-row {
     display: flex;
 }
 
-.more-matchup-info .matchup-box {
+.character-move-list .matchup-box {
     background: #4447e2;
     border: 2px solid #4447e2;
 }
 
-.more-matchup-info .character-column:nth-child(2) .matchup-box {
+.character-move-list .character-column:nth-child(2) .matchup-box {
     background: #3eb489;
     border: 2px solid #3eb489;
 }
 
-.more-matchup-info .move-comparison-button {
+.character-move-list .move-comparison-button {
     background: #db8c10;
     text-align: center;
     padding: 25px 10px;
 }
 
-.more-matchup-info .drop-down-container {
+.character-move-list .drop-down-container {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
 }
 
-.more-matchup-info .drop-down-container .character-move-list {
+.character-move-list .drop-down-container .character-move-list {
     max-width: 49%;
     width: 100%;
 }
 
-.more-matchup-info .drop-down-container .character-move-list:first-child table {
+.character-move-list .drop-down-container .character-move-list:first-child table {
     margin: 10px 0 auto auto;
 }
 </style>

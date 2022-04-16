@@ -38,6 +38,7 @@
     "vue-moment": "^4.1.0",
     "vue-multiselect": "^2.1.6",
     "vue-property-decorator": "^9.1.2",
+    "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.6",
     "vue-youtube-embed": "^2.2.2",
     "vueinview": "^1.0.7",

@@ -1,0 +1,145 @@
+<!-- @format -->
+<template>
+    <div class="character-matchup-note">
+        <div class="note-container" v-if="!isLoading">
+            <div class="title-row" @click="toggleContent()">
+                <div
+                    class="character-bubble"
+                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
+                />
+                <div
+                    class="character-bubble"
+                    :style="{ backgroundImage: `url('${opposingCharacter.imageUrl}')` }"
+                />
+                <h3>{{ note.heading }}</h3>
+                <v-icon> mdi-chevron-down </v-icon>
+            </div>
+            <div v-if="showContent" class="note-content">
+                <div v-html="note.content"></div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import CharactersService from '@/services/characters-service';
+
+export default {
+    components: {},
+
+    name: 'CharacterMatchupNotes',
+
+    props: {
+        note: {
+            type: Object,
+            default: null,
+        },
+    },
+
+    data() {
+        return {
+            character: {
+                imageUrl: null,
+            },
+            opposingCharacter: {
+                imageUrl: null,
+            },
+            isLoading: false,
+            showContent: false,
+        };
+    },
+
+    mounted() {
+        this.getCharacters();
+    },
+
+    methods: {
+        getCharacters() {
+            this.isLoading = true;
+            this.getCharacter();
+            this.getOpposingCharacter();
+            this.isLoading = false;
+        },
+
+        async getCharacter() {
+            const response = await CharactersService.getCharacter({
+                id: this.note.target1,
+            });
+            var character = response.data.characters[0];
+            this.character = {
+                id: character._id,
+                name: character.Name,
+                imageUrl: character.AvatarUrl,
+            };
+        },
+
+        async getOpposingCharacter() {
+            const response = await CharactersService.getCharacter({
+                id: this.note.target2,
+            });
+
+            var character = response.data.characters[0];
+            this.opposingCharacter = {
+                id: character._id,
+                name: character.Name,
+                imageUrl: character.AvatarUrl,
+            };
+        },
+
+        toggleContent() {
+            this.showContent = !this.showContent;
+        },
+    },
+};
+</script>
+<style type="text/css">
+.character-matchup-note .title-row {
+    display: flex;
+    align-items: center;
+    background: #4447e2;
+    width: 100%;
+    border-radius: 5px;
+    padding: 8px 10px;
+    position: relative;
+}
+
+.character-matchup-note .character-bubble {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #3eb489;
+    background-size: cover;
+    background-position: top center;
+    background-color: #e8e8e8;
+    margin-right: 10px;
+}
+
+.character-matchup-note h3 {
+    color: #fff;
+    margin-left: 30px;
+}
+
+.character-matchup-note .v-icon {
+    position: absolute;
+    right: 20px;
+}
+
+.character-matchup-note .note-content {
+    background: #1c1c24;
+    color: #fff;
+    padding: 20px;
+}
+
+.character-matchup-note ul {
+    margin-left: 20px;
+}
+
+.character-matchup-note li {
+    margin-bottom: 5px;
+}
+
+.character-matchup-note .ql-indent-1 {
+    margin-left: 20px;
+}
+</style>

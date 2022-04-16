@@ -20,6 +20,7 @@ import Explore from './views/explore.vue';
 import Favorites from './views/favorites.vue';
 import Collections from './views/collections.vue';
 import Collection from './views/collection.vue';
+import Note from './views/notes.vue';
 
 const routes = [
     {path: '/', name: 'Videos', component: Videos},
@@ -50,7 +51,9 @@ const routes = [
     {path: '/test', name: 'test', component: Test},
     {path: '/counter', name: 'counter', component: Counter},
     {path: '/explore', name: 'explore', component: Explore},
-    {path: '/favorites', name: 'favorites', component: Favorites}
+    {path: '/favorites', name: 'favorites', component: Favorites},
+    {path: '/notes', name: 'notes', component: Note}
+
 ] 
 
 export default routes;   

@@ -30,6 +30,8 @@
             :account="account"
             @closeModal="closeModal()"
         />
+
+        <new-note v-if="options.name === 'note'" :account="account" @closeModal="closeModal()" />
     </div>
 </template>
 
@@ -43,6 +45,7 @@ import newCharacter from '@/components/character/new-character';
 import register from '@/components/account/register';
 import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
+import newNote from '@/components/note/new-note';
 
 export default {
     name: 'Modal',
@@ -57,6 +60,7 @@ export default {
         register: register,
         login: login,
         collections: collections,
+        'new-note': newNote,
     },
 
     props: {

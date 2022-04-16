@@ -18,6 +18,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import VTooltip from 'v-tooltip'
+import VueQuillEditor from 'vue-quill-editor'
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
 
 
 library.add(faDiscord)
@@ -25,6 +30,8 @@ library.add(faDiscord)
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
 
+
+Vue.use(VueQuillEditor, /* { default global options } */)
 Vue.use(VueWaypoint)
 Vue.use(VueRouter);
 Vue.use(VTooltip)
