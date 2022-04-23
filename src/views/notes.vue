@@ -4,10 +4,30 @@
         <button class="add-btn" @click="openNoteModal">Add New Note</button>
         <div class="notes-container">
             <div v-for="note in notes" :key="note.id">
-                <character-matchup-note :note="note" v-if="note.type === 'Character Matchup'" />
-                <character-note :note="note" v-if="note.type === 'Character'" />
-                <player-note :note="note" v-if="note.type === 'Player'" />
-                <game-note :note="note" v-if="note.type === 'Game'" />
+                <character-matchup-note
+                    v-if="note.type === 'Character Matchup'"
+                    :note="note"
+                    @edit:note="editNote($event)"
+                    @delete:note="deleteNote($event)"
+                />
+                <character-note
+                    v-if="note.type === 'Character'"
+                    :note="note"
+                    @edit:note="editNote($event)"
+                    @delete:note="deleteNote($event)"
+                />
+                <player-note
+                    v-if="note.type === 'Player'"
+                    :note="note"
+                    @edit:note="editNote($event)"
+                    @delete:note="deleteNote($event)"
+                />
+                <game-note
+                    v-if="note.type === 'Game'"
+                    :note="note"
+                    @edit:note="editNote($event)"
+                    @delete:note="deleteNote($event)"
+                />
             </div>
         </div>
     </div>
@@ -49,6 +69,11 @@ export default {
 
     mounted() {
         this.queryNotes();
+        eventbus.$on('note:update', this.queryNotes);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('note:update', this.queryNotes);
     },
 
     methods: {
@@ -89,6 +114,19 @@ export default {
             };
 
             eventbus.$emit('open:widget', option);
+        },
+
+        editNote(id) {
+            eventbus.$emit('open:widget', {
+                name: 'note',
+                value: 'note',
+                noteId: id,
+            });
+        },
+
+        async deleteNote(id) {
+            await NotesService.deleteNote(id);
+            eventbus.$emit('note:update');
         },
     },
 };

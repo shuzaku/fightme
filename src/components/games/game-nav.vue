@@ -121,7 +121,7 @@ export default {
         },
 
         isGameFollowed(response) {
-            if (account) {
+            if (this.account) {
                 var account = response || this.account;
                 this.isFollowed = account.followedGames.some((game) => game.id === this.gameId);
             }

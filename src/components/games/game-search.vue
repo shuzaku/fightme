@@ -32,25 +32,25 @@ export default {
     props: {
         taggable: {
             type: Boolean,
-            default: false
+            default: false,
         },
         value: {
             type: String,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             games: [],
-            selectedGame: null
+            selectedGame: null,
         };
     },
 
     watch: {
         value() {
             this.getGames();
-        }
+        },
     },
 
     mounted() {
@@ -62,28 +62,28 @@ export default {
             await GamesService.addGame({
                 GameTitle: newGame,
                 CreatedDate: this.timestamp,
-                UpdatedDate: null
+                UpdatedDate: null,
             });
         },
 
         async getGames() {
             const response = await GamesService.fetchGames();
-            this.games = response.data.games.map(game => {
+            this.games = response.data.games.map((game) => {
                 return {
                     id: game._id,
                     title: game.Title,
-                    logoUrl: game.LogoUrl
+                    logoUrl: game.LogoUrl,
                 };
             });
             if (this.value) {
-                this.selectedGame = this.games.filter(game => game.id === this.value);
+                this.selectedGame = this.games.filter((game) => game.id === this.value);
             }
         },
 
         setGame() {
             this.$emit('update:game', this.selectedGame);
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css"></style>

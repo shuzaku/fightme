@@ -31,7 +31,12 @@
             @closeModal="closeModal()"
         />
 
-        <new-note v-if="options.name === 'note'" :account="account" @closeModal="closeModal()" />
+        <new-note
+            v-if="options.name === 'note'"
+            :noteId="options.noteId"
+            :account="account"
+            @closeModal="closeModal()"
+        />
     </div>
 </template>
 

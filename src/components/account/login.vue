@@ -134,4 +134,9 @@ export default {
     margin-top: 20px;
     font-style: italic;
 }
+
+.login-modal .v-input input {
+    border: none;
+    margin-bottom: 0px;
+}
 </style>
