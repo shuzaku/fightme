@@ -122,4 +122,9 @@ export default {
     margin-top: 20px;
     font-style: italic;
 }
+
+.register-modal .v-input input {
+    border: none;
+    margin-bottom: 0px;
+}
 </style>

@@ -10,6 +10,7 @@
             <a class="menu-item" href="/explore">Explore</a>
             <a v-if="account" class="menu-item" href="/favorites">Favorites</a>
             <a v-if="account" class="menu-item" href="/collections">Collections</a>
+            <a v-if="account" class="menu-item" href="/notes">Notes</a>
             <a
                 v-if="account && (account.role = 'Admin User')"
                 class="menu-item add-item"
@@ -33,7 +34,10 @@
             </div>
             <div class="account-actions">
                 <button v-if="account" @click="logOut()">Log Out</button>
-                <button v-else @click="logIn()">Log In</button>
+                <div v-else class="not-logged-in-buttons">
+                    <button @click="logIn()">Log In</button>
+                    <button @click="register()">Register</button>
+                </div>
             </div>
         </div>
     </div>
@@ -87,6 +91,11 @@ export default {
         logIn() {
             this.toggleAccountPopup();
             eventbus.$emit('open:widget', { name: 'login' });
+        },
+
+        register() {
+            this.toggleAccountPopup();
+            eventbus.$emit('open:widget', { name: 'register' });
         },
     },
 };
@@ -177,6 +186,11 @@ export default {
 
 .top-bar .account-popup .account-actions {
     margin-top: 20px;
+}
+
+.top-bar .account-popup .account-actions .not-logged-in-buttons button {
+    display: block;
+    margin-bottom: 5px;
 }
 
 .top-bar .account-popup .account-actions button {

@@ -12,6 +12,12 @@
                 <v-icon> mdi-chevron-down </v-icon>
             </div>
             <div v-if="showContent" class="note-content">
+                <div class="edit-btn-container">
+                    <v-icon class="edit-btn" @click="editNote()"> mdi-pencil </v-icon>
+                </div>
+                <div class="delete-btn-container">
+                    <v-icon class="delete-btn" @click="deleteNote()"> mdi-trash-can </v-icon>
+                </div>
                 <div v-html="note.content"></div>
             </div>
         </div>
@@ -96,6 +102,14 @@ export default {
         toggleContent() {
             this.showContent = !this.showContent;
         },
+
+        editNote() {
+            this.$emit('edit:note', this.note.id);
+        },
+
+        deleteNote() {
+            this.$emit('delete:note', this.note.id);
+        },
     },
 };
 </script>
@@ -147,10 +161,22 @@ export default {
     right: 20px;
 }
 
+.player-note .note-content .v-icon {
+    position: absolute;
+    right: -40px;
+}
+
+.player-note .delete-btn-container .v-icon {
+    position: absolute;
+    right: -40px;
+    top: 60px;
+}
+
 .player-note .note-content {
     background: #1c1c24;
     color: #fff;
     padding: 20px;
+    position: relative;
 }
 
 .player-note ul {
@@ -163,5 +189,10 @@ export default {
 
 .player-note .ql-indent-1 {
     margin-left: 20px;
+}
+
+.player-note .mdi-pencil::before,
+.player-note .mdi-trash-can::before {
+    color: #fff;
 }
 </style>
