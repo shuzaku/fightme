@@ -63,7 +63,7 @@
                 <quill-editor ref="myQuillEditor" v-model="note.noteContent" />
             </div>
 
-            <v-btn v-if="note.id" class="submit-btn" rounded @click="addNote()">Add Note</v-btn>
+            <v-btn v-if="!note.id" class="submit-btn" rounded @click="addNote()">Add Note</v-btn>
             <v-btn v-else class="submit-btn" rounded @click="updateNote()">Edit Note</v-btn>
         </div>
     </div>

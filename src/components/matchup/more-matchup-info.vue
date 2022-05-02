@@ -8,6 +8,12 @@
                 <game-nav v-if="gameId" :gameId="gameId" :showMenu="false" />
             </div>
 
+            <div class="character-matchup-percentage-container">
+                <character-matchup-percentage
+                    :characterId="characters[0].id"
+                    :opposingCharacterId="characters[1].id"
+                />
+            </div>
             <div class="column-container">
                 <div
                     v-for="(character, index) in characters"
@@ -18,11 +24,6 @@
                         :character="character"
                         @update-matchup="updateMatchup($event, index)"
                     />
-                    <!-- <div class="info-row">
-                        <combo-box :character="character" />
-                        <match-box :character="character" />
-                    </div>
-                    <featured-player-box :character="character" /> -->
                 </div>
             </div>
             <div class="move-comparison-button">
@@ -49,15 +50,17 @@ import MatchupBox from '@/components/matchup/matchup-box';
 import GameNav from '@/components/games/game-nav';
 import Loading from '@/components/common/loading';
 import CharacterMoveList from '@/components/character/character-move-list';
+import CharacterMatchupPercentage from '@/components/matchup/character-matchup-percentage';
+
 export default {
     name: 'MoreMatchupInfo',
 
     components: {
         'matchup-box': MatchupBox,
-
         'game-nav': GameNav,
         loading: Loading,
         'character-move-list': CharacterMoveList,
+        'character-matchup-percentage': CharacterMatchupPercentage,
     },
 
     data() {

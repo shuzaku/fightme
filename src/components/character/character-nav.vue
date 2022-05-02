@@ -217,7 +217,6 @@ export default {
 }
 
 .character-nav .info-card {
-    width: 130px;
     height: 40px;
     border-radius: 15px;
     display: flex;
@@ -229,6 +228,7 @@ export default {
     cursor: pointer;
     margin-right: 5px;
     position: relative;
+    padding: 0 23px;
 }
 
 .character-nav .quick-nav {

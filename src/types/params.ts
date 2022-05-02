@@ -11,6 +11,8 @@ interface Params {
                  {
                     character1: string,
                     character2: string,
+                    characterId: string,
+                    opposingCharacterId: string
                 }
             
         }
