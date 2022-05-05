@@ -79,6 +79,10 @@ export default {
             type: String,
             default: null,
         },
+        value: {
+            type: Object,
+            default: null,
+        },
     },
 
     data() {
@@ -124,11 +128,22 @@ export default {
         match() {
             this.$emit('update:match', this.match);
         },
+
+        value() {
+            this.setDefaultValues();
+        },
     },
 
     mounted() {},
 
     methods: {
+        setDefaultValues() {
+            this.match.team1Players = this.value.team1Players;
+            this.match.team2Players = this.value.team2Players;
+            this.match.winningPlayers = this.value.winningPlayers;
+            this.match.losingPlayers = this.value.losingPlayers;
+        },
+
         addCharacterToPlayer(character, player) {
             player.characterIds.push(character);
             this.$emit('update:match', this.match);

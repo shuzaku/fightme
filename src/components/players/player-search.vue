@@ -14,10 +14,11 @@
             label="playerName"
             @tag="addPlayer($event)"
             @input="setPlayer"
+            @search-change="isMatch($event)"
         >
             <template slot="selection" slot-scope="{ values, isOpen }">
                 <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
-                    Select Creator
+                    Select player
                 </span>
             </template>
         </multiselect>
@@ -97,6 +98,16 @@ export default {
 
         setPlayer() {
             this.$emit('update:player', this.selectedPlayer);
+        },
+
+        isMatch(searchValue) {
+            var match = this.players.filter(
+                (player) => player.playerName.toLowerCase() === searchValue.toLowerCase()
+            )[0];
+            if (match) {
+                this.players.splice(this.players.indexOf(match), -1);
+                this.players.unshift(match);
+            }
         },
     },
 };
