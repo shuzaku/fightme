@@ -76,6 +76,7 @@
             <tournament-video-settings
                 v-if="currentStep === 'Tournament Match'"
                 :gameId="video.gameId"
+                :videoUrl="video.url"
                 @update:tournament="updateTournament($event)"
             />
 
@@ -394,6 +395,8 @@ export default {
 
             if (this.video.tournament.isSingleMatch) {
                 await MatchesService.addMatch(matches[0]);
+            } else {
+                await MatchesService.addMatches(matches);
             }
 
             if (this.video.type === 'uploaded') {

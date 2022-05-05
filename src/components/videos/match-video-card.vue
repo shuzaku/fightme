@@ -18,7 +18,11 @@
                     :video-id="video.url"
                     :player-width="556"
                     :player-height="313"
-                    :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
+                    :player-vars="{
+                        rel: 0,
+                        start: video.match.startTime,
+                        end: video.match.endTime,
+                    }"
                     :mute="true"
                     :playsinline="1"
                     @ready="ready"
@@ -109,7 +113,7 @@
                 <v-btn v-if="isAdmin" @click="editVideo()">
                     <v-icon dark> mdi-wrench </v-icon>
                 </v-btn>
-                <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                <v-btn v-if="isAdmin" @click="deleteVideo(video.match)">
                     <v-icon dark> mdi-delete </v-icon>
                 </v-btn>
                 <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
@@ -205,14 +209,14 @@ export default {
                 }
             }
 
-            if (this.value === true && this.video.combo.startTime) {
+            if (this.value === true && this.video.match.startTime) {
                 this.setTimer();
             }
         },
 
         videoCurrentTime() {
-            if (this.videoCurrentTime > parseInt(this.video.combo.endTime)) {
-                this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
+            if (this.videoCurrentTime > parseInt(this.video.match.endTime)) {
+                this.$refs.youtubeRef.player.seekTo(this.video.match.startTime);
             }
         },
     },
@@ -257,9 +261,33 @@ export default {
                     };
                 }),
                 collections: this.assignCollection(this.matchId),
+                startTime: matchResponse.StartTime
+                    ? this.convertTime(matchResponse.StartTime)
+                    : null,
+                endTime: matchResponse.StartTime ? this.convertTime(matchResponse.EndTime) : null,
             };
             this.video.url = matchResponse.VideoUrl;
             this.getVideo();
+        },
+
+        convertTime(time) {
+            var a = time.split(':');
+            var n = a.length;
+            var minutesToSeconds = null;
+            var hoursToSeconds = null;
+            var seconds = 0;
+            if (n === 3) {
+                hoursToSeconds = parseInt(a[0]) * 3600;
+                minutesToSeconds = parseInt(a[1]) * 60;
+                seconds = hoursToSeconds + minutesToSeconds + parseInt(a[2]);
+            } else if (n === 2) {
+                minutesToSeconds = parseInt(a[0]) * 60;
+                seconds = minutesToSeconds + parseInt(a[1]);
+            } else {
+                return parseInt(a[0]);
+            }
+            seconds === 0 ? seconds++ : seconds;
+            return seconds;
         },
 
         hydrateCharacters(characterIds, characters) {
@@ -277,6 +305,8 @@ export default {
         },
 
         async getVideo() {
+            this.isLoading = true;
+
             const response = await VideosService.getMatchVideo(this.video.url);
 
             var videoResponse = response.data.videos[0];
@@ -386,7 +416,7 @@ export default {
                 return collection.id;
             });
 
-            var comboObject = { id: this.matchId, contentType: 'Match' };
+            var matchObject = { id: this.matchId, contentType: 'Match' };
 
             this.collections.forEach((collection) => {
                 var collectionHasVideo = collection.videos.some((videos) => {
@@ -398,11 +428,11 @@ export default {
                 });
 
                 if (collectionShouldHaveVideo && !collectionHasVideo) {
-                    collection.videos.push(comboObject);
+                    collection.videos.push(matchObject);
                     this.patchCollection(collection);
                 } else if (!collectionShouldHaveVideo && collectionHasVideo) {
                     collection.videos = collection.videos.splice(
-                        collection.videos.indexOf(comboObject),
+                        collection.videos.indexOf(matchObject),
                         1
                     );
                     this.patchCollection(collection);
@@ -572,10 +602,6 @@ export default {
     text-align: right;
 }
 
-.match-card .combo-stats {
-    padding: 5px 20px 5px;
-}
-
 .match-card .characters {
     padding: 10px 10px 15px;
 }
@@ -583,12 +609,6 @@ export default {
 .match-card .video-ghost {
     height: 313px;
     width: 556px;
-}
-
-.match-card .combo-input {
-    padding: 0 20px;
-    margin: 10px 0;
-    font-style: italic;
 }
 
 .match-card .inputs {
