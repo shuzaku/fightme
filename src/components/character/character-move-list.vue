@@ -141,4 +141,8 @@ export default {
     text-align: center;
     width: 180px;
 }
+
+.character-move-list .multiselect__option::after {
+    display: none;
+}
 </style>

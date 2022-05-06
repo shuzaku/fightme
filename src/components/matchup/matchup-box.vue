@@ -53,8 +53,8 @@ export default {
 
 <style type="text/css">
 .matchup-box {
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 200px;
     display: flex;
     align-items: flex-end;
     justify-content: space-around;
