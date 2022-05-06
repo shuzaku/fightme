@@ -468,8 +468,7 @@ export default {
 
 #app .main-panel {
     position: relative;
-    width: 100%;
-    overflow: hidden;
+    width: 80%;
 }
 
 #app .content {
@@ -487,6 +486,7 @@ export default {
     height: 100%;
     min-height: 100%;
     padding-top: 50px;
+    justify-content: center;
 }
 
 #app .top-nav {
@@ -509,7 +509,6 @@ export default {
 }
 
 #app .side-panel {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -524,7 +523,6 @@ export default {
 }
 
 #app .main-panel {
-    flex-grow: 1;
     display: flex;
 }
 
@@ -537,6 +535,10 @@ export default {
     min-height: 100vh;
     min-width: 600px;
     display: flex;
+}
+
+#app .more-info-panel {
+    min-width: 400px;
 }
 
 .app .multiselect__tags {

@@ -138,4 +138,8 @@ export default {
     display: flex;
     align-items: center;
 }
+
+.character-search .multiselect__option::after {
+    display: none;
+}
 </style>
