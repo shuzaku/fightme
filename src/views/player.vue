@@ -73,6 +73,10 @@ export default {
         playerId: function () {
             return this.$route.params.id;
         },
+
+        playerSlug: function () {
+            return this.$route.params.slug;
+        },
     },
 
     watch: {
@@ -128,6 +132,13 @@ export default {
                     },
                 ],
             };
+
+            if (this.playerSlug) {
+                queryParameter.searchQuery[0].queryName = 'Slug';
+                queryParameter.searchQuery[0].queryValue = this.playerSlug;
+            }
+
+            console.log(queryParameter);
 
             if (newQuery) {
                 queryParameter.searchQuery.push(newQuery);
