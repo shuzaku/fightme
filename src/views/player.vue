@@ -134,11 +134,9 @@ export default {
             };
 
             if (this.playerSlug) {
-                queryParameter.searchQuery[0].queryName = 'Slug';
+                queryParameter.searchQuery[0].queryName = 'PlayerSlug';
                 queryParameter.searchQuery[0].queryValue = this.playerSlug;
             }
-
-            console.log(queryParameter);
 
             if (newQuery) {
                 queryParameter.searchQuery.push(newQuery);

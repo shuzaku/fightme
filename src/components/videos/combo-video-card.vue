@@ -604,7 +604,7 @@ export default {
 }
 
 #app .combo-card .admin-controls button i::before {
-    color: #242832;
+    color: #3eb489;
     opacity: 0.9;
 }
 </style>

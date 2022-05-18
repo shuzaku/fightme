@@ -90,6 +90,10 @@ export default {
         characterId: function () {
             return this.$route.params.id;
         },
+
+        characterSlug: function () {
+            return this.$route.params.slug;
+        },
     },
 
     watch: {
@@ -165,6 +169,11 @@ export default {
                 ],
                 filter: this.filter,
             };
+
+            if (this.characterSlug) {
+                queryParameter.searchQuery[0].queryName = 'CharacterSlug';
+                queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
+            }
 
             if (newQuery) {
                 queryParameter.searchQuery.push(newQuery);
