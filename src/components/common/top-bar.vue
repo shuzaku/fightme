@@ -8,9 +8,6 @@
                 />
             </a>
             <a class="menu-item" href="/explore">Explore</a>
-            <a v-if="account" class="menu-item" href="/favorites">Favorites</a>
-            <a v-if="account" class="menu-item" href="/collections">Collections</a>
-            <a v-if="account" class="menu-item" href="/notes">Notes</a>
             <a
                 v-if="account && (account.role = 'Admin User')"
                 class="menu-item add-item"
@@ -33,7 +30,12 @@
                 {{ account.displayName }}
             </div>
             <div class="account-actions">
-                <button v-if="account" @click="logOut()">Log Out</button>
+                <div class="logged-in" v-if="account">
+                    <a v-if="account" class="menu-item" href="/favorites">Favorites</a>
+                    <a v-if="account" class="menu-item" href="/collections">Collections</a>
+                    <a v-if="account" class="menu-item" href="/notes">Notes</a>
+                    <a class="menu-item" @click="logOut()">Log Out</a>
+                </div>
                 <div v-else class="not-logged-in-buttons">
                     <button @click="logIn()">Log In</button>
                     <button @click="register()">Register</button>
@@ -186,6 +188,16 @@ export default {
 
 .top-bar .account-popup .account-actions {
     margin-top: 20px;
+}
+
+.top-bar .account-popup .account-actions .logged-in {
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar .account-popup .account-actions .logged-in .menu-item {
+    margin-left: 0px;
+    font-size: 18px;
 }
 
 .top-bar .account-popup .account-actions .not-logged-in-buttons button {
