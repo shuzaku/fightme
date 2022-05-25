@@ -1,31 +1,34 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="matchups-view">
-        <div class="header">
-            <h1>Character Matchup</h1>
-            <div class="character-pills">
-                <div @click="navigateToCharacter(character1Id)">
-                    <character-nav :characterId="character1Id" :showMenu="false" />
-                </div>
-                <p class="versus">Vs.</p>
-                <div @click="navigateToCharacter(character2Id)">
-                    <character-nav :characterId="character2Id" :showMenu="false" />
+        <loading v-if="isLoading"></loading>
+        <div v-else>
+            <div class="header">
+                <h1>Character Matchup</h1>
+                <div class="character-pills">
+                    <div @click="navigateToCharacter(character1Id)">
+                        <character-nav :characterId="character1Id" :showMenu="false" />
+                    </div>
+                    <p class="versus">Vs.</p>
+                    <div @click="navigateToCharacter(character2Id)">
+                        <character-nav :characterId="character2Id" :showMenu="false" />
+                    </div>
                 </div>
             </div>
-        </div>
-        <div v-if="videos.length > 0" class="videos-container">
-            <div
-                v-for="(video, index) in videos"
-                :key="index"
-                :class="{ selected: video.selected }"
-            >
-                <match-video-card
-                    v-if="video.contentType === 'Match'"
-                    v-model="video.isPlaying"
-                    :matchId="video.matchId"
-                    :account="account"
-                    @video:delete="refreshDelete()"
-                />
+            <div v-if="videos.length > 0" class="videos-container">
+                <div
+                    v-for="(video, index) in videos"
+                    :key="index"
+                    :class="{ selected: video.selected }"
+                >
+                    <match-video-card
+                        v-if="video.contentType === 'Match'"
+                        v-model="video.isPlaying"
+                        :matchId="video.matchId"
+                        :account="account"
+                        @video:delete="refreshDelete()"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -33,17 +36,20 @@
 
 <script>
 import VideosService from '@/services/videos-service';
+import CharactersService from '@/services/characters-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import CharacterNav from '@/components/character/character-nav';
+import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
 
 export default {
-    name: 'Videos',
+    name: 'Matchups',
 
     components: {
         'match-video-card': NewMatchVideoCard,
         'character-nav': CharacterNav,
+        loading: Loading,
     },
 
     props: {
@@ -56,7 +62,7 @@ export default {
     data() {
         return {
             videos: [],
-            loading: true,
+            isLoading: true,
             query: null,
             savedQuery: null,
             favorites: [],
@@ -75,6 +81,14 @@ export default {
         path: function () {
             return this.$route.path;
         },
+
+        character1Slug: function () {
+            return this.$route.params.slug1;
+        },
+
+        character2Slug: function () {
+            return this.$route.params.slug2;
+        },
     },
 
     watch: {
@@ -90,7 +104,10 @@ export default {
         if (this.account && this.account.id) {
             this.updateFavorites();
         }
-        if (this.character1Id && this.character2Id) {
+        if (
+            (this.character1Id && this.character2Id) ||
+            (this.character1Slug && this.character2Slug)
+        ) {
             this.queryVideos();
         }
         window.addEventListener('scroll', this.handleScroll);
@@ -108,11 +125,17 @@ export default {
 
     methods: {
         async queryVideos() {
+            this.isLoading = true;
             var searchQuery = [
                 {
                     characters: { character1: this.character1Id, character2: this.character2Id },
                 },
             ];
+
+            if (this.character1Slug && this.character2Slug) {
+                searchQuery[0].characters.character1 = this.character1Slug.toUpperCase();
+                searchQuery[0].characters.character2 = this.character2Slug.toUpperCase();
+            }
 
             var queryParameter = {
                 skip: this.skip,
@@ -121,12 +144,21 @@ export default {
                 searchQuery: searchQuery,
             };
 
-            const response = await VideosService.queryMatchup(queryParameter);
+            var response = null;
+
+            if (this.character1Slug && this.character2Slug) {
+                response = await VideosService.querySlugMatchup(queryParameter);
+                this.getCharacterId();
+            } else {
+                response = await VideosService.queryMatchup(queryParameter);
+            }
+
             this.hydrateVideos(response);
             // this.checkFavorites();
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
+            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -138,6 +170,32 @@ export default {
                     isPlaying: false,
                 });
             });
+        },
+
+        async getCharacterId() {
+            var searchQuery = [
+                {
+                    queryName: 'Slug',
+                    queryValue: this.character1Slug.toUpperCase(),
+                },
+                {
+                    queryName: 'Slug',
+                    queryValue: this.character2Slug.toUpperCase(),
+                },
+            ];
+
+            var queryParameter = {
+                searchQuery: searchQuery,
+            };
+
+            var response = await CharactersService.queryCharacters(queryParameter);
+            var characters = response.data.characters;
+            this.character1Id = characters.filter(
+                (c) => c.Slug === this.character1Slug.toUpperCase()
+            )[0]._id;
+            this.character2Id = characters.filter(
+                (c) => c.Slug === this.character2Slug.toUpperCase()
+            )[0]._id;
         },
 
         playFirstVideo() {
