@@ -9,7 +9,7 @@
             </a>
             <a class="menu-item" href="/explore">Explore</a>
             <a
-                v-if="account && (account.role = 'Admin User')"
+                v-if="account && account.role === 'Admin User'"
                 class="menu-item add-item"
                 @click="toggleAddPopup()"
             >
