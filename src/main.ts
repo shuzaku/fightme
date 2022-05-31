@@ -19,6 +19,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
 import VTooltip from 'v-tooltip'
 import VueQuillEditor from 'vue-quill-editor'
+import VueGtag from "vue-gtag";
 
 import 'quill/dist/quill.core.css' // import styles
 import 'quill/dist/quill.snow.css' // for snow theme
@@ -58,6 +59,12 @@ const router = new VueRouter({
 
 export const eventbus = new Vue();
 firebase.initializeApp(configOptions);
+
+// Configuration VueAnalytics
+Vue.use(VueGtag, {
+  config: { id: "GTM-WPH3J5K" }
+});
+
 
 new Vue({
   router,
