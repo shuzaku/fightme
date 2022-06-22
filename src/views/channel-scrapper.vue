@@ -47,7 +47,7 @@
                         />
                         <character-search
                             v-if="video.gameId"
-                            v-model="video.player1.characters"
+                            v-model="video.player2.characters"
                             multiple
                             :gameId="video.gameId"
                             @update:character="setPlayer2Characters($event, video)"

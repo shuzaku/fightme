@@ -35,21 +35,21 @@ export default {
             player: {
                 name: '',
                 region: '',
-                imageUrl: ''
-            }
+                imageUrl: '',
+            },
         };
     },
 
     methods: {
         async addPlayer() {
             await PlayersService.addPlayer({
-                PlayerName: this.player.name,
+                Name: this.player.name,
                 // PlayerRegion: this.player.region,
-                PlayerImg: this.player.imageUrl
+                ImageUrl: this.player.imageUrl,
             });
             this.$emit('closeModal');
-        }
-    }
+        },
+    },
 };
 </script>
 

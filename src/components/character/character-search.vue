@@ -104,6 +104,7 @@ export default {
                     id: character._id,
                     name: character.Name,
                     imageUrl: character.AvatarUrl,
+                    slug: character.Slug,
                 };
             });
 

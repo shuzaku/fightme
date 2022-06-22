@@ -81,6 +81,7 @@ export default {
                 return {
                     id: player._id,
                     playerName: player.Name,
+                    slug: player.Slug,
                 };
             });
 

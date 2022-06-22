@@ -73,6 +73,8 @@ export default {
                     id: game._id,
                     title: game.Title,
                     logoUrl: game.LogoUrl,
+                    abbreviation: game.Abbreviation,
+                    currentVersion: game.CurrentVersion,
                 };
             });
             if (this.value) {
