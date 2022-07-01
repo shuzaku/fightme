@@ -44,51 +44,69 @@
                         </div>
                     </div>
                     <div class="players">
-                        <div class="player1 player">
+                        <div class="team1">
                             <div
-                                class="heavy-weight player-name"
-                                @click="queryPlayer(video.match.team1Players[0].id)"
+                                v-for="team1Player in video.match.team1Players"
+                                :key="team1Player.id"
+                                class="player"
                             >
-                                <p>{{ video.match.team1Players[0].name }}</p>
-                            </div>
-                            <div
-                                v-for="(character, index) in video.match.team1Players[0].characters"
-                                :key="index"
-                                class="character"
-                            >
-                                <div class="character-name" @click="queryCharacter(character.id)">
-                                    <p>
-                                        <span>
-                                            <div class="img-container">
-                                                <img :src="character.imageUrl" />
-                                            </div>
-                                            {{ character.name }}</span
-                                        >
-                                    </p>
+                                <div
+                                    class="heavy-weight player-name"
+                                    @click="queryPlayer(team1Player.id)"
+                                >
+                                    <p>{{ team1Player.name }}</p>
+                                </div>
+                                <div
+                                    v-for="(character, index) in team1Player.characters"
+                                    :key="index"
+                                    class="character"
+                                >
+                                    <div
+                                        class="character-name"
+                                        @click="queryCharacter(character.id)"
+                                    >
+                                        <p>
+                                            <span>
+                                                <div class="img-container">
+                                                    <img :src="character.imageUrl" />
+                                                </div>
+                                                {{ character.name }}</span
+                                            >
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="player2 player">
+                        <div class="team2">
                             <div
-                                class="heavy-weight player-name"
-                                @click="queryPlayer(video.match.team2Players[0].id)"
+                                v-for="team2Player in video.match.team2Players"
+                                :key="team2Player.id"
+                                class="player"
                             >
-                                <p>{{ video.match.team2Players[0].name }}</p>
-                            </div>
-                            <div
-                                v-for="(character, index) in video.match.team2Players[0].characters"
-                                :key="index"
-                                class="character"
-                            >
-                                <div class="character-name" @click="queryCharacter(character.id)">
-                                    <p>
-                                        <span>
-                                            <div class="img-container">
-                                                <img :src="character.imageUrl" />
-                                            </div>
-                                            {{ character.name }}
-                                        </span>
-                                    </p>
+                                <div
+                                    class="heavy-weight player-name"
+                                    @click="queryPlayer(team2Player.id)"
+                                >
+                                    <p>{{ team2Player.name }}</p>
+                                </div>
+                                <div
+                                    v-for="(character, index) in team2Player.characters"
+                                    :key="index"
+                                    class="character"
+                                >
+                                    <div
+                                        class="character-name"
+                                        @click="queryCharacter(character.id)"
+                                    >
+                                        <p>
+                                            <span>
+                                                <div class="img-container">
+                                                    <img :src="character.imageUrl" />
+                                                </div>
+                                                {{ character.name }}</span
+                                            >
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -574,6 +592,11 @@ export default {
     overflow: hidden;
 }
 
+.match-card .team2 .character-name span {
+    color: #fff;
+    background: #4447e2;
+}
+
 .match-card .player-name {
     color: #fff;
     font-size: 20px;
@@ -609,6 +632,7 @@ export default {
 
 .match-card .game {
     margin-bottom: 20px;
+    text-align: right;
 }
 
 .match-card .game .img-container img,
@@ -720,6 +744,10 @@ export default {
     position: relative;
     padding-top: 10px;
     margin-bottom: 40px;
+}
+
+.match-card .team2 .player {
+    border: 1px dashed #4447e2;
 }
 
 #app.mobile.small-mobile .match-card {

@@ -19,6 +19,7 @@
                         />
                     </div>
                 </div>
+                <v-btn @click="addToTeam1()">Add player to team 1</v-btn>
             </div>
             <div class="versus">Vs.</div>
             <div class="team2">
@@ -36,6 +37,7 @@
                         />
                     </div>
                 </div>
+                <v-btn @click="addToTeam2()">Add player to team 2</v-btn>
             </div>
             <div class="match-details">
                 <multiselect
@@ -186,6 +188,26 @@ export default {
 
             this.winningTeam = team;
             this.$emit('update:match', this.match);
+        },
+
+        addToTeam2() {
+            this.match.team2Players.push({
+                id: null,
+                name: null,
+                characterIds: [],
+                slot: null,
+                characterCount: 1,
+            });
+        },
+
+        addToTeam1() {
+            this.match.team1Players.push({
+                id: null,
+                name: null,
+                characterIds: [],
+                slot: null,
+                characterCount: 1,
+            });
         },
     },
 };

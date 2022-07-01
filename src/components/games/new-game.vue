@@ -1,55 +1,75 @@
 <!-- @format -->
 <template>
     <div class="games">
-        <div class="add-game-container" v-if="step === 'new-game'">
+        <div v-if="step === 'new-game'" class="add-game-container">
             <h1>Add Game</h1>
             <div class="form">
-                <div class="logo-img-container" v-if="game.logoUrl">
+                <div v-if="game.logoUrl" class="logo-img-container">
                     <img :src="game.logoUrl" class="logo" />
                     <v-btn class="remove-image-btn" @click="game.logoUrl = ''">X</v-btn>
                 </div>
-                <input type="text" name="title" placeholder="Title" v-model="game.title" />
+                <input v-model="game.title" type="text" name="title" placeholder="Title" />
                 <input
-                    type="text"
                     v-if="!game.logoUrl"
-                    id="import-image"
                     v-model="game.logoUrl"
+                    type="text"
                     placeholder="Logo Url"
                 />
                 <div class="bulk-add-characters">
                     <textarea
-                        name="character"
                         v-model="unfilteredCharacters"
+                        name="character"
                         placeholder="Character Names (separated by commas)"
                     />
                 </div>
                 <div>
-                    <v-btn class="submit-btn" rounded @click="nextStep()">next</v-btn>
+                    <v-btn class="submit-btn" rounded @click="nextStep(step)">next</v-btn>
                 </div>
             </div>
         </div>
-        <div class="character-detail-container" v-else>
-            <div class="game-characters-lists-container" v-if="characterList">
+        <div v-else-if="step === 'character-avatar'" class="character-detail-container">
+            <div v-if="characterList" class="game-characters-lists-container">
                 <label>Character Count: ({{ characterList.length }})</label>
                 <ul class="character-list">
                     <li v-for="(character, index) in characterList" :key="character.name">
-                        <div class="player-img-container" v-if="character.imageUrl">
-                            <img :src="character.imageUrl" class="player-img" />
-                            <v-btn class="remove-image-btn" @click="character.imageUrl = ''"
+                        <div v-if="character.avatarUrl" class="character-img-container">
+                            <img :src="character.avatarUrl" class="character-img" />
+                            <v-btn class="remove-image-btn" @click="character.avatarUrl = ''"
                                 >X</v-btn
                             >
                         </div>
                         <p class="character-name">{{ character.name }}</p>
                         <v-text-field
-                            id="import-image"
+                            v-if="!character.avatarUrl"
+                            v-model="character.avatarUrl"
                             type="text"
-                            v-model="character.imageUrl"
                             placeholder="image Url"
-                            v-if="!character.imageUrl"
                         />
-                        <v-btn class="remove-character-btn" @click="removeCharacter(index)"
-                            >X</v-btn
-                        >
+                        <v-btn class="remove-character-btn" @click="removeCharacter(index)">
+                            X
+                        </v-btn>
+                    </li>
+                </ul>
+            </div>
+            <v-btn class="submit-btn" rounded @click="nextStep(step)">next</v-btn>
+        </div>
+        <div v-else class="character-detail-container">
+            <div v-if="characterList" class="game-characters-lists-container">
+                <ul class="character-list">
+                    <li v-for="character in characterList" :key="character.name">
+                        <div v-if="character.imageUrl" class="character-img-container">
+                            <img :src="character.imageUrl" class="character-img" />
+                            <v-btn class="remove-image-btn" @click="character.imageUrl = ''">
+                                X
+                            </v-btn>
+                        </div>
+                        <p class="character-name">{{ character.name }}</p>
+                        <v-text-field
+                            v-if="!character.imageUrl"
+                            v-model="character.imageUrl"
+                            type="text"
+                            placeholder="image Url"
+                        />
                     </li>
                 </ul>
             </div>
@@ -62,7 +82,6 @@
 import { eventbus } from '@/main';
 import GamesService from '@/services/games-service';
 import CharactersService from '@/services/characters-service';
-import moment from 'moment';
 
 export default {
     name: 'NewGame',
@@ -78,10 +97,33 @@ export default {
             step: 'new-game',
         };
     },
+
+    computed: {
+        characters: function () {
+            var characters = this.unfilteredCharacters.split(',').map((character) => {
+                return {
+                    name: character.trim(),
+                    imageUrl: '',
+                    avatarUrl: '',
+                };
+            });
+            return characters;
+        },
+    },
+
     methods: {
-        nextStep() {
-            this.characterList = this.characters;
-            this.step = 'character-list';
+        nextStep(currentStep) {
+            switch (currentStep) {
+                case 'new-game':
+                    this.characterList = this.characters;
+                    this.step = 'character-avatar';
+                    break;
+                case 'character-avatar':
+                    this.characterList = this.characters;
+                    this.step = 'character-list';
+                    break;
+            }
+            return;
         },
 
         async addGame() {
@@ -114,6 +156,7 @@ export default {
                     return {
                         Name: character.name,
                         ImageUrl: character.imageUrl,
+                        AvatarUrl: character.avatarUrl,
                         GameId: this.game.id,
                     };
                 })
@@ -129,21 +172,6 @@ export default {
 
         removeLogo() {
             this.game.logoUrl = '';
-        },
-    },
-    computed: {
-        characters: function () {
-            var characters = this.unfilteredCharacters.split(',').map((character) => {
-                return {
-                    name: character.trim(),
-                    imageUrl: '',
-                };
-            });
-            return characters;
-        },
-
-        timestamp: function () {
-            return moment().format();
         },
     },
 };
@@ -189,18 +217,18 @@ export default {
     background: #eee;
 }
 
-.games .player-img-container {
+.games .character-img-container {
     position: relative;
     margin-right: 20px;
 }
 
-.games .player-img-container img {
+.games .character-img-container img {
     width: 50px;
     height: auto;
     border-radius: 50%;
 }
 
-.games .character-list .player-img-container .remove-image-btn {
+.games .character-list .character-img-container .remove-image-btn {
     width: 10px;
     height: 10px;
     min-width: 10px;
