@@ -71,11 +71,11 @@ export default {
             game: {
                 title: '',
                 id: '',
-                logoUrl: ''
+                logoUrl: '',
             },
             unfilteredCharacters: '',
             characterList: [],
-            step: 'new-game'
+            step: 'new-game',
         };
     },
     methods: {
@@ -87,18 +87,22 @@ export default {
         async addGame() {
             await GamesService.addGame({
                 Title: this.game.title,
-                LogoUrl: this.game.logoUrl
+                LogoUrl: this.game.logoUrl,
             });
             this.getGameId();
         },
 
         async getGameId() {
-            const response = await GamesService.queryGames([
-                {
-                    queryName: 'Title',
-                    queryValue: this.game.title
-                }
-            ]);
+            var queryParameter = {
+                searchQuery: [
+                    {
+                        queryName: 'Title',
+                        queryValue: this.game.title,
+                    },
+                ],
+            };
+
+            const response = await GamesService.queryGames(queryParameter);
 
             this.game.id = response.data.games[0]._id;
             this.addCharacters();
@@ -106,11 +110,11 @@ export default {
 
         async addCharacters() {
             await CharactersService.addBulkCharacters(
-                this.characters.map(character => {
+                this.characters.map((character) => {
                     return {
                         Name: character.name,
                         ImageUrl: character.imageUrl,
-                        GameId: this.game.id
+                        GameId: this.game.id,
                     };
                 })
             );
@@ -125,23 +129,23 @@ export default {
 
         removeLogo() {
             this.game.logoUrl = '';
-        }
+        },
     },
     computed: {
-        characters: function() {
-            var characters = this.unfilteredCharacters.split(',').map(character => {
+        characters: function () {
+            var characters = this.unfilteredCharacters.split(',').map((character) => {
                 return {
                     name: character.trim(),
-                    imageUrl: ''
+                    imageUrl: '',
                 };
             });
             return characters;
         },
 
-        timestamp: function() {
+        timestamp: function () {
             return moment().format();
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css">

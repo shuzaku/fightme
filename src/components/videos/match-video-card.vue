@@ -367,6 +367,10 @@ export default {
             this.$router.push(`/character/${characterId}`);
         },
 
+        queryGame(gameId) {
+            this.$router.push(`/game/${gameId}`);
+        },
+
         setTimer() {
             this.$nextTick(function () {
                 window.setInterval(() => {
