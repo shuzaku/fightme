@@ -167,7 +167,6 @@ export default {
 
 .videos-view .videos-container {
     position: relative;
-    padding: 0 40px;
 }
 
 .videos-view .videos-container video {

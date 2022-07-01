@@ -29,102 +29,106 @@
                 />
             </div>
             <div class="card-label">Match</div>
-            <div
-                v-for="(character, index) in video.match.team1Players[0].characters"
-                :key="character.id"
-            >
-                <div
-                    :class="[
-                        'character-bubble',
-                        `character-${index + 1}`,
-                        character.name.toLowerCase(),
-                    ]"
-                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
-                />
-            </div>
-            <div
-                v-for="(character, index) in video.match.team2Players[0].characters"
-                :key="character.id"
-            >
-                <div
-                    :class="[
-                        'character-bubble',
-                        'player2',
-                        `character-${index}`,
-                        character.name.toLowerCase(),
-                    ]"
-                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
-                />
-            </div>
-            <div v-if="!video.isEditing" class="characters">
-                <div class="player1 player">
-                    <div
-                        class="heavy-weight player-name"
-                        @click="queryPlayer(video.match.team1Players[0].id)"
-                    >
-                        <p>{{ video.match.team1Players[0].name }}</p>
-                    </div>
-                    <div
-                        v-for="(character, index) in video.match.team1Players[0].characters"
-                        :key="index"
-                    >
-                        <div class="character-name" @click="queryCharacter(character.id)">
+            <div v-if="!video.isEditing" class="aside">
+                <div class="info">
+                    <div class="game">
+                        <div class="game-title" @click="queryGame(video.game.id)">
                             <p>
-                                <span>{{ character.name }}</span>
+                                <span>
+                                    <div class="img-container">
+                                        <img :src="video.game.logoUrl" />
+                                    </div>
+                                    {{ video.game.title }}</span
+                                >
                             </p>
                         </div>
                     </div>
-                </div>
-                <div class="versus heavy-weight">vs</div>
-                <div class="player2 player">
-                    <div
-                        class="heavy-weight player-name"
-                        @click="queryPlayer(video.match.team2Players[0].id)"
-                    >
-                        <p>{{ video.match.team2Players[0].name }}</p>
-                    </div>
-                    <div
-                        v-for="(character, index) in video.match.team2Players[0].characters"
-                        :key="index"
-                    >
-                        <div class="character-name" @click="queryCharacter(character.id)">
-                            <p>
-                                <span>{{ character.name }}</span>
-                            </p>
+                    <div class="players">
+                        <div class="player1 player">
+                            <div
+                                class="heavy-weight player-name"
+                                @click="queryPlayer(video.match.team1Players[0].id)"
+                            >
+                                <p>{{ video.match.team1Players[0].name }}</p>
+                            </div>
+                            <div
+                                v-for="(character, index) in video.match.team1Players[0].characters"
+                                :key="index"
+                                class="character"
+                            >
+                                <div class="character-name" @click="queryCharacter(character.id)">
+                                    <p>
+                                        <span>
+                                            <div class="img-container">
+                                                <img :src="character.imageUrl" />
+                                            </div>
+                                            {{ character.name }}</span
+                                        >
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="player2 player">
+                            <div
+                                class="heavy-weight player-name"
+                                @click="queryPlayer(video.match.team2Players[0].id)"
+                            >
+                                <p>{{ video.match.team2Players[0].name }}</p>
+                            </div>
+                            <div
+                                v-for="(character, index) in video.match.team2Players[0].characters"
+                                :key="index"
+                                class="character"
+                            >
+                                <div class="character-name" @click="queryCharacter(character.id)">
+                                    <p>
+                                        <span>
+                                            <div class="img-container">
+                                                <img :src="character.imageUrl" />
+                                            </div>
+                                            {{ character.name }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="admin-controls">
-                <collection-search
-                    v-if="showCollections"
-                    v-model="video.collections"
-                    :account="account"
-                    multiple
-                    @update:collection="updateCollections($event, video)"
-                />
-                <v-btn
-                    v-if="account"
-                    class="favorite-button"
-                    @click="showCollections = !showCollections"
-                >
-                    <v-icon light> mdi-plus </v-icon>
-                </v-btn>
-                <v-btn v-if="isAdmin" @click="editVideo()">
-                    <v-icon dark> mdi-wrench </v-icon>
-                </v-btn>
-                <v-btn v-if="isAdmin" @click="deleteVideo(video.match)">
-                    <v-icon dark> mdi-delete </v-icon>
-                </v-btn>
-                <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
-                    <v-icon light> mdi-heart-outline </v-icon>
-                </v-btn>
-                <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
-                    <v-icon> mdi-heart </v-icon>
-                </v-btn>
-                <v-btn class="share-button" @click="copyLink()">
-                    <v-icon light> mdi-link </v-icon>
-                </v-btn>
+                <div class="admin-controls">
+                    <collection-search
+                        v-if="showCollections"
+                        v-model="video.collections"
+                        :account="account"
+                        multiple
+                        @update:collection="updateCollections($event, video)"
+                    />
+                    <v-btn
+                        v-if="account"
+                        class="favorite-button"
+                        @click="showCollections = !showCollections"
+                    >
+                        <v-icon light> mdi-plus </v-icon>
+                    </v-btn>
+                    <v-btn v-if="isAdmin" @click="editVideo()">
+                        <v-icon dark> mdi-wrench </v-icon>
+                    </v-btn>
+                    <v-btn v-if="isAdmin" @click="deleteVideo(video.match)">
+                        <v-icon dark> mdi-delete </v-icon>
+                    </v-btn>
+                    <v-btn
+                        v-if="!video.isFavorited"
+                        class="favorite-button"
+                        @click="favoriteVideo()"
+                    >
+                        <v-icon light> mdi-heart-outline </v-icon>
+                    </v-btn>
+                    <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                        <v-icon> mdi-heart </v-icon>
+                    </v-btn>
+                    <v-btn class="share-button" @click="copyLink()">
+                        <v-icon light> mdi-link </v-icon>
+                    </v-btn>
+                </div>
             </div>
         </div>
     </div>
@@ -502,28 +506,7 @@ export default {
 <style>
 .match-card {
     margin: 60px 0;
-}
-
-.match-card .character-bubble {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #4447e2;
-    background-position: top center;
-    position: absolute;
-    top: -15px;
-    left: -25px;
-    background-color: #e8e8e8;
-    background-size: contain;
-}
-
-.match-card .character-bubble.player2 {
-    right: -25px;
-    left: auto;
-}
-
-.match-card {
+    display: flex;
     /* background-image: linear-gradient(#515b89, #171b33); */
     background: #242832;
     border: 5px solid #242832;
@@ -532,18 +515,16 @@ export default {
     position: relative;
     cursor: pointer;
     width: 100%;
-    max-width: 570px;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.match-card .player2 .player-name p {
-    text-align: right;
-}
-
-.match-card .characters {
+.match-card .aside {
+    padding: 10px;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: flex-start;
+    max-width: 25%;
+    width: 100%;
 }
 
 .match-card .versus {
@@ -575,15 +556,35 @@ export default {
     width: 100%;
 }
 
-.match-card .character-name {
-    padding: 20px 0px 0;
-    color: #fff;
+.match-card .character-name span,
+.match-card .game-title span {
+    padding: 6px 20px;
+    color: #242832;
     font-size: 20px;
+    background: #3eb489;
+    font-size: 14px;
+    border-radius: 15px;
+    display: inline-block;
+    position: relative;
+    padding-left: 40px;
+    overflow: hidden;
 }
 
 .match-card .player-name {
     color: #fff;
     font-size: 20px;
+    background: #131419;
+    display: inline-block;
+    padding: 2px 20px;
+    border-radius: 15px;
+    position: absolute;
+    top: -15px;
+    left: 10px;
+}
+
+.match-card .player-name p {
+    font-weight: 400;
+    font-size: 18px;
 }
 
 .match-card .character-name {
@@ -593,17 +594,35 @@ export default {
 
 .match-card .character-name p {
     font-size: 14px;
-    color: #3eb489;
+    color: #242832;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.match-card .player2 .character-name p {
-    text-align: right;
+.match-card .character {
+    padding: 5px;
 }
 
-.match-card .characters {
-    padding: 10px 10px 15px;
+.match-card .game {
+    margin-bottom: 20px;
+}
+
+.match-card .game .img-container img,
+.match-card .character .img-container img {
+    width: 30px;
+}
+
+.match-card .game .img-container,
+.match-card .character .img-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    align-items: center;
 }
 
 .match-card .video-ghost {
@@ -633,6 +652,21 @@ export default {
 .match-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
+    position: relative;
+    padding-bottom: 42.25%;
+    height: 0;
+    overflow: hidden;
+    min-width: 75%;
+}
+
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .match-card .character-2 {
@@ -651,7 +685,7 @@ export default {
 }
 
 #app .match-card .admin-controls button {
-    width: 50px;
+    width: 35px;
     height: 50px;
     min-width: initial;
     background-color: transparent;
@@ -678,6 +712,32 @@ export default {
 }
 
 .match-card .player {
-    width: 40%;
+    border: 1px dashed #3eb489;
+    position: relative;
+    padding-top: 10px;
+    margin-bottom: 40px;
+}
+
+#app.mobile.small-mobile .match-card {
+    flex-direction: column;
+}
+
+#app.mobile.small-mobile .match-card .players {
+    display: flex;
+    width: 100%;
+}
+
+#app.mobile.small-mobile .match-card .players .player {
+    margin-bottom: 0;
+    max-width: 100%;
+    width: 100%;
+}
+
+#app.mobile.small-mobile .match-card .video-container {
+    padding-bottom: 56.25%;
+}
+
+#app.mobile.small-mobile .match-card .aside {
+    max-width: 100%;
 }
 </style>

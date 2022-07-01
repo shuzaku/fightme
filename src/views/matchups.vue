@@ -125,7 +125,6 @@ export default {
 
     methods: {
         async queryVideos() {
-            this.isLoading = true;
             var searchQuery = [
                 {
                     characters: { character1: this.character1Id, character2: this.character2Id },
@@ -158,7 +157,6 @@ export default {
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
-            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -273,14 +271,11 @@ export default {
 
 <style>
 .matchups-view {
-    display: flex;
-    align-items: flex-start;
     position: relative;
+    padding-top: 30px;
     height: 100%;
-    flex-direction: column;
+    overflow: hidden;
     width: 100%;
-    max-width: 566px;
-    padding-top: 40px;
 }
 
 .matchups-view h1 {
@@ -308,7 +303,7 @@ export default {
 
 .matchups-view .videos-container {
     position: relative;
-    margin-top: 0;
+    width: 100%;
 }
 
 .matchups-view .videos-container video {
@@ -335,10 +330,19 @@ export default {
 
 .matchups-view .header {
     width: 100%;
+    max-width: 600px;
 }
 
 .matchups-view .versus {
     font-size: 30px;
     color: #fff;
+}
+
+#app.mobile.small-mobile .matchups-view .character-pills .character-nav {
+    width: 200px;
+}
+
+#app.mobile.small-mobile .matchups-view h1 {
+    text-align: center;
 }
 </style>

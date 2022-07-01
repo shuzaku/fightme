@@ -136,8 +136,8 @@ export default {
 <style type="text/css">
 .game-nav {
     width: 100%;
-    align-items: center;
-    justify-content: space-between;
+    z-index: 99;
+    max-width: 600px;
 }
 
 .game-nav .game-header {
@@ -187,7 +187,6 @@ export default {
 .game-nav .quick-nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-top: 20px;
 }
 

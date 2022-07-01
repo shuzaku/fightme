@@ -4,7 +4,7 @@ import Params from '@/types/params'
 export default {
   //Videos
   fetchVideos (params: Params) {
-    return Api().get('videos?skip='+ params)
+    return Api().get('videos?skip='+ params.skip)
   },
 
   addVideo (params: Params) {

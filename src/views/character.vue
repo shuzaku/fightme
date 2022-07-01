@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="characters-view">
+    <div ref="videoViewRef" class="character-view">
         <character-nav
             :characterId="characterId"
             :account="account"
@@ -246,46 +246,39 @@ export default {
 </script>
 
 <style>
-.characters-view {
-    display: flex;
-    align-items: flex-start;
+.character-view {
     position: relative;
-    padding-top: 20px;
+    padding-top: 30px;
     height: 100%;
+    overflow: hidden;
     width: 100%;
-    max-width: 566px;
-    flex-direction: column;
 }
 
-.characters-view::-webkit-scrollbar-track {
+.character-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar {
+.character-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.characters-view::-webkit-scrollbar-thumb {
+.character-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.characters-view .videos-container {
+.character-view .videos-container {
     position: relative;
-    margin-top: 0;
+    width: 100%;
 }
 
-.characters-view .videos-container video {
+.character-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
-}
-
-.characters-view .combo-card:first-child {
-    margin-top: 30px;
 }
 </style>
