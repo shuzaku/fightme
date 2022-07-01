@@ -258,7 +258,6 @@ export default {
 
 .combo-view .videos-container {
     position: relative;
-    padding: 0 40px;
 }
 
 .combo-view .videos-container video {

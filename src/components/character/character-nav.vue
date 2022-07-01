@@ -197,6 +197,7 @@ export default {
 .character-nav {
     width: 100%;
     z-index: 99;
+    max-width: 600px;
 }
 
 .character-nav .character-header {
@@ -234,7 +235,6 @@ export default {
 .character-nav .quick-nav {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-top: 20px;
     flex-wrap: wrap;
 }

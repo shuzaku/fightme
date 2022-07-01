@@ -121,6 +121,7 @@ export default {
 .player-nav {
     width: 100%;
     z-index: 99;
+    max-width: 600px;
 }
 
 .player-nav .player-header {

@@ -124,7 +124,7 @@ export default {
             ${this.player1.name}(${this.player1.character.name}) vs ${this.player2.name}(${this.player2.character.name})`;
 
             this.description = `<p>High level gameplay of ${this.player1.name} versus ${this.player2.name} </br>
-            fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!
+            fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!</br>
             See More ${this.player1.name}: https://fighters-edge.com/p/${this.player1.slug}</br>
             See More ${this.player1.character.name}: https://fighters-edge.com/c/${this.player1.character.slug}</br>
             See More ${this.player2.name}: https://fighters-edge.com/p/${this.player2.slug}</br>

@@ -217,13 +217,11 @@ export default {
 
 <style>
 .games-view {
-    display: flex;
-    align-items: flex-start;
+    display: block;
     position: relative;
-    padding-top: 20px;
+    padding-top: 30px;
     height: 100%;
-    flex-direction: column;
-    overflow: visible;
+    overflow: hidden;
     width: 100%;
 }
 
@@ -246,16 +244,12 @@ export default {
 
 .games-view .videos-container {
     position: relative;
-    margin-top: 0;
+    width: 100%;
 }
 
 .games-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
-}
-
-.games-view .combo-card:first-child {
-    margin-top: 30px;
 }
 </style>

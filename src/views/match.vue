@@ -29,7 +29,7 @@ export default {
     name: 'Match',
 
     components: {
-        'match-video-card': MatchVideoCard
+        'match-video-card': MatchVideoCard,
     },
 
     data() {
@@ -41,19 +41,19 @@ export default {
             intersectionOptions: {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
-                threshold: 1
-            }
+                threshold: 1,
+            },
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        videoId: function() {
+        videoId: function () {
             return this.$route.params.id;
-        }
+        },
     },
 
     mounted() {
@@ -77,9 +77,9 @@ export default {
                 searchQuery: [
                     {
                         queryName: 'Id',
-                        queryValue: this.videoId
-                    }
-                ]
+                        queryValue: this.videoId,
+                    },
+                ],
             };
 
             const response = await VideosService.queryVideos(queryParameter);
@@ -88,13 +88,13 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
                     comboId: video.Combo ? video.Combo._id : null,
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isFirst: false
+                    isFirst: false,
                 });
             });
             if (this.videos.length > 0) {
@@ -114,8 +114,8 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.queryVideos();
-        }
-    }
+        },
+    },
 };
 </script>
 
@@ -149,7 +149,6 @@ export default {
 
 .match-view .videos-container {
     position: relative;
-    padding: 0 40px;
 }
 
 .match-view .videos-container video {

@@ -214,14 +214,10 @@ export default {
 
 <style>
 .player-view {
-    display: flex;
-    align-items: flex-start;
     position: relative;
-    padding-top: 20px;
+    padding-top: 30px;
     height: 100%;
-    flex-direction: column;
-    max-width: 100%;
-    max-width: 566px;
+    overflow: hidden;
     width: 100%;
 }
 
@@ -244,16 +240,12 @@ export default {
 
 .player-view .videos-container {
     position: relative;
-    margin-top: 0;
+    width: 100%;
 }
 
 .player-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
-}
-
-.player-view .no-videos h2 {
-    color: #fff;
 }
 </style>

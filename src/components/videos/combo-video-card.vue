@@ -32,55 +32,76 @@
                 </video>
             </div>
             <div class="card-label">Combo</div>
-            <div
-                class="character-bubble"
-                :style="{ backgroundImage: `url('${video.combo.character.imageUrl}')` }"
-            />
-            <div class="heavy-weight character-name">
-                <p @click="queryCharacter(video.combo.character.id)">
-                    {{ video.combo.character.name }}
-                </p>
-            </div>
-            <div class="combo-stats">
-                <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
-                <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
-            </div>
-            <div class="combo-input">
-                <p class="inputs">{{ video.combo.inputs }}</p>
-            </div>
-            <div v-if="video.combo.tags" class="combo-tags">
-                <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
-            </div>
-            <div class="admin-controls">
-                <collection-search
-                    v-if="showCollections"
-                    v-model="video.collections"
-                    :account="account"
-                    multiple
-                    @update:collection="updateCollections($event, video)"
-                />
-                <v-btn
-                    v-if="account"
-                    class="favorite-button"
-                    @click="showCollections = !showCollections"
-                >
-                    <v-icon light> mdi-plus </v-icon>
-                </v-btn>
-                <v-btn v-if="isAdmin" @click="editVideo()">
-                    <v-icon dark> mdi-wrench </v-icon>
-                </v-btn>
-                <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
-                    <v-icon dark> mdi-delete </v-icon>
-                </v-btn>
-                <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
-                    <v-icon light> mdi-heart-outline </v-icon>
-                </v-btn>
-                <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
-                    <v-icon> mdi-heart </v-icon>
-                </v-btn>
-                <v-btn class="share-button" @click="copyLink()">
-                    <v-icon light> mdi-link </v-icon>
-                </v-btn>
+            <div v-if="!video.isEditing" class="aside">
+                <div class="combo-info">
+                    <div class="game">
+                        <div class="game-title" @click="queryGame(video.game.id)">
+                            <p>
+                                <span>
+                                    <div class="img-container">
+                                        <img :src="video.game.logoUrl" />
+                                    </div>
+                                    {{ video.game.title }}</span
+                                >
+                            </p>
+                        </div>
+                    </div>
+                    <div class="character-name" @click="queryCharacter(video.combo.character.id)">
+                        <p>
+                            <span>
+                                <div class="img-container">
+                                    <img :src="video.combo.character.imageUrl" />
+                                </div>
+                                {{ video.combo.character.name }}</span
+                            >
+                        </p>
+                    </div>
+                    <div class="combo-stats">
+                        <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
+                        <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
+                    </div>
+                    <div class="combo-input">
+                        <p class="inputs">{{ video.combo.inputs }}</p>
+                    </div>
+                </div>
+                <div v-if="video.combo.tags" class="combo-tags">
+                    <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
+                </div>
+                <div class="admin-controls">
+                    <collection-search
+                        v-if="showCollections"
+                        v-model="video.collections"
+                        :account="account"
+                        multiple
+                        @update:collection="updateCollections($event, video)"
+                    />
+                    <v-btn
+                        v-if="account"
+                        class="favorite-button"
+                        @click="showCollections = !showCollections"
+                    >
+                        <v-icon light> mdi-plus </v-icon>
+                    </v-btn>
+                    <v-btn v-if="isAdmin" @click="editVideo()">
+                        <v-icon dark> mdi-wrench </v-icon>
+                    </v-btn>
+                    <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                        <v-icon dark> mdi-delete </v-icon>
+                    </v-btn>
+                    <v-btn
+                        v-if="!video.isFavorited"
+                        class="favorite-button"
+                        @click="favoriteVideo()"
+                    >
+                        <v-icon light> mdi-heart-outline </v-icon>
+                    </v-btn>
+                    <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                        <v-icon> mdi-heart </v-icon>
+                    </v-btn>
+                    <v-btn class="share-button" @click="copyLink()">
+                        <v-icon light> mdi-link </v-icon>
+                    </v-btn>
+                </div>
             </div>
         </div>
     </div>
@@ -446,7 +467,7 @@ export default {
 </script>
 
 <style>
-.combo-card {
+/* .combo-card {
     margin: 60px 0;
     min-height: 446px;
 }
@@ -606,5 +627,255 @@ export default {
 #app .combo-card .admin-controls button i::before {
     color: #3eb489;
     opacity: 0.9;
+} */
+
+.combo-card {
+    margin: 60px 0;
+    display: flex;
+    /* background-image: linear-gradient(#515b89, #171b33); */
+    background: #242832;
+    border: 5px solid #242832;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
+}
+
+.combo-card .aside {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 25%;
+    width: 100%;
+}
+
+.combo-card .versus {
+    font-size: 25px;
+    color: #3eb489;
+    text-transform: uppercase;
+}
+
+.combo-card .card-label {
+    position: absolute;
+    width: 70px;
+    border-radius: 30px;
+    top: -15px;
+    left: 50%;
+    margin-left: -35px;
+    background: #db8c10;
+    text-align: center;
+    padding: 5px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.combo-card .card-label {
+    background: #3c73a8;
+}
+
+.combo-card video {
+    width: 100%;
+}
+
+.combo-card .character-name span,
+.combo-card .game-title span {
+    padding: 6px 20px;
+    color: #242832;
+    font-size: 20px;
+    background: #3eb489;
+    font-size: 14px;
+    border-radius: 15px;
+    display: inline-block;
+    position: relative;
+    padding-left: 40px;
+    overflow: hidden;
+}
+
+.combo-card .player-name {
+    color: #fff;
+    font-size: 20px;
+    background: #131419;
+    display: inline-block;
+    padding: 2px 20px;
+    border-radius: 15px;
+    position: absolute;
+    top: -15px;
+    left: 10px;
+}
+
+.combo-card .player-name p {
+    font-weight: 400;
+    font-size: 18px;
+}
+
+.combo-card .character-name {
+    padding-top: 0px;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.combo-card .character-name p {
+    font-size: 14px;
+    color: #242832;
+    font-weight: 300;
+    margin-top: 3px;
+}
+
+.combo-card .character {
+    padding: 5px;
+}
+
+.combo-card .game {
+    margin-bottom: 20px;
+}
+
+.combo-card .game .img-container img,
+.combo-card .character-name .img-container img {
+    width: 30px;
+}
+
+.combo-card .game .img-container,
+.combo-card .character-name .img-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.combo-card .video-ghost {
+    height: 313px;
+    width: 556px;
+}
+
+.combo-card .inputs {
+    border-radius: 3px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #4a5689;
+    min-height: 12em;
+    color: #fff;
+}
+
+.combo-card.card .edit-btn-container {
+    padding: 10px;
+}
+
+.combo-card.card .edit-btn-container button {
+    padding: 20px 10px;
+    background-color: #4447e2 !important;
+    border-radius: 50%;
+    min-width: 0px;
+    color: #fff;
+}
+
+.combo-card .video-container {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    position: relative;
+    padding-bottom: 42.25%;
+    height: 0;
+    overflow: hidden;
+    min-width: 75%;
+}
+
+.video-container iframe,
+.video-container object,
+.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.combo-card .character-2 {
+    top: 40px;
+}
+
+.combo-card .character-3 {
+    top: 120px;
+}
+
+.combo-card .admin-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 20px;
+}
+
+#app .combo-card .admin-controls button {
+    width: 35px;
+    height: 50px;
+    min-width: initial;
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 50%;
+}
+
+#app .combo-card .admin-controls button:hover i::before {
+    opacity: 1;
+}
+
+#app .combo-card .admin-controls button i::before {
+    color: #3eb489;
+    opacity: 0.9;
+}
+
+.combo-card .admin-controls button.share-button {
+    width: 50px;
+    height: 50px;
+    min-width: initial;
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 50%;
+}
+
+.combo-card .combo-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.combo-card .combo-stats p {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.combo-card .player {
+    border: 1px dashed #3eb489;
+    position: relative;
+    padding-top: 10px;
+    margin-bottom: 40px;
+}
+
+#app.mobile.small-mobile .combo-card {
+    flex-direction: column;
+}
+
+#app.mobile.small-mobile .combo-card .players {
+    display: flex;
+    width: 100%;
+}
+
+#app.mobile.small-mobile .combo-card .players .player {
+    margin-bottom: 0;
+}
+
+#app.mobile.small-mobile .combo-card .video-container {
+    padding-bottom: 56.25%;
+}
+
+#app.mobile.small-mobile .combo-card .aside {
+    max-width: 100%;
 }
 </style>

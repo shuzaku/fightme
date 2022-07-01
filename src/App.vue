@@ -506,6 +506,7 @@ export default {
 
 #app .content-container {
     display: flex;
+    width: 100%;
 }
 
 #app .side-panel {
@@ -527,18 +528,17 @@ export default {
 }
 
 #app .main-content-container {
-    /* max-width: 700px; */
-    border-right: 1px dashed #3eb489;
-    margin-right: 50px;
     padding: 0 40px;
     position: relative;
     min-height: 100vh;
     min-width: 600px;
     display: flex;
+    width: 100%;
 }
 
 #app .more-info-panel {
     min-width: 400px;
+    display: none;
 }
 
 .app .multiselect__tags {
@@ -649,7 +649,7 @@ textarea {
 
 #app.mobile.small-mobile .character-nav .info-card {
     margin: 5px;
-    width: 46%;
+    padding: 0 10px;
 }
 
 #app.mobile.small-mobile .general-search {
@@ -673,11 +673,6 @@ textarea {
     justify-content: space-around;
 }
 
-#app.mobile.small-mobile .video-container iframe {
-    max-width: 100%;
-    height: 47vw;
-}
-
 #app.mobile.small-mobile .menu-heading svg {
     margin: 0 auto;
 }
@@ -691,14 +686,6 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-around;
-}
-
-#app.mobile.small-mobile .matchups-view .character-pills {
-    flex-direction: column;
-}
-
-#app.mobile.small-mobile .matchups-view h1 {
-    text-align: center;
 }
 
 #app.mobile.small-mobile .side-nav {

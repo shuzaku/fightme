@@ -72,42 +72,34 @@ export default {
         },
     },
 
-    created() {
-        this.fetch();
-    },
+    created() {},
 
     mounted() {
-        this.queryVideos();
+        this.fetchVideos();
+
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
-        eventbus.$on('search', this.queryVideos);
+        eventbus.$on('search', this.fetchVideos);
         eventbus.$on('account:update', this.accountUpdate);
     },
 
     beforeDestroy() {
         window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('search', this.queryVideos);
+        eventbus.$off('search', this.fetchVideos);
     },
 
     methods: {
         accountUpdate() {
-            this.queryVideos();
+            this.fetchVideos();
         },
 
-        async queryVideos() {
-            this.isLoading = true;
+        async fetchVideos() {
             var queryParameter = {
                 skip: this.skip,
             };
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await VideosService.fetchVideos(queryParameter);
             this.hydrateVideos(response);
-            // this.checkFavorites();
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
-
-            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -147,13 +139,13 @@ export default {
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
             if (bottomOfWindow) {
-                this.queryVideos();
+                this.fetchVideos();
             }
         },
 
         addedNewVideo() {
             this.videos = [];
-            this.queryVideos();
+            this.fetchVideos();
         },
 
         checkFavorites() {
@@ -192,6 +184,7 @@ export default {
     padding-top: 30px;
     height: 100%;
     overflow: hidden;
+    width: 100%;
 }
 
 .videos-view::-webkit-scrollbar-track {
@@ -213,7 +206,7 @@ export default {
 
 .videos-view .videos-container {
     position: relative;
-    padding: 0 40px;
+    width: 100%;
 }
 
 .videos-view .videos-container video {
