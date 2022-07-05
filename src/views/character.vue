@@ -179,7 +179,7 @@ export default {
                 queryParameter.searchQuery.push(newQuery);
             }
 
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await VideosService.queryVideosByCharacter(queryParameter);
             this.hydrateVideos(response);
             this.loading = false;
         },

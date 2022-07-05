@@ -128,6 +128,7 @@ export default {
     padding-top: 30px;
     height: 100%;
     overflow: hidden;
+    width: 100%;
 }
 
 .match-view::-webkit-scrollbar-track {
@@ -149,6 +150,7 @@ export default {
 
 .match-view .videos-container {
     position: relative;
+    width: 100%;
 }
 
 .match-view .videos-container video {

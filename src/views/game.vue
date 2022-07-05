@@ -137,7 +137,7 @@ export default {
                 ],
             };
 
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await VideosService.queryVideosByGame(queryParameter);
             this.hydrateVideos(response);
             // this.checkFavorites();
             if (this.videos.length < 6) {

@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="register-modal">
-        <div class="formcontainer">
+        <div v-if="!verified" class="formcontainer">
             <h2>Register Account</h2>
             <div v-if="error" class="error">{{ error }}</div>
             <v-text-field
@@ -39,6 +39,12 @@
 
             <v-btn class="submit-btn" rounded @click="submit()">Submit</v-btn>
         </div>
+        <div class="verification">
+            <p>
+                Thank you for signing up! To gain access to notes, collections, and favorites please
+                check your email for the verification email.
+            </p>
+        </div>
     </div>
 </template>
 
@@ -55,6 +61,7 @@ export default {
                 password: '',
             },
             error: null,
+            verifiect: false,
         };
     },
     methods: {
@@ -80,7 +87,7 @@ export default {
                             this.addAccount(newUser);
 
                             this.$emit('register:success');
-                            this.$emit('closeModal');
+                            this.verified = true;
                         });
                 })
                 .catch((err) => {

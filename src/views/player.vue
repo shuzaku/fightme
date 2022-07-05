@@ -142,7 +142,7 @@ export default {
                 queryParameter.searchQuery.push(newQuery);
             }
 
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await VideosService.queryVideosByPlayer(queryParameter);
             this.hydrateVideos(response);
             if (this.videos.length < 6) {
                 this.playFirstVideo();

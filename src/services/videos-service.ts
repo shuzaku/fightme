@@ -36,6 +36,63 @@ export default {
     return Api().get(`videoQuery?${queryParams.join('&')}`)
   },
 
+  queryVideosByCharacter(params: Params){
+    var skip = params.skip;
+    var queryParams = [`skip=${skip}`];
+    if(params.searchQuery){
+      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      queryParams.push(`queryName=${queryNames.join(',')}`);
+      queryParams.push(`queryValue=${queryValue.join(',')}`)
+    }
+    if(params.sortOption){
+      queryParams.push(`sort=${params.sortOption}`)
+    }
+    if(params.filter){
+      queryParams.push(`filter=${params.filter}`)
+    }
+
+    return Api().get(`videoCharacterQuery?${queryParams.join('&')}`)
+  },
+
+  queryVideosByPlayer(params: Params){
+    var skip = params.skip;
+    var queryParams = [`skip=${skip}`];
+    if(params.searchQuery){
+      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      queryParams.push(`queryName=${queryNames.join(',')}`);
+      queryParams.push(`queryValue=${queryValue.join(',')}`)
+    }
+    if(params.sortOption){
+      queryParams.push(`sort=${params.sortOption}`)
+    }
+    if(params.filter){
+      queryParams.push(`filter=${params.filter}`)
+    }
+
+    return Api().get(`videoPlayerQuery?${queryParams.join('&')}`)
+  },
+
+  queryVideosByGame(params: Params){
+    var skip = params.skip;
+    var queryParams = [`skip=${skip}`];
+    if(params.searchQuery){
+      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      queryParams.push(`queryName=${queryNames.join(',')}`);
+      queryParams.push(`queryValue=${queryValue.join(',')}`)
+    }
+    if(params.sortOption){
+      queryParams.push(`sort=${params.sortOption}`)
+    }
+    if(params.filter){
+      queryParams.push(`filter=${params.filter}`)
+    }
+
+    return Api().get(`videoGameQuery?${queryParams.join('&')}`)
+  },
+
   patchVideo (params: Params) {
     return Api().put('video/' + params.id, params)
   },

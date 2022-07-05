@@ -120,7 +120,7 @@ export default {
                 this.response = this.response.concat(`, guilty gear, guilty gear -strive-, ggst`);
             }
 
-            this.title = `[${this.game.title}][Ver.${this.game.currentVersion}]${this.game.abbreviation} Replay 
+            this.title = `[${this.game.title}]${this.game.abbreviation} Replay 
             ${this.player1.name}(${this.player1.character.name}) vs ${this.player2.name}(${this.player2.character.name})`;
 
             this.description = `<p>High level gameplay of ${this.player1.name} versus ${this.player2.name} </br>

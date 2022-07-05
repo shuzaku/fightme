@@ -19,8 +19,9 @@
         </div>
         <general-search />
         <div class="account" @click="toggleAccountPopup()">
-            <div class="avatar"></div>
             <div class="account-arrow">
+                <p v-if="!account">Login/Sign Up</p>
+                <p v-else>{{ account.displayName }}</p>
                 <v-icon> mdi-chevron-down </v-icon>
             </div>
         </div>
@@ -160,6 +161,11 @@ export default {
     width: 100%;
 }
 
+.top-bar .account-arrow {
+    color: #4447e2;
+    display: flex;
+}
+
 .top-bar .v-icon::before {
     color: #4447e2;
 }
@@ -187,7 +193,8 @@ export default {
 }
 
 .top-bar .account-popup .account-actions {
-    margin-top: 20px;
+    min-width: 150px;
+    padding: 20px 10px;
 }
 
 .top-bar .account-popup .account-actions .logged-in {

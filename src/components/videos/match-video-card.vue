@@ -56,23 +56,25 @@
                                 >
                                     <p>{{ team1Player.name }}</p>
                                 </div>
-                                <div
-                                    v-for="(character, index) in team1Player.characters"
-                                    :key="index"
-                                    class="character"
-                                >
+                                <div class="characters">
                                     <div
-                                        class="character-name"
-                                        @click="queryCharacter(character.id)"
+                                        v-for="(character, index) in team1Player.characters"
+                                        :key="index"
+                                        class="character"
                                     >
-                                        <p>
-                                            <span>
-                                                <div class="img-container">
-                                                    <img :src="character.imageUrl" />
-                                                </div>
-                                                {{ character.name }}</span
-                                            >
-                                        </p>
+                                        <div
+                                            class="character-name"
+                                            @click="queryCharacter(character.id)"
+                                        >
+                                            <p>
+                                                <span>
+                                                    <div class="img-container">
+                                                        <img :src="character.imageUrl" />
+                                                    </div>
+                                                    {{ character.name }}</span
+                                                >
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -89,23 +91,25 @@
                                 >
                                     <p>{{ team2Player.name }}</p>
                                 </div>
-                                <div
-                                    v-for="(character, index) in team2Player.characters"
-                                    :key="index"
-                                    class="character"
-                                >
+                                <div class="characters">
                                     <div
-                                        class="character-name"
-                                        @click="queryCharacter(character.id)"
+                                        v-for="(character, index) in team2Player.characters"
+                                        :key="index"
+                                        class="character"
                                     >
-                                        <p>
-                                            <span>
-                                                <div class="img-container">
-                                                    <img :src="character.imageUrl" />
-                                                </div>
-                                                {{ character.name }}</span
-                                            >
-                                        </p>
+                                        <div
+                                            class="character-name"
+                                            @click="queryCharacter(character.id)"
+                                        >
+                                            <p>
+                                                <span>
+                                                    <div class="img-container">
+                                                        <img :src="character.imageUrl" />
+                                                    </div>
+                                                    {{ character.name }}</span
+                                                >
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -748,6 +752,12 @@ export default {
 
 .match-card .team2 .player {
     border: 1px dashed #4447e2;
+}
+
+.match-card .characters {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
 }
 
 #app.mobile.small-mobile .match-card {
