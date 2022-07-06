@@ -123,7 +123,7 @@ export default {
         },
 
         async asyncFind(query) {
-            this.loading = true;
+            this.isLoading = true;
             var queryParameter = {
                 searchQuery: [
                     {
@@ -137,7 +137,7 @@ export default {
             if (response.data.searchValues) {
                 this.hydrateResults(response);
             }
-            this.loading = false;
+            this.isLoading = false;
         },
 
         hydrateResults(response) {

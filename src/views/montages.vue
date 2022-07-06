@@ -29,14 +29,14 @@ export default {
     name: 'Videos',
 
     components: {
-        'montage-video-card': NewMontageVideoCard
+        'montage-video-card': NewMontageVideoCard,
     },
 
     props: {
         account: {
             type: Object,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -47,27 +47,27 @@ export default {
             savedQuery: null,
             favorites: [],
             filter: 'Montage',
-            sort: null
+            sort: null,
         };
     },
 
     computed: {
-        skip: function() {
+        skip: function () {
             return this.videos.length;
         },
 
-        playerId: function() {
+        playerId: function () {
             return this.$route.params.id;
-        }
+        },
     },
 
     watch: {
-        playerId: function() {
+        playerId: function () {
             this.isLoading = true;
             this.videos = [];
             this.queryVideos();
             this.isLoading = false;
-        }
+        },
     },
 
     mounted() {
@@ -113,7 +113,7 @@ export default {
                 skip: this.skip,
                 sortOption: this.sort,
                 filter: this.filter,
-                searchQuery: []
+                searchQuery: [],
             };
 
             if (query) {
@@ -129,12 +129,12 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach(video => {
+            response.data.videos.forEach((video) => {
                 this.videos.push({
                     montageId: video.Montage ? video.Montage._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
-                    isPlaying: false
+                    isPlaying: false,
                 });
             });
         },
@@ -146,7 +146,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find(video => video.montageId === objectId);
+            var featuredVideo = this.videos.find((video) => video.montageId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }
@@ -160,7 +160,7 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow) {
+            if (bottomOfWindow && !this.isLoading) {
                 this.queryVideos();
             }
         },
@@ -171,23 +171,22 @@ export default {
         },
 
         updateFavorites() {
-            if(this.account.id){
-                this.favorites = this.account.favoriteVideos.map(video => {
+            if (this.account.id) {
+                this.favorites = this.account.favoriteVideos.map((video) => {
                     return {
                         contentType: video.contentType,
-                        id: video.id
+                        id: video.id,
                     };
                 });
             }
-
         },
 
         checkFavorites() {
-            this.favorites.forEach(favorite => {
-                this.videos.filter(video => video.id === favorite.id)[0].isFavorited = true;
+            this.favorites.forEach((favorite) => {
+                this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
             });
-        }
-    }
+        },
+    },
 };
 </script>
 

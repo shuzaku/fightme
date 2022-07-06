@@ -95,11 +95,13 @@ export default {
         },
 
         async fetchVideos() {
+            this.isLoading = true;
             var queryParameter = {
                 skip: this.skip,
             };
             const response = await VideosService.fetchVideos(queryParameter);
             this.hydrateVideos(response);
+            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -138,7 +140,7 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow) {
+            if (bottomOfWindow && !this.isLoading) {
                 this.fetchVideos();
             }
         },

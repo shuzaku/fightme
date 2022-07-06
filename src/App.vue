@@ -140,7 +140,7 @@ export default {
         },
 
         async fetchAccount(user) {
-            this.loading = true;
+            this.isLoading = true;
             if (user.emailVerified) {
                 const response = await AccountsService.getAccount({ id: user.uid });
                 if (response.data.account[0]) {

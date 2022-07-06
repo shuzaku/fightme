@@ -157,7 +157,7 @@ export default {
                 this.filter = 'Combo';
             }
 
-            this.loading = true;
+            this.isLoading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -181,7 +181,7 @@ export default {
 
             const response = await VideosService.queryVideosByCharacter(queryParameter);
             this.hydrateVideos(response);
-            this.loading = false;
+            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -216,7 +216,7 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow) {
+            if (bottomOfWindow && !this.isLoading) {
                 this.queryVideos();
             }
         },

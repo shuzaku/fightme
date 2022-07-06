@@ -124,7 +124,7 @@ export default {
         },
 
         async queryVideos() {
-            this.loading = true;
+            this.isLoading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -143,7 +143,7 @@ export default {
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
-            this.loading = false;
+            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -179,7 +179,7 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow) {
+            if (bottomOfWindow && !this.isLoading) {
                 this.queryVideos();
             }
         },
