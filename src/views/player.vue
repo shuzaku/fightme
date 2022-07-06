@@ -6,8 +6,7 @@
             :account="account"
             @player-filter:update="filterQuery($event)"
         />
-        <loading v-if="loading && videos.length <= 0"></loading>
-        <div v-else-if="videos.length > 0" class="videos-container">
+        <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -27,6 +26,7 @@
         <div v-else class="no-videos">
             <h2>Unable to find any videos</h2>
         </div>
+        <loading v-show="loading"></loading>
     </div>
 </template>
 

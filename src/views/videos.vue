@@ -1,8 +1,7 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="videos-view">
-        <loading v-if="videos < 1 && isLoading"></loading>
-        <div v-else class="videos-container">
+        <div class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -26,6 +25,7 @@
                 />
             </div>
         </div>
+        <loading v-show="isLoading"></loading>
     </div>
 </template>
 
@@ -177,10 +177,7 @@ export default {
 
 <style>
 .videos-view {
-    display: flex;
-    align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 30px;
     height: 100%;
     overflow: hidden;

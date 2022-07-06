@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="collection">
+    <div class="collections-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -138,38 +138,35 @@ export default {
 </script>
 
 <style>
-.videos-view {
-    display: flex;
-    align-items: flex-start;
+.collections-view {
     position: relative;
-    justify-content: space-around;
     padding-top: 30px;
     height: 100%;
     overflow: hidden;
 }
 
-.videos-view::-webkit-scrollbar-track {
+.collections-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar {
+.collections-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar-thumb {
+.collections-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.videos-view .videos-container {
+.collections-view .videos-container {
     position: relative;
 }
 
-.videos-view .videos-container video {
+.collections-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

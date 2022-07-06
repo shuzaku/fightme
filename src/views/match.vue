@@ -121,10 +121,7 @@ export default {
 
 <style>
 .match-view {
-    display: flex;
-    align-items: flex-start;
     position: relative;
-    justify-content: space-around;
     padding-top: 30px;
     height: 100%;
     overflow: hidden;

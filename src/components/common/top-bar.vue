@@ -13,7 +13,7 @@
                 class="menu-item add-item"
                 @click="toggleAddPopup()"
             >
-                Add <v-icon> mdi-chevron-down </v-icon>
+                <v-icon> mdi-plus </v-icon>
                 <create-options v-if="addPopupActive" />
             </a>
         </div>

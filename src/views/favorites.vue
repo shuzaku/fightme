@@ -136,7 +136,7 @@ export default {
 </script>
 
 <style>
-.videos-view {
+.favorite-matches-view {
     display: flex;
     align-items: flex-start;
     position: relative;
@@ -146,29 +146,29 @@ export default {
     overflow: hidden;
 }
 
-.videos-view::-webkit-scrollbar-track {
+.favorite-matches-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar {
+.favorite-matches-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.videos-view::-webkit-scrollbar-thumb {
+.favorite-matches-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.videos-view .videos-container {
+.favorite-matches-view .videos-container {
     position: relative;
     padding: 0 40px;
 }
 
-.videos-view .videos-container video {
+.favorite-matches-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

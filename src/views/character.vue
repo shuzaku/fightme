@@ -6,8 +6,7 @@
             :account="account"
             @character-filter:update="filterQuery($event)"
         />
-        <loading v-if="loading && videos.length <= 0"></loading>
-        <div v-else-if="videos.length > 0" class="videos-container">
+        <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -38,6 +37,7 @@
                 />
             </div>
         </div>
+        <loading v-show="loading"></loading>
     </div>
 </template>
 
