@@ -471,6 +471,10 @@ export default {
     width: 80%;
 }
 
+#app.mobile.small-mobile .main-panel {
+    width: 100%;
+}
+
 #app .content {
     background: #131419;
     display: flex;
@@ -636,10 +640,6 @@ textarea {
 
 #app.mobile.small-mobile .character-bubble {
     display: none;
-}
-
-#app.mobile.small-mobile .content-container {
-    padding: 0 20px;
 }
 
 #app.mobile.small-mobile .side-panel,

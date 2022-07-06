@@ -767,12 +767,38 @@ export default {
 #app.mobile.small-mobile .match-card .players {
     display: flex;
     width: 100%;
+    flex-direction: column;
 }
 
 #app.mobile.small-mobile .match-card .players .player {
     margin-bottom: 0;
     max-width: 100%;
     width: 100%;
+    margin-bottom: 20px;
+}
+
+#app.mobile.small-mobile .match-card .player-name {
+    top: -9px;
+}
+
+#app.mobile.small-mobile .match-card .characters {
+    padding: 0 5px;
+}
+
+#app.mobile.small-mobile .match-card .character-name span {
+    padding: 3px 20px 3px 40px;
+}
+
+#app.mobile.small-mobile .match-card .game {
+    margin-bottom: 0px;
+}
+
+#app.mobile.small-mobile .match-card .admin-controls button {
+    height: 10px;
+}
+
+#app.mobile.small-mobile .match-card .player-name p {
+    font-size: 12px;
 }
 
 #app.mobile.small-mobile .match-card .video-container {
