@@ -2,7 +2,6 @@
 <template>
     <div class="general-search" placeholder="Search Category">
         <multiselect
-            v-if="!isLoading"
             v-model="searchValue"
             :options="searchValues"
             :close-on-select="true"
