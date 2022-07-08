@@ -2,7 +2,8 @@ interface Params {
     skip: Int16Array,
     sortOption: string,
     filter: string,
-    id: string
+    id: string,
+    slug: string,
     searchQuery: [
         {
             queryName: string,

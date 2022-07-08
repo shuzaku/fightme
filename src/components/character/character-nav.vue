@@ -70,7 +70,10 @@ export default {
             type: String,
             default: '',
         },
-
+        characterSlug: {
+            type: String,
+            default: '',
+        },
         account: {
             type: Object,
             default: null,
@@ -122,7 +125,11 @@ export default {
     },
 
     mounted() {
-        this.getCharacter();
+        if (this.characterId) {
+            this.getCharacter();
+        } else {
+            this.getCharacterBySlug();
+        }
         this.isCharacterFollowed();
     },
 
@@ -130,6 +137,13 @@ export default {
         async getCharacter() {
             const response = await CharactersService.getCharacter({
                 id: this.characterId,
+            });
+            this.character = this.hydrateCharacter(response.data.characters[0]);
+        },
+
+        async getCharacterBySlug() {
+            const response = await CharactersService.getCharacterBySlug({
+                slug: this.characterSlug.toUpperCase(),
             });
             this.character = this.hydrateCharacter(response.data.characters[0]);
         },

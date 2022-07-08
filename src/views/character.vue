@@ -3,6 +3,7 @@
     <div ref="videoViewRef" class="character-view">
         <character-nav
             :characterId="characterId"
+            :characterSlug="characterSlug"
             :account="account"
             @character-filter:update="filterQuery($event)"
         />

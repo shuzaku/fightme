@@ -30,6 +30,10 @@ export default {
     return Api().get('characters/' + params.id) 
   },
 
+  getCharacterBySlug (params: Params) {
+    return Api().get('characterSlug/' + params.slug) 
+  },
+
   deleteCharacter (id: string) {
     return Api().delete('characters/' + id)
   },

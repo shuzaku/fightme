@@ -23,7 +23,7 @@
                 />
             </div>
         </div>
-        <div v-else class="no-videos">
+        <div v-else-if="(videos.length = 0 && !loading)" class="no-videos">
             <h2>Unable to find any videos</h2>
         </div>
         <loading v-show="loading"></loading>
