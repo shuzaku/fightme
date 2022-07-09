@@ -14,6 +14,7 @@
             label="name"
             :placeholder="placeHolder"
             @input="setCharacter($event)"
+            track-by="id"
         >
             <template slot="singleLabel" slot-scope="props">
                 <img class="option__image" :src="props.option.imageUrl" />
