@@ -39,12 +39,12 @@
 
             <v-btn class="submit-btn" rounded @click="submit()">Submit</v-btn>
         </div>
-        <div class="verification">
+        <!-- <div class="verification">
             <p>
                 Thank you for signing up! To gain access to notes, collections, and favorites please
                 check your email for the verification email.
             </p>
-        </div>
+        </div> -->
     </div>
 </template>
 

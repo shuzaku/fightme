@@ -40,6 +40,7 @@
                 <div v-else class="not-logged-in-buttons">
                     <button @click="logIn()">Log In</button>
                     <button @click="register()">Register</button>
+                    <!-- <twitch-login-button /> -->
                 </div>
             </div>
         </div>
@@ -49,12 +50,15 @@
 <script>
 import GeneralSearch from '@/components/common/general-search';
 import CreateOptions from '@/components/common/create-options';
+import TwitchLoginButton from '@/components/account/twitch-login-button';
+
 import { eventbus } from '@/main';
 
 export default {
     components: {
         'general-search': GeneralSearch,
         'create-options': CreateOptions,
+        'twitch-login-button': TwitchLoginButton,
     },
 
     props: {

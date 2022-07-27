@@ -28,16 +28,17 @@ export default {
     data() {
         return {
             clientId: 'uthyvdhau17m9wlm9f7594a6vcg3c0',
-            redirectUri: 'http://localhost:8080',
+            redirectUri: 'http://localhost:8080/auth/twitch',
             state: 'c3ab8aa609ea11e793ae92361f002671',
-            scopes: 'channel%3Amanage%3Apolls+channel%3Aread%3Apolls',
-            baseUrl: 'https://id.twitch.tv/oauth2/authorize?',
+            scopes: 'channel%3Amanage%3Apolls+channel%3Aread%3Apolls+openid+user%3Aread%3Aemail',
+            baseUrl: 'https://id.twitch.tv/oauth2/authorize',
+            grantType: 'authorization_code',
         };
     },
 
     computed: {
         authorizeUrl() {
-            return `${this.baseUrl}?response_type=token&client_id=${this.clientId}&redirect_uri=${this.redirectUri}%26response_type%3Dcode%26scope%3Dscope=${this.scopes}&state=${this.state}`;
+            return `${this.baseUrl}?response_type=token&client_id=${this.clientId}&redirect_uri=${this.redirectUri}&scope=${this.scopes}&state=${this.state}&claims={"id_token":{"email":null,"email_verified":null},"userinfo":{"email":null,"email_verified":null,"picture":null,"updated_at":null}}&nonce=c3ab8aa609ea11e793ae92361f002671`;
         },
     },
 
