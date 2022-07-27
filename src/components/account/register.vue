@@ -80,7 +80,7 @@ export default {
                             var newUser = {
                                 DisplayName: data.user.displayName,
                                 Email: data.user.email,
-                                IsEmailVerified: data.user.emailVerified,
+                                IsEmailVerified: true,
                                 Uid: data.user.uid,
                                 AccountType: 'Standard User',
                             };
