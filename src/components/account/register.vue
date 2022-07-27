@@ -39,12 +39,12 @@
 
             <v-btn class="submit-btn" rounded @click="submit()">Submit</v-btn>
         </div>
-        <div class="verification">
+        <!-- <div class="verification">
             <p>
                 Thank you for signing up! To gain access to notes, collections, and favorites please
                 check your email for the verification email.
             </p>
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -80,7 +80,7 @@ export default {
                             var newUser = {
                                 DisplayName: data.user.displayName,
                                 Email: data.user.email,
-                                IsEmailVerified: data.user.emailVerified,
+                                IsEmailVerified: true,
                                 Uid: data.user.uid,
                                 AccountType: 'Standard User',
                             };

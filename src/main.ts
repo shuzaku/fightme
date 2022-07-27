@@ -17,6 +17,11 @@ import firebase from 'firebase/app'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDiscord } from '@fortawesome/free-brands-svg-icons'
+import { faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faTiktok } from '@fortawesome/free-brands-svg-icons'
+import {faYoutube} from '@fortawesome/free-brands-svg-icons'
+import {faInstagram} from '@fortawesome/free-brands-svg-icons'
+
 import VTooltip from 'v-tooltip'
 import VueQuillEditor from 'vue-quill-editor'
 import VueGtag from "vue-gtag";
@@ -25,8 +30,7 @@ import 'quill/dist/quill.core.css' // import styles
 import 'quill/dist/quill.snow.css' // for snow theme
 import 'quill/dist/quill.bubble.css' // for bubble theme
 
-
-library.add(faDiscord)
+library.add(faTwitter,faDiscord,faTiktok,faYoutube,faInstagram)
 
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });
@@ -41,6 +45,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.use(VueYouTubeEmbed, { global: true, componentId: "youtube-media" })
 Vue.use(VueClipboard)
 Vue.use(VueAxios, axios)
+
 
 Vue.config.productionTip = false;
 const configOptions = {
