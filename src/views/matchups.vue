@@ -36,6 +36,7 @@
 
 <script>
 import VideosService from '@/services/videos-service';
+import CharacterMatchupService from '@/services/character-matchup-service';
 import CharactersService from '@/services/characters-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import CharacterNav from '@/components/character/character-nav';
@@ -146,10 +147,10 @@ export default {
             var response = null;
 
             if (this.character1Slug && this.character2Slug) {
-                response = await VideosService.querySlugMatchup(queryParameter);
+                response = await CharacterMatchupService.querySlugMatchup(queryParameter);
                 this.getCharacterId();
             } else {
-                response = await VideosService.queryMatchup(queryParameter);
+                response = await CharacterMatchupService.queryMatchup(queryParameter);
             }
 
             this.hydrateVideos(response);
@@ -160,10 +161,11 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            console.log(response);
+            response.data.matches.forEach((match) => {
                 this.videos.push({
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
+                    matchId: match._id,
+                    contentType: 'Match',
                     isEditing: false,
                     isPlaying: false,
                 });

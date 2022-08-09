@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="more-info-panel">
-        <more-matchup-info v-if="routeName === 'MatchUps'" />
+        <!-- <more-matchup-info v-if="routeName === 'MatchUps'" /> -->
         <more-character-info v-if="routeName === 'Character'" />
     </div>
 </template>

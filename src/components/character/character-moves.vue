@@ -3,7 +3,7 @@
     <div class="character-moves">
         <loading v-if="isLoading"></loading>
         <div v-else class="move-container">
-            <div class="move-box" :style="boxStyle" @click="toggleMoveList()">
+            <div class="move-box" @click="toggleMoveList()">
                 <div class="heading">
                     <h2>MoveList</h2>
                 </div>

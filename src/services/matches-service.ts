@@ -40,4 +40,17 @@ export default {
   patchMatches(params: Params) {
     return Api().put('matches/', params)
   },
+
+  queryMatchesByCharacter(params: Params){
+    var skip = params.skip;
+    var queryParams = [`skip=${skip}`];
+    if(params.searchQuery){
+      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      queryParams.push(`queryName=${queryNames.join(',')}`);
+      queryParams.push(`queryValue=${queryValue.join(',')}`)
+    }
+
+    return Api().get(`/matchesCharacter?${queryParams.join('&')}`)
+  },
 } 

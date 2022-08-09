@@ -15,13 +15,14 @@
                     <v-icon> mdi-heart </v-icon>
                 </div>
             </div>
-            <div class="info-card combos" @click="filter('Combo')">Combos</div>
+            <!-- <div class="info-card combos" @click="filter('Combo')">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
-            <div class="info-card players" @click="togglePlayerPopup()">
+            <!-- <div class="info-card players" @click="togglePlayerPopup()">
                 Players
                 <v-icon> mdi-chevron-down </v-icon>
-            </div>
+            </div> -->
+            -->
             <div class="info-card matchup" @click="toggleMatchupPopup()">
                 Matchup
                 <v-icon> mdi-chevron-down </v-icon>
@@ -88,6 +89,7 @@ export default {
     data() {
         return {
             character: {
+                id: this.characterId,
                 name: null,
                 imageUrl: null,
                 gameId: null,
@@ -136,7 +138,7 @@ export default {
     methods: {
         async getCharacter() {
             const response = await CharactersService.getCharacter({
-                id: this.characterId,
+                id: this.character.id,
             });
             this.character = this.hydrateCharacter(response.data.characters[0]);
         },
@@ -150,6 +152,7 @@ export default {
 
         hydrateCharacter(response) {
             return {
+                id: response._id,
                 name: response.Name,
                 imageUrl: response.AvatarUrl,
                 gameId: response.GameId,
@@ -181,22 +184,22 @@ export default {
         },
 
         goToMatchup(character) {
-            this.$router.push(`/matchups/${this.characterId}/${character.id}`);
+            this.$router.push(`/matchups/${this.character.id}/${character.id}`);
         },
 
         unfollowCharacter() {
-            eventbus.$emit('character:unfollow', this.characterId);
+            eventbus.$emit('character:unfollow', this.character.id);
         },
 
         followCharacter() {
-            eventbus.$emit('character:follow', this.characterId);
+            eventbus.$emit('character:follow', this.character.id);
         },
 
         isCharacterFollowed(response) {
             if (this.account) {
                 var account = response || this.account;
                 this.isFollowed = account.followedCharacters.some(
-                    (character) => character.id === this.characterId
+                    (character) => character.id === this.character.id
                 );
             }
         },

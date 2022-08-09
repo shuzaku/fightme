@@ -44,6 +44,8 @@
 
 <script>
 import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
+
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import MontageVideoCard from '@/components/videos/montage-video-card';
@@ -180,20 +182,18 @@ export default {
                 queryParameter.searchQuery.push(newQuery);
             }
 
-            const response = await VideosService.queryVideosByCharacter(queryParameter);
+            const response = await MatchesService.queryMatchesByCharacter(queryParameter);
             this.hydrateVideos(response);
             this.isLoading = false;
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            response.data.matches.forEach((video) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
-                    matchId: video.Match ? video.Match._id : null,
-                    montageId: video.Montage ? video.Montage._id : null,
-                    contentType: video.ContentType,
+                    matchId: video._id,
                     isEditing: false,
                     isFirst: false,
+                    contentType: 'Match',
                 });
             });
             if (this.videos.length > 0) {
