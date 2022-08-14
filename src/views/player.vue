@@ -4,6 +4,7 @@
         <player-nav
             :playerId="playerId"
             :account="account"
+            :playerSlug="playerSlug"
             @player-filter:update="filterQuery($event)"
         />
         <div v-if="videos.length > 0" class="videos-container">
@@ -31,7 +32,7 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import PlayerNav from '@/components/players/player-nav';
 import Loading from '@/components/common/loading';
@@ -142,7 +143,7 @@ export default {
                 queryParameter.searchQuery.push(newQuery);
             }
 
-            const response = await VideosService.queryVideosByPlayer(queryParameter);
+            const response = await MatchesService.queryMatchesByPlayer(queryParameter);
             this.hydrateVideos(response);
             if (this.videos.length < 6) {
                 this.playFirstVideo();
@@ -151,12 +152,12 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            response.data.matches.forEach((video) => {
                 this.videos.push({
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
+                    matchId: video._id,
                     isEditing: false,
-                    isPlaying: false,
+                    isFirst: false,
+                    contentType: 'Match',
                 });
             });
         },

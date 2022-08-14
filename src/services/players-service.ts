@@ -29,4 +29,8 @@ export default {
     var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
     return Api().get('playerQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
   },
+
+  getPlayerBySlug (params: Params) {
+    return Api().get('playerSlug/' + params.slug) 
+  },
 } 
