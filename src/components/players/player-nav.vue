@@ -3,7 +3,7 @@
     <div class="player-nav">
         <div class="player-header" :style="playerbubbleStyle">
             <div class="options">
-                <h2>{{ name }}</h2>
+                <h2>{{ player.name }}</h2>
             </div>
         </div>
         <div class="quick-nav">
@@ -39,6 +39,11 @@ export default {
             default: '',
         },
 
+        playerSlug: {
+            type: String,
+            default: '',
+        },
+
         account: {
             type: Object,
             default: null,
@@ -47,18 +52,20 @@ export default {
 
     data() {
         return {
-            name: null,
-            imageUrl: null,
-            gameId: null,
             popupActive: false,
             isFollowed: false,
+            player: {
+                id: this.playerId,
+                name: null,
+                imageUrl: null,
+            },
         };
     },
 
     computed: {
         playerbubbleStyle() {
             return {
-                'background-image': `url(${this.imageUrl})`,
+                'background-image': `url(${this.player.imageUrl})`,
                 'background-size': '30%',
                 'background-repeat': 'no-repeat',
                 'background-position': '0% 20%',
@@ -81,7 +88,11 @@ export default {
     },
 
     mounted() {
-        this.getPlayer();
+        if (this.playerId) {
+            this.getPlayer();
+        } else {
+            this.getPlayerBySlug();
+        }
         this.isPlayerFollowed();
     },
 
@@ -90,8 +101,22 @@ export default {
             const response = await PlayersService.getPlayer({
                 id: this.playerId,
             });
-            this.name = response.data.Name;
-            this.imageUrl = response.data.playerImg;
+            this.player = this.hydratePlayer(response.data.players[0]);
+        },
+
+        async getPlayerBySlug() {
+            const response = await PlayersService.getPlayerBySlug({
+                slug: this.playerSlug,
+            });
+            this.player = this.hydratePlayer(response.data.players[0]);
+        },
+
+        hydratePlayer(response) {
+            return {
+                id: response._id,
+                name: response.Name,
+                imageUrl: response.ImageUrl ? response.ImageUrl : null,
+            };
         },
 
         filter(filterType) {

@@ -6,15 +6,15 @@
             <div>
                 <input
                     id="import-image"
-                    type="text"
                     v-model="player.imageUrl"
+                    type="text"
                     placeholder="Player Image Url"
                 />
-                <div class="player-img-container" v-if="player.imageUrl">
+                <div v-if="player.imageUrl" class="player-img-container">
                     <img :src="player.imageUrl" class="player-img" />
                     <v-btn @click="player.imageUrl = ''">X</v-btn>
                 </div>
-                <input type="text" name="name" placeholder="Player Name" v-model="player.name" />
+                <input v-model="player.name" type="text" name="name" placeholder="Player Name" />
                 <!-- <input type="text" name="region" placeholder="Region" v-model="player.region"> -->
             </div>
             <div>
