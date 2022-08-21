@@ -37,7 +37,7 @@ export default {
 
 <style>
 .explore-view {
-    padding-top: 30px 30px 0;
+    padding: 10px 30px 0;
     min-width: calc(71vw - 140px);
     margin-top: 40px;
 }

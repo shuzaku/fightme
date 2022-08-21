@@ -1,7 +1,11 @@
 <!-- @format -->
 <template>
     <div class="sidebar">
-        <follows :account="account" />
+        <div class="navigation">
+            <account-dropdown :account="account" />
+            <a class="menu-item" href="/explore">Explore</a>
+            <follows :account="account" />
+        </div>
         <div class="social-media">
             <div class="svg-container">
                 <a href="https://www.youtube.com/channel/UCEQbjKp4CDP1JzrzAcQEh8Q" target="_blank">
@@ -26,10 +30,12 @@
 
 <script>
 import Follows from '@/components/account/follows';
+import AccountDropdown from '@/components/account/account-dropdown';
 
 export default {
     components: {
         follows: Follows,
+        'account-dropdown': AccountDropdown,
     },
 
     props: {
@@ -66,5 +72,36 @@ export default {
 
 .sidebar .svg-container path {
     fill: #3eb489;
+}
+
+.sidebar .account-arrow {
+    color: #4447e2;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .v-icon::before {
+    color: #4447e2;
+}
+
+.sidebar .menu-item {
+    font-size: 25px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.sidebar .account-dropdown .account-arrow {
+    color: #fff;
+    font-size: 25px;
+}
+
+.sidebar .account-dropdown,
+.sidebar .menu-item {
+    display: none;
+}
+
+#app.mobile.small-mobile .sidebar .account-dropdown,
+#app.mobile.small-mobile .sidebar .menu-item {
+    display: block;
 }
 </style>

@@ -24,7 +24,20 @@ import Note from './views/notes.vue';
 import YoutubeGenerator from './views/youtube-generator.vue';
 
 const routes = [
-    {path: '/', name: 'Videos', component: Videos},
+    {
+    path: '/', 
+    name: 'Videos', 
+    component: Videos,    
+        meta: {
+        title: 'Fighters Edge',
+            metaTags: [
+                {
+                name: 'Fighters-Edge',
+                content: 'Fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!'
+                }
+            ]
+        }
+    },
     {path: '/* ', name: 'Videos', component: Videos},
     {path: '/  200', name: 'Videos', component: Videos},
     {path: '/collections', name: 'Collections', component: Collections},

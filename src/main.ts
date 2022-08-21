@@ -21,6 +21,7 @@ import { faTwitter } from '@fortawesome/free-brands-svg-icons'
 import { faTiktok } from '@fortawesome/free-brands-svg-icons'
 import {faYoutube} from '@fortawesome/free-brands-svg-icons'
 import {faInstagram} from '@fortawesome/free-brands-svg-icons'
+import { faBars } from '@fortawesome/free-solid-svg-icons'
 
 import VTooltip from 'v-tooltip'
 import VueQuillEditor from 'vue-quill-editor'
@@ -30,7 +31,7 @@ import 'quill/dist/quill.core.css' // import styles
 import 'quill/dist/quill.snow.css' // for snow theme
 import 'quill/dist/quill.bubble.css' // for bubble theme
 
-library.add(faTwitter,faDiscord,faTiktok,faYoutube,faInstagram)
+library.add(faTwitter,faDiscord,faTiktok,faYoutube,faInstagram,faBars)
 
 
 Object.defineProperty(Vue.prototype, '$_', { value: _ });

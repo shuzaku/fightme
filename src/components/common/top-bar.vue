@@ -18,32 +18,10 @@
             </a>
         </div>
         <general-search />
-        <div class="account" @click="toggleAccountPopup()">
-            <div class="account-arrow">
-                <p v-if="!account">Login/Sign Up</p>
-                <p v-else>{{ account.displayName }}</p>
-                <v-icon> mdi-chevron-down </v-icon>
-            </div>
-        </div>
-        <div v-if="accountPopupActive" class="account-popup">
-            <div v-if="account" class="name-row">
-                <div class="avatar"></div>
-                {{ account.displayName }}
-            </div>
-            <div class="account-actions">
-                <div class="logged-in" v-if="account">
-                    <a v-if="account" class="menu-item" href="/favorites">Favorites</a>
-                    <a v-if="account" class="menu-item" href="/collections">Collections</a>
-                    <a v-if="account" class="menu-item" href="/notes">Notes</a>
-                    <a class="menu-item" @click="logOut()">Log Out</a>
-                </div>
-                <div v-else class="not-logged-in-buttons">
-                    <button @click="logIn()">Log In</button>
-                    <button @click="register()">Register</button>
-                    <!-- <twitch-login-button /> -->
-                </div>
-            </div>
-        </div>
+        <button class="hamburger-btn">
+            <font-awesome-icon :icon="['fa', 'bars']" @click="showMobileMenu" />
+        </button>
+        <account-dropdown :account="account" />
     </div>
 </template>
 
@@ -51,6 +29,7 @@
 import GeneralSearch from '@/components/common/general-search';
 import CreateOptions from '@/components/common/create-options';
 import TwitchLoginButton from '@/components/account/twitch-login-button';
+import AccountDropdown from '@/components/account/account-dropdown';
 
 import { eventbus } from '@/main';
 
@@ -59,6 +38,7 @@ export default {
         'general-search': GeneralSearch,
         'create-options': CreateOptions,
         'twitch-login-button': TwitchLoginButton,
+        'account-dropdown': AccountDropdown,
     },
 
     props: {
@@ -77,7 +57,9 @@ export default {
 
     computed: {},
 
-    created() {},
+    created() {
+        eventbus.$on('open:account', this.isGameFollowed);
+    },
 
     beforeDestroy() {},
 
@@ -90,19 +72,8 @@ export default {
             this.addPopupActive = !this.addPopupActive;
         },
 
-        logOut() {
-            this.toggleAccountPopup();
-            eventbus.$emit('account:logout');
-        },
-
-        logIn() {
-            this.toggleAccountPopup();
-            eventbus.$emit('open:widget', { name: 'login' });
-        },
-
-        register() {
-            this.toggleAccountPopup();
-            eventbus.$emit('open:widget', { name: 'register' });
+        showMobileMenu() {
+            eventbus.$emit('toggle:mobile-nav');
         },
     },
 };
@@ -135,22 +106,16 @@ export default {
     background: #fff;
 }
 
-.top-bar .account {
-    top: 6px;
-    right: 55px;
-    max-width: 33%;
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
 .top-bar .menu-item {
     color: #fff;
     font-size: 20px;
     text-decoration: none;
     margin-left: 20px;
     margin-top: 10px;
+}
+
+#app.mobile.small-mobile .top-bar .menu-item {
+    display: none;
 }
 
 .top-bar .top-bar-nav {
@@ -229,5 +194,21 @@ export default {
     position: absolute;
     left: -15px;
     top: 30px;
+}
+
+.top-bar .hamburger-btn {
+    display: none;
+}
+
+.top-bar .hamburger-btn svg path {
+    fill: #fff;
+}
+
+#app.mobile.small-mobile .top-bar .account-dropdown {
+    display: none;
+}
+
+#app.mobile.small-mobile .top-bar .hamburger-btn {
+    display: block;
 }
 </style>

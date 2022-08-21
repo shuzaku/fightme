@@ -197,6 +197,12 @@ export default {
     width: 470px;
     margin-top: 10px;
     position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#app.mobile.small-mobile .general-search {
+    max-width: initial;
 }
 
 .general-search .multiselect {

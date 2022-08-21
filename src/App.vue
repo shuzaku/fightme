@@ -3,7 +3,7 @@
     <div id="app" :class="{ mobile: isMobile, 'small-mobile': isSmallMobile }">
         <top-bar :account="account" />
         <div class="content">
-            <div class="side-panel" :class="{ menuActive: showMobileMenu }">
+            <div class="side-panel" :class="{ 'menu-active': showMobileMenu }">
                 <new-nav v-if="!isLoading" :account="account" />
             </div>
             <div ref="mainPanel" class="main-panel">
@@ -83,7 +83,7 @@ export default {
         eventbus.$on('account:logout', this.logout);
         eventbus.$on('account:loggedOut', this.resetAccount);
         eventbus.$on('account:loggedIn', this.getPersistantUser);
-
+        eventbus.$on('toggle:mobile-nav', this.toggleMobileMenu);
         window.addEventListener('resize', this.calculateScreenWidth);
     },
 
@@ -451,6 +451,10 @@ export default {
         setAccount(account) {
             this.account = account;
         },
+
+        toggleMobileMenu() {
+            this.showMobileMenu = !this.showMobileMenu;
+        },
     },
 };
 </script>
@@ -646,6 +650,19 @@ textarea {
     display: none;
 }
 
+#app.mobile.small-mobile .side-panel {
+    position: fixed;
+    left: 0;
+    top: 60px;
+    z-index: 999;
+    background: #1c1c24;
+    height: calc(100vh - 60px);
+}
+
+#app.mobile.small-mobile .side-panel.menu-active {
+    display: block;
+}
+
 #app.mobile.small-mobile .character-nav .info-card {
     margin: 5px;
     padding: 0 10px;
@@ -709,10 +726,6 @@ textarea {
 #app.mobile.small-mobile .logo img {
     width: 40px;
     left: 0;
-}
-
-#app.mobile.small-mobile .account {
-    display: none;
 }
 
 #app .mobile-bar {
