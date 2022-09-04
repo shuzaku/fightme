@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import GameNav from '@/components/games/game-nav';
@@ -137,7 +137,7 @@ export default {
                 ],
             };
 
-            const response = await VideosService.queryVideosByGame(queryParameter);
+            const response = await MatchesService.queryMatchesByGame(queryParameter);
             this.hydrateVideos(response);
             this.checkFavorites();
             if (this.videos.length < 6) {
@@ -147,11 +147,10 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            response.data.matches.forEach((video) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
+                    matchId: video._id,
+                    contentType: 'Match',
                     isEditing: false,
                     isPlaying: false,
                 });

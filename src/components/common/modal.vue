@@ -31,7 +31,7 @@
             @closeModal="closeModal()"
         />
 
-        <new-note
+        <note-widget
             v-if="options.name === 'note'"
             :noteId="options.noteId"
             :account="account"
@@ -50,7 +50,7 @@ import newCharacter from '@/components/character/new-character';
 import register from '@/components/account/register';
 import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
-import newNote from '@/components/note/new-note';
+import noteWidget from '@/components/note/note-widget';
 
 export default {
     name: 'Modal',
@@ -65,7 +65,7 @@ export default {
         register: register,
         login: login,
         collections: collections,
-        'new-note': newNote,
+        'note-widget': noteWidget,
     },
 
     props: {

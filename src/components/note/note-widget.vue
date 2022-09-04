@@ -1,9 +1,9 @@
 <!-- @format -->
 <template>
-    <div class="new-note">
+    <div class="note-widget">
         <h1>{{ title }}</h1>
         <loading v-if="isLoading"></loading>
-        <div v-else class="new-note-container">
+        <div v-else class="note-widget-container">
             <label>Type:</label>
             <multiselect
                 v-model="note.selectedType"
@@ -63,8 +63,8 @@
                 <quill-editor ref="myQuillEditor" v-model="note.noteContent" />
             </div>
 
-            <v-btn v-if="!note.id" class="submit-btn" rounded @click="addNote()">Add Note</v-btn>
-            <v-btn v-else class="submit-btn" rounded @click="updateNote()">Edit Note</v-btn>
+            <v-btn v-if="!noteId" class="submit-btn" rounded @click="addNote()">Add Note</v-btn>
+            <v-btn v-else class="submit-btn" rounded @click="updateNote()">Update Note</v-btn>
         </div>
     </div>
 </template>
@@ -243,7 +243,11 @@ export default {
 };
 </script>
 <style type="text/css">
-.new-note .multiselect {
+.note-widget.multiselect {
     margin: 5px 0 20px;
+}
+
+.note-widget.note-content {
+    margin-bottom: 20px;
 }
 </style>
