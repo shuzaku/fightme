@@ -53,7 +53,7 @@ export default {
 
     methods: {
         async getCollections() {
-            this.isLoading = true;
+            this.loading = true;
             var searchQuery = [
                 {
                     queryName: 'OwnerId',
@@ -83,7 +83,7 @@ export default {
                 });
             }
 
-            this.isLoading = false;
+            this.loading = false;
         },
 
         routeToCollection(collectionId) {

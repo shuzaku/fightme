@@ -13,7 +13,7 @@
                     <v-icon> mdi-heart </v-icon>
                 </div>
             </div>
-            <div class="info-card combos" @click="filter('Combo')">Combos</div>
+            <div class="info-card combos" @click="routeToGameCombos()">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
             <div class="info-card character" @click="togglePopup()">
@@ -129,6 +129,10 @@ export default {
 
         goToCharacter(character) {
             this.$router.push(`/character/${character.id}`);
+        },
+
+        routeToGameCombos() {
+            this.$router.push(`/combos/game/${this.gameId}`);
         },
     },
 };

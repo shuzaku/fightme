@@ -9,6 +9,7 @@
             >
                 <match-video-card
                     v-if="video.contentType === 'Match'"
+                    ref="card"
                     v-model="video.isPlaying"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
@@ -30,6 +31,13 @@ export default {
 
     components: {
         'match-video-card': MatchVideoCard,
+    },
+
+    props: {
+        account: {
+            type: Object,
+            default: null,
+        },
     },
 
     data() {
@@ -58,14 +66,11 @@ export default {
 
     mounted() {
         this.queryVideos();
-        window.addEventListener('scroll', this.handleScroll);
-        eventbus.$on('newVideoPosted', this.addedNewVideo);
-    },
+     },
 
-    beforeDestroy() {
-        window.removeEventListener('scroll', this.handleScroll);
-        eventbus.$off('newVideoPosted', this.addedNewVideo);
-    },
+    created() {},
+
+    beforeDestroy() {},
 
     methods: {
         async queryVideos() {

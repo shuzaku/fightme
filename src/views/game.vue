@@ -2,7 +2,7 @@
 <template>
     <div ref="videoViewRef" class="games-view">
         <game-nav
-            v-if="!isLoading"
+            v-if="!loading"
             :gameId="gameId"
             :account="account"
             @game-filter:update="applyFilter($event)"
@@ -31,6 +31,7 @@
                 />
             </div>
         </div>
+        <loading v-show="loading"></loading>
     </div>
 </template>
 
@@ -63,7 +64,6 @@ export default {
     data() {
         return {
             videos: [],
-            isLoading: true,
             query: null,
             savedQuery: null,
             favorites: [],
@@ -85,10 +85,10 @@ export default {
 
     watch: {
         gameId: function () {
-            this.isLoading = true;
+            this.loading = true;
             this.videos = [];
             this.queryVideos();
-            this.isLoading = false;
+            this.loading = false;
         },
     },
 
@@ -124,7 +124,7 @@ export default {
         },
 
         async queryVideos() {
-            this.isLoading = true;
+            this.loading = true;
             var queryParameter = {
                 skip: this.skip,
                 sortOption: this.sort,
@@ -139,11 +139,11 @@ export default {
 
             const response = await VideosService.queryVideosByGame(queryParameter);
             this.hydrateVideos(response);
-            // this.checkFavorites();
+            this.checkFavorites();
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
-            this.isLoading = false;
+            this.loading = false;
         },
 
         hydrateVideos(response) {
@@ -160,7 +160,7 @@ export default {
 
         playFirstVideo() {
             this.videos[0].isPlaying = true;
-            this.isLoading = false;
+            this.loading = false;
         },
 
         onWaypoint({ el, going, direction }) {
@@ -179,7 +179,7 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
+            if (bottomOfWindow && !this.loading) {
                 this.queryVideos();
             }
         },

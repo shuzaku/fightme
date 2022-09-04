@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="new-note">
-        <h1>Add Note</h1>
+        <h1>{{ title }}</h1>
         <loading v-if="isLoading"></loading>
         <div v-else class="new-note-container">
             <label>Type:</label>
@@ -32,7 +32,7 @@
             <div v-if="note.selectedType === 'Player'" class="player-note">
                 <label>Player:</label>
                 <player-search
-                    v-model="note.selectedCharacterIds"
+                    v-model="note.selectedPlayerId"
                     @update:player="setSelectedPlayer($event)"
                 />
             </div>
@@ -117,6 +117,16 @@ export default {
         };
     },
 
+    computed: {
+        title() {
+            if (this.noteId) {
+                return 'Edit Note';
+            } else {
+                return 'New Note';
+            }
+        },
+    },
+
     mounted() {
         if (this.noteId) {
             this.getNote();
@@ -141,13 +151,14 @@ export default {
         },
 
         hydrateNotes(note) {
+            console.log(note);
             this.note.selectedType = note.Type;
             this.note.noteContent = note.Content;
             this.note.selectedGameId = note.GameId;
             this.note.heading = note.Heading;
 
             if (note.Type === 'Player') {
-                this.note.selectedPlayerId.id = note.Target1;
+                this.note.selectedPlayerId = note.Target1;
             } else if (note.Type === 'Character') {
                 this.note.selectedCharacterIds.push(note.Target1);
             } else if (note.Type === 'Character Matchup') {

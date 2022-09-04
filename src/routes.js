@@ -15,7 +15,6 @@ import FavoriteCombos from './views/favorite-combos.vue';
 import Montages from './views/montages.vue';
 import MatchUps from './views/matchups.vue';
 import Test from './views/test.vue';
-import Counter from './views/counter.vue';
 import Explore from './views/explore.vue';
 import Favorites from './views/favorites.vue';
 import Collections from './views/collections.vue';
@@ -43,30 +42,27 @@ const routes = [
     {path: '/collections', name: 'Collections', component: Collections},
     {path: '/combos', name: 'Combos', component: Combos},
     {path: '/combo/:id', name: 'Combo', component: Combo},
-    {path: '/combos/game/:gameId', name: 'Combos', component: Combos},
-    {path: '/combos/character/:characterId', name: 'Combos', component: Combos},
+    {path: '/combos/game/:gameId', name: 'Game Combos', component: Combos},
     {path: '/matches', name: 'Matches', component: Matches},
-    {path: '/matches/game/:gameId', name: 'Matches', component: Matches},
-    {path: '/matches/character/:characterId', name: 'Matches', component: Matches},
+    {path: '/matches/game/:gameId', name: 'Game Matches', component: Matches},
+    {path: '/matches/character/:characterId', name: 'Character Matches', component: Matches},
     {path: '/match/:id', name: 'Match', component: Match},
     {path: '/games', name: 'Games', component: Games},
     {path: '/game/:id', name: 'Game', component: Game},
     {path: '/montages/', name: 'Montages', component: Montages},
-    {path: '/matchups', name: 'MatchUps', component: MatchUps},
-    {path: '/matchups/:id/:id2', name: 'MatchUps', component: MatchUps},
-    {path: '/mu/:slug1/:slug2', name: 'MatchUpSlug', component: MatchUps},
+    {path: '/matchups/:id/:id2', name: 'MatchUp', component: MatchUps},
+    {path: '/mu/:slug1/:slug2', name: 'Slug MatchUp', component: MatchUps},
     {path: '/players/', name: 'Players', component: Player},
     {path: '/player/:id', name: 'Player', component: Player},
     {path: '/p/:slug', name: 'PlayerSlug', component: Player},
     {path: '/character/:id', name: 'Character', component: Character},
     {path: '/c/:slug', name: 'CharacterSlug', component: Character},
-    {path: '/character/:id/combos', name: 'CharacterCombo', component: Character},
+    {path: '/character/:id/combos', name: 'Character Combo', component: Character},
     {path: '/collection/:id', name: 'Collection', component: Collection},
     {path: '/channel-scrapper', name: 'ChannelScrapper', component: ChannelScrapper},
     {path: '/favorite-matches', name: 'Favorites Matches', component: FavoriteMatches},
     {path: '/favorite-combos', name: 'Favorites Combos', component: FavoriteCombos},
     {path: '/test', name: 'test', component: Test},
-    {path: '/counter', name: 'counter', component: Counter},
     {path: '/explore', name: 'explore', component: Explore},
     {path: '/favorites', name: 'favorites', component: Favorites},
     {path: '/notes', name: 'notes', component: Note},

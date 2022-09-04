@@ -21,7 +21,10 @@
                 <div class="title-row">
                     <input v-model="video.selected" type="checkbox" />
                     <img :src="video.thumbnail" />
-                    <p class="title">{{ video.title }}</p>
+                    <div class="video-details">
+                        <p class="title">{{ video.title }}</p>
+                        <p class="title">{{ video.publishedDate }}</p>
+                    </div>
                 </div>
 
                 <game-search v-model="video.gameId" @update:game="updateGame($event, video)" />
@@ -67,6 +70,7 @@ import CharacterSearch from '@/components/character/character-search';
 import MatchesService from '@/services/matches-service';
 import VideosService from '@/services/videos-service';
 import CreatorsService from '@/services/creators-service';
+import moment from 'moment';
 
 export default {
     name: 'Videos',
@@ -88,6 +92,7 @@ export default {
             creatorId: null,
             limit: 20,
             nextPageToken: null,
+            savedGame: null,
         };
     },
 
@@ -108,10 +113,12 @@ export default {
                 this.channelTitle = response.data.items[0].snippet.channelTitle;
                 this.nextPageToken = response.data.nextPageToken;
                 this.videos = [];
+                console.log(response.data.items);
                 this.videos = response.data.items.map((item) => {
                     return {
                         id: item.id.videoId,
                         title: item.snippet.title,
+                        publishedDate: moment(item.snippet.publishedAt).format('MMMM Do YYYY'),
                         thumbnail: item.snippet.thumbnails.default.url,
                         selected: false,
                         player1: {
@@ -132,8 +139,12 @@ export default {
         },
 
         setGame(game) {
+            if (game) {
+                this.savedGame = game;
+            }
+
             this.videos.forEach((video) => {
-                video.gameId = game.id;
+                video.gameId = this.savedGame.id;
             });
         },
 
@@ -143,6 +154,9 @@ export default {
                 this.creatorUrl.length
             );
             this.fetch();
+            if (this.savedGame) {
+                this.setGame();
+            }
         },
 
         async submit() {

@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="favorite-matches-view">
+    <div class="favorites-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
@@ -60,7 +60,7 @@ export default {
     },
 
     mounted() {
-        this.queryVideos(this.$route.params);
+        this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
@@ -73,14 +73,8 @@ export default {
     },
 
     methods: {
-        async queryVideos(query) {
+        async queryVideos() {
             var searchQuery = null;
-            var searchParameter = query || this.savedQuery;
-
-            if (this.savedQuery !== searchParameter) {
-                this.videos = [];
-                this.savedQuery = query;
-            }
 
             var filteredMatches = this.account.favoriteVideos.filter(
                 (video) => video.contentType === 'Match'
@@ -136,39 +130,40 @@ export default {
 </script>
 
 <style>
-.favorite-matches-view {
+.favorites-view {
     display: flex;
     align-items: flex-start;
     position: relative;
-    justify-content: space-around;
-    padding-top: 30px;
     height: 100%;
-    overflow: hidden;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
 }
 
-.favorite-matches-view::-webkit-scrollbar-track {
+.favorites-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.favorite-matches-view::-webkit-scrollbar {
+.favorites-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.favorite-matches-view::-webkit-scrollbar-thumb {
+.favorites-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.favorite-matches-view .videos-container {
+.favorites-view .videos-container {
     position: relative;
-    padding: 0 40px;
+    margin-top: 0;
+    width: 100%;
 }
 
-.favorite-matches-view .videos-container video {
+.favorites-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

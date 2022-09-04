@@ -15,14 +15,14 @@
                     <v-icon> mdi-heart </v-icon>
                 </div>
             </div>
-            <!-- <div class="info-card combos" @click="filter('Combo')">Combos</div>
+            <div class="info-card combos" @click="routeToCharacterCombos()">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Matches</div>
             <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
             <!-- <div class="info-card players" @click="togglePlayerPopup()">
                 Players
                 <v-icon> mdi-chevron-down </v-icon>
             </div> -->
-            -->
+
             <div class="info-card matchup" @click="toggleMatchupPopup()">
                 Matchup
                 <v-icon> mdi-chevron-down </v-icon>
@@ -206,6 +206,10 @@ export default {
 
         goToPlayer(input) {
             this.$router.push(`/player/${input.id}`);
+        },
+
+        routeToCharacterCombos() {
+            this.$router.push(`/character/${this.characterId}/combos`);
         },
     },
 };

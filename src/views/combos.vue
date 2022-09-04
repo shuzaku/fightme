@@ -181,12 +181,12 @@ export default {
 
 <style>
 .combos-view {
-    display: flex;
-    align-items: flex-start;
+    display: block;
     position: relative;
-    padding-top: 20px;
+    padding-top: 30px;
     height: 100%;
-    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
 }
 
 .combos-view::-webkit-scrollbar-track {

@@ -11,7 +11,7 @@
         <div v-if="accountPopupActive" class="account-popup">
             <div class="account-actions">
                 <div v-if="account" class="logged-in">
-                    <a v-if="account" class="menu-item" href="/favorites">Favorites</a>
+                    <!-- <a v-if="account" class="menu-item" href="/favorites">Favorites</a> -->
                     <a v-if="account" class="menu-item" href="/collections">Collections</a>
                     <a v-if="account" class="menu-item" href="/notes">Notes</a>
                     <a class="menu-item" @click="logOut()">Log Out</a>
