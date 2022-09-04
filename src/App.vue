@@ -281,7 +281,7 @@ export default {
 
             var favoriteVideos = this.createFavoriteVideoRequest(targetId, video);
             this.account.favoriteVideos = favoriteVideos;
-            // this.cloneFollowed();
+            this.cloneFollowed();
             this.patchAccount();
         },
 
