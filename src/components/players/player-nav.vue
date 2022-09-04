@@ -125,10 +125,20 @@ export default {
 
         unfollowPlayer() {
             eventbus.$emit('player:unfollow', this.playerId);
+            var player = this.account.followedPlayers.filter((p) => p.id === this.playerId);
+            var index = this.account.followedPlayers.indexOf(player);
+            this.account.followedPlayers.splice(index, 1);
+            this.isFollowed = false;
         },
 
         followPlayer() {
             eventbus.$emit('player:follow', this.playerId);
+            this.account.followedPlayers.push({
+                id: this.playerId,
+                name: this.player.name,
+                type: 'player',
+            });
+            this.isFollowed = true;
         },
 
         isPlayerFollowed(response) {

@@ -438,7 +438,7 @@ export default {
         async patchAccount() {
             this.getRequest();
             await AccountsService.patchAccount(this.request);
-            // this.fetchAccount(this.account);
+            this.fetchAccount(this.account);
         },
 
         cloneFollowed() {
