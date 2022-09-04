@@ -247,7 +247,7 @@ export default {
     margin: 5px 0 20px;
 }
 
-.note-widget.note-content {
+.note-widget .note-content {
     margin-bottom: 20px;
 }
 </style>
