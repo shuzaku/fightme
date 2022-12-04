@@ -81,6 +81,9 @@ export default {
                 return {
                     id: player._id,
                     playerName: player.Name,
+                    twitter: player.Twitter,
+                    stream: player.Stream,
+                    youtube: player.Youtube,
                     slug: player.Slug,
                 };
             });

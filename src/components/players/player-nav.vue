@@ -15,8 +15,6 @@
                     <v-icon> mdi-heart </v-icon>
                 </div>
             </div>
-            <div class="info-card matches" @click="filter('Match')">Matches</div>
-            <div class="info-card montages" @click="filter('Montage')">Montages</div>
         </div>
     </div>
 </template>

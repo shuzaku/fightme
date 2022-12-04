@@ -87,12 +87,18 @@ export default {
             this.player1.id = player.id;
             this.player1.name = player.playerName;
             this.player1.slug = player.slug;
+            this.player1.twitter = player.twitter;
+            this.player1.stream = player.stream;
+            this.player1.youtube = player.youtube;
         },
 
         addPlayer2(player) {
             this.player2.id = player.id;
             this.player2.name = player.playerName;
             this.player2.slug = player.slug;
+            this.player2.twitter = player.twitter;
+            this.player2.stream = player.stream;
+            this.player2.youtube = player.youtube;
         },
 
         updateGame(game) {
@@ -101,7 +107,7 @@ export default {
 
         submit() {
             this.response = `
-            ${this.game.title}
+            ${this.game.title},
             ${this.game.abbreviation}, 
             high level gameplay, 
             ${this.player1.name}, 
@@ -123,14 +129,40 @@ export default {
             this.title = `[${this.game.title}]${this.game.abbreviation} Replay 
             ${this.player1.name}(${this.player1.character.name}) vs ${this.player2.name}(${this.player2.character.name})`;
 
-            this.description = `<p>High level gameplay of ${this.player1.name} versus ${this.player2.name} </br>
+            this.description = `<p>High level gameplay of ${this.player1.name} versus ${
+                this.player2.name
+            } </br>
             fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!</br>
-            See More ${this.player1.name}: https://fighters-edge.com/p/${this.player1.slug}</br>
-            See More ${this.player1.character.name}: https://fighters-edge.com/c/${this.player1.character.slug}</br>
-            See More ${this.player2.name}: https://fighters-edge.com/p/${this.player2.slug}</br>
-            See More ${this.player2.character.name}: https://fighters-edge.com/c/${this.player2.character.slug}</br>
-            See More ${this.player1.character.name} vs ${this.player2.character.name}: https://fighters-edge.com/MU/${this.player1.character.slug}/${this.player2.character.slug}</br></br>
-            #${this.game.abbreviation}  #${this.player1.character.slug} #${this.player2.character.slug}</p>`;
+            </br>See More ${this.player1.name}: </br>
+            <ul>
+            <li>Fighters Edge: https://fighters-edge.com/p/${this.player1.slug}</li>
+            ${this.player1.twitter ? `<li>Twitter: ${this.player1.twitter} </li>` : ''}
+            ${this.player1.stream ? `<li>Stream: ${this.player1.stream} </li>` : ''}
+            ${this.player1.youtube ? `<li>Youtube: ${this.player1.youtube} </li>` : ''}
+            </ul>
+
+            </br>See More ${this.player2.name}: 
+            <ul>
+            <li>Fighters Edge:https://fighters-edge.com/p/${this.player2.slug}</li>
+            ${this.player2.twitter ? `<li>Twitter: ${this.player2.twitter} </li>` : ''}
+            ${this.player2.stream ? `<li>Stream: ${this.player2.stream} </li>` : ''}
+            ${this.player2.youtube ? `<li>Youtube: ${this.player2.youtube} </li>` : ''}
+            </ul>
+
+            </br>See More ${this.player1.character.name}: https://fighters-edge.com/c/${
+                this.player1.character.slug
+            }</br>
+            See More ${this.player2.character.name}: https://fighters-edge.com/c/${
+                this.player2.character.slug
+            }</br>
+            See More ${this.player1.character.name} vs ${
+                this.player2.character.name
+            }: https://fighters-edge.com/MU/${this.player1.character.slug}/${
+                this.player2.character.slug
+            }</br></br>
+            #${this.game.abbreviation}  #${this.player1.character.slug} #${
+                this.player2.character.slug
+            }</p>`;
         },
     },
 };

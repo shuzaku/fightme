@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="tournament-video-settings-container">
-        <tournament-search v-model="tournament.id" @update:tournament="addTournament($event)" />
+        <!-- <tournament-search v-model="tournament.id" @update:tournament="addTournament($event)" /> -->
         <v-radio-group v-model="tournament.isSingleMatch" :mandatory="false">
             <v-radio label="Single Match" :value="true"></v-radio>
             <v-radio label="Multiple Matches" :value="false"></v-radio>
@@ -57,14 +57,14 @@
 
 <script>
 import AddMatch from '@/components/videos/add-match';
-import TournamentSearch from '../tournament/tournament-search.vue';
+// import TournamentSearch from '../tournament/tournament-search.vue';
 
 export default {
     name: 'TournamentVideoSettings',
 
     components: {
         'add-match': AddMatch,
-        'tournament-search': TournamentSearch,
+        // 'tournament-search': TournamentSearch,
     },
 
     props: {

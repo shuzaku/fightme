@@ -21,6 +21,8 @@ import Collections from './views/collections.vue';
 import Collection from './views/collection.vue';
 import Note from './views/notes.vue';
 import YoutubeGenerator from './views/youtube-generator.vue';
+import TournamentBulk from './views/tournament-bulk.vue';
+import PlayerList from './views/player-list.vue';
 
 const routes = [
     {
@@ -66,7 +68,10 @@ const routes = [
     {path: '/explore', name: 'explore', component: Explore},
     {path: '/favorites', name: 'favorites', component: Favorites},
     {path: '/notes', name: 'notes', component: Note},
-    {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator}
+    {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator},
+    {path: '/tournament-bulk', name: 'Tournament Bulk', component: TournamentBulk},
+    {path: '/player-list', name: 'PlayerList', component: PlayerList}
+
 ] 
 
 export default routes;   
