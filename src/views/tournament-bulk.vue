@@ -117,7 +117,6 @@ export default {
                 this.channelTitle = response.data.items[0].snippet.channelTitle;
                 this.nextPageToken = response.data.nextPageToken;
                 this.videos = [];
-                console.log(response.data.items);
                 this.videos = response.data.items.map((item) => {
                     return {
                         id: item.id.videoId,

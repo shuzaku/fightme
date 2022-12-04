@@ -151,7 +151,6 @@ export default {
         },
 
         hydrateNotes(note) {
-            console.log(note);
             this.note.selectedType = note.Type;
             this.note.noteContent = note.Content;
             this.note.selectedGameId = note.GameId;

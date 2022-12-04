@@ -161,7 +161,6 @@ export default {
         },
 
         hydrateVideos(response) {
-            console.log(response);
             response.data.matches.forEach((match) => {
                 this.videos.push({
                     matchId: match._id,
