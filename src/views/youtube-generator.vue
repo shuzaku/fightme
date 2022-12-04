@@ -148,7 +148,6 @@ export default {
             ${this.player2.stream ? `<li>Stream: ${this.player2.stream} </li>` : ''}
             ${this.player2.youtube ? `<li>Youtube: ${this.player2.youtube} </li>` : ''}
             </ul>
-
             </br>See More ${this.player1.character.name}: https://fighters-edge.com/c/${
                 this.player1.character.slug
             }</br>
