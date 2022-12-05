@@ -129,7 +129,6 @@ export default {
             this.title = `[${this.game.title}]${this.game.abbreviation} Replay 
             ${this.player1.name}(${this.player1.character.name}) vs ${this.player2.name}(${this.player2.character.name})`;
 
-<<<<<<< HEAD
             this.description = `<p>High level gameplay of ${this.player1.name} versus ${
                 this.player2.name
             } </br>
@@ -163,9 +162,6 @@ export default {
             #${this.game.abbreviation}  #${this.player1.character.slug} #${
                 this.player2.character.slug
             }</p>`;
-=======
-            this.description = ``;
->>>>>>> aff959fb87eeb6c1825ed57a218f21092633d79b
         },
     },
 };
