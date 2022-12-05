@@ -162,8 +162,6 @@ export default {
             #${this.game.abbreviation}  #${this.player1.character.slug} #${
                 this.player2.character.slug
             }</p>`;
-            console.log(this.player1);
-            console.log(this.player2);
         },
     },
 };
