@@ -22,7 +22,6 @@
                 Players
                 <v-icon> mdi-chevron-down </v-icon>
             </div> -->
-
             <div class="info-card matchup" @click="toggleMatchupPopup()">
                 Matchup
                 <v-icon> mdi-chevron-down </v-icon>

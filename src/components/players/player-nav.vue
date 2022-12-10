@@ -4,15 +4,26 @@
         <div class="player-header" :style="playerbubbleStyle">
             <div class="options">
                 <h2>{{ player.name }}</h2>
-            </div>
-        </div>
-        <div class="quick-nav">
-            <div v-if="account" class="followed-container">
-                <div v-if="!isFollowed" class="follow-btn info-card" @click="followPlayer()">
-                    <v-icon> mdi-heart-outline </v-icon>
+                <div v-if="account" class="followed-container">
+                    <div v-if="!isFollowed" class="follow-btn info-card" @click="followPlayer()">
+                        <v-icon> mdi-heart-outline </v-icon>
+                    </div>
+                    <div v-else class="unfollow-btn info-card" @click="unfollowPlayer()">
+                        <v-icon> mdi-heart </v-icon>
+                    </div>
                 </div>
-                <div v-else class="unfollow-btn info-card" @click="unfollowPlayer()">
-                    <v-icon> mdi-heart </v-icon>
+            </div>
+            <div class="social-media">
+                <div class="svg-container">
+                    <a v-if="player.youtube" :href="player.youtube" target="_blank">
+                        <font-awesome-icon :icon="['fab', 'youtube']" />
+                    </a>
+                    <a v-if="player.twitter" :href="player.twitter" target="_blank">
+                        <font-awesome-icon :icon="['fab', 'twitter']" />
+                    </a>
+                    <a v-if="player.stream" :href="player.stream" target="_blank">
+                        <font-awesome-icon :icon="['fab', 'twitch']" />
+                    </a>
                 </div>
             </div>
         </div>
@@ -99,14 +110,15 @@ export default {
             const response = await PlayersService.getPlayer({
                 id: this.playerId,
             });
-            this.player = this.hydratePlayer(response.data.players[0]);
+            console.log(response.data);
+            this.player = this.hydratePlayer(response.data);
         },
 
         async getPlayerBySlug() {
             const response = await PlayersService.getPlayerBySlug({
                 slug: this.playerSlug,
             });
-            this.player = this.hydratePlayer(response.data.players[0]);
+            this.player = this.hydratePlayer(response.data);
         },
 
         hydratePlayer(response) {
@@ -114,6 +126,9 @@ export default {
                 id: response._id,
                 name: response.Name,
                 imageUrl: response.ImageUrl ? response.ImageUrl : null,
+                twitter: response.Twitter ? response.Twitter : null,
+                stream: response.Stream ? response.Stream : null,
+                youtube: response.Youtube ? response.Youtube : null,
             };
         },
 
@@ -159,19 +174,13 @@ export default {
 
 .player-nav .player-header {
     height: 80px;
-    background: #242832;
     color: #4447e2;
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
     padding: 0 20px;
-    border: 2px solid #4447e2;
-    border-radius: 15px;
 }
 
 .player-nav .player-header h2 {
-    text-align: right;
+    font-size: 4em;
 }
 
 .player-nav .info-card {
@@ -215,5 +224,43 @@ export default {
 
 .player-nav .v-icon.v-icon {
     color: #4447e2;
+}
+
+.player-nav .svg-container a {
+    border: 2px solid #4447e2;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin-right: 5px;
+}
+
+.player-nav .svg-container svg {
+    width: 15px;
+    height: 15px;
+}
+
+.player-nav .svg-container a:hover {
+    background: #3eb489;
+    border-color: #3eb489;
+}
+
+.player-nav .svg-container path {
+    color: #4447e2;
+}
+
+.player-nav .svg-container {
+    display: flex;
+}
+
+.player-nav .options {
+    display: flex;
+    align-items: center;
+}
+
+.player-nav .followed-container {
+    margin-left: 20px;
 }
 </style>

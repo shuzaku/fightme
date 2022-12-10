@@ -84,6 +84,7 @@ export default {
         playerId: function () {
             this.isLoading = true;
             this.videos = [];
+            window.scrollTo(0, 0);
             this.queryVideos();
             this.isLoading = false;
         },
