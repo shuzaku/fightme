@@ -8,6 +8,7 @@ import Match from './views/match.vue';
 import Matches from './views/matches.vue';
 import Games from './views/games.vue';
 import Game from './views/game.vue';
+import Home from './views/home.vue';
 
 import ChannelScrapper from './views/channel-scrapper.vue';
 import FavoriteMatches from './views/favorites.vue';
@@ -70,7 +71,8 @@ const routes = [
     {path: '/notes', name: 'notes', component: Note},
     {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator},
     {path: '/tournament-bulk', name: 'Tournament Bulk', component: TournamentBulk},
-    {path: '/player-list', name: 'PlayerList', component: PlayerList}
+    {path: '/player-list', name: 'PlayerList', component: PlayerList},
+    {path: '/home', name: 'Home', component: Home}
 
 ] 
 

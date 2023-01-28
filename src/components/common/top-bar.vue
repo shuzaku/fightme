@@ -121,7 +121,7 @@ export default {
 .top-bar .top-bar-nav {
     display: flex;
     align-items: center;
-    max-width: 33%;
+    max-width: 18%;
     width: 100%;
 }
 
