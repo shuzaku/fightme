@@ -51,7 +51,11 @@ export default {
         };
     },
 
-    watch: {},
+    watch: {
+        value() {
+            this.selectedPlayer = this.value;
+        },
+    },
 
     mounted() {
         this.getPlayers();
@@ -85,6 +89,7 @@ export default {
                     stream: player.Stream,
                     youtube: player.Youtube,
                     slug: player.Slug,
+                    matchupAppearance: player.MatchupAppearance,
                 };
             });
 
