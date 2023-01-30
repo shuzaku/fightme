@@ -1,6 +1,7 @@
 
 import Api from '@/services/Api'
 import Params from '@/types/params'
+import MergePlayers from '@/types/merge-players'
 
 export default {
   //Players
@@ -32,5 +33,9 @@ export default {
 
   getPlayerBySlug (params: Params) {
     return Api().get('playerSlug/' + params.slug) 
+  },
+
+  mergePlayers (params: MergePlayers) {
+    return Api().get(`/mergePlayers/${params.player1Id}/${params.player2Id}`) 
   },
 } 
