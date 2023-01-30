@@ -53,7 +53,7 @@ export default {
 
     watch: {
         value() {
-            this.selectedPlayer = this.value;
+            this.selectedPlayer = this.players.filter((player) => player.id === this.value);
         },
     },
 
