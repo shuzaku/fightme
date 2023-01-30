@@ -38,7 +38,7 @@ export default {
             default: null,
         },
         value: {
-            type: Object,
+            type: String,
             default: null,
         },
     },
