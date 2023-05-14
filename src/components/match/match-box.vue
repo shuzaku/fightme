@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="match-box" :style="boxStyle" @click="navigateToMatches()">
+    <div class="match-box" @click="navigateToMatches()">
         <div class="heading">
             <h2>All Matches</h2>
         </div>
@@ -23,13 +23,13 @@ export default {
     },
 
     computed: {
-        boxStyle() {
-            return {
-                'background-color': '#3eb489',
-                'background-size': 'cover',
-                'background-repeat': 'no-repeat',
-            };
-        },
+        // boxStyle() {
+        //     return {
+        //         'background-color': '#3eb489',
+        //         'background-size': 'cover',
+        //         'background-repeat': 'no-repeat',
+        //     };
+        // },
     },
 
     mounted() {},

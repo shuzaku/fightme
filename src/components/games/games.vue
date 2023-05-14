@@ -1,10 +1,9 @@
 <!-- @format -->
 <template>
     <div class="games">
-        <li v-for="game in games" :key="game.id">
+        <div v-for="game in games" :key="game.id">
             <img :src="game.logoUrl" class="logo-img" />
-            {{ game.title }}
-        </li>
+        </div>
     </div>
 </template>
 
@@ -17,31 +16,36 @@ export default {
 
     data() {
         return {
-            games: []
+            games: [],
         };
     },
 
     methods: {
         async getGames() {
             const response = await GamesService.fetchGames();
-            this.games = response.data.games.map(game => {
+            this.games = response.data.games.map((game) => {
                 return {
                     id: game._id,
                     title: game.Title,
-                    logoUrl: game.LogoUrl
+                    logoUrl: game.LogoUrl,
                 };
             });
-        }
+        },
     },
 
     mounted() {
         this.getGames();
-    }
+    },
 };
 </script>
 <style type="text/css">
+.games {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
 .games .logo-img {
-    width: 50px;
+    width: 100px;
     height: auto;
     border-radius: 50%;
 }

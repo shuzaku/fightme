@@ -1,19 +1,28 @@
 <!-- @format -->
 <template>
     <div class="home-view">
-        <new-characters />
+        <!-- <new-characters />
         <new-games />
-        <new-tournament />
+        <new-tournament /> -->
+        <events />
+        <latest-characters />
+        <explore-games />
     </div>
 </template>
 
 <script>
 import { eventbus } from '@/main';
-
+import Events from '@/components/events/events';
+import LatestCharacters from '@/components/character/latest-characters';
+import ExploreGames from '@/components/explore/explore-games';
 export default {
     name: 'Home',
 
-    components: {},
+    components: {
+        events: Events,
+        'latest-characters': LatestCharacters,
+        'explore-games': ExploreGames,
+    },
 
     props: {
         account: {
@@ -30,9 +39,7 @@ export default {
 
     watch: {},
 
-    mounted() {
-        this.queryNotes();
-    },
+    mounted() {},
 
     beforeDestroy() {},
 
@@ -40,4 +47,13 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.home-view {
+    padding-top: 40px;
+}
+
+.home-view .events,
+.home-view .latest-characters {
+    margin-bottom: 20px;
+}
+</style>
