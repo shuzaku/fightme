@@ -8,6 +8,7 @@ import Match from './views/match.vue';
 import Matches from './views/matches.vue';
 import Games from './views/games.vue';
 import Game from './views/game.vue';
+import Home from './views/home.vue';
 
 import ChannelScrapper from './views/channel-scrapper.vue';
 import FavoriteMatches from './views/favorites.vue';
@@ -24,6 +25,9 @@ import YoutubeGenerator from './views/youtube-generator.vue';
 import TournamentBulk from './views/tournament-bulk.vue';
 import PlayerList from './views/player-list.vue';
 import PlayerMerge from './views/merge-players-view.vue'
+
+import MatchReview from './views/match-review.vue'
+
 const routes = [
     {
     path: '/', 
@@ -51,6 +55,7 @@ const routes = [
     {path: '/match/:id', name: 'Match', component: Match},
     {path: '/games', name: 'Games', component: Games},
     {path: '/game/:id', name: 'Game', component: Game},
+    {path: '/home', name: 'Home', component: Home},
     {path: '/montages/', name: 'Montages', component: Montages},
     {path: '/matchups/:id/:id2', name: 'MatchUp', component: MatchUps},
     {path: '/mu/:slug1/:slug2', name: 'Slug MatchUp', component: MatchUps},
@@ -71,7 +76,8 @@ const routes = [
     {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator},
     {path: '/tournament-bulk', name: 'Tournament Bulk', component: TournamentBulk},
     {path: '/player-list', name: 'PlayerList', component: PlayerList},
-    {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge}
+    {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge},
+    {path: '/match/:id/review', name: 'MatchReview', component: MatchReview},
 ] 
 
 export default routes;   

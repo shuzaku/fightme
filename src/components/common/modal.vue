@@ -18,6 +18,7 @@
         />
 
         <new-character v-if="options.name === 'character'" @closeModal="closeModal()" />
+        <new-artical v-if="options.name === 'artical'" @closeModal="closeModal()" />
 
         <new-tournament v-if="options.name === 'tournament'" @closeModal="closeModal()" />
 
@@ -47,6 +48,9 @@ import newPlayer from '@/components/players/new-player';
 import newVideo from '@/components/videos/video-widget';
 import newTournament from '@/components/tournament/new-tournament';
 import newCharacter from '@/components/character/new-character';
+import newArticle from '@/components/article/new-article';
+import newEvent from '@/components/event/new-event';
+
 import register from '@/components/account/register';
 import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
@@ -62,6 +66,9 @@ export default {
         'new-player': newPlayer,
         'new-tournament': newTournament,
         'new-character': newCharacter,
+        'new-article': newArticle,
+        'new-event': newEvent,
+
         register: register,
         login: login,
         collections: collections,

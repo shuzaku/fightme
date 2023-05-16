@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="explore-games">
-        <h2>Explore Games</h2>
+        <h3>Explore Games</h3>
         <div class="games">
             <div v-for="game in games" :key="game.id" class="game">
                 <div
@@ -59,6 +59,17 @@ export default {
 </script>
 
 <style>
+.explore-games .cover-art {
+    width: 200px;
+    height: 266px;
+    background: cover;
+    background-repeat: no-repeat;
+}
+
+.explore-games .cover-art img {
+    width: 100%;
+}
+
 .explore-games .games {
     display: flex;
     margin-bottom: 20px;
@@ -68,11 +79,10 @@ export default {
 }
 
 .explore-games .game {
-    margin: 10px;
+    margin: 3px;
 }
 
-.explore-games h2 {
+.explore-games h3 {
     color: #fff;
-    text-transform: uppercase;
 }
 </style>
