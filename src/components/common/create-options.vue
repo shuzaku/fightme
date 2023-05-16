@@ -47,6 +47,14 @@ export default {
                     name: 'tournament',
                     value: 'tournament',
                 },
+                {
+                    name: 'article',
+                    value: 'article',
+                },
+                {
+                    name: 'event',
+                    value: 'event',
+                },
             ],
         };
     },

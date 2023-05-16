@@ -44,7 +44,7 @@ export default {
     name: 'NewCharacter',
 
     components: {
-        'game-search': GameSearch
+        'game-search': GameSearch,
     },
 
     data() {
@@ -53,10 +53,10 @@ export default {
             game: {
                 name: null,
                 id: null,
-                imageUrl: null
+                imageUrl: null,
             },
             imageUrl: null,
-            avatarUrl: null
+            avatarUrl: null,
         };
     },
 
@@ -70,7 +70,7 @@ export default {
                 Name: this.characterName,
                 GameId: this.game.id,
                 ImageUrl: this.imageUrl,
-                AvatarUrl: this.avatarUrl
+                AvatarUrl: this.avatarUrl,
             });
 
             eventbus.$emit('updateSearch');
@@ -79,8 +79,8 @@ export default {
 
         setGame(game) {
             this.game = game;
-        }
-    }
+        },
+    },
 };
 </script>
 <style type="text/css">

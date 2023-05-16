@@ -8,6 +8,7 @@ import Match from './views/match.vue';
 import Matches from './views/matches.vue';
 import Games from './views/games.vue';
 import Game from './views/game.vue';
+import Home from './views/home.vue';
 
 import ChannelScrapper from './views/channel-scrapper.vue';
 import FavoriteMatches from './views/favorites.vue';
@@ -51,6 +52,7 @@ const routes = [
     {path: '/match/:id', name: 'Match', component: Match},
     {path: '/games', name: 'Games', component: Games},
     {path: '/game/:id', name: 'Game', component: Game},
+    {path: '/home', name: 'Home', component: Home},
     {path: '/montages/', name: 'Montages', component: Montages},
     {path: '/matchups/:id/:id2', name: 'MatchUp', component: MatchUps},
     {path: '/mu/:slug1/:slug2', name: 'Slug MatchUp', component: MatchUps},

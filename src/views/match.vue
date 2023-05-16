@@ -7,7 +7,7 @@
                 :key="index"
                 :class="{ selected: video.selected }"
             >
-                <match-video-card
+                <match-video-analysis-card
                     v-if="video.contentType === 'Match'"
                     ref="card"
                     v-model="video.isPlaying"
@@ -23,14 +23,13 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import MatchVideoCard from '@/components/videos/match-video-card';
-import { eventbus } from '@/main';
+import MatchVideoAnalysisCard from '@/components/videos/match-video-analysis-card';
 
 export default {
     name: 'Match',
 
     components: {
-        'match-video-card': MatchVideoCard,
+        'match-video-analysis-card': MatchVideoAnalysisCard,
     },
 
     props: {
@@ -51,6 +50,8 @@ export default {
                 rootMargin: '0px 0px 0px 0px',
                 threshold: 1,
             },
+
+            hasTimeStamp: true,
         };
     },
 
@@ -66,7 +67,7 @@ export default {
 
     mounted() {
         this.queryVideos();
-     },
+    },
 
     created() {},
 

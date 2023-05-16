@@ -256,6 +256,9 @@ export default {
     },
 
     methods: {
+        seekToTimestamp(seconds) {
+            this.$refs.youtubeRef.player.seekTo(seconds);
+        },
         async getMatch() {
             const response = await MatchesService.getMatch(this.matchId);
             var matchResponse = response.data.matches[0];
