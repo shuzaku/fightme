@@ -15,7 +15,7 @@
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
                     ref="youtubeRef"
-                    :video-id="XYZoB7QL9lw"
+                    :video-id="'XYZoB7QL9lw'"
                     :player-width="556"
                     :player-height="313"
                     :player-vars="{
@@ -368,6 +368,26 @@
                 </div>
             </div>
         </div>
+        <div class="notes">
+            <div class="note-section pre-match-notes">
+                <h3>Pre-match notes</h3>
+                <ul>
+                    <li>Be ready for garuda pressure</li>
+                    <li>Potemkin has super armor approaches</li>
+                    <li>Stay out of his grab range</li>
+                    <li>He uses RC to get in quick and grab</li>
+                    <li>A lot of his far normals can be 6p</li>
+                    <li>Careful with long range footsies</li>
+                </ul>
+            </div>
+            <div class="note-section mental-stack">
+                <h3>Mental Stack</h3>
+                <div v-for="(stack, index) in mentalStacks" :key="index" class="stack">
+                    <a @click="seekToTimeStamp(stack.s)">{{ stack.formattedTime }}</a>
+                    <p>{{ stack.note }}</p>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -388,7 +408,7 @@ export default {
     props: {
         matchId: {
             type: String,
-            default: null,
+            default: '6452a8248134da4cf8accad9',
         },
         value: {
             type: Boolean,
@@ -427,205 +447,7 @@ export default {
             collections: null,
             showCollections: false,
             currentNav: 'general',
-            // timestamps: [
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=11', s: '11' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=13', s: '13' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=14', s: '14' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=14', s: '14' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=15', s: '15' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=15', s: '15' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=18', s: '18' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=19', s: '19' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=27', s: '27' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=28', s: '28' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=34', s: '34' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=35', s: '35' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=41', s: '41' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=53', s: '53' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=55', s: '55' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=73', s: '73' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=73', s: '73' },
-            //     {
-            //         player: 1,
-            //         label: 'reversal',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=74',
-            //         s: '74',
-            //     },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=74', s: '74' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=74', s: '74' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=81', s: '81' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=82', s: '82' },
-            //     { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=86', s: '86' },
-            //     { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=87', s: '87' },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=113',
-            //         s: '113',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=122',
-            //         s: '122',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=123',
-            //         s: '123',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=132',
-            //         s: '132',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=145',
-            //         s: '145',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'reversal',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=147',
-            //         s: '147',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=150',
-            //         s: '150',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=155',
-            //         s: '155',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=156',
-            //         s: '156',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=160',
-            //         s: '160',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=167',
-            //         s: '167',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=168',
-            //         s: '168',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=186',
-            //         s: '186',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=187',
-            //         s: '187',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=192',
-            //         s: '192',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=193',
-            //         s: '193',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=195',
-            //         s: '195',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=196',
-            //         s: '196',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=202',
-            //         s: '202',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=203',
-            //         s: '203',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=217',
-            //         s: '217',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=219',
-            //         s: '219',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=222',
-            //         s: '222',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=223',
-            //         s: '223',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=240',
-            //         s: '240',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=241',
-            //         s: '241',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=242',
-            //         s: '242',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=245',
-            //         s: '245',
-            //     },
-            // ],
+
             timestamps: [
                 { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=3', s: '3' },
                 { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=4', s: '4' },
@@ -775,6 +597,107 @@ export default {
                     s: '138',
                 },
             ],
+
+            mentalStacks: [
+                {
+                    note: 'Did not reflect, blocked',
+                    s: '4',
+                },
+                {
+                    note: 'Back Mega Fist in between block pressure gap, lean towards more frame tight pressure',
+                    s: '10',
+                },
+
+                {
+                    note: 'Willing to Mega fist in neutral, should block and punish',
+                    s: '12',
+                },
+
+                {
+                    note: 'He mega fisted after hammer fall, did not respond correctly to my jump in',
+                    s: '17',
+                },
+
+                {
+                    note: 'Did he react to fireball, or did he sleight head in neutral?',
+                    s: '19',
+                },
+                {
+                    note: 'Punished his garuda on wakeup, he probably wont do this in the future',
+                    s: '22',
+                },
+                {
+                    note: 'BMF during gapped pressure again',
+                    s: '26',
+                },
+                {
+                    note: "FMF into backdash > punish. let's see if he back dashes again",
+                    s: '31',
+                },
+                {
+                    note: 'Got him with charged 5D, can react to stagger pressure but not 5D',
+                    s: '36',
+                },
+
+                {
+                    note: "He's definitely FMF in neutral",
+                    s: '52',
+                },
+
+                {
+                    note: 'This seems safe for POT, need to block garuda at this distance',
+                    s: '62',
+                },
+
+                {
+                    note: "5p punish should have worked, not sure why it didn't???",
+                    s: '65',
+                },
+
+                {
+                    note: "you're getting away with a lot of jump ins",
+                    s: '67',
+                },
+
+                {
+                    note: "First pot buster, seems like he's not forcing these",
+                    s: '73',
+                },
+
+                {
+                    note: 'POT is mashing 2p during pressure',
+                    s: '85',
+                },
+
+                {
+                    note: 'His first anti air, keep jumping in',
+                    s: '107',
+                },
+
+                {
+                    note: 'in the corner he is bound to BMF, need to find a way to bait it.',
+                    s: '112',
+                },
+                {
+                    note: 'OMG FIVE HEAD PLAY, using the rrc to break the super armor',
+                    s: '114',
+                },
+
+                {
+                    note: 'was this a read?!?! ',
+                    s: '131',
+                },
+
+                {
+                    note: "you haven't showed grab on wakeup all set, great option!",
+                    s: '131',
+                },
+
+                {
+                    note: 'Love the aggression, hold him in the corner keep the pressure up',
+                    s: '137',
+                },
+            ],
         };
     },
 
@@ -860,9 +783,7 @@ export default {
                     return {
                         id: player.Id,
                         slot: player.Slot,
-                        name: matchResponse.Team1Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
+                        name: 'Stove',
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team1PlayerCharacters
@@ -873,9 +794,7 @@ export default {
                     return {
                         id: player.Id,
                         slot: player.Slot,
-                        name: matchResponse.Team2Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
+                        name: 'KotaPc',
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team2PlayerCharacters
@@ -1126,6 +1045,10 @@ export default {
             this.timestamps.forEach((t) => {
                 t.formattedTime = moment.utc(t.s * 1000).format('mm:ss');
             });
+
+            this.mentalStacks.forEach((s) => {
+                s.formattedTime = moment.utc(s.s * 1000).format('mm:ss');
+            });
         },
 
         setTimestamps() {
@@ -1154,6 +1077,42 @@ export default {
     width: 100%;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
     justify-content: start;
+}
+
+.notes {
+    display: flex;
+}
+
+.notes .note-section {
+    margin: 10px 0;
+    background: #242832;
+    border: 5px solid #242832;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
+    justify-content: start;
+    color: #fff;
+    padding: 20px;
+}
+
+.pre-match-notes {
+    margin-right: 20px;
+}
+
+.notes .stack {
+    display: flex;
+    margin-bottom: 2px;
+}
+
+.notes h3 {
+    margin-bottom: 10px;
+}
+
+.notes li {
+    font-weight: 400;
 }
 
 .match-card .aside {
@@ -1408,7 +1367,8 @@ export default {
     margin-bottom: 10px;
 }
 
-.match-card .label div {
+.match-card .label div,
+.mental-stack a {
     margin-right: 5px;
     color: #4447e2;
     text-decoration: underline;
