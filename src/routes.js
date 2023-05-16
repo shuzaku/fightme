@@ -72,6 +72,7 @@ const routes = [
     {path: '/tournament-bulk', name: 'Tournament Bulk', component: TournamentBulk},
     {path: '/player-list', name: 'PlayerList', component: PlayerList},
     {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge}
+    {path: '/match/:id/review', name: 'MatchReview', component: MatchReview},
 ] 
 
 export default routes;   
