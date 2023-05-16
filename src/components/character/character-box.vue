@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="character-box"><img :src="character.imageUrl" /></div>
+    <div @click="navigate()" class="character-box"><img :src="character.imageUrl" /></div>
 </template>
 
 <script>
@@ -22,7 +22,15 @@ export default {
 
     created() {},
 
-    methods: {},
+    methods: {
+        navigate() {
+            this.$router.push(`character/${this.character.id}`);
+        },
+    },
 };
 </script>
-<style type="text/css"></style>
+<style type="text/css">
+.character-box {
+    cursor: pointer;
+}
+</style>

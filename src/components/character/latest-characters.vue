@@ -1,7 +1,6 @@
 <!-- @format -->
 <template>
     <div class="latest-characters">
-        <h3>Latest Characters;</h3>
         <div class="character-list">
             <div class="character-container" v-for="character in characters" :key="character.id">
                 <character-box :character="character" />
@@ -60,7 +59,6 @@ export default {
 <style type="text/css">
 .latest-characters h3 {
     color: #fff;
-    margin-bottom: 10px;
 }
 
 .latest-characters .character-list {
@@ -68,7 +66,7 @@ export default {
 }
 
 .latest-characters .character-list .character-box img {
-    max-width: 150px;
+    max-width: 100px;
     width: 100%;
     height: auto;
     margin-right: 10px;

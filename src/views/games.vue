@@ -1,26 +1,23 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="games-view">
-        <div v-for="game in games" :key="game.id">
-            <game-bubble :gameId="game.id" />
-        </div>
+        <explore-games />
     </div>
 </template>
 
 <script>
-import GamesService from '@/services/games-service';
-import GameBubble from '@/components/games/game-bubble';
+import ExploreGames from '@/components/explore/explore-games';
 
 export default {
     name: 'Games',
 
     components: {
-        'game-bubble': GameBubble
+        'explore-games': ExploreGames,
     },
 
     data() {
         return {
-            games: []
+            games: [],
         };
     },
 
@@ -28,24 +25,11 @@ export default {
 
     watch: {},
 
-    mounted() {
-        this.queryGames();
-    },
+    mounted() {},
 
     beforeDestroy() {},
 
-    methods: {
-        async queryGames() {
-            const response = await GamesService.fetchGames();
-            this.games = response.data.games.map(game => {
-                return {
-                    id: game._id,
-                    title: game.Title,
-                    logoUrl: game.LogoUrl
-                };
-            });
-        }
-    }
+    methods: {},
 };
 </script>
 

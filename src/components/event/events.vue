@@ -1,9 +1,8 @@
 <!-- @format -->
 <template>
     <div class="events" @click="navigate()">
-        <h3>Upcoming Events</h3>
         <div class="event-list">
-            <div v-for="event in events" :key="event.name">
+            <div v-for="event in events" :key="event.name" class="event">
                 <event-card :event="event" />
             </div>
         </div>
@@ -11,7 +10,7 @@
 </template>
 
 <script>
-import EventCard from '@/components/events/event-card';
+import EventCard from '@/components/event/event-card';
 import moment from 'moment';
 
 export default {
@@ -74,6 +73,11 @@ export default {
 };
 </script>
 <style type="text/css">
+.events,
+.event {
+    width: 100%;
+}
+
 .events h3 {
     color: #fff;
     margin-bottom: 10px;
@@ -81,5 +85,7 @@ export default {
 .event-list {
     display: flex;
     margin-right: 5px;
+    flex-wrap: wrap;
+    width: 100%;
 }
 </style>

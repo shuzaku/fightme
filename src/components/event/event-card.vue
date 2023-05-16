@@ -43,10 +43,11 @@ export default {
 </script>
 <style type="text/css">
 .event-card {
-    width: 200px;
-    height: 100px;
+    width: 100%;
+    height: 150px;
     background-position: center;
     position: relative;
+    margin-bottom: 10px;
 }
 
 .event-card .days-left {

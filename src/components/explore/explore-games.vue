@@ -60,8 +60,8 @@ export default {
 
 <style>
 .explore-games .cover-art {
-    width: 100px;
-    height: 133px;
+    width: 200px;
+    height: 266px;
     background: cover;
     background-repeat: no-repeat;
 }

@@ -4,17 +4,21 @@
         <!-- <new-characters />
         <new-games />
         <new-tournament /> -->
-        <events />
-        <latest-characters />
-        <explore-games />
+        <div class="event-container">
+            <latest-characters />
+        </div>
+
+        <home-side />
     </div>
 </template>
 
 <script>
 import { eventbus } from '@/main';
-import Events from '@/components/events/events';
+import Events from '@/components/event/events';
 import LatestCharacters from '@/components/character/latest-characters';
 import ExploreGames from '@/components/explore/explore-games';
+import HomeSide from '@/components/home/home-side';
+
 export default {
     name: 'Home',
 
@@ -22,6 +26,7 @@ export default {
         events: Events,
         'latest-characters': LatestCharacters,
         'explore-games': ExploreGames,
+        'home-side': HomeSide,
     },
 
     props: {
@@ -50,10 +55,18 @@ export default {
 <style>
 .home-view {
     padding-top: 40px;
+    display: flex;
 }
 
-.home-view .events,
-.home-view .latest-characters {
-    margin-bottom: 20px;
+.home-view .event-container {
+    max-width: 65%;
+    margin-right: 2%;
+    display: block;
+    width: 100%;
+}
+
+.home-view .home-side {
+    max-width: 35%;
+    width: 100%;
 }
 </style>
