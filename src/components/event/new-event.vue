@@ -15,10 +15,33 @@
                     type="text"
                     placeholder="Event Image Url"
                 />
+
+                <input
+                    id="redirect-url"
+                    v-model="redirectUrl"
+                    type="text"
+                    placeholder="Redirect Url"
+                />
+
+                <multiselect
+                    v-model="selectedType"
+                    :options="types"
+                    :close-on-select="true"
+                    :clear-on-select="false"
+                    :preserve-search="true"
+                    placeholder="Select Type"
+                    @input="setType"
+                >
+                    <template slot="selection" slot-scope="{ values, isOpen }">
+                        <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
+                            Select Type
+                        </span>
+                    </template>
+                </multiselect>
                 <input v-model="date" type="date" />
             </div>
             <div>
-                <v-btn class="submit-btn" rounded @click="addCharacter()">Submit</v-btn>
+                <v-btn class="submit-btn" rounded @click="addEvent()">Submit</v-btn>
             </div>
         </div>
     </div>
@@ -26,6 +49,8 @@
 
 <script>
 import { eventbus } from '@/main';
+import moment from 'moment';
+import EventsService from '@/services/events-service';
 
 export default {
     name: 'NewEvent',
@@ -37,12 +62,35 @@ export default {
             imageUrl: '',
             eventName: '',
             date: null,
+            types: ['Tournament', 'Game', 'Character', 'Patch'],
+            selectedType: null,
+            redirectUrl: null,
         };
     },
 
     created() {},
 
-    methods: {},
+    methods: {
+        setType(item) {
+            this.selectedType = item;
+        },
+
+        async addEvent() {
+            await EventsService.addEvent({
+                Name: this.eventName,
+                ImageUrl: this.imageUrl,
+                Date: moment(this.date),
+                Type: this.selectedType,
+                Url: this.redirectUrl,
+            });
+
+            this.$emit('closeModal');
+        },
+    },
 };
 </script>
-<style type="text/css"></style>
+<style type="text/css">
+.multiselect {
+    margin-bottom: 20px;
+}
+</style>

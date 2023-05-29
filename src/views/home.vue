@@ -4,9 +4,7 @@
         <!-- <new-characters />
         <new-games />
         <new-tournament /> -->
-        <div class="event-container">
-            <latest-characters />
-        </div>
+        <div class="event-container"></div>
 
         <home-side />
     </div>
@@ -56,6 +54,7 @@ export default {
 .home-view {
     padding-top: 40px;
     display: flex;
+    width: 100%;
 }
 
 .home-view .event-container {

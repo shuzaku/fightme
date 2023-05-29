@@ -65,10 +65,16 @@ export default {
     display: flex;
 }
 
-.latest-characters .character-list .character-box img {
-    max-width: 100px;
-    width: 100%;
-    height: auto;
+.latest-characters .character-list .character-box {
     margin-right: 10px;
+    border-radius: 50%;
+    width: 65x;
+    height: 100%;
+    overflow: hidden;
+}
+
+.latest-characters .character-list .character-box img {
+    width: 100%;
+    height: 100%;
 }
 </style>

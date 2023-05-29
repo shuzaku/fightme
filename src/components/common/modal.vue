@@ -38,6 +38,13 @@
             :account="account"
             @closeModal="closeModal()"
         />
+
+        <new-event v-if="options.name === 'event'" @closeModal="closeModal()" />
+        <new-article
+            v-if="options.name === 'article'"
+            :accountId="account.id"
+            @closeModal="closeModal()"
+        />
     </div>
 </template>
 

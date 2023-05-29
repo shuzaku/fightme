@@ -262,6 +262,7 @@ export default {
         async getMatch() {
             const response = await MatchesService.getMatch(this.matchId);
             var matchResponse = response.data.matches[0];
+            console.log(matchResponse);
             this.video.match = {
                 team1Players: matchResponse.Team1Players.map((player) => {
                     return {
