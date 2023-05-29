@@ -149,21 +149,21 @@
                     </div>
                 </div>
                 <div v-if="currentNav === 'player1'" class="player1">
-                    <div class="team2">
+                    <div class="team1">
                         <div
-                            v-for="team2Player in video.match.team2Players"
-                            :key="team2Player.id"
+                            v-for="team1Player in video.match.team1Players"
+                            :key="team1Player.id"
                             class="player"
                         >
                             <div
                                 class="heavy-weight player-name"
-                                @click="queryPlayer(team2Player.id)"
+                                @click="queryPlayer(team1Player.id)"
                             >
-                                <p>{{ team2Player.name }}</p>
+                                <p>{{ team1Player.name }}</p>
                             </div>
                             <div class="characters">
                                 <div
-                                    v-for="(character, index) in team2Player.characters"
+                                    v-for="(character, index) in team1Player.characters"
                                     :key="index"
                                     class="character"
                                 >
@@ -228,19 +228,19 @@
                 <div v-if="currentNav === 'player2'" class="player2">
                     <div class="team1">
                         <div
-                            v-for="team1Player in video.match.team1Players"
-                            :key="team1Player.id"
+                            v-for="team2Player in video.match.team2Players"
+                            :key="team2Player.id"
                             class="player"
                         >
                             <div
                                 class="heavy-weight player-name"
-                                @click="queryPlayer(team1Player.id)"
+                                @click="queryPlayer(team2Player.id)"
                             >
-                                <p>{{ team1Player.name }}</p>
+                                <p>{{ team2Player.name }}</p>
                             </div>
                             <div class="characters">
                                 <div
-                                    v-for="(character, index) in team1Player.characters"
+                                    v-for="(character, index) in team2Player.characters"
                                     :key="index"
                                     class="character"
                                 >

@@ -23,18 +23,23 @@
                 <quill-editor ref="myQuillEditor" v-model="content" />
             </div>
             <div>
-                <v-btn class="submit-btn" rounded @click="addCharacter()">Submit</v-btn>
+                <v-btn class="submit-btn" rounded @click="addArticle()">Submit</v-btn>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import { articlebus } from '@/main';
+import ArticlesService from '@/services/articles-service';
 
 export default {
     name: 'NewArticle',
-
+    props: {
+        accountId: {
+            type: String,
+            default: null,
+        },
+    },
     components: {},
 
     data() {
@@ -47,7 +52,18 @@ export default {
 
     created() {},
 
-    methods: {},
+    methods: {
+        async addArticle() {
+            await ArticlesService.addArticle({
+                Title: this.articleTitle,
+                FeaturedImage: this.imageUrl,
+                Content: this.content,
+                AuthorId: this.accountId,
+            });
+
+            this.$emit('closeModal');
+        },
+    },
 };
 </script>
 <style type="text/css"></style>
