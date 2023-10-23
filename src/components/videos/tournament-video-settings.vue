@@ -57,14 +57,14 @@
 
 <script>
 import AddMatch from '@/components/videos/add-match';
-// import TournamentSearch from '../tournament/tournament-search.vue';
+import TournamentSearch from '../tournament/tournament-search.vue';
 
 export default {
     name: 'TournamentVideoSettings',
 
     components: {
         'add-match': AddMatch,
-        // 'tournament-search': TournamentSearch,
+        'tournament-search': TournamentSearch,
     },
 
     props: {

@@ -259,10 +259,11 @@ export default {
         seekToTimestamp(seconds) {
             this.$refs.youtubeRef.player.seekTo(seconds);
         },
+
         async getMatch() {
+            this.isLoading = true;
             const response = await MatchesService.getMatch(this.matchId);
             var matchResponse = response.data.matches[0];
-            console.log(matchResponse);
             this.video.match = {
                 team1Players: matchResponse.Team1Players.map((player) => {
                     return {

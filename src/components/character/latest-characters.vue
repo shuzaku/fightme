@@ -68,7 +68,7 @@ export default {
 .latest-characters .character-list .character-box {
     margin-right: 10px;
     border-radius: 50%;
-    width: 65x;
+    width: 65px;
     height: 100%;
     overflow: hidden;
 }

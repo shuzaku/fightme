@@ -110,7 +110,6 @@ export default {
             const response = await PlayersService.getPlayer({
                 id: this.playerId,
             });
-            console.log(response.data);
             this.player = this.hydratePlayer(response.data);
         },
 
