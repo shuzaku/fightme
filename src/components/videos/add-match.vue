@@ -3,41 +3,48 @@
     <div class="add-match">
         <!--- players --->
         <div class="players-container">
-            <h2>Players</h2>
             <div class="team1">
-                <div v-for="(player, index) in match.team1Players" :key="index">
-                    <player-search
-                        v-model="player.id"
-                        @update:player="addPlayerToTeam1($event, index)"
-                    />
+                <div class="player1" v-for="(player, index) in match.team1Players" :key="index">
+                    <div class="player-container">
+                        <h3>Player</h3>
+                        <player-search
+                            v-model="player.id"
+                            @update:player="addPlayerToTeam1($event, index)"
+                        />
+                    </div>
                     <div class="character-container">
                         <h3>Characters</h3>
                         <character-search
                             v-model="player.characterIds"
                             :gameId="gameId"
+                            multiple
                             @update:character="addCharacterToPlayer($event, player)"
                         />
                     </div>
                 </div>
-                <v-btn @click="addToTeam1()">Add player to team 1</v-btn>
+                <!-- <v-btn @click="addToTeam1()">Add player to team 1</v-btn> -->
             </div>
             <div class="versus">Vs.</div>
             <div class="team2">
-                <div v-for="(player, index) in match.team2Players" :key="index">
-                    <player-search
-                        v-model="player.id"
-                        @update:player="addPlayerToTeam2($event, index)"
-                    />
+                <div class="player2" v-for="(player, index) in match.team2Players" :key="index">
+                    <div class="player-container">
+                        <h3>Player</h3>
+                        <player-search
+                            v-model="player.id"
+                            @update:player="addPlayerToTeam2($event, index)"
+                        />
+                    </div>
                     <div class="character-container">
                         <h3>Characters</h3>
                         <character-search
                             v-model="player.characterIds"
                             :gameId="gameId"
+                            multiple
                             @update:character="addCharacterToPlayer($event, player)"
                         />
                     </div>
                 </div>
-                <v-btn @click="addToTeam2()">Add player to team 2</v-btn>
+                <!-- <v-btn @click="addToTeam2()">Add player to team 2</v-btn> -->
             </div>
             <div class="match-details">
                 <multiselect
@@ -110,7 +117,6 @@ export default {
                     },
                 ],
                 winningPlayers: null,
-                losingPlayers: null,
             },
         };
     },
@@ -127,10 +133,6 @@ export default {
     },
 
     watch: {
-        match() {
-            this.$emit('update:match', this.match);
-        },
-
         value() {
             this.setDefaultValues();
         },
@@ -146,8 +148,8 @@ export default {
             this.match.losingPlayers = this.value.losingPlayers;
         },
 
-        addCharacterToPlayer(character, player) {
-            player.characterIds.push(character);
+        addCharacterToPlayer(characters, player) {
+            player.characterIds = characters;
             this.$emit('update:match', this.match);
         },
 

@@ -36,7 +36,6 @@ export default {
 
     methods: {
         navigate() {
-            console.log('navigate');
         },
     },
 };

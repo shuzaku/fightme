@@ -22,7 +22,7 @@ import Collections from './views/collections.vue';
 import Collection from './views/collection.vue';
 import Note from './views/notes.vue';
 import YoutubeGenerator from './views/youtube-generator.vue';
-import TournamentBulk from './views/tournament-bulk.vue';
+import Tournament from './views/tournament.vue';
 import PlayerList from './views/player-list.vue';
 import PlayerMerge from './views/merge-players-view.vue'
 
@@ -74,7 +74,7 @@ const routes = [
     {path: '/favorites', name: 'favorites', component: Favorites},
     {path: '/notes', name: 'notes', component: Note},
     {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator},
-    {path: '/tournament-bulk', name: 'Tournament Bulk', component: TournamentBulk},
+    {path: '/tournament-bulk', name: 'Tournament Bulk', component: Tournament},
     {path: '/player-list', name: 'PlayerList', component: PlayerList},
     {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge},
     {path: '/match/:id/review', name: 'MatchReview', component: MatchReview},
