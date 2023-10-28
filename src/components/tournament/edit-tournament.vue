@@ -52,7 +52,7 @@ export default {
     name: 'EditTournament',
 
     components: {
-        'game-search': GameSearch
+        'game-search': GameSearch,
     },
 
     data() {
@@ -62,16 +62,16 @@ export default {
                 region: null,
                 updatedDate: null,
                 selectedGames: [],
-                tournamentImg: null
+                tournamentImg: null,
             },
             games: '',
-            game: null
+            game: null,
         };
     },
     methods: {
         async getTournament() {
             const response = await TournamentsService.getTournament({
-                id: this.$route.params.id
+                id: this.$route.params.id,
             });
             this.tournament.name = response.data.TournamentName;
             this.tournament.region = response.data.Region;
@@ -87,25 +87,25 @@ export default {
                 Region: this.tournament.region,
                 GamesPlayed: this.tournament.selectedGames,
                 UpdatedDate: this.tournament.timestamp,
-                TournamentImg: this.tournament.tournamentImg
+                TournamentImg: this.tournament.tournamentImg,
             });
             this.$router.push({ name: 'Tournaments' });
         },
 
         setGame(game) {
             this.tournament.selectedGames = game;
-        }
+        },
     },
 
     computed: {
-        timestamp: function() {
+        timestamp: function () {
             return moment().format();
-        }
+        },
     },
 
     created() {
         this.getTournament();
-    }
+    },
 };
 </script>
 <style type="text/css">
@@ -130,7 +130,7 @@ export default {
     margin: 0 auto;
 }
 
-.edit-tournaments .games-search {
+.edit-tournaments .game-search {
     margin: 0;
 }
 

@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="games-search">
+    <div class="game-search">
         <multiselect
             v-if="games"
             v-model="selectedGame"
@@ -10,7 +10,9 @@
             :clear-on-select="false"
             :preserve-search="true"
             :taggable="taggable"
-            placeholder="Search or add a Game"
+            :select-label="''"
+            :loading="isLoading"
+            :placeholder="placeholder"
             label="title"
             @tag="addGame"
             @input="setGame"
@@ -19,6 +21,16 @@
                 <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
                     Select Game
                 </span>
+            </template>
+            <template slot="option" slot-scope="props">
+                <div class="game-option">
+                    <div class="logo-container">
+                        <img class="option__image" :src="props.option.logoUrl" alt="Game Logo" />
+                    </div>
+                    <div class="option__desc">
+                        <span class="option__title">{{ props.option.title }}</span>
+                    </div>
+                </div>
             </template>
         </multiselect>
     </div>
@@ -38,12 +50,18 @@ export default {
             type: String,
             default: null,
         },
+
+        placeholder: {
+            type: String,
+            default: 'Search or add a Game',
+        },
     },
 
     data() {
         return {
             games: [],
             selectedGame: null,
+            isLoading: false,
         };
     },
 
@@ -67,6 +85,7 @@ export default {
         },
 
         async getGames() {
+            this.isLoading = true;
             const response = await GamesService.fetchGames();
             this.games = response.data.games.map((game) => {
                 return {
@@ -77,6 +96,11 @@ export default {
                     currentVersion: game.CurrentVersion,
                 };
             });
+
+            this.games.sort((a, b) => (b.id > a.id ? 1 : -1));
+
+            this.isLoading = false;
+
             if (this.value) {
                 this.selectedGame = this.games.filter((game) => game.id === this.value);
             }
@@ -88,4 +112,23 @@ export default {
     },
 };
 </script>
-<style type="text/css"></style>
+<style type="text/css">
+.game-search .game-option {
+    display: flex;
+    align-items: center;
+}
+
+.game-search .game-option .logo-container {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.game-search .game-option .logo-container img {
+    width: 100%;
+    height: auto;
+}
+</style>

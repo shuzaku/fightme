@@ -40,7 +40,7 @@ export default {
     name: 'EditCreator',
 
     components: {
-        'creator-search': CreatorSearch
+        'creator-search': CreatorSearch,
     },
 
     data() {
@@ -49,22 +49,22 @@ export default {
                 name: null,
                 youtubeChannel: null,
                 updatedDate: null,
-                creatorLogo: null
+                creatorLogo: null,
             },
-            selectedCharacter: null
+            selectedCharacter: null,
         };
     },
     methods: {
         async getCreator() {
             const response = await CreatorsService.getCreator({
-                id: this.$route.params.id
+                id: this.$route.params.id,
             });
-            this.creator = response.data.map(creator => {
+            this.creator = response.data.map((creator) => {
                 return {
                     name: response.data.Name,
                     youtubeChannel: response.data.YoutubeChannel,
                     creatorLogo: response.data.Logo,
-                    createdDate: response.data.CreatedDate
+                    createdDate: response.data.CreatedDate,
                 };
             });
         },
@@ -75,25 +75,25 @@ export default {
                 Name: this.creator.name,
                 YoutubeChannel: this.creator.youtubeChannel,
                 UpdatedDate: this.creator.timestamp,
-                Logo: this.creator.Logo
+                Logo: this.creator.Logo,
             });
             this.$router.push({ name: 'Creators' });
         },
 
         setCreator(creator) {
             this.creator = creator;
-        }
+        },
     },
 
     computed: {
-        timestamp: function() {
+        timestamp: function () {
             return moment().format();
-        }
+        },
     },
 
     created() {
         this.getCreator();
-    }
+    },
 };
 </script>
 <style type="text/css">
@@ -118,7 +118,7 @@ export default {
     margin: 0 auto;
 }
 
-.edit-creators .games-search {
+.edit-creators .game-search {
     margin: 0;
 }
 

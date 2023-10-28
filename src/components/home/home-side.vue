@@ -107,21 +107,21 @@ export default {
 }
 
 .home-side .controller-icon {
-    max-width: 100px;
+    max-width: 60px;
     width: 100%;
     height: auto;
     filter: brightness(0) invert(1);
 }
 
 .home-side .notes-icon {
-    max-width: 80px;
+    max-width: 40px;
     width: 100%;
     height: auto;
     filter: brightness(0) invert(1);
 }
 
 .home-side .content-icon {
-    max-width: 80px;
+    max-width: 40px;
     width: 100%;
     height: auto;
     filter: brightness(0) invert(1);
