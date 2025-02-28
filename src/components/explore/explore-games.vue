@@ -49,6 +49,7 @@ export default {
                     featuredPlayer: game.FeaturedPlayer,
                 };
             });
+            this.games = this.games.reverse();
         },
 
         navigate(id) {

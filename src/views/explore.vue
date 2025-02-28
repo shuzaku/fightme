@@ -3,26 +3,22 @@
     <div class="explore-view">
         <div class="header">
             <h1>Explore</h1>
-            <p>Content from all your favorite games, creators, players, etc.</p>
         </div>
-        <div class="explore-nav">
-            <v-btn>Games</v-btn>
-            <v-btn>Players</v-btn>
-            <v-btn>Content Creator</v-btn>
-            <v-btn>Tournament</v-btn>
-        </div>
+        <events />
         <explore-games />
     </div>
 </template>
 
 <script>
 import ExploreGames from '@/components/explore/explore-games';
+import Events from '@/components/event/events';
 
 export default {
     name: 'explore',
 
     components: {
         'explore-games': ExploreGames,
+        events: Events,
     },
 
     data() {
@@ -71,5 +67,9 @@ export default {
 
 .explore-view .explore-nav {
     margin-bottom: 50px;
+}
+
+.explore-view .events {
+    margin-bottom: 40px;
 }
 </style>
