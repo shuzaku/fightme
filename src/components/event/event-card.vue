@@ -35,8 +35,7 @@ export default {
     mounted() {},
 
     methods: {
-        navigate() {
-        },
+        navigate() {},
     },
 };
 </script>
@@ -47,6 +46,8 @@ export default {
     background-position: center;
     position: relative;
     margin-bottom: 10px;
+    min-width: 450px;
+    border-radius: 15px;
 }
 
 .event-card .days-left {

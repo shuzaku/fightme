@@ -1,6 +1,7 @@
 <!-- @format -->
 <template>
     <div class="events" @click="navigate()">
+        <h3>Explore Events</h3>
         <div class="event-list">
             <div v-for="event in events" :key="event.name" class="event">
                 <event-card :event="event" />
@@ -73,8 +74,7 @@ export default {
 };
 </script>
 <style type="text/css">
-.events,
-.event {
+.events {
     width: 100%;
 }
 
