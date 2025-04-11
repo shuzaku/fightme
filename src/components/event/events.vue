@@ -87,6 +87,5 @@ export default {
     margin-right: 5px;
     flex-wrap: wrap;
     width: 100%;
-    justify-content: space-between;
 }
 </style>

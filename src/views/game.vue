@@ -7,6 +7,8 @@
             :account="account"
             @game-filter:update="applyFilter($event)"
         />
+        <explore-characters :gameId="gameId" />
+
         <loading v-if="loading && videos.length <= 0"></loading>
         <div v-else-if="videos.length > 0" class="videos-container">
             <div
@@ -41,6 +43,7 @@ import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import GameNav from '@/components/games/game-nav';
 import Loading from '@/components/common/loading';
+import ExploreCharacters from '@/components/explore/explore-characters';
 
 import { eventbus } from '@/main';
 
@@ -52,6 +55,7 @@ export default {
         'combo-video-card': ComboVideoCard,
         'game-nav': GameNav,
         loading: Loading,
+        'explore-characters': ExploreCharacters,
     },
 
     props: {
@@ -201,12 +205,16 @@ export default {
 
         checkFavorites() {
             this.favorites.forEach((favorite) => {
-                if (favorite.contentType === 'Combo') {
-                    this.videos.filter(
-                        (video) => video.combo.id === favorite.id
-                    )[0].isFavorited = true;
-                } else {
-                    this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
+                if (favorite.id) {
+                    if (favorite.contentType === 'Combo') {
+                        this.videos.filter(
+                            (video) => video.combo.id === favorite.id
+                        )[0].isFavorited = true;
+                    } else {
+                        this.videos.filter(
+                            (video) => video.id === favorite.id
+                        )[0].isFavorited = true;
+                    }
                 }
             });
         },
