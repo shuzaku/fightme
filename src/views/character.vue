@@ -40,11 +40,8 @@
                 </div>
             </div>
         </div>
-        <<<<<<< HEAD
-        <loading v-show="isLoading"></loading>
-        =======
+
         <loading v-else></loading>
-        >>>>>>> 7512745c08bd07aeb86d2bd902442e489c9b6973
     </div>
 </template>
 
@@ -81,11 +78,7 @@ export default {
     data() {
         return {
             videos: [],
-<<<<<<< HEAD
             isLoading: true,
-=======
-            isLoading: false,
->>>>>>> 7512745c08bd07aeb86d2bd902442e489c9b6973
             query: null,
             savedQuery: null,
             favorites: [],
