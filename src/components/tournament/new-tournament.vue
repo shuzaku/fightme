@@ -10,7 +10,7 @@
             <input
                 id="import-image"
                 type="text"
-                v-model="tournament.logoUrl"
+                v-model="tournament.image"
                 placeholder="Image Url"
             />
             <input
@@ -25,8 +25,8 @@
                 placeholder="Location"
                 v-model="tournament.location"
             />
-            <input type="text" name="date" placeholder="Date" v-model="tournament.date" />
-            <!-- <input type="text" name="tournament series" placeholder="Tournament Series" v-model="tournament.date"> -->
+            <input type="text" name="date" placeholder="Date" v-model="tournament.eventDate" />
+            <input type="text" name="tournament series" placeholder="Tournament Series" v-model="tournament.tournamentSeries">
             <v-btn class="submit-btn" rounded @click="goToGameStep()">Set Games</v-btn>
         </div>
         <div class="form" v-if="step === 'games'">

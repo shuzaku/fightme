@@ -27,7 +27,7 @@
         <div v-else-if="(videos.length = 0 && !loading)" class="no-videos">
             <h2>Unable to find any videos</h2>
         </div>
-        <loading v-show="loading"></loading>
+        <loading v-show="isLoading"></loading>
     </div>
 </template>
 
@@ -57,7 +57,7 @@ export default {
     data() {
         return {
             videos: [],
-            loading: true,
+            isLoading: true,
             query: null,
             savedQuery: null,
             favorites: [],

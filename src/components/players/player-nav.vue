@@ -26,6 +26,13 @@
                     </a>
                 </div>
             </div>
+            <div class="player-tabs">
+                <ul>
+                    <li>Online/Ranked</li>
+                    <li>Tournament</li>
+                    <li>Bio</li>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
