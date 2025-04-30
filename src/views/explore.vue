@@ -4,21 +4,23 @@
         <div class="header">
             <h1>Explore</h1>
         </div>
-        <events />
+        <explore-updates />
+        <explore-tournaments />
         <explore-games />
     </div>
 </template>
 
 <script>
+import ExploreTournaments from '@/components/explore/explore-tournaments';
 import ExploreGames from '@/components/explore/explore-games';
-import Events from '@/components/event/events';
-
+import ExploreUpdates from '@/components/explore/explore-updates';
 export default {
     name: 'explore',
 
     components: {
         'explore-games': ExploreGames,
-        events: Events,
+        'explore-tournaments': ExploreTournaments,
+        'explore-updates': ExploreUpdates,
     },
 
     data() {

@@ -138,7 +138,7 @@ export default {
     methods: {
         async getCharacter() {
             const response = await CharactersService.getCharacter({
-                id: this.character.id,
+                id: this.characterId,
             });
             this.character = this.hydrateCharacter(response.data.characters[0]);
         },
@@ -151,6 +151,7 @@ export default {
         },
 
         hydrateCharacter(response) {
+            console.log('hydrateCharacter', response);
             return {
                 id: response._id,
                 name: response.Name,
@@ -290,5 +291,13 @@ export default {
 
 .character-nav .v-icon.v-icon {
     color: #4447e2;
+}
+
+.character-nav .character-header .character-img {
+    border-radius: 50%;
+    max-height: 70px;
+    width: auto;
+    position: relative;
+    left: -10px;
 }
 </style>

@@ -40,7 +40,11 @@
                 </div>
             </div>
         </div>
+        <<<<<<< HEAD
+        <loading v-show="isLoading"></loading>
+        =======
         <loading v-else></loading>
+        >>>>>>> 7512745c08bd07aeb86d2bd902442e489c9b6973
     </div>
 </template>
 
@@ -77,13 +81,18 @@ export default {
     data() {
         return {
             videos: [],
+<<<<<<< HEAD
+            isLoading: true,
+=======
             isLoading: false,
+>>>>>>> 7512745c08bd07aeb86d2bd902442e489c9b6973
             query: null,
             savedQuery: null,
             favorites: [],
             filter: null,
             sort: null,
             tagFilter: null,
+            isLast: false,
         };
     },
 
@@ -156,37 +165,41 @@ export default {
         },
 
         async queryVideos(newQuery) {
-            this.isLoading = true;
+            if (!this.isLast) {
+                if (this.$route.name == 'CharacterCombo') {
+                    this.filter = 'Combo';
+                }
 
-            if (this.$route.name == 'CharacterCombo') {
-                this.filter = 'Combo';
+                this.isLoading = true;
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    searchQuery: [
+                        {
+                            queryName: 'CharacterId',
+                            queryValue: this.characterId,
+                        },
+                    ],
+                    filter: this.filter,
+                };
+
+                if (this.characterSlug) {
+                    queryParameter.searchQuery[0].queryName = 'CharacterSlug';
+                    queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
+                }
+
+                if (newQuery) {
+                    queryParameter.searchQuery.push(newQuery);
+                }
+
+                const response = await MatchesService.queryMatchesByCharacter(queryParameter);
+                if (response.data.matches.length === 0) {
+                    this.isLast = true;
+                }
+
+                this.hydrateVideos(response);
+                this.isLoading = false;
             }
-
-            this.isLoading = true;
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                searchQuery: [
-                    {
-                        queryName: 'CharacterId',
-                        queryValue: this.characterId,
-                    },
-                ],
-                filter: this.filter,
-            };
-
-            if (this.characterSlug) {
-                queryParameter.searchQuery[0].queryName = 'CharacterSlug';
-                queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
-            }
-
-            if (newQuery) {
-                queryParameter.searchQuery.push(newQuery);
-            }
-
-            const response = await MatchesService.queryMatchesByCharacter(queryParameter);
-            this.hydrateVideos(response);
-            this.isLoading = false;
         },
 
         hydrateVideos(response) {

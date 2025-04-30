@@ -33,7 +33,6 @@
                 />
             </div>
         </div>
-        <loading v-show="loading"></loading>
     </div>
 </template>
 
@@ -74,6 +73,7 @@ export default {
             filter: null,
             sort: null,
             loading: false,
+            isLast: false,
         };
     },
 
@@ -128,26 +128,33 @@ export default {
         },
 
         async queryVideos() {
-            this.loading = true;
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                filter: this.filter,
-                searchQuery: [
-                    {
-                        queryName: 'GameId',
-                        queryValue: this.gameId,
-                    },
-                ],
-            };
+            if (!this.isLast) {
+                this.loading = true;
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    filter: this.filter,
+                    searchQuery: [
+                        {
+                            queryName: 'GameId',
+                            queryValue: this.gameId,
+                        },
+                    ],
+                };
 
-            const response = await MatchesService.queryMatchesByGame(queryParameter);
-            this.hydrateVideos(response);
-            this.checkFavorites();
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
+                const response = await MatchesService.queryMatchesByGame(queryParameter);
+
+                if (response.data.matches.length === 0) {
+                    this.isLast = true;
+                }
+
+                this.hydrateVideos(response);
+                this.checkFavorites();
+                if (this.videos.length > 0 && this.videos.length < 6) {
+                    this.playFirstVideo();
+                }
+                this.loading = false;
             }
-            this.loading = false;
         },
 
         hydrateVideos(response) {

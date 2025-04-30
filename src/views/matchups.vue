@@ -320,7 +320,6 @@ export default {
 }
 
 .matchups-view .character-pills .character-nav {
-    width: 250px;
     min-width: initial;
     cursor: pointer;
 }
@@ -337,6 +336,7 @@ export default {
 .matchups-view .versus {
     font-size: 30px;
     color: #fff;
+    margin: 0 40px;
 }
 
 #app.mobile.small-mobile .matchups-view .character-pills .character-nav {
