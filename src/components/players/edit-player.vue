@@ -43,7 +43,7 @@ export default {
     name: 'EditPlayer',
 
     components: {
-        'game-search': GameSearch
+        'game-search': GameSearch,
     },
 
     data() {
@@ -53,16 +53,16 @@ export default {
                 region: null,
                 updatedDate: null,
                 selectedGames: [],
-                playerImg: null
+                playerImg: null,
             },
             games: '',
-            game: null
+            game: null,
         };
     },
     methods: {
         async getPlayer() {
             const response = await PlayersService.getPlayer({
-                id: this.$route.params.id
+                id: this.$route.params.id,
             });
             this.player.name = response.data.PlayerName;
             this.player.region = response.data.Region;
@@ -78,25 +78,25 @@ export default {
                 Region: this.player.region,
                 GamesPlayed: this.player.selectedGames,
                 UpdatedDate: this.player.timestamp,
-                PlayerImg: this.player.playerImg
+                PlayerImg: this.player.playerImg,
             });
             this.$router.push({ name: 'Players' });
         },
 
         setGame(game) {
             this.player.selectedGames = game;
-        }
+        },
     },
 
     computed: {
-        timestamp: function() {
+        timestamp: function () {
             return moment().format();
-        }
+        },
     },
 
     created() {
         this.getPlayer();
-    }
+    },
 };
 </script>
 <style type="text/css">
@@ -121,7 +121,7 @@ export default {
     margin: 0 auto;
 }
 
-.edit-players .games-search {
+.edit-players .game-search {
     margin: 0;
 }
 

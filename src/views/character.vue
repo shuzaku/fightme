@@ -1,44 +1,50 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="character-view">
-        <character-nav
-            :characterId="characterId"
-            :characterSlug="characterSlug"
-            :account="account"
-            @character-filter:update="filterQuery($event)"
-        />
-        <div v-if="videos.length > 0" class="videos-container">
-            <div
-                v-for="(video, index) in videos"
-                :key="index"
-                :class="{ selected: video.selected }"
-            >
-                <match-video-card
-                    v-if="video.contentType === 'Match'"
-                    v-model="video.isPlaying"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
-                    :isFirst="video.isFirst"
-                    :matchId="video.matchId"
-                    :account="account"
-                />
-                <combo-video-card
-                    v-if="video.contentType === 'Combo'"
-                    v-model="video.isPlaying"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
-                    :isFirst="video.isFirst"
-                    :comboClipId="video.comboClipId"
-                    :account="account"
-                />
-                <montage-video-card
-                    v-if="video.contentType === 'Montage'"
-                    v-model="video.isPlaying"
-                    :montageId="video.montageId"
-                    :account="account"
-                    @video:delete="refreshDelete()"
-                />
+        <div v-if="!isLoading" class="character-container">
+            <character-nav
+                :characterId="characterId"
+                :characterSlug="characterSlug"
+                :account="account"
+                @character-filter:update="filterQuery($event)"
+            />
+            <div v-if="videos.length > 0" class="videos-container">
+                <div
+                    v-for="(video, index) in videos"
+                    :key="index"
+                    :class="{ selected: video.selected }"
+                >
+                    <match-video-card
+                        v-if="video.contentType === 'Match'"
+                        v-model="video.isPlaying"
+                        :favoriteVideos="account ? account.favoriteVideos : null"
+                        :isFirst="video.isFirst"
+                        :matchId="video.matchId"
+                        :account="account"
+                    />
+                    <combo-video-card
+                        v-if="video.contentType === 'Combo'"
+                        v-model="video.isPlaying"
+                        :favoriteVideos="account ? account.favoriteVideos : null"
+                        :isFirst="video.isFirst"
+                        :comboClipId="video.comboClipId"
+                        :account="account"
+                    />
+                    <montage-video-card
+                        v-if="video.contentType === 'Montage'"
+                        v-model="video.isPlaying"
+                        :montageId="video.montageId"
+                        :account="account"
+                        @video:delete="refreshDelete()"
+                    />
+                </div>
             </div>
         </div>
+        <<<<<<< HEAD
         <loading v-show="isLoading"></loading>
+        =======
+        <loading v-else></loading>
+        >>>>>>> 7512745c08bd07aeb86d2bd902442e489c9b6973
     </div>
 </template>
 
@@ -75,7 +81,11 @@ export default {
     data() {
         return {
             videos: [],
+<<<<<<< HEAD
             isLoading: true,
+=======
+            isLoading: false,
+>>>>>>> 7512745c08bd07aeb86d2bd902442e489c9b6973
             query: null,
             savedQuery: null,
             favorites: [],
@@ -102,10 +112,8 @@ export default {
 
     watch: {
         characterId: function () {
-            this.isLoading = true;
             this.videos = [];
             this.queryVideos();
-            this.isLoading = false;
         },
     },
 
@@ -256,9 +264,9 @@ export default {
 <style>
 .character-view {
     position: relative;
-    padding-top: 30px;
+    padding-top: 40px;
     height: 100%;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
 }
 

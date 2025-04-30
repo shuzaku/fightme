@@ -65,10 +65,15 @@ export default {
     display: flex;
 }
 
+.latest-characters .character-list .character-container {
+    max-width: 25%;
+    width: 100%;
+}
+
 .latest-characters .character-list .character-box {
     margin-right: 10px;
     border-radius: 50%;
-    width: 65px;
+    width: 100%;
     height: 100%;
     overflow: hidden;
 }

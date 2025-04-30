@@ -3,13 +3,6 @@
     <div class="explore-view">
         <div class="header">
             <h1>Explore</h1>
-            <p>Content from all your favorite games, creators, players, etc.</p>
-        </div>
-        <div class="explore-nav">
-            <v-btn>Games</v-btn>
-            <v-btn>Players</v-btn>
-            <v-btn>Content Creator</v-btn>
-            <v-btn>Tournament</v-btn>
         </div>
         <explore-updates />
         <explore-tournaments />
@@ -76,5 +69,9 @@ export default {
 
 .explore-view .explore-nav {
     margin-bottom: 50px;
+}
+
+.explore-view .events {
+    margin-bottom: 40px;
 }
 </style>

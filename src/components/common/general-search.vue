@@ -164,20 +164,20 @@ export default {
 
             this.searchValues = [
                 {
-                    category: 'Player',
-                    values: searchValues.filter((value) => value.valueType === 'Player'),
+                    category: 'Game',
+                    values: searchValues.filter((value) => value.valueType === 'Game'),
                 },
                 {
                     category: 'Character',
                     values: searchValues.filter((value) => value.valueType === 'Character'),
                 },
                 {
-                    category: 'Content Creator',
-                    values: searchValues.filter((value) => value.valueType === 'ContentCreator'),
+                    category: 'Player',
+                    values: searchValues.filter((value) => value.valueType === 'Player'),
                 },
                 {
-                    category: 'Game',
-                    values: searchValues.filter((value) => value.valueType === 'Game'),
+                    category: 'Content Creator',
+                    values: searchValues.filter((value) => value.valueType === 'ContentCreator'),
                 },
             ];
         },

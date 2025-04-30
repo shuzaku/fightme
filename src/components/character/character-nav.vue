@@ -1,7 +1,8 @@
 <!-- @format -->
 <template>
     <div class="character-nav">
-        <div class="character-header" :style="characterbubbleStyle">
+        <div class="character-header">
+            <img class="character-img" :src="character.imageUrl" />
             <div class="options">
                 <h2>{{ character.name }}</h2>
             </div>
@@ -228,14 +229,23 @@ export default {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding: 0 20px;
+    padding: 0 20px 0 0;
     border: 2px solid #4447e2;
     border-radius: 15px;
 }
 
+.character-nav .character-header .character-img {
+    border-radius: 50%;
+    max-height: 120px;
+    width: auto;
+    position: relative;
+    left: -10px;
+}
+
 .character-nav .character-header h2 {
     text-align: right;
+    font-size: 40px;
+    color: #fff;
 }
 
 .character-nav .info-card {
@@ -256,7 +266,8 @@ export default {
 .character-nav .quick-nav {
     display: flex;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 8px;
+    padding-left: 100px;
     flex-wrap: wrap;
 }
 
