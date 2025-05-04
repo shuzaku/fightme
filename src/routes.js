@@ -31,8 +31,8 @@ import MatchReview from './views/match-review.vue'
 const routes = [
     {
     path: '/', 
-    name: 'Videos', 
-    component: Videos,    
+    name: 'Explore', 
+    component: Explore,    
         meta: {
         title: 'Fighters Edge',
             metaTags: [
@@ -43,7 +43,7 @@ const routes = [
             ]
         }
     },
-    {path: '/* ', name: 'Videos', component: Videos},
+    {path: '/* ', name: 'Explore', component: Explore},
     {path: '/  200', name: 'Videos', component: Videos},
     {path: '/collections', name: 'Collections', component: Collections},
     {path: '/combos', name: 'Combos', component: Combos},

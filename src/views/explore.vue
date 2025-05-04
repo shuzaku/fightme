@@ -1,11 +1,14 @@
 <!-- @format -->
 <template>
     <div class="explore-view">
-        <div class="header">
-            <h1>Explore</h1>
+        <div class="banner-section">
+            <img
+                src="https://res.cloudinary.com/shuzchef/image/upload/v1746394665/cg8jwlfdtc6r6qicze0q.png"
+            />
         </div>
-        <explore-updates />
+
         <completed-tournaments />
+        <explore-updates />
         <explore-tournaments />
         <explore-featured-players />
         <explore-games />
@@ -47,17 +50,6 @@ export default {
     margin-top: 40px;
 }
 
-.explore-view .cover-art {
-    width: 200px;
-    height: 267px;
-    background: cover;
-    background-repeat: no-repeat;
-}
-
-.explore-view .cover-art img {
-    width: 100%;
-}
-
 .explore-view h1 {
     color: #fff;
     text-transform: uppercase;
@@ -79,6 +71,11 @@ export default {
 }
 
 .explore-view .events {
+    margin-bottom: 40px;
+}
+
+.explore-view .banner-section {
+    text-align: center;
     margin-bottom: 40px;
 }
 </style>
