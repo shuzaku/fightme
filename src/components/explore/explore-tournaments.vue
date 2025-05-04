@@ -76,6 +76,7 @@ export default {
 }
 
 .explore-tournaments h3 {
+    margin-bottom: 24px;
     color: #fff;
 }
 </style>

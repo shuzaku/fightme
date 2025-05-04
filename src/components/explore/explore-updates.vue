@@ -81,6 +81,7 @@ export default {
 
 .explore-updates h3 {
     color: #fff;
+    margin-bottom: 24px;
 }
 
 .explore-updates .update {

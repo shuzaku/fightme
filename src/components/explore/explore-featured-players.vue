@@ -74,6 +74,7 @@ export default {
 }
 
 .explore-featured-players h3 {
+    margin-bottom: 24px;
     color: #fff;
 }
 </style>

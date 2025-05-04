@@ -82,5 +82,6 @@ export default {
 
 .explore-games h3 {
     color: #fff;
+    margin-bottom: 24px;
 }
 </style>

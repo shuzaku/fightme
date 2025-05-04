@@ -72,6 +72,7 @@ export default {
 <style>
 .completed-tournaments h3 {
     color: #fff;
+    margin-bottom: 24px;
 }
 
 .completed-tournaments .tournaments {

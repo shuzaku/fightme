@@ -78,4 +78,12 @@ export default {
     text-align: center;
     margin-bottom: 40px;
 }
+
+.explore-view .completed-tournaments,
+.explore-view .explore-updates,
+.explore-view .explore-tournaments,
+.explore-view .featured-players,
+.explore-view .explore-games {
+    margin-bottom: 40px;
+}
 </style>
