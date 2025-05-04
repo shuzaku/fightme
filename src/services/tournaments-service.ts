@@ -8,14 +8,30 @@ export default {
     return Api().get('tournaments')
   },
 
+  fetchCompeltedTournaments () {
+    return Api().get('completed-tournaments')
+  },
+
   addTournament (params: Params) {
     return Api().post('tournaments', params)
   },
 
   queryTournaments (params: Params) {
-    var queryNames = params.searchQuery.map(param => { return param.queryName}); 
-    var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
-    return Api().get('tournamentQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
+    var skip = params.skip;
+    var queryParams = [`skip=${skip}`];
+    
+    if(params.searchQuery){
+      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
+      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      queryParams.push(`queryName=${queryNames.join(',')}`);
+      queryParams.push(`queryValue=${queryValue.join(',')}`)
+    }
+
+    if(params.sortOption){
+      queryParams.push(`sort=${params.sortOption}`)
+    }
+
+    return Api().get(`tournamentQuery?${queryParams.join('&')}`)
   },
 
   updateTournament (params: Params) {

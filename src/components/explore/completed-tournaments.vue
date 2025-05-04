@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
-    <div class="explore-tournaments">
-        <h3>Upcoming Majors</h3>
+    <div class="completed-tournaments">
+        <h3>Recent Tournaments</h3>
         <div class="tournaments">
             <div v-for="tournament in tournaments" :key="tournament.id" class="tournament">
                 <tournament-card :tournament="tournament" />
@@ -14,9 +14,10 @@
 import TournamentsService from '@/services/tournaments-service';
 import TournamentCard from '@/components/tournament/tournament-card';
 import moment from 'moment';
+import { event } from 'vue-gtag';
 
 export default {
-    name: 'explore-tournament',
+    name: 'completed-character',
     components: {
         'tournament-card': TournamentCard,
     },
@@ -37,12 +38,13 @@ export default {
             var searchQuery = [
                 {
                     queryName: 'IsFinished',
-                    queryValue: false,
+                    queryValue: true,
                 },
             ];
 
             var queryParameter = {
                 searchQuery: searchQuery,
+                sortOption: 'EventDate desc',
             };
 
             const response = await TournamentsService.queryTournaments(queryParameter);
@@ -61,21 +63,18 @@ export default {
         },
 
         navigate(id) {
-            this.$router.push(`/game/${id}`);
+            this.$router.push(`/tournament/${id}`);
         },
     },
 };
 </script>
 
 <style>
-.explore-tournaments .tournaments {
-    display: flex;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+.completed-tournaments h3 {
+    color: #fff;
 }
 
-.explore-tournaments h3 {
-    color: #fff;
+.completed-tournaments .tournaments {
+    display: flex;
 }
 </style>

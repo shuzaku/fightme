@@ -4,14 +4,7 @@
         <h3>Explore Games</h3>
         <div class="games">
             <div v-for="game in games" :key="game.id" class="game">
-                <div
-                    @click="navigate(game.id)"
-                    class="cover-art"
-                    :style="[
-                        { 'background-image': `url(${game.coverArt})` },
-                        { 'background-size': 'cover' },
-                    ]"
-                />
+                <game-card :game="game" />
             </div>
         </div>
     </div>
@@ -19,10 +12,13 @@
 
 <script>
 import GamesService from '@/services/games-service';
+import GameCard from '@/components/games/game-card';
 
 export default {
     name: 'explore-games',
-    components: {},
+    components: {
+        'game-card': GameCard,
+    },
 
     props: {},
 
@@ -77,6 +73,7 @@ export default {
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
+    cursor: pointer;
 }
 
 .explore-games .game {

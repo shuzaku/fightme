@@ -5,7 +5,9 @@
             <h1>Explore</h1>
         </div>
         <explore-updates />
+        <completed-tournaments />
         <explore-tournaments />
+        <explore-featured-players />
         <explore-games />
     </div>
 </template>
@@ -14,6 +16,9 @@
 import ExploreTournaments from '@/components/explore/explore-tournaments';
 import ExploreGames from '@/components/explore/explore-games';
 import ExploreUpdates from '@/components/explore/explore-updates';
+import ExploreFeaturedPlayers from '@/components/explore/explore-featured-players';
+import CompletedTournament from '@/components/explore/completed-tournaments';
+
 export default {
     name: 'explore',
 
@@ -21,6 +26,8 @@ export default {
         'explore-games': ExploreGames,
         'explore-tournaments': ExploreTournaments,
         'explore-updates': ExploreUpdates,
+        'explore-featured-players': ExploreFeaturedPlayers,
+        'completed-tournaments': CompletedTournament,
     },
 
     data() {

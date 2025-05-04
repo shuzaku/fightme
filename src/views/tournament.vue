@@ -1,104 +1,48 @@
 <!-- @format -->
 <template>
-    <div class="tournament-view">
-        <div class="video-info">
-            <!--- game --->
-            <p v-show="showErrorMessage && !video.gameId" class="error-msg">Please Game</p>
-            <div class="game-container">
-                <game-search v-model="video.gameId" @update:game="setGame($event)" />
-            </div>
-            <!--- video --->
-            <creator-search v-model="video.contentCreatorId" @update:creator="setCreator($event)" />
-            <tournament-search v-model="tournament.id" @update:tournament="addTournament($event)" />
-            <input id="import-video" v-model="importVideoUrl" type="text" placeholder="Video Url" />
-            <input v-model="matchType" type="text" placeholder="Tournament Details" />
-            <div class="match-nav">
-                <div v-for="(match, index) in tournament.matches" :key="index" class="match">
-                    <div class="match-title">
-                        <h3>Match {{ index + 1 }}</h3>
-                        <v-btn :disable="match.isExpanded" @click="expandMatchMenu(index)">v</v-btn>
-                    </div>
-                </div>
-            </div>
-            <hr />
-            <v-btn class="submit-btn" rounded @click="submitVideo()">Submit</v-btn>
-        </div>
+    <div ref="videoViewRef" class="games-view">
+        <tournament-nav :tournamentId="tournamentId" @filter:game="filterGame($event)" />
 
-        <div class="tournament-video-settings-container">
-            <div class="matches-container">
-                <youtube-media
-                    ref="youtubeRef"
-                    :video-id="video.url"
-                    :player-width="600"
-                    :player-height="338"
-                    :player-vars="{ rel: 0 }"
+        <loading v-if="loading && videos.length <= 0"></loading>
+        <div v-else-if="videos.length > 0" class="videos-container">
+            <div
+                v-for="(video, index) in videos"
+                :key="index"
+                :class="{ selected: video.selected }"
+            >
+                <tournament-match-video-card
+                    v-if="video.contentType === 'Tournament Match'"
+                    :video="video"
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :account="account"
+                    :matchId="video.matchId"
                 />
-                <div
-                    v-for="(match, index) in tournament.matches"
-                    :key="index"
-                    class="match-content"
-                >
-                    <div v-show="match.isExpanded" class="match-container">
-                        <add-match
-                            :value="match"
-                            :gameId="video.gameId"
-                            @update:match="updateMatch($event, index)"
-                        />
-                        <div class="more-matches">
-                            <div class="clip-container">
-                                <div class="start-time input-container">
-                                    <input
-                                        v-model="match.startTime"
-                                        type="text"
-                                        placeholder="Start Time"
-                                    />
-                                    <v-btn @click="setStartTime(index)">+</v-btn>
-                                </div>
-                                <div class="end-time input-container">
-                                    <input
-                                        v-model="match.endTime"
-                                        type="text"
-                                        placeholder="End Time"
-                                    />
-                                    <v-btn @click="setEndTime(index)">+</v-btn>
-                                </div>
-                            </div>
-                            <v-btn class="add-match-btn" rounded @click="addMatch(index)">
-                                Add More Matches
-                            </v-btn>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import moment from 'moment';
-import VideosService from '@/services/videos-service';
-import MatchesService from '@/services/matches-service';
-import GameSearch from '@/components/games/game-search';
-import CreatorSearch from '@/components/content-creator/creator-search';
-import AddMatch from '@/components/videos/add-match';
-import TournamentSearch from '@/components/tournament/tournament-search.vue';
+import TournamentMatchService from '@/services/tournament-match-service';
+import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
+import TournamentNav from '@/components/tournament/tournament-nav';
+import Loading from '@/components/common/loading';
+import ExploreCharacters from '@/components/explore/explore-characters';
+
 import { eventbus } from '@/main';
 
 export default {
-    name: 'VideoWidget',
+    name: 'Tournament',
 
     components: {
-        'creator-search': CreatorSearch,
-        'game-search': GameSearch,
-        'add-match': AddMatch,
-        'tournament-search': TournamentSearch,
+        'tournament-match-video-card': TournamentMatchVideoCard,
+        'tournament-nav': TournamentNav,
+        loading: Loading,
+        'explore-characters': ExploreCharacters,
     },
 
     props: {
-        videoId: {
-            type: String,
-            default: null,
-        },
         account: {
             type: Object,
             default: null,
@@ -107,219 +51,132 @@ export default {
 
     data() {
         return {
-            isVideoClipped: false,
-            currentStep: 'Video',
-            showErrorMessage: false,
-            error: null,
-            video: {
-                id: '',
-                contentType: '',
-                contentCreatorId: '',
-                type: '',
-                origin: '',
-                url: '',
-                startTime: '',
-                endTime: '',
-                gameId: '',
-                combos: null,
-                match: null,
-                montage: null,
-                tournament: null,
-                tags: [],
-            },
-            importVideoUrl: null,
-            isTournament: false,
-            isLoading: true,
-            matchType: null,
-            tournament: {
-                id: '',
-                matches: [
-                    {
-                        team1Players: [
-                            {
-                                id: null,
-                                characterIds: [],
-                                slot: null,
-                                characterCount: 1,
-                            },
-                        ],
-                        team2Players: [
-                            {
-                                id: null,
-                                characterIds: [],
-                                slot: null,
-                                characterCount: 1,
-                            },
-                        ],
-                        startTime: null,
-                        endTime: null,
-                        isExpanded: false,
-                        winningPlayers: null,
-                        losingPlayers: null,
-                    },
-                ],
-                name: '',
-                date: null,
-                isSingleMatch: true,
-            },
+            videos: [],
+            query: null,
+            savedQuery: null,
+            favorites: [],
+            filter: null,
+            sort: null,
+            loading: false,
+            isLast: false,
         };
     },
 
     computed: {
-        timeStamp: function () {
-            return moment().format();
+        skip: function () {
+            return this.videos.length;
         },
 
-        isValidated: function () {
-            if (this.video.url && this.video.gameId) {
-                if (
-                    this.video.contentType === 'Match' &&
-                    this.video.match.team1Players.length > 0 &&
-                    this.video.match.team1Players.length > 0
-                ) {
-                    return true;
-                } else if (this.video.contentType === 'Combo' && this.video.combos[0].id) {
-                    return true;
-                } else if (
-                    this.video.contentType === 'Montage' &&
-                    this.video.montage.characters &&
-                    this.video.montage.players
-                ) {
-                    return true;
-                } else if (
-                    this.video.contentType === 'Tournament Match' &&
-                    this.video.tournament.id &&
-                    this.video.tournament.matches.length > 0
-                ) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
+        tournamentId: function () {
+            return this.$route.params.id;
         },
     },
 
     watch: {
-        importVideoUrl() {
-            if (this.importVideoUrl.includes('youtube')) {
-                if (this.importVideoUrl.includes('ab_channel')) {
-                    this.video.url = this.importVideoUrl.substring(
-                        this.importVideoUrl.indexOf('v=') + 2,
-                        this.importVideoUrl.indexOf('&ab_channel')
-                    );
-                } else {
-                    this.video.url = this.importVideoUrl.substring(
-                        this.importVideoUrl.indexOf('v=') + 2,
-                        this.importVideoUrl.length
-                    );
-                }
-                this.video.type = 'youtube';
-            } else {
-                this.video.url = this.importVideoUrl;
-            }
+        tournamentId: function () {
+            this.loading = true;
+            this.videos = [];
+            this.queryVideos();
+            this.loading = false;
         },
     },
 
     mounted() {
-        this.tournament.matches[0].isExpanded = true;
+        this.queryVideos();
+        eventbus.$on('newVideoPosted', this.addedNewVideo);
+        eventbus.$on('search', this.queryVideos);
+        eventbus.$on('account:update', this.updateFavorites);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('newVideoPosted', this.addedNewVideo);
+        eventbus.$off('search', this.queryVideos);
+        eventbus.$off('account:update', this.updateFavorites);
     },
 
     methods: {
-        async submitVideo() {
-            this.postTournamentMatch();
+        applySort(sort) {
+            this.videos = [];
+            this.sort = sort;
+            this.queryVideos();
         },
 
-        async postTournamentMatch() {
-            var matches = this.tournament.matches.map((match) => {
-                return {
-                    Team1Players: match.team1Players.map((player) => {
-                        return {
-                            Id: player.id,
-                            Slot: 1,
-                            CharacterIds: player.characterIds.map((character) => {
-                                return character.id;
-                            }),
-                        };
-                    }),
-                    Team2Players: match.team2Players.map((player) => {
-                        return {
-                            Id: player.id,
-                            Slot: 2,
-                            CharacterIds: player.characterIds.map((character) => {
-                                return character.id;
-                            }),
-                        };
-                    }),
-                    StartTime: match.startTime,
-                    EndTime: match.endTime,
-                    WinningPlayersId: match.winningPlayers,
-                    VideoUrl: this.video.url,
-                    GameId: this.video.gameId,
-                    TournamentId: this.tournament.id,
-                    TournamentMatchtype: this.matchType,
-                    SubmittedBy: this.account.id,
-                    UpdatedBy: this.account.id,
+        applyFilter(filter) {
+            this.videos = [];
+            this.filter = filter;
+            this.queryVideos();
+        },
+
+        async queryVideos(queryParam) {
+            this.loading = true;
+            var queryParameter = null;
+            if (queryParam) {
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    searchQuery: [queryParam],
+                    filter: this.filter,
                 };
+            }
+
+            const response = await TournamentMatchService.getTournamentMatches({
+                id: this.tournamentId,
+                searchQuery: queryParameter ? queryParameter.searchQuery : null,
             });
 
-            await MatchesService.addMatches(matches);
-
-            this.postVideo();
-        },
-
-        async postVideo() {
-            if (this.isValidated) {
-                if (this.video.contentType === 'Tournament Match') {
-                    this.video.contentType = 'Match';
-                }
-
-                var response = await VideosService.addVideo({
-                    Url: this.video.url,
-                    ContentType: this.video.contentType,
-                    ContentCreatorId: this.video.contentCreatorId,
-                    VideoType: this.video.type,
-                    VideoUrl: this.video.url,
-                    StartTime: this.video.startTime,
-                    EndTime: this.video.endTime,
-                    GameId: this.video.gameId,
-                    Combos:
-                        this.video.contentType === 'Combo'
-                            ? this.video.combos.map((combo) => {
-                                  return {
-                                      Id: combo.id,
-                                      StartTime: combo.startTime,
-                                      EndTime: combo.endTime,
-                                  };
-                              })
-                            : null,
-                    Tags: this.video.tags,
-                    SubmittedBy: this.account.id,
-                    UpdatedBy: this.account.id,
-                });
-
-                if (response.data.err) {
-                    this.error = 'Video already exist';
-                    this.showErrorMessage = true;
-                } else {
-                    eventbus.$emit('newVideoPosted');
-                }
-            } else {
-                this.showErrorMessage = true;
+            this.hydrateVideos(response);
+            if (this.videos.length > 0 && this.videos.length < 6) {
+                this.playFirstVideo();
             }
+            this.loading = false;
         },
 
-        setGame(game) {
-            this.video.gameId = game.id;
-        },
-
-        setTournament(tournament) {
-            this.video.match.tournamentId = tournament._id;
-        },
-
-        setCreator(creatorId) {
-            this.video.contentCreatorId = creatorId.id;
+        hydrateVideos(response) {
+            response.data.matches.forEach((video) => {
+                this.videos.push({
+                    matchId: video._id,
+                    contentType: 'Tournament Match',
+                    isEditing: false,
+                    isPlaying: false,
+                    videoUrl: video.VideoUrl,
+                    videoType: 'youtube',
+                    game: {
+                        title: video.Game[0].Title,
+                        logoUrl: video.Game[0].LogoUrl,
+                        id: video.Game[0]._id,
+                    },
+                    match: {
+                        team1Players: video.Team1Players.map((player) => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Team1Player.filter(
+                                    (searchPlayer) => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team1PlayerCharacters
+                                ),
+                            };
+                        }),
+                        team2Players: video.Team2Players.map((player) => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Team2Player.filter(
+                                    (searchPlayer) => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team2PlayerCharacters
+                                ),
+                            };
+                        }),
+                        startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
+                        endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
+                    },
+                });
+            });
         },
 
         hydrateCharacters(characterIds, characters) {
@@ -327,163 +184,100 @@ export default {
 
             characterIds.forEach((id) => {
                 var filteredCharacter = characters.filter((character) => character._id === id);
-                playerCharacters.push(filteredCharacter[0]._id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].AvatarUrl,
+                });
             });
             return playerCharacters;
         },
 
-        updateMatch(match, index) {
-            this.tournament.matches[index].team1Players = match.team1Players;
-            this.tournament.matches[index].team2Players = match.team2Players;
-            this.tournament.matches[index].winningPlayers = match.winningPlayers;
-        },
-
-        updateTournament(tournament) {
-            this.video.tournament = tournament;
-        },
-
-        expandMatchMenu(index) {
-            this.tournament.matches.forEach((match) => (match.isExpanded = false));
-            this.tournament.matches[index].isExpanded = true;
-        },
-
-        addMatch(index) {
-            this.tournament.matches.push({
-                team1Players: [
-                    {
-                        id: null,
-                        characterIds: [],
-                        slot: null,
-                        characterCount: 1,
-                    },
-                ],
-                team2Players: [
-                    {
-                        id: null,
-                        characterIds: [],
-                        slot: null,
-                        characterCount: 1,
-                    },
-                ],
-                startTime: null,
-                endTime: null,
-                isExpanded: false,
-            });
-
-            this.expandMatchMenu(index + 1);
-            this.$emit('update:tournament', this.tournament);
-        },
-
-        addTournament(tournament) {
-            this.tournament.id = tournament.id;
-            this.tournament.name = tournament.name;
-        },
-
-        setStartTime(index) {
-            this.tournament.matches[index].startTime = this.convertTime(
-                this.$refs.youtubeRef.player.getCurrentTime()
-            );
-        },
-
-        setEndTime(index) {
-            this.tournament.matches[index].endTime = this.convertTime(
-                this.$refs.youtubeRef.player.getCurrentTime()
-            );
-        },
-
         convertTime(time) {
-            var h = Math.floor(time / 3600)
-                    .toString()
-                    .padStart(2, '0'),
-                m = Math.floor((time % 3600) / 60)
-                    .toString()
-                    .padStart(2, '0'),
-                s = Math.floor(time % 60)
-                    .toString()
-                    .padStart(2, '0');
+            var a = time.split(':');
+            var n = a.length;
+            var minutesToSeconds = null;
+            var hoursToSeconds = null;
+            var seconds = 0;
+            if (n === 3) {
+                hoursToSeconds = parseInt(a[0]) * 3600;
+                minutesToSeconds = parseInt(a[1]) * 60;
+                seconds = hoursToSeconds + minutesToSeconds + parseInt(a[2]);
+            } else if (n === 2) {
+                minutesToSeconds = parseInt(a[0]) * 60;
+                seconds = minutesToSeconds + parseInt(a[1]);
+            } else {
+                return parseInt(a[0]);
+            }
+            seconds === 0 ? seconds++ : seconds;
+            return seconds;
+        },
 
-            return h + ':' + m + ':' + s;
+        playFirstVideo() {
+            this.videos[0].isPlaying = true;
+            this.loading = false;
+        },
+
+        onWaypoint({ el, going, direction }) {
+            var objectId = el.id;
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
+            if (going === this.$waypointMap.GOING_IN && direction) {
+                featuredVideo.isPlaying = true;
+            }
+
+            if (going === this.$waypointMap.GOING_OUT && direction) {
+                featuredVideo.isPlaying = false;
+            }
+        },
+
+        addedNewVideo() {
+            this.videos = [];
+            this.queryVideos();
+        },
+
+        filterGame(queryParam) {
+            this.videos = [];
+            this.queryVideos(queryParam);
         },
     },
 };
 </script>
 
-<style type="text/css">
-.tournament-view {
-    background: #fff;
-    width: 100%;
-    padding: 40px 20px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.tournament-view .player1,
-.tournament-view .player2 {
-    display: flex;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-.tournament-view .video-info {
-    max-width: 30%;
+<style>
+.games-view {
+    display: block;
+    position: relative;
+    padding-top: 30px;
+    height: 100%;
+    overflow: hidden;
     width: 100%;
 }
 
-.tournament-view .tournament-video-settings-container {
-    max-width: 69%;
+.games-view::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background-color: #1f1d2b;
+}
+
+.games-view::-webkit-scrollbar {
+    width: 12px;
+    background-color: #1f1d2b;
+}
+
+.games-view::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+    background-color: #515b89;
+}
+
+.games-view .videos-container {
+    position: relative;
     width: 100%;
 }
 
-.tournament-view .player-container,
-.tournament-view .character-container {
-    max-width: 49%;
-    width: 100%;
-}
-
-.tournament-view input {
-    margin-bottom: 0px;
-}
-
-.tournament-view .clip-container {
-    display: flex;
-    margin-bottom: 20px;
-    justify-content: space-between;
-}
-
-.tournament-view .multiselect {
-    margin-bottom: 0px;
-}
-
-.tournament-view .match-details {
-    margin-bottom: 20px;
-}
-
-.tournament-view h3 {
-    margin-bottom: 10px;
-}
-
-.tournament-view .match-nav {
-    margin-bottom: 20px;
-    margin-top: 20px;
-}
-
-.tournament-view .submit-btn {
-    margin-top: 20px;
-}
-
-.tournament-view .match {
-    border-bottom: 1px dashed #efefef;
-    padding: 10px 5px 0;
-}
-
-.tournament-view .match-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.tournament-view .match-title h3 {
-    margin-bottom: 0;
+.games-view .videos-container video {
+    max-width: 900px;
+    margin: 0 auto;
+    display: block;
 }
 </style>
