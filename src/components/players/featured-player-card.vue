@@ -1,14 +1,8 @@
 <!-- @format -->
 <template>
     <div class="featured-player-card">
-        <div
-            @click="navigate(featuredPlayer.playerId)"
-            class="cover-art"
-            :style="[
-                { 'background-image': `url(${featuredPlayer.imageUrl})` },
-                { 'background-size': 'cover' },
-            ]"
-        />
+        <img class="player" :src="featuredPlayer.imageUrl" />
+
         <div class="name">
             {{ featuredPlayer.playerName }}
         </div>
@@ -37,17 +31,25 @@ export default {
 
 <style>
 .featured-player-card {
-    margin-bottom: 40px;
     position: relative;
+    width: 100%;
+    height: auto;
+    padding: 4px;
 }
 
 .featured-player-card .name {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: 7px;
+    right: 4px;
     padding: 5px;
     font-size: 12px;
     background-color: #3eb489;
     color: #fff;
+}
+
+.featured-player-card .player {
+    max-width: 260px;
+    width: 100%;
+    border: 1px solid #3eb489;
 }
 </style>

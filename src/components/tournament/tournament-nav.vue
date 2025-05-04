@@ -1,12 +1,34 @@
 <!-- @format -->
 <template>
     <div class="tournament-nav">
-        <div v-if="tournament" class="tournament-header">
-            <img :src="tournament.logoUrl" />
-            <h3>{{ tournament.name }}</h3>
+        <div class="title-row">
+            <div v-if="tournament" class="tournament-header">
+                <img :src="tournament.logoUrl" />
+                <div class="title-container">
+                    <h3>{{ tournament.name }}</h3>
+                </div>
+            </div>
+            <div class="details">
+                <div class="date-container">
+                    <v-icon> mdi-calendar-range </v-icon>
+                    <p class="date">{{ tournament.eventDate }}</p>
+                </div>
+                <div class="location-container">
+                    <v-icon> mdi-map-marker </v-icon>
+                    <p class="location">{{ tournament.location }}</p>
+                </div>
+            </div>
+            <a :href="tournament.bracketUrl" target="_blank" class="bracket-button">
+                <tournament-bracket-svg />
+                <p>Bracket</p>
+            </a>
         </div>
 
-        <game-search :filteredGameIds="tournament.games" @update:game="filterGame($event)" />
+        <game-search
+            v-if="tournament.games.length > 1"
+            :filteredGameIds="tournament.games"
+            @update:game="filterGame($event)"
+        />
     </div>
 </template>
 
@@ -14,11 +36,14 @@
 import { eventbus } from '@/main';
 import GameSearch from '../games/game-search.vue';
 import TournamentsService from '@/services/tournaments-service';
+import TournamentBracketSvg from '../svg/tournament-bracket-svg.vue';
+import moment from 'moment';
 
 export default {
     name: 'TournamentNav',
     components: {
         'game-search': GameSearch,
+        'tournament-bracket-svg': TournamentBracketSvg,
     },
     props: {
         tournamentId: {
@@ -77,6 +102,8 @@ export default {
                 logoUrl: response.data.Image,
                 bracketUrl: response.data.BracketUrl,
                 games: response.data.Games,
+                eventDate: moment(response.data.EventDate).format('MMM Do, YYYY'),
+                location: response.data.Location,
             };
         },
 
@@ -94,17 +121,67 @@ export default {
 .tournament-nav {
     width: 100%;
     z-index: 99;
-    max-width: 600px;
+    max-width: 800px;
+}
+
+.tournament-nav .title-row {
+    display: flex;
 }
 
 .tournament-nav .tournament-header {
     height: 80px;
     background: #242832;
     color: #4447e2;
-    width: 100%;
+    width: calc(100% - 160px);
     display: flex;
     align-items: center;
     justify-content: flex-start;
+}
+
+.tournament-nav .tournament-header .title-container {
+    margin-left: 18px;
+}
+
+.tournament-nav .details .date-container,
+.tournament-nav .details .location-container {
+    display: flex;
+    align-items: center;
+}
+
+.tournament-nav .details .date-container {
+    margin-bottom: 8px;
+}
+
+.tournament-nav .details .date,
+.tournament-nav .details .location {
+    font-size: 12px;
+    color: #4447e2;
+    margin-left: 8px;
+}
+
+.tournament-nav .details {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px;
+}
+
+.tournament-nav .bracket-button {
+    width: 80px;
+    height: 80px;
+    background: #4447e2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    justify-content: center;
+}
+
+.tournament-nav .bracket-button svg {
+    max-width: 40px;
+    height: 40px;
 }
 
 .tournament-nav .tournament-header img {
@@ -120,7 +197,6 @@ export default {
     font-size: 20px;
     font-weight: 600;
     color: #fff;
-    margin-left: 18px;
 }
 
 .tournament-nav .tournament-header select {
