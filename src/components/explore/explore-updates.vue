@@ -4,8 +4,7 @@
         <h3>Explore Updates</h3>
         <div class="updates">
             <div v-for="update in updates" :key="update.id" class="update">
-                <img :src="update.Image" class="logo" />
-                <p>{{ update.name }}</p>
+                <update-card :update="update" />
             </div>
         </div>
     </div>
@@ -13,10 +12,14 @@
 
 <script>
 import updatesService from '@/services/updates-service';
+import updateCard from '@/components/update/update-card';
+import moment from 'moment';
 
 export default {
     name: 'explore-update',
-    components: {},
+    components: {
+        'update-card': updateCard,
+    },
 
     props: {},
 
@@ -37,11 +40,11 @@ export default {
                     id: update._id,
                     type: update.Type,
                     subType: update.SubType,
-                    Games: update.Games,
-                    Note: update.Note,
-                    Date: update.Date,
-                    Image: update.Image,
-                    Link: update.Link,
+                    games: update.Games,
+                    note: update.Note,
+                    date: moment(update.Date).format('MM.DD.YY'),
+                    image: update.Image,
+                    link: update.Link,
                 };
             });
         },
@@ -78,5 +81,18 @@ export default {
 
 .explore-updates h3 {
     color: #fff;
+}
+
+.explore-updates .update {
+    position: relative;
+}
+
+.explore-updates .update .date {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 5px;
+    font-size: 10px;
+    background-color: #3eb489;
 }
 </style>

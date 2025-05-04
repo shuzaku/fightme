@@ -2,9 +2,9 @@
 <template>
     <div class="game-search">
         <multiselect
-            v-if="games"
+            v-if="filteredGames"
             v-model="selectedGame"
-            :options="games"
+            :options="filteredGames"
             :multiple="taggable"
             :close-on-select="true"
             :clear-on-select="false"
@@ -55,6 +55,11 @@ export default {
             type: String,
             default: 'Search or add a Game',
         },
+
+        filteredGameIds: {
+            type: Array,
+            default: null,
+        },
     },
 
     data() {
@@ -63,6 +68,20 @@ export default {
             selectedGame: null,
             isLoading: false,
         };
+    },
+
+    computed: {
+        filteredGames() {
+            if (!this.filteredGameIds) {
+                return this.games;
+            } else {
+                return this.games.filter((game) => {
+                    return this.filteredGameIds.some((filteredGameid) => {
+                        return game.id === filteredGameid;
+                    });
+                });
+            }
+        },
     },
 
     watch: {

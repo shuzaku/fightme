@@ -78,6 +78,7 @@ const routes = [
     {path: '/player-list', name: 'PlayerList', component: PlayerList},
     {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge},
     {path: '/match/:id/review', name: 'MatchReview', component: MatchReview},
+    {path: '/tournament/:id', name: 'Tournament', component: Tournament},
 ] 
 
 export default routes;   

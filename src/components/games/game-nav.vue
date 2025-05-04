@@ -85,7 +85,7 @@ export default {
     },
 
     beforeDestroy() {
-        eventbus.$off('account:update', this.isGameFollowed);
+        eventbus.$off('account:update');
     },
 
     methods: {
