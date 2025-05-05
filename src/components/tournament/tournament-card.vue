@@ -43,13 +43,13 @@ export default {
 .tournament-card {
     max-width: 150px;
     color: #fff;
+    margin: 8px;
 }
 
 .tournament-card .logo {
-    width: 126px;
-    height: 126px;
+    width: 150px;
+    height: 150px;
     border: 1px solid #fff;
-    height: auto;
 }
 
 .tournament-card {
