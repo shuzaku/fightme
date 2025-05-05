@@ -150,7 +150,10 @@ export default {
                 if (value.GamesPlayed) {
                     (searchValue.value = value.Name), (searchValue.valueType = 'Player');
                 } else if (value.GameId) {
-                    (searchValue.value = value.Name), (searchValue.valueType = 'Character');
+                    (searchValue.value = `${value.Name} ${
+                        value.Game ? `- ${value.Game[0].Abbreviation}` : ''
+                    }`),
+                        (searchValue.valueType = 'Character');
                 } else if (value.YoutubeUrl) {
                     (searchValue.value = value.Name), (searchValue.valueType = 'ContentCreator');
                 } else if (value.Title) {

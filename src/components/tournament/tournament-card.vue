@@ -46,7 +46,8 @@ export default {
 }
 
 .tournament-card .logo {
-    width: 100%;
+    width: 126px;
+    height: 126px;
     border: 1px solid #fff;
     height: auto;
 }
