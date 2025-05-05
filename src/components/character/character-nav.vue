@@ -233,7 +233,6 @@ export default {
     border: 2px solid #4447e2;
     border-radius: 15px;
     margin-bottom: 20px;
-    background: #fff;
 }
 
 .character-nav .character-header .character-img {
@@ -242,6 +241,8 @@ export default {
     width: auto;
     position: relative;
     left: -10px;
+    background: #fff;
+    border: 2px solid #4447e2;
 }
 
 .character-nav .character-header h2 {
