@@ -233,6 +233,7 @@ export default {
     border: 2px solid #4447e2;
     border-radius: 15px;
     margin-bottom: 20px;
+    background: #fff;
 }
 
 .character-nav .character-header .character-img {
