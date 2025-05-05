@@ -44,6 +44,7 @@ export default {
     max-width: 150px;
     color: #fff;
     margin: 8px;
+    cursor: pointer;
 }
 
 .tournament-card .logo {

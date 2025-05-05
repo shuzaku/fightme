@@ -223,7 +223,7 @@ export default {
 }
 
 .character-nav .character-header {
-    height: 80px;
+    height: 60px;
     background: #242832;
     color: #4447e2;
     width: 100%;
@@ -232,11 +232,12 @@ export default {
     padding: 0 20px 0 0;
     border: 2px solid #4447e2;
     border-radius: 15px;
+    margin-bottom: 20px;
 }
 
 .character-nav .character-header .character-img {
     border-radius: 50%;
-    max-height: 120px;
+    max-height: 70px;
     width: auto;
     position: relative;
     left: -10px;
@@ -267,7 +268,6 @@ export default {
     display: flex;
     align-items: center;
     margin-top: 8px;
-    padding-left: 100px;
     flex-wrap: wrap;
 }
 
@@ -287,6 +287,7 @@ export default {
 .character-nav .follow-btn,
 .character-nav .unfollow-btn {
     width: 50px;
+    padding: 0;
 }
 
 .character-nav .v-icon.v-icon {

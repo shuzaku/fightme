@@ -35,6 +35,7 @@ export default {
     width: 100%;
     height: auto;
     padding: 4px;
+    cursor: pointer;
 }
 
 .featured-player-card .name {
