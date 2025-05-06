@@ -295,6 +295,10 @@ export default {
                         startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
                         endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
                     },
+                    tournament: {
+                        name: video.Tournament[0].Name,
+                        logoUrl: video.Tournament[0].Image,
+                    },
                 });
             });
         },

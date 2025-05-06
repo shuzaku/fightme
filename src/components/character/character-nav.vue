@@ -19,7 +19,7 @@
             <div class="info-card combos" @click="routeToCharacterCombos()">Combos</div>
             <div class="info-card matches" @click="filter('Match')">Online Matches</div>
             <div class="info-card matches" @click="queryTournamentMatches()">
-                Touranment Matches
+                Tournament Matches
             </div>
             <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
             <!-- <div class="info-card players" @click="togglePlayerPopup()">

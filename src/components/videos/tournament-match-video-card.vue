@@ -30,89 +30,96 @@
             <div class="card-label">Match</div>
             <div v-if="!video.isEditing" class="aside">
                 <div class="info">
-                    <div class="game">
-                        <div class="game-title" @click="queryGame(video.game.id)">
-                            <p>
-                                <span>
-                                    <div class="img-container">
-                                        <img :src="video.game.logoUrl" />
-                                    </div>
-                                    {{ video.game.title }}</span
+                    <div class="top">
+                        <div class="game">
+                            <div class="game-title" @click="queryGame(video.game.id)">
+                                <p>
+                                    <span>
+                                        <div class="img-container">
+                                            <img :src="video.game.logoUrl" />
+                                        </div>
+                                        {{ video.game.title }}</span
+                                    >
+                                </p>
+                            </div>
+                        </div>
+                        <div class="players">
+                            <div class="team1">
+                                <div
+                                    v-for="team1Player in video.match.team1Players"
+                                    :key="team1Player.id"
+                                    class="player"
                                 >
-                            </p>
+                                    <div
+                                        class="heavy-weight player-name"
+                                        @click="queryPlayer(team1Player.id)"
+                                    >
+                                        <p>{{ team1Player.name }}</p>
+                                    </div>
+                                    <div class="characters">
+                                        <div
+                                            v-for="(character, index) in team1Player.characters"
+                                            :key="index"
+                                            class="character"
+                                        >
+                                            <div
+                                                class="character-name"
+                                                @click="queryCharacter(character.id)"
+                                            >
+                                                <p>
+                                                    <span>
+                                                        <div class="img-container">
+                                                            <img :src="character.imageUrl" />
+                                                        </div>
+                                                        {{ character.name }}</span
+                                                    >
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team2">
+                                <div
+                                    v-for="team2Player in video.match.team2Players"
+                                    :key="team2Player.id"
+                                    class="player"
+                                >
+                                    <div
+                                        class="heavy-weight player-name"
+                                        @click="queryPlayer(team2Player.id)"
+                                    >
+                                        <p>{{ team2Player.name }}</p>
+                                    </div>
+                                    <div class="characters">
+                                        <div
+                                            v-for="(character, index) in team2Player.characters"
+                                            :key="index"
+                                            class="character"
+                                        >
+                                            <div
+                                                class="character-name"
+                                                @click="queryCharacter(character.id)"
+                                            >
+                                                <p>
+                                                    <span>
+                                                        <div class="img-container">
+                                                            <img :src="character.imageUrl" />
+                                                        </div>
+                                                        {{ character.name }}</span
+                                                    >
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="players">
-                        <div class="team1">
-                            <div
-                                v-for="team1Player in video.match.team1Players"
-                                :key="team1Player.id"
-                                class="player"
-                            >
-                                <div
-                                    class="heavy-weight player-name"
-                                    @click="queryPlayer(team1Player.id)"
-                                >
-                                    <p>{{ team1Player.name }}</p>
-                                </div>
-                                <div class="characters">
-                                    <div
-                                        v-for="(character, index) in team1Player.characters"
-                                        :key="index"
-                                        class="character"
-                                    >
-                                        <div
-                                            class="character-name"
-                                            @click="queryCharacter(character.id)"
-                                        >
-                                            <p>
-                                                <span>
-                                                    <div class="img-container">
-                                                        <img :src="character.imageUrl" />
-                                                    </div>
-                                                    {{ character.name }}</span
-                                                >
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="team2">
-                            <div
-                                v-for="team2Player in video.match.team2Players"
-                                :key="team2Player.id"
-                                class="player"
-                            >
-                                <div
-                                    class="heavy-weight player-name"
-                                    @click="queryPlayer(team2Player.id)"
-                                >
-                                    <p>{{ team2Player.name }}</p>
-                                </div>
-                                <div class="characters">
-                                    <div
-                                        v-for="(character, index) in team2Player.characters"
-                                        :key="index"
-                                        class="character"
-                                    >
-                                        <div
-                                            class="character-name"
-                                            @click="queryCharacter(character.id)"
-                                        >
-                                            <p>
-                                                <span>
-                                                    <div class="img-container">
-                                                        <img :src="character.imageUrl" />
-                                                    </div>
-                                                    {{ character.name }}</span
-                                                >
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+                    <div class="tournament-section">
+                        <img class="tournament-image" :src="video.tournament.logoUrl" />
+                        <p>{{ video.tournament.name }}</p>
                     </div>
                 </div>
             </div>
@@ -495,6 +502,24 @@ export default {
     display: flex;
     flex-wrap: wrap;
     padding: 5px;
+}
+
+.tournament-match-video-card .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    color: #fff;
+}
+
+.tournament-match-video-card .tournament-section {
+    display: flex;
+    align-items: center;
+}
+
+.tournament-match-video-card .tournament-image {
+    width: 75px;
+    margin-right: 16px;
 }
 
 #app.mobile.small-mobile .tournament-match-video-card .match-card {
