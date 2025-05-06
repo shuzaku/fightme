@@ -17,7 +17,10 @@
                 </div>
             </div>
             <div class="info-card combos" @click="routeToCharacterCombos()">Combos</div>
-            <div class="info-card matches" @click="filter('Match')">Matches</div>
+            <div class="info-card matches" @click="filter('Match')">Online Matches</div>
+            <div class="info-card matches" @click="queryTournamentMatches()">
+                Touranment Matches
+            </div>
             <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
             <!-- <div class="info-card players" @click="togglePlayerPopup()">
                 Players
@@ -212,6 +215,10 @@ export default {
         routeToCharacterCombos() {
             this.$router.push(`/character/${this.characterId}/combos`);
         },
+
+        queryTournamentMatches() {
+            this.$emit('query-tournament-matches');
+        },
     },
 };
 </script>
@@ -219,7 +226,7 @@ export default {
 .character-nav {
     width: 100%;
     z-index: 99;
-    max-width: 600px;
+    max-width: 665px;
 }
 
 .character-nav .character-header {

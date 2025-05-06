@@ -191,7 +191,7 @@ export default {
 
     created() {
         this.isPlaying = this.video.isPlaying;
-        this.playVideo();
+        // this.playVideo();
     },
 
     methods: {

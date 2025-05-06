@@ -7,6 +7,7 @@
                 :characterSlug="characterSlug"
                 :account="account"
                 @character-filter:update="filterQuery($event)"
+                @query-tournament-matches="queryTournamentMatches()"
             />
             <div v-if="videos.length > 0" class="videos-container">
                 <div
@@ -37,6 +38,14 @@
                         :account="account"
                         @video:delete="refreshDelete()"
                     />
+                    <tournament-match-video-card
+                        v-if="video.contentType === 'Tournament Match'"
+                        :video="video"
+                        v-model="video.isPlaying"
+                        :favoriteVideos="account ? account.favoriteVideos : null"
+                        :account="account"
+                        :matchId="video.matchId"
+                    />
                 </div>
             </div>
         </div>
@@ -54,6 +63,8 @@ import ComboVideoCard from '@/components/videos/combo-video-card';
 import MontageVideoCard from '@/components/videos/montage-video-card';
 import CharacterNav from '@/components/character/character-nav';
 import Loading from '@/components/common/loading';
+import TournamentMatchService from '@/services/tournament-match-service';
+import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
 
 import { eventbus } from '@/main';
 
@@ -65,6 +76,8 @@ export default {
         'combo-video-card': ComboVideoCard,
         'montage-video-card': MontageVideoCard,
         'character-nav': CharacterNav,
+        'tournament-match-video-card': TournamentMatchVideoCard,
+
         loading: Loading,
     },
 
@@ -154,6 +167,7 @@ export default {
         filterQuery(filter) {
             this.videos = [];
             this.filter = filter;
+            this.isLast = false;
             this.queryVideos();
         },
 
@@ -195,6 +209,34 @@ export default {
             }
         },
 
+        async queryTournamentMatches() {
+            this.videos = [];
+            this.loading = true;
+
+            var queryParameter = {
+                skip: this.skip,
+                sortOption: this.sort,
+                searchQuery: [
+                    {
+                        queryName: 'CharacterId',
+                        queryValue: this.characterId,
+                    },
+                ],
+                filter: this.filter,
+            };
+
+            const response = await TournamentMatchService.queryTournamentMatches({
+                searchQuery: queryParameter ? queryParameter.searchQuery : null,
+            });
+
+            this.hydrateTournamentVideos(response);
+            if (this.videos.length > 0 && this.videos.length < 6) {
+                this.playFirstVideo();
+            }
+            this.isLast = true;
+            this.loading = false;
+        },
+
         hydrateVideos(response) {
             response.data.matches.forEach((video) => {
                 this.videos.push({
@@ -207,6 +249,93 @@ export default {
             if (this.videos.length > 0) {
                 this.videos[0].isFirst = true;
             }
+        },
+
+        hydrateTournamentVideos(response) {
+            response.data.matches.forEach((video) => {
+                this.videos.push({
+                    matchId: video._id,
+                    contentType: 'Tournament Match',
+                    isEditing: false,
+                    isPlaying: false,
+                    videoUrl: video.VideoUrl,
+                    videoType: 'youtube',
+                    game: {
+                        title: video.Game[0].Title,
+                        logoUrl: video.Game[0].LogoUrl,
+                        id: video.Game[0]._id,
+                    },
+                    match: {
+                        team1Players: video.Team1Players.map((player) => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Team1Player.filter(
+                                    (searchPlayer) => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team1PlayerCharacters
+                                ),
+                            };
+                        }),
+                        team2Players: video.Team2Players.map((player) => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Team2Player.filter(
+                                    (searchPlayer) => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team2PlayerCharacters
+                                ),
+                            };
+                        }),
+                        startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
+                        endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
+                    },
+                });
+            });
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach((id) => {
+                var filteredCharacter = characters.filter((character) => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].AvatarUrl,
+                });
+            });
+            return playerCharacters;
+        },
+
+        convertTime(time) {
+            var a = time.split(':');
+            var n = a.length;
+            var minutesToSeconds = null;
+            var hoursToSeconds = null;
+            var seconds = 0;
+            if (n === 3) {
+                hoursToSeconds = parseInt(a[0]) * 3600;
+                minutesToSeconds = parseInt(a[1]) * 60;
+                seconds = hoursToSeconds + minutesToSeconds + parseInt(a[2]);
+            } else if (n === 2) {
+                minutesToSeconds = parseInt(a[0]) * 60;
+                seconds = minutesToSeconds + parseInt(a[1]);
+            } else {
+                return parseInt(a[0]);
+            }
+            seconds === 0 ? seconds++ : seconds;
+            return seconds;
+        },
+
+        playFirstVideo() {
+            this.videos[0].isPlaying = true;
+            this.loading = false;
         },
 
         onWaypoint({ el, going, direction }) {
