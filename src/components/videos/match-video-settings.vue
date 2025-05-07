@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="match-step">
-        <add-match :gameId="gameId" @update:match="updateMatch($event)" />
+        <add-match :gameId="gameId" :match="match" @update:match="updateMatch($event)" />
     </div>
 </template>
 
@@ -18,6 +18,10 @@ export default {
     props: {
         gameId: {
             type: String,
+            default: null,
+        },
+        match: {
+            type: Object,
             default: null,
         },
     },

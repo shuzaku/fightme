@@ -92,6 +92,10 @@ export default {
             type: Object,
             default: null,
         },
+        savedMatch: {
+            type: Object,
+            default: null,
+        },
     },
 
     data() {
@@ -138,7 +142,11 @@ export default {
         },
     },
 
-    mounted() {},
+    mounted() {
+        if (this.savedMatch) {
+            this.match = this.savedMatch;
+        }
+    },
 
     methods: {
         setDefaultValues() {

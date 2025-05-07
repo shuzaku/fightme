@@ -14,12 +14,15 @@
                 </div>
             </div>
             <div class="info-card combos" @click="routeToGameCombos()">Combos</div>
-            <div class="info-card matches" @click="filter('Match')">Matches</div>
+            <div class="info-card matches" @click="filter('Match')">Online Matches</div>
+            <div class="info-card matches" @click="queryTournamentMatches()">
+                Tournament Matches
+            </div>
             <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
-            <div class="info-card character" @click="togglePopup()">
+            <!-- <div class="info-card character" @click="togglePopup()">
                 Characters
                 <v-icon> mdi-chevron-down </v-icon>
-            </div>
+            </div> -->
         </div>
         <div v-show="popupActive" class="popup">
             <character-search :gameId="gameId" @update:character="goToCharacter($event)" />
@@ -134,6 +137,10 @@ export default {
         routeToGameCombos() {
             this.$router.push(`/combos/game/${this.gameId}`);
         },
+
+        queryTournamentMatches() {
+            this.$emit('query-tournament-matches');
+        },
     },
 };
 </script>
@@ -141,7 +148,8 @@ export default {
 .game-nav {
     width: 100%;
     z-index: 99;
-    max-width: 600px;
+    max-width: 700px;
+    margin-bottom: 16px;
 }
 
 .game-nav .game-header {
@@ -175,7 +183,6 @@ export default {
     margin: 0;
 }
 .game-nav .info-card {
-    width: 130px;
     height: 40px;
     border-radius: 15px;
     display: flex;
@@ -186,6 +193,7 @@ export default {
     background: #242832;
     cursor: pointer;
     margin-right: 5px;
+    padding: 0 23px;
 }
 
 .game-nav .quick-nav {
@@ -210,6 +218,7 @@ export default {
 .game-nav .follow-btn,
 .game-nav .unfollow-btn {
     width: 50px;
+    padding: 0;
 }
 
 .game-nav .v-icon.v-icon {

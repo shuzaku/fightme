@@ -58,6 +58,7 @@
             <match-video-settings
                 v-if="currentStep === 'Match'"
                 :gameId="video.gameId"
+                :match="video.match"
                 @update:match="updateMatch($event)"
             />
             <combo-video-settings
@@ -293,7 +294,6 @@ export default {
                             VideoUrl: this.video.url,
                             GameId: this.video.gameId,
                         });
-                        this.patchVideo();
                     }
                     break;
                 case 'Tournament Match':
