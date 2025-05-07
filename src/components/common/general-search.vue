@@ -149,7 +149,7 @@ export default {
                 };
                 if (value.GamesPlayed) {
                     (searchValue.value = value.Name), (searchValue.valueType = 'Player');
-                } else if (value.GameId) {
+                } else if (value.Game && value.Game.length > 0) {
                     (searchValue.value = `${value.Name} ${
                         value.Game ? `- ${value.Game[0].Abbreviation}` : ''
                     }`),
