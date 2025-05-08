@@ -4,7 +4,7 @@
         <div class="follow-container">
             <div v-for="follow in follows" :key="follow.id">
                 <div class="follow" @click="navigate(follow)">
-                    <div class="avatar" v-tooltip.right="follow.name">
+                    <div class="avatar">
                         <div v-if="follow.imageUrl" class="image-container">
                             <img :src="follow.imageUrl" />
                         </div>

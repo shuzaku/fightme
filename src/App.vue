@@ -744,6 +744,11 @@ textarea {
     top: -10px;
 }
 
+.tooltip {
+    background: #4447e2;
+    color: #fff;
+}
+
 @media only screen and (max-width: 1000px) {
     /* #app .side-panel {
         width: 70px;

@@ -2,7 +2,12 @@
 <template>
     <div class="explore-characters">
         <div class="characters">
-            <div v-for="character in characters" :key="character.id" class="character">
+            <div
+                v-for="character in characters"
+                :key="character.id"
+                class="character"
+                v-tooltip="character.name"
+            >
                 <img :src="character.imageUrl" @click="navigate(character.id)" />
             </div>
         </div>

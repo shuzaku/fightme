@@ -42,7 +42,7 @@ export default {
                     subType: update.SubType,
                     games: update.Games,
                     note: update.Note,
-                    date: moment(update.Date).format('MM.DD.YY'),
+                    date: moment(update.Date).local().format('MM.DD.YY'),
                     image: update.Image,
                     link: update.Link,
                 };
