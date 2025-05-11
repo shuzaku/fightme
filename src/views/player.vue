@@ -6,6 +6,8 @@
             :account="account"
             :playerSlug="playerSlug"
             @player-filter:update="filterQuery($event)"
+            @query-tournament-matches="queryTournamentMatches()"
+            @query-online-matches="queryVideos()"
         />
         <div v-if="videos.length > 0" class="videos-container">
             <div
@@ -22,6 +24,15 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :account="account"
                 />
+
+                <tournament-match-video-card
+                    v-if="video.contentType === 'Tournament Match'"
+                    :video="video"
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :account="account"
+                    :matchId="video.matchId"
+                />
             </div>
         </div>
         <div v-else-if="(videos.length = 0 && !loading)" class="no-videos">
@@ -34,15 +45,18 @@
 <script>
 import MatchesService from '@/services/matches-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
+import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
 import PlayerNav from '@/components/players/player-nav';
 import Loading from '@/components/common/loading';
 import { eventbus } from '@/main';
+import TournamentMatchService from '@/services/tournament-match-service';
 
 export default {
     name: 'Player',
 
     components: {
         'match-video-card': NewMatchVideoCard,
+        'tournament-match-video-card': TournamentMatchVideoCard,
         'player-nav': PlayerNav,
         loading: Loading,
     },
@@ -63,6 +77,8 @@ export default {
             favorites: [],
             filter: null,
             sort: null,
+            isTournament: false,
+            isLast: false,
         };
     },
 
@@ -123,33 +139,45 @@ export default {
         },
 
         async queryVideos(newQuery) {
-            this.isLoading = true;
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                searchQuery: [
-                    {
-                        queryName: 'PlayerId',
-                        queryValue: this.playerId,
-                    },
-                ],
-            };
-
-            if (this.playerSlug) {
-                queryParameter.searchQuery[0].queryName = 'PlayerSlug';
-                queryParameter.searchQuery[0].queryValue = this.playerSlug;
+            if (this.isTournament) {
+                this.videos = [];
+                this.isTournament = false;
+                this.isLast = false;
             }
+            if (!this.isLast && !this.loading) {
+                this.isLoading = true;
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    searchQuery: [
+                        {
+                            queryName: 'PlayerId',
+                            queryValue: this.playerId,
+                        },
+                    ],
+                };
 
-            if (newQuery) {
-                queryParameter.searchQuery.push(newQuery);
-            }
+                if (this.playerSlug) {
+                    queryParameter.searchQuery[0].queryName = 'PlayerSlug';
+                    queryParameter.searchQuery[0].queryValue = this.playerSlug;
+                }
 
-            const response = await MatchesService.queryMatchesByPlayer(queryParameter);
-            this.hydrateVideos(response);
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
+                if (newQuery) {
+                    queryParameter.searchQuery.push(newQuery);
+                }
+
+                const response = await MatchesService.queryMatchesByPlayer(queryParameter);
+
+                if (response.data.matches.length === 0) {
+                    this.isLast = true;
+                }
+
+                this.hydrateVideos(response);
+                if (this.videos.length < 6 && this.videos.length > 0) {
+                    this.playFirstVideo();
+                }
+                this.isLoading = false;
             }
-            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -185,7 +213,11 @@ export default {
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
             if (bottomOfWindow && !this.isLoading) {
-                this.queryVideos();
+                if (this.isTournament) {
+                    this.queryTournamentMatches();
+                } else {
+                    this.queryVideos();
+                }
             }
         },
 
@@ -209,6 +241,129 @@ export default {
             this.favorites.forEach((favorite) => {
                 this.videos.filter((video) => video.id === favorite.id)[0].isFavorited = true;
             });
+        },
+
+        async queryTournamentMatches() {
+            if (!this.isTournament) {
+                this.videos = [];
+                this.isTournament = true;
+            }
+            if (!this.isLast && !this.loading) {
+                this.isLoading = true;
+
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    searchQuery: [
+                        {
+                            queryName: 'PlayerId',
+                            queryValue: this.playerId,
+                        },
+                    ],
+                };
+
+                const response = await TournamentMatchService.queryTournamentMatches(
+                    queryParameter
+                );
+
+                if (response.data.matches.length === 0) {
+                    this.isLast = true;
+                }
+
+                this.hydrateTournamentVideos(response);
+                if (this.videos.length > 0 && this.videos.length < 6) {
+                    this.playFirstVideo();
+                }
+                this.isLoading = false;
+            }
+        },
+
+        hydrateTournamentVideos(response) {
+            response.data.matches.forEach((video) => {
+                this.videos.push({
+                    matchId: video._id,
+                    contentType: 'Tournament Match',
+                    isEditing: false,
+                    isPlaying: false,
+                    videoUrl: video.VideoUrl,
+                    videoType: 'youtube',
+                    game: {
+                        title: video.Game[0].Title,
+                        logoUrl: video.Game[0].LogoUrl,
+                        id: video.Game[0]._id,
+                    },
+                    match: {
+                        team1Players: video.Team1Players.map((player) => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Team1Player.filter(
+                                    (searchPlayer) => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team1PlayerCharacters
+                                ),
+                            };
+                        }),
+                        team2Players: video.Team2Players.map((player) => {
+                            return {
+                                id: player.Id,
+                                slot: player.Slot,
+                                name: video.Team2Player.filter(
+                                    (searchPlayer) => searchPlayer._id === player.Id
+                                )[0].Name,
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team2PlayerCharacters
+                                ),
+                            };
+                        }),
+                        startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
+                        endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
+                        notes: video.Notes || null,
+                        secondaryNotes: video.SecondaryNotes || null,
+                    },
+                    tournament: {
+                        name: video.Tournament[0].Name,
+                        logoUrl: video.Tournament[0].Image,
+                    },
+                });
+            });
+        },
+
+        hydrateCharacters(characterIds, characters) {
+            var playerCharacters = [];
+
+            characterIds.forEach((id) => {
+                var filteredCharacter = characters.filter((character) => character._id === id);
+                playerCharacters.push({
+                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
+                    id: filteredCharacter[0]._id,
+                    imageUrl: filteredCharacter[0].AvatarUrl,
+                });
+            });
+            return playerCharacters;
+        },
+
+        convertTime(time) {
+            var a = time.split(':');
+            var n = a.length;
+            var minutesToSeconds = null;
+            var hoursToSeconds = null;
+            var seconds = 0;
+            if (n === 3) {
+                hoursToSeconds = parseInt(a[0]) * 3600;
+                minutesToSeconds = parseInt(a[1]) * 60;
+                seconds = hoursToSeconds + minutesToSeconds + parseInt(a[2]);
+            } else if (n === 2) {
+                minutesToSeconds = parseInt(a[0]) * 60;
+                seconds = minutesToSeconds + parseInt(a[1]);
+            } else {
+                return parseInt(a[0]);
+            }
+            seconds === 0 ? seconds++ : seconds;
+            return seconds;
         },
     },
 };

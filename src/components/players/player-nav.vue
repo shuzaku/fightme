@@ -12,26 +12,26 @@
                         <v-icon> mdi-heart </v-icon>
                     </div>
                 </div>
-            </div>
-            <div class="social-media">
-                <div class="svg-container">
-                    <a v-if="player.youtube" :href="player.youtube" target="_blank">
-                        <font-awesome-icon :icon="['fab', 'youtube']" />
-                    </a>
-                    <a v-if="player.twitter" :href="player.twitter" target="_blank">
-                        <font-awesome-icon :icon="['fab', 'twitter']" />
-                    </a>
-                    <a v-if="player.stream" :href="player.stream" target="_blank">
-                        <font-awesome-icon :icon="['fab', 'twitch']" />
-                    </a>
+                <div class="social-media">
+                    <div class="svg-container">
+                        <a v-if="player.youtube" :href="player.youtube" target="_blank">
+                            <font-awesome-icon :icon="['fab', 'youtube']" />
+                        </a>
+                        <a v-if="player.twitter" :href="player.twitter" target="_blank">
+                            <font-awesome-icon :icon="['fab', 'twitter']" />
+                        </a>
+                        <a v-if="player.stream" :href="player.stream" target="_blank">
+                            <font-awesome-icon :icon="['fab', 'twitch']" />
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="player-tabs">
-                <ul>
-                    <li>Online/Ranked</li>
-                    <li>Tournament</li>
-                    <li>Bio</li>
-                </ul>
+
+            <div class="match-types">
+                <div class="info-card matches" @click="queryOnlineMatches()">Online Matches</div>
+                <div class="info-card matches" @click="queryTournamentMatches()">
+                    Tournament Matches
+                </div>
             </div>
         </div>
     </div>
@@ -168,6 +168,14 @@ export default {
                 );
             }
         },
+
+        queryTournamentMatches() {
+            this.$emit('query-tournament-matches');
+        },
+
+        queryOnlineMatches() {
+            this.$emit('query-online-matches');
+        },
     },
 };
 </script>
@@ -176,10 +184,10 @@ export default {
     width: 100%;
     z-index: 99;
     max-width: 600px;
+    margin-bottom: 40px;
 }
 
 .player-nav .player-header {
-    height: 80px;
     color: #4447e2;
     width: 100%;
     padding: 0 20px;
@@ -190,7 +198,6 @@ export default {
 }
 
 .player-nav .info-card {
-    width: 130px;
     height: 40px;
     border-radius: 15px;
     display: flex;
@@ -202,6 +209,7 @@ export default {
     cursor: pointer;
     margin-right: 5px;
     position: relative;
+    padding: 0 23px;
 }
 
 .player-nav .quick-nav {
@@ -226,6 +234,7 @@ export default {
 .player-nav .follow-btn,
 .player-nav .unfollow-btn {
     width: 50px;
+    padding: 0px;
 }
 
 .player-nav .v-icon.v-icon {
@@ -268,5 +277,9 @@ export default {
 
 .player-nav .followed-container {
     margin-left: 20px;
+}
+
+.player-nav .match-types {
+    display: flex;
 }
 </style>

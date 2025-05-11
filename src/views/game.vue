@@ -7,6 +7,7 @@
             :account="account"
             @game-filter:update="applyFilter($event)"
             @query-tournament-matches="queryTournamentMatches()"
+            @query-online-matches="queryVideos()"
         />
         <explore-characters :gameId="gameId" :key="gameId" />
 
@@ -86,6 +87,7 @@ export default {
             sort: null,
             loading: false,
             isLast: false,
+            isTournament: false,
         };
     },
 
@@ -140,7 +142,13 @@ export default {
         },
 
         async queryVideos() {
-            if (!this.isLast) {
+            if (this.isTournament) {
+                this.videos = [];
+                this.isTournament = false;
+                this.isLast = false;
+            }
+
+            if (!this.isLast && !this.loading) {
                 this.loading = true;
                 var queryParameter = {
                     skip: this.skip,
@@ -181,31 +189,41 @@ export default {
         },
 
         async queryTournamentMatches() {
-            this.videos = [];
-            this.loading = true;
-
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                searchQuery: [
-                    {
-                        queryName: 'GameId',
-                        queryValue: this.gameId,
-                    },
-                ],
-                filter: this.filter,
-            };
-
-            const response = await TournamentMatchService.queryTournamentMatches({
-                searchQuery: queryParameter ? queryParameter.searchQuery : null,
-            });
-
-            this.hydrateTournamentVideos(response);
-            if (this.videos.length > 0 && this.videos.length < 6) {
-                this.playFirstVideo();
+            if (!this.isTournament) {
+                this.videos = [];
+                this.isTournament = true;
+                this.isLast = false;
             }
-            this.isLast = true;
-            this.loading = false;
+
+            if (!this.isLast && !this.loading) {
+                this.loading = true;
+
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    searchQuery: [
+                        {
+                            queryName: 'GameId',
+                            queryValue: this.gameId,
+                        },
+                    ],
+                    filter: this.filter,
+                };
+
+                const response = await TournamentMatchService.queryTournamentMatches(
+                    queryParameter
+                );
+
+                if (response.data.matches.length === 0) {
+                    this.isLast = true;
+                }
+
+                this.hydrateTournamentVideos(response);
+                if (this.videos.length > 0 && this.videos.length < 6) {
+                    this.playFirstVideo();
+                }
+                this.loading = false;
+            }
         },
 
         hydrateTournamentVideos(response) {
@@ -251,6 +269,8 @@ export default {
                         }),
                         startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
                         endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
+                        notes: video.Notes || null,
+                        secondaryNotes: video.SecondaryNotes || null,
                     },
                     tournament: {
                         name: video.Tournament[0].Name,
@@ -315,8 +335,12 @@ export default {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.loading) {
-                this.queryVideos();
+            if (bottomOfWindow && !this.isLoading) {
+                if (this.isTournament) {
+                    this.queryTournamentMatches();
+                } else {
+                    this.queryVideos();
+                }
             }
         },
 

@@ -29,7 +29,7 @@ export default {
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     } 
 
-    return Api().get(`tournament-matches/?${queryParams.join('&')}`)
+    return Api().get(`/tournament-matches?${queryParams.join('&')}`)
   },
 
 }

@@ -122,8 +122,8 @@
                             <img class="tournament-image" :src="video.tournament.logoUrl" />
                             <div class="tournament-info">
                                 <p>{{ video.tournament.name }}</p>
-                                <p>{{ video.match.notes }}</p>
-                                <p>{{ video.match.secondaryNotes }}</p>
+                                <p class="notes">{{ video.match.notes }}</p>
+                                <p class="notes">{{ video.match.secondaryNotes }}</p>
                             </div>
                         </div>
                     </div>
@@ -521,6 +521,11 @@ export default {
 .tournament-match-video-card .tournament-section .tournament-title {
     display: flex;
     align-items: center;
+}
+
+.tournament-match-video-card .notes {
+    font-weight: 400;
+    color: #4447e2;
 }
 
 .tournament-match-video-card .tournament-image {

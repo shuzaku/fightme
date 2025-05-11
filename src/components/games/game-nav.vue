@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="info-card combos" @click="routeToGameCombos()">Combos</div>
-            <div class="info-card matches" @click="filter('Match')">Online Matches</div>
+            <div class="info-card matches" @click="queryOnlineMatches()">Online Matches</div>
             <div class="info-card matches" @click="queryTournamentMatches()">
                 Tournament Matches
             </div>
@@ -140,6 +140,10 @@ export default {
 
         queryTournamentMatches() {
             this.$emit('query-tournament-matches');
+        },
+
+        queryOnlineMatches() {
+            this.$emit('query-online-matches');
         },
     },
 };
