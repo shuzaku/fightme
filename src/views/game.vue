@@ -8,7 +8,7 @@
             @game-filter:update="applyFilter($event)"
             @query-tournament-matches="queryTournamentMatches()"
         />
-        <explore-characters :gameId="gameId" />
+        <explore-characters :gameId="gameId" :key="gameId" />
 
         <loading v-if="loading && videos.length <= 0"></loading>
         <div v-else-if="videos.length > 0" class="videos-container">

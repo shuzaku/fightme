@@ -1,7 +1,8 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="character-view">
-        <div v-if="!isLoading" class="character-container">
+        <loading v-if="loading && videos.length <= 0"></loading>
+        <div v-else class="character-container">
             <character-nav
                 :characterId="characterId"
                 :characterSlug="characterSlug"
@@ -49,8 +50,6 @@
                 </div>
             </div>
         </div>
-
-        <loading v-else></loading>
     </div>
 </template>
 
@@ -359,7 +358,7 @@ export default {
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
             if (bottomOfWindow && !this.isLoading) {
-                this.queryVideos();
+                this.fetchVideos();
             }
         },
 
@@ -380,6 +379,34 @@ export default {
             };
 
             const response = await VideosService.queryMatchup(queryParameter);
+            this.hydrateVideos(response);
+            this.isLoading = false;
+        },
+
+        async fetchVideos() {
+            this.isLoading = true;
+            var queryParameter = {
+                skip: this.skip,
+                sortOption: this.sort,
+                filter: this.filter,
+                searchQuery: [
+                    {
+                        queryName: 'CharacterId',
+                        queryValue: this.characterId,
+                    },
+                ],
+                id: this.characterId,
+            };
+
+            if (this.savedSearchParam) {
+                queryParameter.searchQuery.push(this.savedSearchParam);
+            }
+
+            const response = await MatchesService.queryMatchesByCharacter(queryParameter);
+            if (response.data.matches.length === 0) {
+                this.isLast = true;
+            }
+
             this.hydrateVideos(response);
             this.isLoading = false;
         },

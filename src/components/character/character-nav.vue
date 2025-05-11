@@ -154,7 +154,6 @@ export default {
         },
 
         hydrateCharacter(response) {
-            console.log('hydrateCharacter', response);
             return {
                 id: response._id,
                 name: response.Name,

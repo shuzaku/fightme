@@ -8,7 +8,6 @@ export default {
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];
     var tournamentId = params.id;
-    console.log(params)
     if(params.searchQuery) {
       var queryNames = params.searchQuery.map(param => { return param.queryName}); 
       var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
