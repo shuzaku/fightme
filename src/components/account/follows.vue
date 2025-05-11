@@ -92,75 +92,46 @@ export default {
         getDefaultFollows() {
             this.follows = [
                 {
-                    id: '624e4a6793d130a39d20f0e5',
-                    name: 'Testament',
-                    type: 'character',
-                    imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649296698/Characters/Guilty%20Gear%20Strive/avatar/Testament.png',
-                },
-                {
-                    id: '6250a30293d130a39d20f11c',
-                    name: 'Rock Howard',
-                    type: 'character',
-                    imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649451461/Characters/King%20of%20Fighters%2015/avatar/Rock%20Howard.png',
-                },
-                {
-                    id: '6250a30693d130a39d20f11d',
-                    name: 'B.Jenet',
-                    type: 'character',
-                    imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649451461/Characters/King%20of%20Fighters%2015/avatar/B.Jenet.png',
-                },
-                {
-                    id: '6250a30993d130a39d20f11e',
-                    name: 'Gato',
-                    type: 'character',
-                    imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649451461/Characters/King%20of%20Fighters%2015/avatar/Gato.png',
-                },
-                {
-                    id: '6024b01a0b99842b68eb9e32',
-                    name: 'Street Fighter 5',
+                    id: '67c358569ce15c00218b5873',
+                    name: 'FATAL FURY: City of the Wolves',
                     type: 'game',
                     imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1568898282/games/avmu0iu6nhnw2urd4nga.png',
+                        'https://res.cloudinary.com/shuzchef/image/upload/v1740855370/games/ecznnci6aqejsngrkjh4.png',
                 },
                 {
-                    id: '606d42021ddff92064798667',
-                    name: 'Guilty Gear Strive',
+                    id: '634645f85d8bf70023c99296',
+                    name: 'Street Fighter 6',
                     type: 'game',
                     imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1617772519/games/s9otcsh05zwetey6mjtu.png',
+                        'https://res.cloudinary.com/shuzchef/image/upload/v1665546369/games/bts6pobeh6hukjj32npl.png',
                 },
                 {
-                    id: '60764bb709978a3f4cc1ae00',
-                    name: 'SonicFox',
+                    id: '67c359836f9ae2e8686afe57',
+                    name: 'Hotaru',
+                    type: 'character',
+                    imageUrl:
+                        'https://res.cloudinary.com/shuzchef/image/upload/v1740854974/Characters/Fatal%20Fury:%20COTW/avatar/Hotaru.png',
+                },
+                {
+                    id: '634645f95d8bf70023c992a1',
+                    name: 'Blanka',
+                    type: 'character',
+                    imageUrl:
+                        'https://res.cloudinary.com/shuzchef/image/upload/v1665548718/Characters/Street%20Fighter%206/avatar/Blanka.png',
+                },
+                {
+                    id: '62e19ba15621c100235adc99',
+                    name: 'Xiaohai',
                     type: 'player',
                     imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649453402/Players/SonicFox.png',
+                        'https://res.cloudinary.com/shuzchef/image/upload/v1746142792/Players/vnxpxidiqczf81mrw8ml.png',
                 },
                 {
                     id: '6048487f4fd4ab5b68a083f0',
                     name: 'Punk',
                     type: 'player',
                     imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649453402/Players/PunkDaGod.png',
-                },
-                {
-                    id: '6068c573847e1c36147de001',
-                    name: 'Arslan Ash',
-                    type: 'player',
-                    imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649453402/Players/Arslan%20Ash.png',
-                },
-
-                {
-                    id: '615deb4bbc77b1002228c551',
-                    name: 'Latif',
-                    type: 'player',
-                    imageUrl:
-                        'https://res.cloudinary.com/shuzchef/image/upload/v1649453402/Players/Latif.png',
+                        'https://res.cloudinary.com/shuzchef/image/upload/v1746142792/Players/i2woasgnzotsvhrbiaoj.png',
                 },
             ];
         },
@@ -228,6 +199,8 @@ export default {
     display: flex;
     align-items: center;
     border: 2px solid #3eb489;
+    background: #242832;
+    overflow: hidden;
 }
 
 .follows .avatar img {
