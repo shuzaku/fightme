@@ -247,6 +247,7 @@ export default {
             if (!this.isTournament) {
                 this.videos = [];
                 this.isTournament = true;
+                this.isLast = false;
             }
             if (!this.isLast && !this.loading) {
                 this.isLoading = true;
