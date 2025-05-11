@@ -9,6 +9,7 @@
                 :account="account"
                 @character-filter:update="filterQuery($event)"
                 @query-tournament-matches="queryTournamentMatches()"
+                @query-online-matches="queryVideos()"
             />
             <div v-if="videos.length > 0" class="videos-container">
                 <div
@@ -171,7 +172,13 @@ export default {
         },
 
         async queryVideos(newQuery) {
-            if (!this.isLast) {
+            if (this.isTournament) {
+                this.videos = [];
+                this.isTournament = false;
+                this.isLast = false;
+            }
+
+            if (!this.isLast && !this.loading) {
                 if (this.$route.name == 'CharacterCombo') {
                     this.filter = 'Combo';
                 }
@@ -209,31 +216,38 @@ export default {
         },
 
         async queryTournamentMatches() {
-            this.videos = [];
-            this.loading = true;
-
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                searchQuery: [
-                    {
-                        queryName: 'CharacterId',
-                        queryValue: this.characterId,
-                    },
-                ],
-                filter: this.filter,
-            };
-
-            const response = await TournamentMatchService.queryTournamentMatches({
-                searchQuery: queryParameter ? queryParameter.searchQuery : null,
-            });
-
-            this.hydrateTournamentVideos(response);
-            if (this.videos.length > 0 && this.videos.length < 6) {
-                this.playFirstVideo();
+            if (!this.isTournament) {
+                this.videos = [];
+                this.isTournament = true;
+                this.isLast = false;
             }
-            this.isLast = true;
-            this.loading = false;
+
+            if (!this.isLast && !this.loading) {
+                this.loading = true;
+
+                var queryParameter = {
+                    skip: this.skip,
+                    sortOption: this.sort,
+                    searchQuery: [
+                        {
+                            queryName: 'CharacterId',
+                            queryValue: this.characterId,
+                        },
+                    ],
+                    filter: this.filter,
+                };
+
+                const response = await TournamentMatchService.queryTournamentMatches({
+                    searchQuery: queryParameter ? queryParameter.searchQuery : null,
+                });
+
+                this.hydrateTournamentVideos(response);
+                if (this.videos.length > 0 && this.videos.length < 6) {
+                    this.playFirstVideo();
+                }
+                this.isLast = true;
+                this.loading = false;
+            }
         },
 
         hydrateVideos(response) {
@@ -358,7 +372,11 @@ export default {
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
             if (bottomOfWindow && !this.isLoading) {
-                this.fetchVideos();
+                if (this.isTournament) {
+                    this.queryTournamentMatches();
+                } else {
+                    this.queryVideos();
+                }
             }
         },
 
