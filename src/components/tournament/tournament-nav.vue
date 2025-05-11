@@ -23,18 +23,22 @@
                 <p>Bracket</p>
             </a>
         </div>
+        <div class="filters">
+            <game-search
+                v-if="tournament.games.length > 1"
+                :filteredGameIds="tournament.games"
+                @update:game="filterGame($event)"
+            />
 
-        <game-search
-            v-if="tournament.games.length > 1"
-            :filteredGameIds="tournament.games"
-            @update:game="filterGame($event)"
-        />
+            <bracket-search @filter:bracket="filterBracket($event)" />
+        </div>
     </div>
 </template>
 
 <script>
 import { eventbus } from '@/main';
 import GameSearch from '../games/game-search.vue';
+import BracketSearch from '../tournament/bracket-search.vue';
 import TournamentsService from '@/services/tournaments-service';
 import TournamentBracketSvg from '../svg/tournament-bracket-svg.vue';
 import moment from 'moment';
@@ -43,6 +47,7 @@ export default {
     name: 'TournamentNav',
     components: {
         'game-search': GameSearch,
+        'bracket-search': BracketSearch,
         'tournament-bracket-svg': TournamentBracketSvg,
     },
     props: {
@@ -113,6 +118,10 @@ export default {
 
         filterGame(game) {
             this.$emit('filter:game', { queryName: 'GameId', queryValue: game.id });
+        },
+
+        filterBracket(bracket) {
+            this.$emit('filter:bracket', { queryName: 'Notes', queryValue: bracket });
         },
     },
 };
@@ -249,5 +258,17 @@ export default {
 
 .tournament-nav .v-icon.v-icon {
     color: #4447e2;
+}
+
+.tournament-nav .filters {
+    display: flex;
+}
+
+.tournament-nav .filters .bracket-search {
+    min-width: 300px;
+}
+
+.tournament-nav .filters .game-search {
+    min-width: 500px;
 }
 </style>

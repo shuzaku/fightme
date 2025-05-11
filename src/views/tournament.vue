@@ -1,7 +1,11 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="games-view">
-        <tournament-nav :tournamentId="tournamentId" @filter:game="filterGame($event)" />
+        <tournament-nav
+            :tournamentId="tournamentId"
+            @filter:game="filterGame($event)"
+            @filter:bracket="filterBracket($event)"
+        />
 
         <loading v-if="loading && videos.length <= 0"></loading>
         <div v-else-if="videos.length > 0" class="videos-container">
@@ -60,6 +64,8 @@ export default {
             loading: false,
             isLast: false,
             savedSearchParam: null,
+            bracketFilter: null,
+            gameFilter: null,
         };
     },
 
@@ -123,7 +129,7 @@ export default {
             };
 
             if (queryParam) {
-                queryParameter.searchQuery.push(queryParam);
+                queryParameter.searchQuery.push(...queryParam);
             }
             const response = await TournamentMatchService.getTournamentMatches(queryParameter);
 
@@ -246,7 +252,28 @@ export default {
 
         filterGame(queryParam) {
             this.videos = [];
-            this.queryVideos(queryParam);
+            var filters = [];
+            this.gameFilter = queryParam;
+
+            if (this.bracketFilter) {
+                filters.push(this.bracketFilter);
+            }
+
+            filters.push(this.gameFilter);
+            this.queryVideos(filters);
+        },
+
+        filterBracket(queryParam) {
+            this.videos = [];
+            var filters = [];
+            this.bracketFilter = queryParam;
+
+            if (this.gameFilter) {
+                filters.push(this.gameFilter);
+            }
+
+            filters.push(this.bracketFilter);
+            this.queryVideos(filters);
         },
 
         handleScroll() {

@@ -53,7 +53,7 @@ export default {
 
         placeholder: {
             type: String,
-            default: 'Search or add a Game',
+            default: 'Search Game',
         },
 
         filteredGameIds: {
