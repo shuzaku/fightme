@@ -7,7 +7,7 @@
                     src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
                 />
             </a>
-            <a class="menu-item" href="/explore">Explore</a>
+
             <a
                 v-if="account && account.role === 'Admin User'"
                 class="menu-item add-item"

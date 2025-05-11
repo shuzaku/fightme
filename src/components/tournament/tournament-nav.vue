@@ -262,6 +262,7 @@ export default {
 
 .tournament-nav .filters {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .tournament-nav .filters .bracket-search {
@@ -270,5 +271,9 @@ export default {
 
 .tournament-nav .filters .game-search {
     min-width: 500px;
+}
+
+.tournament-nav .filters .game-search .multiselect {
+    margin-bottom: 0px;
 }
 </style>

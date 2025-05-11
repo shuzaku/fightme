@@ -79,6 +79,10 @@ export default {
     margin-bottom: 40px;
 }
 
+.explore-view .banner-section img {
+    width: 100%;
+}
+
 .explore-view .completed-tournaments,
 .explore-view .explore-updates,
 .explore-view .explore-tournaments,
