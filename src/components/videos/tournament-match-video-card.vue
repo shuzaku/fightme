@@ -118,8 +118,14 @@
                     </div>
 
                     <div class="tournament-section">
-                        <img class="tournament-image" :src="video.tournament.logoUrl" />
-                        <p>{{ video.tournament.name }}</p>
+                        <div class="tournament-title">
+                            <img class="tournament-image" :src="video.tournament.logoUrl" />
+                            <div class="tournament-info">
+                                <p>{{ video.tournament.name }}</p>
+                                <p>{{ video.match.notes }}</p>
+                                <p>{{ video.match.secondaryNotes }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -512,7 +518,7 @@ export default {
     color: #fff;
 }
 
-.tournament-match-video-card .tournament-section {
+.tournament-match-video-card .tournament-section .tournament-title {
     display: flex;
     align-items: center;
 }

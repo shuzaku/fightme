@@ -59,12 +59,13 @@ export default {
             sort: null,
             loading: false,
             isLast: false,
+            savedSearchParam: null,
         };
     },
 
     computed: {
         skip: function () {
-            return this.videos.length;
+            return this.videos.length || 0;
         },
 
         tournamentId: function () {
@@ -83,15 +84,16 @@ export default {
 
     mounted() {
         this.queryVideos();
+        window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
         eventbus.$on('account:update', this.updateFavorites);
     },
 
     beforeDestroy() {
-        eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('search', this.queryVideos);
-        eventbus.$off('account:update', this.updateFavorites);
+        eventbus.$off('newVideoPosted');
+        eventbus.$off('search');
+        eventbus.$off('account:update');
     },
 
     methods: {
@@ -109,20 +111,21 @@ export default {
 
         async queryVideos(queryParam) {
             this.loading = true;
-            var queryParameter = null;
-            if (queryParam) {
-                var queryParameter = {
-                    skip: this.skip,
-                    sortOption: this.sort,
-                    searchQuery: [queryParam],
-                    filter: this.filter,
-                };
-            }
 
-            const response = await TournamentMatchService.getTournamentMatches({
+            this.savedSearchParam = queryParam;
+
+            var queryParameter = {
+                skip: this.skip,
+                sortOption: this.sort,
+                filter: this.filter,
+                searchQuery: [],
                 id: this.tournamentId,
-                searchQuery: queryParameter ? queryParameter.searchQuery : null,
-            });
+            };
+
+            if (queryParam) {
+                queryParameter.searchQuery.push(queryParam);
+            }
+            const response = await TournamentMatchService.getTournamentMatches(queryParameter);
 
             this.hydrateVideos(response);
             if (this.videos.length > 0 && this.videos.length < 6) {
@@ -174,6 +177,8 @@ export default {
                         }),
                         startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
                         endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
+                        notes: video.Notes || null,
+                        secondaryNotes: video.SecondaryNotes || null,
                     },
                     tournament: {
                         name: video.Tournament[0].Name,
@@ -242,6 +247,34 @@ export default {
         filterGame(queryParam) {
             this.videos = [];
             this.queryVideos(queryParam);
+        },
+
+        handleScroll() {
+            var bottomOfWindow =
+                document.documentElement.scrollTop + window.innerHeight ===
+                document.documentElement.offsetHeight;
+            if (bottomOfWindow && !this.isLoading) {
+                this.fetchVideos();
+            }
+        },
+
+        async fetchVideos() {
+            this.isLoading = true;
+            var queryParameter = {
+                skip: this.skip,
+                sortOption: this.sort,
+                filter: this.filter,
+                searchQuery: [],
+                id: this.tournamentId,
+            };
+
+            if (this.savedSearchParam) {
+                queryParameter.searchQuery.push(this.savedSearchParam);
+            }
+
+            const response = await TournamentMatchService.getTournamentMatches(queryParameter);
+            this.hydrateVideos(response);
+            this.isLoading = false;
         },
     },
 };
