@@ -307,6 +307,8 @@ export default {
                         }),
                         startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
                         endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
+                        notes: video.Notes || null,
+                        secondaryNotes: video.SecondaryNotes || null,
                     },
                     tournament: {
                         name: video.Tournament[0].Name,
