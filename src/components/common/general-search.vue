@@ -74,9 +74,7 @@ export default {
         },
     },
 
-    mounted() {
-        this.getSearch();
-    },
+    mounted() {},
 
     created() {
         eventbus.$on('updateSearch', this.getSearch);

@@ -3,6 +3,7 @@
     <div class="sidebar">
         <div class="navigation">
             <account-dropdown :account="account" />
+            <a class="menu-item" href="/explore">Explore</a>
             <follows :account="account" />
         </div>
         <div class="social-media">
