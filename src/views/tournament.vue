@@ -128,7 +128,7 @@ export default {
                 id: this.tournamentId,
             };
 
-            if (queryParam) {
+            if (queryParam && queryParam.length > 0) {
                 queryParameter.searchQuery.push(...queryParam);
             }
             const response = await TournamentMatchService.getTournamentMatches(queryParameter);
@@ -286,7 +286,16 @@ export default {
         },
 
         async fetchVideos() {
-            var filters = [this.gameFilter, this.bracketFilter];
+            var filters = [];
+
+            if (this.gameFilter) {
+                filters.push(this.gameFilter);
+            }
+
+            if( this.bracketFilter) {
+                filters.push(this.bracketFilter);
+            }   
+
             this.queryVideos(filters);
         },
     },

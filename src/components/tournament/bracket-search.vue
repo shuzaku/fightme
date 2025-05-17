@@ -3,7 +3,7 @@
     <div class="bracket-search">
         <multiselect
             v-model="selectedBracket"
-            :options="bracketOptions"
+            :options="bracketFilters"
             :close-on-select="true"
             :clear-on-select="false"
             :loading="isLoading"
@@ -32,11 +32,15 @@ export default {
             type: String,
             default: 'Filter Bracket',
         },
+
+        bracketFilters: {
+            type: Array,
+            default: () => [],
+        }
     },
 
     data() {
         return {
-            bracketOptions: ['Pools', 'Top 24', 'Top 8'],
             selectedBracket: null,
             isLoading: false,
         };

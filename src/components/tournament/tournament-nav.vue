@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="tournament-nav">
+    <div class="tournament-nav" v-if="!isLoading">
         <div class="title-row">
             <div v-if="tournament" class="tournament-header">
                 <img :src="tournament.logoUrl" />
@@ -30,7 +30,7 @@
                 @update:game="filterGame($event)"
             />
 
-            <bracket-search @filter:bracket="filterBracket($event)" />
+            <bracket-search @filter:bracket="filterBracket($event)" :bracketFilters="tournament.bracketFilters" v-if="tournament.bracketFilters.length > 1"/>
         </div>
     </div>
 </template>
@@ -77,6 +77,7 @@ export default {
             },
             popupActive: false,
             isFollowed: false,
+            isLoading: false,
         };
     },
 
@@ -98,7 +99,9 @@ export default {
     },
 
     methods: {
+
         async getTournament() {
+            this.isLoading = true;
             const response = await TournamentsService.getTournament({
                 id: this.tournamentId,
             });
@@ -109,7 +112,10 @@ export default {
                 games: response.data.Games,
                 eventDate: moment(response.data.EventDate).format('MMM Do, YYYY'),
                 location: response.data.Location,
+                bracketFilters: response.data.BracketFilters || [],
             };
+
+            this.isLoading = false
         },
 
         togglePopup() {
