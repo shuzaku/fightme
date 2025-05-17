@@ -286,22 +286,8 @@ export default {
         },
 
         async fetchVideos() {
-            this.isLoading = true;
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                filter: this.filter,
-                searchQuery: [],
-                id: this.tournamentId,
-            };
-
-            if (this.savedSearchParam) {
-                queryParameter.searchQuery.push(this.savedSearchParam);
-            }
-
-            const response = await TournamentMatchService.getTournamentMatches(queryParameter);
-            this.hydrateVideos(response);
-            this.isLoading = false;
+            var filters = [this.gameFilter, this.bracketFilter];
+            this.queryVideos(filters);
         },
     },
 };
