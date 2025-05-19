@@ -161,9 +161,11 @@ import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
+
 import { eventbus } from '@/main';
 
 export default {
+    inheritAttrs: false,
     name: 'VideoCard',
     components: {
         'collection-search': CollectionSearch,

@@ -99,6 +99,7 @@ export default {
             sort: null,
             tagFilter: null,
             isLast: false,
+            loading: false,
         };
     },
 
@@ -272,7 +273,7 @@ export default {
                     isEditing: false,
                     isPlaying: false,
                     videoUrl: video.VideoUrl,
-                    videoType: 'youtube',
+                    videoType: video.VideoPlatform,
                     game: {
                         title: video.Game[0].Title,
                         logoUrl: video.Game[0].LogoUrl,

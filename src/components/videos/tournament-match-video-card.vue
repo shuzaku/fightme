@@ -12,7 +12,7 @@
                 class="video-container"
             >
                 <youtube-media
-                    v-if="video.videoType === 'youtube'"
+                    v-if="video.videoType === 'Youtube'"
                     ref="youtubeRef"
                     :video-id="video.videoUrl"
                     :player-width="556"
@@ -25,6 +25,11 @@
                     :mute="true"
                     :playsinline="1"
                     @ready="ready"
+                />
+                <app-twitch-player
+                    v-if="video.videoType === 'Twitch'"
+                    :video="video"
+                    :isPlaying="isPlaying"
                 />
             </div>
             <div class="card-label">Match</div>
@@ -135,10 +140,15 @@
 
 <script>
 import { eventbus } from '@/main';
+import AppTwitchPlayer from '@/components/media-player/app-twitch-player.vue';
+import App from '@/App.vue';
 
 export default {
+    inheritAttrs: false,
     name: 'TournamentMatchVideoCard',
-    components: {},
+    components: {
+        'app-twitch-player': AppTwitchPlayer,
+    },
 
     props: {
         video: {

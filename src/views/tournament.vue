@@ -148,7 +148,6 @@ export default {
                     isEditing: false,
                     isPlaying: false,
                     videoUrl: video.VideoUrl,
-                    videoType: 'youtube',
                     game: {
                         title: video.Game[0].Title,
                         logoUrl: video.Game[0].LogoUrl,
@@ -190,6 +189,7 @@ export default {
                         name: video.Tournament[0].Name,
                         logoUrl: video.Tournament[0].Image,
                     },
+                    videoType: video.VideoPlatform,
                 });
             });
         },
@@ -292,9 +292,9 @@ export default {
                 filters.push(this.gameFilter);
             }
 
-            if( this.bracketFilter) {
+            if (this.bracketFilter) {
                 filters.push(this.bracketFilter);
-            }   
+            }
 
             this.queryVideos(filters);
         },

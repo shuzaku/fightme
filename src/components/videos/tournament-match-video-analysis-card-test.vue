@@ -867,6 +867,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
+    border: none;
 }
 
 .match-card .character-2 {

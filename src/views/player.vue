@@ -14,8 +14,6 @@
                 v-for="(video, index) in videos"
                 :key="index"
                 :class="{ selected: video.selected }"
-                :favoriteVideos="account ? account.favoriteVideos : null"
-                :account="account"
             >
                 <match-video-card
                     v-if="video.contentType === 'Match'"
@@ -287,7 +285,7 @@ export default {
                     isEditing: false,
                     isPlaying: false,
                     videoUrl: video.VideoUrl,
-                    videoType: 'youtube',
+                    videoType: video.VideoPlatform,
                     game: {
                         title: video.Game[0].Title,
                         logoUrl: video.Game[0].LogoUrl,

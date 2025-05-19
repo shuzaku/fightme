@@ -155,9 +155,11 @@ export default {
 
             this.hydrateVideos(response);
             // this.checkFavorites();
-            if (this.videos.length < 6) {
+            if (this.videos.length > 1) {
                 this.playFirstVideo();
             }
+
+            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -200,7 +202,6 @@ export default {
         playFirstVideo() {
             if (this.videos) {
                 this.videos[0].isPlaying = true;
-                this.isLoading = false;
             }
         },
 

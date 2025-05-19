@@ -6,7 +6,6 @@
                 src="https://res.cloudinary.com/shuzchef/image/upload/v1746394665/cg8jwlfdtc6r6qicze0q.png"
             />
         </div>
-
         <completed-tournaments />
         <explore-updates />
         <explore-tournaments />
@@ -31,6 +30,7 @@ export default {
         'explore-updates': ExploreUpdates,
         'explore-featured-players': ExploreFeaturedPlayers,
         'completed-tournaments': CompletedTournament,
+        
     },
 
     data() {
