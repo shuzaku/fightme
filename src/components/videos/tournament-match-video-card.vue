@@ -192,7 +192,7 @@ export default {
                 } else {
                     this.$refs.videoRef.pause();
                 }
-            } else if (this.video.videoType === 'youtube' && this.player) {
+            } else if (this.video.videoType.toLowerCase() === 'youtube' && this.player) {
                 if (this.isPlaying === true) {
                     this.player.playVideo();
                 } else {
