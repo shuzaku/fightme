@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="explore-updates">
-        <h3>Explore Updates</h3>
+        <h3>Recent Updates</h3>
         <div class="updates">
             <div v-for="update in updates" :key="update.id" class="update">
                 <update-card :update="update" />
@@ -34,7 +34,7 @@ export default {
 
     methods: {
         async getupdates() {
-            const response = await updatesService.fetchUpdates();
+            const response = await updatesService.fetchRecentUpdates();
             this.updates = response.data.updates.map((update) => {
                 return {
                     id: update._id,

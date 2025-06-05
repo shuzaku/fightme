@@ -18,6 +18,10 @@ export default {
     return Api().get('updateQuery?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
   },
 
+  fetchRecentUpdates () {
+    return Api().get('recentUpdates')
+  },
+
   updateUpdate (params: Params) {
     return Api().put('updates/' + params.id, params)
   },
