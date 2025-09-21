@@ -3,7 +3,7 @@
     <div class="merge-players-view">
         <div class="merge-container">
             <div class="player1 player-card">
-                <player-search v-model="player1" @update:player="setPlayer1($event)" />
+                <player-search v-model="player1.id" @update:player="setPlayer1($event)" />
                 <div class="player-info" v-if="player1">
                     <h3>{{ player1.playerName }}</h3>
                     <p>Id: {{ player1.id }}</p>
@@ -14,7 +14,7 @@
             </div>
             <v-btn @click="swapPlayers()"><- Swap Position -></v-btn>
             <div class="player2 player-card">
-                <player-search v-model="player2" @update:player="setPlayer2($event)" />
+                <player-search v-model="player2.id" @update:player="setPlayer2($event)" />
                 <div class="player-info" v-if="player2">
                     <h3>{{ player2.playerName }}</h3>
                     <p>Id: {{ player2.id }}</p>
@@ -36,6 +36,7 @@
 <script>
 import PlayerSearch from '@/components/players/player-search';
 import PlayersService from '@/services/players-service';
+import { eventbus } from '@/main';
 
 export default {
     name: 'MergePlayers',
@@ -48,8 +49,18 @@ export default {
 
     data() {
         return {
-            player1: null,
-            player2: null,
+            player1: {
+                id: null,
+                playerName: '',
+                matchupAppearance: 0,
+                slug: '',
+            },
+            player2: {
+                id: null,
+                playerName: '',
+                matchupAppearance: 0,
+                slug: '',
+            },
             loading: false,
         };
     },
@@ -84,7 +95,14 @@ export default {
                 player1Id: this.player1.id,
                 player2Id: this.player2.id,
             }).then(() => {
+                eventbus.$emit('add:new-player');
                 this.loading = false;
+                this.player1 = {
+                    id: null,
+                    playerName: '',
+                    matchupAppearance: 0,
+                    slug: '',
+                };
             });
         },
     },
