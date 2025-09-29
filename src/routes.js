@@ -49,6 +49,7 @@ const routes = [
     {path: '/combos', name: 'Combos', component: Combos},
     {path: '/combo/:id', name: 'Combo', component: Combo},
     {path: '/combos/game/:gameId', name: 'Game Combos', component: Combos},
+    {path: '/combos/character/:characterId', name: 'Character Combos', component: Combos},
     {path: '/matches', name: 'Matches', component: Matches},
     {path: '/matches/game/:gameId', name: 'Game Matches', component: Matches},
     {path: '/matches/character/:characterId', name: 'Character Matches', component: Matches},

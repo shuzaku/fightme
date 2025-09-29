@@ -74,7 +74,9 @@ export default {
     },
 
     mounted() {
-        this.getCharacters();
+        if (this.gameId) {
+            this.getCharacters();
+        }
     },
 
     methods: {

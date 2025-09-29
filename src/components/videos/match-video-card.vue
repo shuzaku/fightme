@@ -415,7 +415,7 @@ export default {
         editVideo() {
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
-                name: 'video',
+                name: 'match',
                 videoId: this.video.id,
             });
         },

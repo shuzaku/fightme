@@ -28,6 +28,14 @@ export default {
                     value: 'video',
                 },
                 {
+                    name: 'match',
+                    value: 'match',
+                },
+                {
+                    name: 'combo',
+                    value: 'combo',
+                },
+                {
                     name: 'game',
                     value: 'game',
                 },

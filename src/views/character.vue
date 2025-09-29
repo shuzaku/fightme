@@ -10,6 +10,7 @@
                 @character-filter:update="filterQuery($event)"
                 @query-tournament-matches="queryTournamentMatches()"
                 @query-online-matches="queryVideos()"
+                @query-combos="queryCombos()"
             />
             <div v-if="videos.length > 0" class="videos-container">
                 <div
@@ -122,6 +123,11 @@ export default {
             this.videos = [];
             this.queryVideos();
         },
+
+        '$route.name': function () {
+            this.videos = [];
+            this.queryVideos();
+        },
     },
 
     mounted() {
@@ -180,7 +186,7 @@ export default {
             }
 
             if (!this.isLast && !this.loading) {
-                if (this.$route.name == 'CharacterCombo') {
+                if (this.$route.name == 'Character Combo') {
                     this.filter = 'Combo';
                 }
 

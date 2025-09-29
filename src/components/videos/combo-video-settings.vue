@@ -1,12 +1,6 @@
 <!-- @format -->
 <template>
     <div class="combos-container">
-        <youtube-media
-            :video-id="videoUrl"
-            :player-width="400"
-            :player-height="225"
-            :player-vars="{ rel: 0 }"
-        />
         <div v-for="(combo, index) in combos" :key="index" class="combo">
             <div class="combo-title" @click="expandComboMenu(index)">
                 <h3>Combo {{ index + 1 }}</h3>
@@ -23,22 +17,14 @@
                     />
                 </div>
                 <div class="inputs-container">
-                    <v-textarea v-model="inputs" placeholder="Combo Inputs" />
+                    <v-textarea v-model="combo.inputs" placeholder="Combo Inputs" />
                 </div>
                 <div class="combo-stats">
                     <div class="startTime input-container">
-                        <v-text-field
-                            v-model="combo.startTime"
-                            type="Number"
-                            placeholder="Start Time"
-                        />
+                        <v-text-field v-model="combo.startTime" placeholder="Start Time" />
                     </div>
                     <div class="endTime input-container">
-                        <v-text-field
-                            v-model="combo.endTime"
-                            type="Number"
-                            placeholder="End Time"
-                        />
+                        <v-text-field v-model="combo.endTime" placeholder="End Time" />
                     </div>
                     <div class="damage input-container">
                         <v-text-field
@@ -79,37 +65,25 @@ export default {
             type: String,
             default: null,
         },
+
         videoUrl: {
             type: String,
+            default: null,
+        },
+
+        combos: {
+            type: Array,
             default: null,
         },
     },
 
     data() {
         return {
-            combos: [
-                {
-                    id: '',
-                    characterId: '',
-                    damage: '',
-                    hits: '',
-                    inputs: '',
-                    startTime: '',
-                    endTime: '',
-                    note: '',
-                    isExpanded: true,
-                },
-            ],
+            showErrorMessage: null,
         };
     },
 
     computed: {},
-
-    watch: {
-        combos() {
-            this.$emit('update:combo', this.match);
-        },
-    },
 
     mounted() {},
 
@@ -119,27 +93,24 @@ export default {
             this.combos[index].isExpanded = true;
         },
 
-        setComboCharacter(characterId, target) {
-            target.characterId = characterId;
+        setComboCharacter(character, target) {
+            target.characterId = [];
+            target.characterId.push(character.id);
         },
 
         addCombo(index) {
-            if (!this.combos[index].inputs) {
-                this.showErrorMessage = true;
-            } else {
-                this.combos[index].isExpanded = false;
-                this.combos.push({
-                    id: '',
-                    characterId: '',
-                    damage: '',
-                    hits: '',
-                    inputs: '',
-                    startTime: '',
-                    endTime: '',
-                    isExpanded: true,
-                    tags: [],
-                });
-            }
+            this.combos[index].isExpanded = false;
+            this.combos.push({
+                id: '',
+                characterId: '',
+                damage: '',
+                hits: '',
+                inputs: '',
+                startTime: '',
+                endTime: '',
+                isExpanded: true,
+                tags: [],
+            });
         },
     },
 };

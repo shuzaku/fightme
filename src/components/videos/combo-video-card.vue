@@ -1,16 +1,23 @@
 <!-- @format -->
 <template>
-    <div ref="videoList">
+    <div
+        ref="videoList"
+        class="combo-video-card"
+        :class="{ 'twitter-card': video.videoType === 'twitter' }"
+    >
         <div v-if="isLoading" />
         <div v-else class="combo-card card">
+            <div class="character-image" v-if="video.videoType === 'twitter'">
+                <img :src="video.combo.character.imageUrl" />
+            </div>
             <div
                 :id="comboClipId"
+                class="video-container"
                 v-waypoint="{
                     active: true,
                     callback: onComboWaypoint,
                     options: intersectionOptions,
                 }"
-                class="video-container"
             >
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
@@ -27,6 +34,11 @@
                     :playsinline="1"
                     @ready="ready"
                 />
+
+                <tweet v-else-if="video.videoType === 'twitter'" id="1971339379064152483"
+                    ><loading></loading
+                ></tweet>
+
                 <video v-else ref="videoRef" loop controls muted>
                     <source :src="video.url" type="video/mp4" />
                 </video>
@@ -50,7 +62,7 @@
                         <p>
                             <span>
                                 <div class="img-container">
-                                    <img :src="video.combo.character.imageUrl" />
+                                    <img :src="video.combo.character.avatarUrl" />
                                 </div>
                                 {{ video.combo.character.name }}</span
                             >
@@ -106,12 +118,14 @@
         </div>
     </div>
 </template>
-
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script>
 import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
 import CollectionsService from '@/services/collections-service';
 import CollectionSearch from '@/components/collection/collection-search';
+import { Tweet, Moment, Timeline } from 'vue-tweet-embed';
+import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
 
@@ -119,6 +133,8 @@ export default {
     name: 'ComboCard',
     components: {
         'collection-search': CollectionSearch,
+        tweet: Tweet,
+        loading: Loading,
     },
 
     props: {
@@ -216,7 +232,8 @@ export default {
                 character: {
                     id: comboResponse.Character._id,
                     name: comboResponse.Character.Name,
-                    imageUrl: comboResponse.Character.AvatarUrl,
+                    avatarUrl: comboResponse.Character.AvatarUrl,
+                    imageUrl: comboResponse.Character.ImageUrl,
                 },
                 damage: comboResponse.Combo.Damage,
                 hits: comboResponse.Combo.Hits,
@@ -467,169 +484,7 @@ export default {
 </script>
 
 <style>
-/* .combo-card {
-    margin: 60px 0;
-    min-height: 446px;
-}
-
-.combo-card .character-bubble {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #3eb489;
-    background-size: cover;
-    background-position: top center;
-    position: absolute;
-    top: -15px;
-    left: -25px;
-    background-color: #e8e8e8;
-}
-
-.combo-card .character-bubble.player2 {
-    right: -25px;
-    left: auto;
-}
-
-.combo-card {
-    background: #444;
-    border: 5px solid #444;
-    margin-bottom: 30px;
-    position: relative;
-    cursor: pointer;
-    width: 100%;
-    max-width: 570px;
-    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
-}
-
-.combo-card .combo-card .combo-stats {
-    display: flex;
-    justify-content: space-between;
-}
-
-.combo-card .combo-card .combo-stats p {
-    font-size: 14px;
-    color: #1ab097;
-    font-weight: 600;
-}
-
-.combo-card .card-label {
-    position: absolute;
-    width: 70px;
-    border-radius: 30px;
-    top: -15px;
-    left: 50%;
-    margin-left: -35px;
-    background: #db8c10;
-    text-align: center;
-    padding: 5px;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.combo-card video {
-    width: 100%;
-}
-
-.combo-card .character-name {
-    margin-top: 20px;
-}
-
-.combo-card .character-name p {
-    color: #fff;
-    font-size: 20px;
-    padding: 0 20px;
-}
-
-.combo-card .combo-stats {
-    padding: 5px 20px 5px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.combo-card .characters {
-    padding: 10px 10px 15px;
-}
-
-.combo-card .video-ghost {
-    height: 313px;
-    width: 556px;
-}
-
-.combo-card .combo-input {
-    padding: 0 20px;
-    margin: 10px 0;
-    font-style: italic;
-}
-
-.combo-card .inputs {
-    border-radius: 3px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #4a5689;
-}
-
-.combo-card .card .edit-btn-container {
-    padding: 10px;
-}
-
-.combo-card .card .edit-btn-container button {
-    padding: 20px 10px;
-    background-color: #1ab097 !important;
-    border-radius: 50%;
-    min-width: 0px;
-    color: #fff;
-}
-
-.combo-card .video-container {
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
-}
-
-.combo-card .admin-controls {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 0 20px;
-}
-
-#app .combo-card .admin-controls button {
-    width: 50px;
-    height: 50px;
-    min-width: initial;
-    background-color: transparent;
-    box-shadow: none;
-    border-radius: 50%;
-}
-
-#app .combo-card .mdi-heart {
-    color: #fff;
-}
-
-#app .combo-card .tag {
-    background: #3eb489;
-    color: #fff;
-    border-radius: 10px;
-    padding: 3px 10px;
-}
-
-#app .combo-card .combo-tags {
-    display: flex;
-    width: 100%;
-    padding: 5px 20px;
-}
-
-#app .combo-card .admin-controls button:hover i::before {
-    opacity: 1;
-}
-
-#app .combo-card .admin-controls button i::before {
-    color: #3eb489;
-    opacity: 0.9;
-} */
-
-.combo-card {
+.combo-video-card .combo-card {
     margin: 60px 0;
     display: flex;
     /* background-image: linear-gradient(#515b89, #171b33); */
@@ -643,7 +498,7 @@ export default {
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.combo-card .aside {
+.combo-video-card .combo-card .aside {
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -652,13 +507,13 @@ export default {
     width: 100%;
 }
 
-.combo-card .versus {
+.combo-video-card .combo-card .versus {
     font-size: 25px;
     color: #3eb489;
     text-transform: uppercase;
 }
 
-.combo-card .card-label {
+.combo-video-card .combo-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -673,16 +528,16 @@ export default {
     font-weight: 600;
 }
 
-.combo-card .card-label {
+.combo-video-card .combo-card .card-label {
     background: #3c73a8;
 }
 
-.combo-card video {
+.combo-video-card .combo-card video {
     width: 100%;
 }
 
-.combo-card .character-name span,
-.combo-card .game-title span {
+.combo-video-card .combo-card .character-name span,
+.combo-video-card .combo-card .game-title span {
     padding: 6px 20px;
     color: #242832;
     font-size: 20px;
@@ -695,7 +550,7 @@ export default {
     overflow: hidden;
 }
 
-.combo-card .player-name {
+.combo-video-card .combo-card .player-name {
     color: #fff;
     font-size: 20px;
     background: #131419;
@@ -707,39 +562,39 @@ export default {
     left: 10px;
 }
 
-.combo-card .player-name p {
+.combo-video-card .combo-card .player-name p {
     font-weight: 400;
     font-size: 18px;
 }
 
-.combo-card .character-name {
+.combo-video-card .combo-card .character-name {
     padding-top: 0px;
     font-size: 13px;
     margin-bottom: 20px;
 }
 
-.combo-card .character-name p {
+.combo-video-card .combo-card .character-name p {
     font-size: 14px;
     color: #242832;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.combo-card .character {
+.combo-video-card .combo-card .character {
     padding: 5px;
 }
 
-.combo-card .game {
+.combo-video-card .combo-card .game {
     margin-bottom: 20px;
 }
 
-.combo-card .game .img-container img,
-.combo-card .character-name .img-container img {
+.combo-video-card .combo-card .game .img-container img,
+.combo-video-card .combo-card .character-name .img-container img {
     width: 30px;
 }
 
-.combo-card .game .img-container,
-.combo-card .character-name .img-container {
+.combo-video-card .combo-card .game .img-container,
+.combo-video-card .combo-card .character-name .img-container {
     position: absolute;
     left: 0;
     top: 0;
@@ -751,12 +606,12 @@ export default {
     align-items: center;
 }
 
-.combo-card .video-ghost {
+.combo-video-card .combo-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.combo-card .inputs {
+.combo-video-card .combo-card .inputs {
     border-radius: 3px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.2);
@@ -765,11 +620,11 @@ export default {
     color: #fff;
 }
 
-.combo-card.card .edit-btn-container {
+.combo-video-card .combo-card.card .edit-btn-container {
     padding: 10px;
 }
 
-.combo-card.card .edit-btn-container button {
+.combo-video-card .combo-card.card .edit-btn-container button {
     padding: 20px 10px;
     background-color: #4447e2 !important;
     border-radius: 50%;
@@ -777,7 +632,7 @@ export default {
     color: #fff;
 }
 
-.combo-card .video-container {
+.combo-video-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     position: relative;
@@ -785,6 +640,17 @@ export default {
     height: 0;
     overflow: hidden;
     min-width: 75%;
+}
+
+.combo-video-card.twitter-card .character-image img {
+    max-width: 410px;
+}
+
+.combo-video-card.twitter-card .combo-card .video-container {
+    padding-bottom: 0;
+    height: 610px;
+    min-width: initial;
+    width: 520px;
 }
 
 .video-container iframe,
@@ -797,22 +663,22 @@ export default {
     height: 100%;
 }
 
-.combo-card .character-2 {
+.combo-video-card .combo-card .character-2 {
     top: 40px;
 }
 
-.combo-card .character-3 {
+.combo-video-card .combo-card .character-3 {
     top: 120px;
 }
 
-.combo-card .admin-controls {
+.combo-video-card .combo-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
 }
 
-#app .combo-card .admin-controls button {
+#app .combo-video-card .combo-card .admin-controls button {
     width: 35px;
     height: 50px;
     min-width: initial;
@@ -821,16 +687,16 @@ export default {
     border-radius: 50%;
 }
 
-#app .combo-card .admin-controls button:hover i::before {
+#app .combo-video-card .combo-card .admin-controls button:hover i::before {
     opacity: 1;
 }
 
-#app .combo-card .admin-controls button i::before {
+#app .combo-video-card .combo-card .admin-controls button i::before {
     color: #3eb489;
     opacity: 0.9;
 }
 
-.combo-card .admin-controls button.share-button {
+.combo-video-card .combo-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -839,43 +705,43 @@ export default {
     border-radius: 50%;
 }
 
-.combo-card .combo-stats {
+.combo-video-card .combo-card .combo-stats {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
 }
 
-.combo-card .combo-stats p {
+.combo-video-card .combo-card .combo-stats p {
     font-size: 14px;
     color: #fff;
     font-weight: 600;
 }
 
-.combo-card .player {
+.combo-video-card .combo-card .player {
     border: 1px dashed #3eb489;
     position: relative;
     padding-top: 10px;
     margin-bottom: 40px;
 }
 
-#app.mobile.small-mobile .combo-card {
+#app.mobile.small-mobile .combo-video-card .combo-card {
     flex-direction: column;
 }
 
-#app.mobile.small-mobile .combo-card .players {
+#app.mobile.small-mobile .combo-video-card .combo-card .players {
     display: flex;
     width: 100%;
 }
 
-#app.mobile.small-mobile .combo-card .players .player {
+#app.mobile.small-mobile .combo-video-card .combo-card .players .player {
     margin-bottom: 0;
 }
 
-#app.mobile.small-mobile .combo-card .video-container {
+#app.mobile.small-mobile .combo-video-card .combo-card .video-container {
     padding-bottom: 56.25%;
 }
 
-#app.mobile.small-mobile .combo-card .aside {
+#app.mobile.small-mobile .combo-video-card .combo-card .aside {
     max-width: 100%;
 }
 </style>

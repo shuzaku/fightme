@@ -60,9 +60,7 @@ export default {
         };
     },
 
-    created() {
-        this.getPlayer();
-    },
+    created() {},
 
     methods: {
         async addCharacter() {

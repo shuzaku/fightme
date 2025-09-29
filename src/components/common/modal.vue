@@ -17,6 +17,20 @@
             @closeModal="closeModal()"
         />
 
+        <new-match
+            v-if="options.name === 'match'"
+            :videoId="options.videoId"
+            :account="this.account"
+            @closeModal="closeModal()"
+        />
+
+        <new-combo
+            v-if="options.name === 'combo'"
+            :videoId="options.videoId"
+            :account="this.account"
+            @closeModal="closeModal()"
+        />
+
         <new-character v-if="options.name === 'character'" @closeModal="closeModal()" />
         <new-artical v-if="options.name === 'artical'" @closeModal="closeModal()" />
 
@@ -57,7 +71,8 @@ import newTournament from '@/components/tournament/new-tournament';
 import newCharacter from '@/components/character/new-character';
 import newArticle from '@/components/article/new-article';
 import newEvent from '@/components/event/new-event';
-
+import newMatch from '@/components/videos/new-match';
+import newCombo from '@/components/videos/new-combo';
 import register from '@/components/account/register';
 import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
@@ -75,7 +90,8 @@ export default {
         'new-character': newCharacter,
         'new-article': newArticle,
         'new-event': newEvent,
-
+        'new-match': newMatch,
+        'new-combo': newCombo,
         register: register,
         login: login,
         collections: collections,

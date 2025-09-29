@@ -62,7 +62,7 @@ export default {
 
     methods: {
         async addCreator(newCreator) {
-            var response = await CreatorsService.addPlayer({
+            var response = await CreatorsService.addCreator({
                 Name: newCreator.trim(),
             });
             var creatorId = response.data.creatorId;

@@ -3,6 +3,7 @@
     <div ref="videoViewRef" class="combo-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
+                class="combos-container"
                 v-for="(video, index) in videos"
                 :key="index"
                 :class="{ selected: video.selected }"
