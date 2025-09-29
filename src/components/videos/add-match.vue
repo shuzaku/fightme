@@ -6,7 +6,7 @@
             <div class="team1">
                 <div class="player1" v-for="(player, index) in match.team1Players" :key="index">
                     <div class="player-container">
-                        <h3>Player</h3>
+                        <h3>Team 1 Player {{ index + 1 }}</h3>
                         <player-search
                             v-model="player.id"
                             @update:player="addPlayerToTeam1($event, index)"
@@ -22,15 +22,18 @@
                         />
                     </div>
                 </div>
-                <!-- <v-btn @click="addToTeam1()">Add player to team 1</v-btn> -->
+                <v-btn @click="addToTeam1()" v-if="match.team1Players.length < 2"
+                    >Add player to team 1</v-btn
+                >
             </div>
             <div class="versus">Vs.</div>
             <div class="team2">
                 <div class="player2" v-for="(player, index) in match.team2Players" :key="index">
                     <div class="player-container">
-                        <h3>Player</h3>
+                        <h3>Team 2 Player {{ index }}</h3>
                         <player-search
                             v-model="player.id"
+                            multiple
                             @update:player="addPlayerToTeam2($event, index)"
                         />
                     </div>
@@ -44,9 +47,11 @@
                         />
                     </div>
                 </div>
-                <!-- <v-btn @click="addToTeam2()">Add player to team 2</v-btn> -->
+                <v-btn @click="addToTeam2()" v-if="match.team2Players.length < 2"
+                    >Add player to team 2</v-btn
+                >
             </div>
-            <div class="match-details">
+            <!-- <div class="match-details">
                 <multiselect
                     v-model="winningTeam"
                     :options="teams"
@@ -66,7 +71,7 @@
                         </span>
                     </template>
                 </multiselect>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>
@@ -96,12 +101,10 @@ export default {
             type: Object,
             default: null,
         },
-    },
 
-    data() {
-        return {
-            winningTeam: null,
-            match: {
+        match: {
+            type: Object,
+            default: {
                 team1Players: [
                     {
                         id: null,
@@ -122,6 +125,12 @@ export default {
                 ],
                 winningPlayers: null,
             },
+        },
+    },
+
+    data() {
+        return {
+            winningTeam: null,
         };
     },
 
@@ -223,4 +232,11 @@ export default {
 };
 </script>
 
-<style type="text/css"></style>
+<style type="text/css">
+.add-match .versus {
+    margin: 40px 0;
+    padding: 8px;
+    border-top: 1px dashed #ccc;
+    border-bottom: 1px dashed #ccc;
+}
+</style>

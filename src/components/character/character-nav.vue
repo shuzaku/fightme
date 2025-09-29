@@ -212,7 +212,7 @@ export default {
         },
 
         routeToCharacterCombos() {
-            this.$router.push(`/character/${this.characterId}/combos`);
+            this.$router.push(`/combos/character/${this.characterId}`);
         },
 
         queryTournamentMatches() {

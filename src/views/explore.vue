@@ -8,7 +8,6 @@
                 class="banner-image"
             />
         </div>
-
         <completed-tournaments />
         <explore-updates />
         <explore-tournaments />
@@ -23,7 +22,7 @@ import ExploreUpdates from '@/components/explore/explore-updates.vue';
 import ExploreTournaments from '@/components/explore/explore-tournaments.vue';
 import ExploreFeaturedPlayers from '@/components/explore/explore-featured-players.vue';
 import ExploreGames from '@/components/explore/explore-games.vue';
-
+import appTwitterPlayer from '@/components/media-player/app-twitter-player.vue';
 export default {
     name: 'explore',
 
@@ -33,6 +32,7 @@ export default {
         'explore-tournaments': ExploreTournaments,
         'explore-featured-players': ExploreFeaturedPlayers,
         'explore-games': ExploreGames,
+        'app-twitter-player': appTwitterPlayer,
     },
 };
 </script>
