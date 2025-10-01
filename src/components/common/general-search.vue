@@ -237,8 +237,9 @@ export default {
 
 .general-search .search-container fieldset,
 .general-search .multiselect__input,
-.general-search .multiselect__single {
-    background: transparent;
+.general-search .multiselect__single,
+.general-search .multiselect__option {
+    background: #444;
     color: #fff;
 }
 
@@ -254,7 +255,6 @@ export default {
 
 .general-search .multiselect__placeholder,
 .general-search .multiselect__option {
-    background: #212227;
     color: #fff;
 }
 
