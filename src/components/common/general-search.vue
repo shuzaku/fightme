@@ -7,7 +7,7 @@
             :close-on-select="true"
             :clear-on-select="true"
             :preserve-search="true"
-            placeholder="Search..."
+            placeholder="Search players, characters, games, etc."
             group-label="category"
             group-values="values"
             label="value"
@@ -194,12 +194,21 @@ export default {
     background: transparent;
     display: flex;
     justify-content: center;
-    padding: 0px 20px;
     width: 470px;
     margin-top: 10px;
     position: relative;
     display: flex;
     align-items: center;
+}
+
+.general-search .multiselect__tags {
+    background: #ffffff10;
+    border: #3eb489 1px solid;
+    border-radius: 15px;
+}
+
+.general-search .multiselect__select:before {
+    border-color: #3eb489 transparent transparent;
 }
 
 #app.mobile.small-mobile .general-search {
@@ -226,18 +235,36 @@ export default {
     width: 100%;
 }
 
-.general-search .search-container fieldset {
-    background: #fff;
+.general-search .search-container fieldset,
+.general-search .multiselect__input,
+.general-search .multiselect__single {
+    background: transparent;
+    color: #fff;
 }
 
 .general-search .search-category,
 .general-search .search-input {
-    background: #fff;
+    background: #444;
     color: #000;
     padding: 7px;
     border-radius: 8px;
     width: 200px;
     margin: 0 10px;
+}
+
+.general-search .multiselect__placeholder,
+.general-search .multiselect__option {
+    background: #212227;
+    color: #fff;
+}
+
+.general-search .multiselect__option--disabled {
+    background: #3eb489 !important;
+    color: #fff !important;
+}
+
+.general-search .multiselect__content-wrapper {
+    border: none;
 }
 
 .general-search .search-btn {

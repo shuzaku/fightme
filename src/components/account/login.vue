@@ -2,7 +2,7 @@
 <template>
     <div class="login-modal">
         <div class="formcontainer">
-            <h2>Login</h2>
+            <h2>{{ isResetPassword ? 'Reset Password' : 'Login' }}</h2>
             <div v-if="error" class="error">{{ error }}</div>
             <button
                 v-if="error === 'Email not verified.'"
@@ -24,6 +24,7 @@
             />
 
             <v-text-field
+                v-if="!isResetPassword"
                 id="password"
                 v-model="form.password"
                 type="password"
@@ -34,7 +35,36 @@
                 autofocus
             />
 
-            <v-btn class="submit-btn" rounded @click="submit()">Login</v-btn>
+            <v-btn
+                v-if="!isResetPassword"
+                class="submit-btn"
+                rounded
+                @click="submit()"
+                :loading="isLoading"
+                :disabled="isLoading"
+            >
+                {{ isLoading ? 'Logging in...' : 'Login' }}
+            </v-btn>
+
+            <v-btn
+                v-else
+                class="reset-password-btn"
+                rounded
+                @click="resetPassword()"
+                :disabled="!form.email"
+            >
+                Reset Password
+            </v-btn>
+
+            <v-btn
+                class="reset-password-btn"
+                rounded
+                @click="TogglePasswordReset()"
+                :loading="isLoading"
+                :disabled="isLoading"
+            >
+                {{ isResetPassword ? 'Return toLogin' : 'Reset Password' }}
+            </v-btn>
         </div>
     </div>
 </template>
@@ -42,6 +72,7 @@
 <script>
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
+import AuthService from '@/services/auth-service';
 import { eventbus } from '@/main';
 
 export default {
@@ -53,10 +84,53 @@ export default {
                 password: '',
             },
             error: null,
+            isLoading: false,
+            isResetPassword: false,
         };
     },
     methods: {
-        submit() {
+        async submit() {
+            this.isLoading = true;
+            this.error = null;
+
+            try {
+                // Try new auth strategy first
+                const authResponse = await AuthService.login(this.form.email, this.form.password);
+
+                if (authResponse.needsPasswordReset) {
+                    this.error = 'Password reset required. Please check your email.';
+                    return;
+                }
+
+                if (authResponse.success && authResponse.user) {
+                    // New auth strategy succeeded
+                    this.handleSuccessfulLogin(authResponse.user);
+                    return;
+                }
+            } catch (authError) {
+                // Fall back to Firebase auth if new strategy fails
+                this.submitWithFirebase();
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        resetPassword() {
+            const auth = getAuth();
+
+            sendPasswordResetEmail(auth, this.form.email)
+                .then(() => {
+                    // Password reset email sent!
+                    // ..
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    // ..
+                });
+        },
+
+        submitWithFirebase() {
             firebase
                 .auth()
                 .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -69,6 +143,7 @@ export default {
                                 id: data.user.uid,
                                 emailVerified: data.user.emailVerified,
                             };
+
                             if (this.user.emailVerified) {
                                 this.getAccount(this.user);
                             } else {
@@ -76,7 +151,38 @@ export default {
                             }
                         });
                 })
-                .catch(() => {});
+                .catch((error) => {
+                    this.error = error.message || 'Login failed. Please try again.';
+                });
+        },
+
+        async handleSuccessfulLogin(user) {
+            try {
+                // Get additional account data if needed
+                const response = await AccountsService.getAccount({ id: user.id });
+                this.account = {
+                    id: response.data.account[0]._id,
+                    displayName: response.data.account[0].DisplayName,
+                    email: response.data.account[0].Email,
+                    favoriteVideos: response.data.account[0].FavoriteVideos,
+                    collections: response.data.account[0].Collections,
+                    accountType: response.data.account[0].AccountType,
+                    role: user.role, // Include role from auth service
+                };
+
+                eventbus.$emit('account:login', this.account);
+                this.$emit('closeModal');
+            } catch (error) {
+                // Still proceed with login if account fetch fails
+                this.account = {
+                    id: user.id,
+                    displayName: user.displayName,
+                    email: user.email,
+                    role: user.role,
+                };
+                eventbus.$emit('account:login', this.account);
+                this.$emit('closeModal');
+            }
         },
 
         async getAccount(user) {
@@ -101,6 +207,10 @@ export default {
                 .then((data) => {
                     data.user.sendEmailVerification();
                 });
+        },
+
+        TogglePasswordReset() {
+            this.isResetPassword = !this.isResetPassword;
         },
     },
 };
