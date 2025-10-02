@@ -59,13 +59,7 @@
             </div>
             <div class="recent-tournaments">
                 <h2>🏆 Recent Tournaments</h2>
-                <div class="tournaments">
-                    <div class="tournament-placeholder">Tournament 1</div>
-                    <div class="tournament-placeholder">Tournament 2</div>
-                    <div class="tournament-placeholder">Tournament 3</div>
-                    <div class="tournament-placeholder">Tournament 4</div>
-                    <div class="tournament-placeholder">Tournament 5</div>
-                </div>
+                <completed-tournaments />
             </div>
             <div class="latest-update">
                 <h2>📰 Latest Update</h2>
@@ -88,12 +82,14 @@
 <script>
 import { eventbus } from '@/main';
 import GeneralSearch from '@/components/common/general-search';
+import CompletedTournaments from '@/components/explore/completed-tournaments.vue';
 
 export default {
     name: 'Home',
 
     components: {
         'general-search': GeneralSearch,
+        'completed-tournaments': CompletedTournaments,
     },
 
     props: {
@@ -124,6 +120,11 @@ export default {
     padding-top: 40px;
     width: 100%;
     height: 100%;
+}
+
+.home-view > .container {
+    max-width: 1400px;
+    padding: 50px;
 }
 
 .home-view .logo {

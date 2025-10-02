@@ -461,11 +461,6 @@ export default {
     justify-content: center;
 }
 
-#app .container {
-    max-width: 1400px;
-    padding: 50px;
-}
-
 h2 {
     color: #fff;
     font-size: 40px;

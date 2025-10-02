@@ -3,8 +3,8 @@
     <div class="completed-tournaments">
         <h3>Recent Tournaments</h3>
         <div class="tournaments">
-            <div v-for="tournament in tournaments" :key="tournament.id" class="tournament">
-                <tournament-card :tournament="tournament" />
+            <div v-for="(tournament, index) in tournaments" :key="tournament.id" class="tournament">
+                <tournament-card :tournament="tournament" v-if="index < 7" />
             </div>
         </div>
     </div>
