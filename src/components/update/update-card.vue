@@ -22,7 +22,7 @@ export default {
 
 <style>
 .update-card {
-    max-width: 333px;
+    max-width: 190px;
     color: #fff;
     padding: 8px;
     position: relative;

@@ -5,8 +5,8 @@
             <div class="hero">
                 <div class="heading">
                     <img
-                        class="logo"
-                        src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
+                        class="fe-logo"
+                        src="https://res.cloudinary.com/shuzchef/image/upload/v1759458070/cjee1o9a0mtpnmcudhfl.png"
                     />
                     <h1>Find Any Match, Any Player, Any Character</h1>
                     <p class="description">
@@ -58,18 +58,10 @@
                 </div>
             </div>
             <div class="recent-tournaments">
-                <h2>🏆 Recent Tournaments</h2>
                 <completed-tournaments />
             </div>
             <div class="latest-update">
-                <h2>📰 Latest Update</h2>
-                <div class="updates">
-                    <div class="update">Update 1</div>
-                    <div class="update">Update 2</div>
-                    <div class="update">Update 3</div>
-                    <div class="update">Update 4</div>
-                    <div class="update">Update 5</div>
-                </div>
+                <explore-updates />
             </div>
             <div class="cta">
                 <h2>Join the fight!</h2>
@@ -83,6 +75,7 @@
 import { eventbus } from '@/main';
 import GeneralSearch from '@/components/common/general-search';
 import CompletedTournaments from '@/components/explore/completed-tournaments.vue';
+import ExploreUpdates from '@/components/explore/explore-updates.vue';
 
 export default {
     name: 'Home',
@@ -90,6 +83,7 @@ export default {
     components: {
         'general-search': GeneralSearch,
         'completed-tournaments': CompletedTournaments,
+        'explore-updates': ExploreUpdates,
     },
 
     props: {
@@ -122,13 +116,13 @@ export default {
     height: 100%;
 }
 
+.home-view .fe-logo {
+    width: 150px;
+}
+
 .home-view > .container {
     max-width: 1400px;
     padding: 50px;
-}
-
-.home-view .logo {
-    width: 150px;
 }
 
 .home-view .content {
@@ -177,6 +171,7 @@ export default {
     align-items: center;
     height: 80vh;
     z-index: 1;
+    margin-bottom: 80px;
 }
 
 .home-view .recent-searches {
@@ -220,6 +215,7 @@ export default {
     right: 0;
     z-index: 0;
     opacity: 0.7;
+    max-width: 45vw;
 }
 
 .home-view .featured-character img {
@@ -254,26 +250,6 @@ export default {
 .home-view .tournament-placeholder {
     width: 253px;
     height: 60px;
-    background: #191b2490;
-    border-radius: 15px;
-    padding: 16px;
-    color: #ffffff;
-    border: 1px solid #ffffff30;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.home-view .updates {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 80px;
-}
-
-.home-view .update {
-    width: 420px;
-    height: 150px;
     background: #191b2490;
     border-radius: 15px;
     padding: 16px;

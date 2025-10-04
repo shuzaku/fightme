@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="completed-tournaments">
-        <h3>Recent Tournaments</h3>
+        <h2>🏆 Recent Tournaments</h2>
         <div class="tournaments">
             <div v-for="(tournament, index) in tournaments" :key="tournament.id" class="tournament">
                 <tournament-card :tournament="tournament" v-if="index < 7" />

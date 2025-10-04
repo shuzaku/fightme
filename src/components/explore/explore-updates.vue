@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="explore-updates">
-        <h3>Recent Updates</h3>
+        <h2>📰 Latest Update</h2>
         <div class="updates">
             <div v-for="update in updates" :key="update.id" class="update">
                 <update-card :update="update" />
