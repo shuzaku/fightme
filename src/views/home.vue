@@ -16,8 +16,16 @@
                     <div class="search-container">
                         <general-search />
                         <p class="recent-searches">
-                            Popular: <a href="">Tokido</a> <a href="">Ken vs JP</a>
-                            <a href="">GGST Sol</a>
+                            Popular:
+                            <a href="https://fighters-edge.com/Player/6048487f4fd4ab5b68a083f0"
+                                >Punk</a
+                            >
+                            <a href="https://fighters-edge.com/Character/68ef0b1638aafd0022ea947b"
+                                >C.Viper</a
+                            >
+                            <a href="https://fighters-edge.com/Game/68cba126f261500022897969"
+                                >2XKO</a
+                            >
                         </p>
                     </div>
                     <div class="stats" v-if="counts">
@@ -64,6 +72,12 @@
                         />
                     </div>
                 </div>
+                <div class="featured-games">
+                    <h2>🎮 Featured Games</h2>
+                    <div class="videos">
+                        <explore-games />
+                    </div>
+                </div>
                 <div class="recent-tournaments">
                     <completed-tournaments />
                 </div>
@@ -105,7 +119,7 @@ import CharactersService from '@/services/characters-service';
 import FeaturedMatchesService from '@/services/featured-matches-service';
 import FeaturedVideosService from '@/services/featured-videos-service';
 import GeneralService from '@/services/general-service';
-
+import ExploreGames from '@/components/explore/explore-games.vue';
 export default {
     name: 'Home',
 
@@ -114,6 +128,7 @@ export default {
         'completed-tournaments': CompletedTournaments,
         'explore-updates': ExploreUpdates,
         'character-slideshow': CharacterSlideshow,
+        'explore-games': ExploreGames,
     },
 
     props: {
@@ -392,6 +407,10 @@ export default {
 .home-view .cta {
     text-align: center;
     margin-top: 120px;
+}
+
+.home-view .featured-games {
+    margin-top: 80px;
 }
 
 .home-view .cta button.sign-up {
