@@ -134,7 +134,9 @@ export default {
 
 <style>
 .notes-view {
-    padding-top: 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 120px;
     min-width: 600px;
 }
 

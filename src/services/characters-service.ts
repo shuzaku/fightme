@@ -40,5 +40,9 @@ export default {
 
   queryMatchup(params: Params) {
     return Api().get(`characterMatchupInfo?character1=${params.searchQuery[0].characters.character1}&character2=${params.searchQuery[0].characters.character2}`)
+  },
+
+  fetchRecentCharacters(params: Params) {
+    return Api().get(`characters?limit=${params.limit}&sort=${params.sort}&sortDirection=${params.sortDirection}`)
   }
 }

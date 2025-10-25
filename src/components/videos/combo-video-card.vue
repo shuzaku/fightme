@@ -642,8 +642,14 @@ export default {
     min-width: 75%;
 }
 
+.combo-video-card.twitter-card .character-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .combo-video-card.twitter-card .character-image img {
-    max-width: 410px;
+    max-width: 360px;
 }
 
 .combo-video-card.twitter-card .combo-card .video-container {
@@ -651,6 +657,8 @@ export default {
     height: 610px;
     min-width: initial;
     width: 520px;
+    display: flex;
+    align-items: center;
 }
 
 .video-container iframe,
@@ -722,6 +730,10 @@ export default {
     position: relative;
     padding-top: 10px;
     margin-bottom: 40px;
+}
+
+.combo-video-card .twitter-tweet iframe {
+    width: 450px !important;
 }
 
 #app.mobile.small-mobile .combo-video-card .combo-card {

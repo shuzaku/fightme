@@ -122,7 +122,7 @@ export default {
 
             var queryParameter = {
                 skip: this.skip,
-                sortOption: this.sort,
+                sort: this.sort,
                 filter: this.filter,
                 searchQuery: [],
                 id: this.tournamentId,
@@ -306,7 +306,7 @@ export default {
 .games-view {
     display: block;
     position: relative;
-    padding-top: 30px;
+    padding: 140px 20px;
     height: 100%;
     overflow: hidden;
     width: 100%;

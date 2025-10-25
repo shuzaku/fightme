@@ -10,5 +10,9 @@ export default {
 
   search(params: Params) {
     return Api().get(`search?value=${params.searchQuery[0].queryValue}`)
+  },
+
+  getCounts() {
+    return Api().get('counts')
   }
 } 

@@ -76,7 +76,7 @@ export default {
 
             var queryParameter = {
                 skip: this.skip,
-                sortOption: this.sort,
+                sort: this.sort,
                 filter: this.filter,
                 searchQuery: [
                     {
@@ -191,7 +191,7 @@ export default {
         async queryAnalysis() {
             var queryParameter = {
                 skip: this.skip,
-                sortOption: this.sort,
+                sort: this.sort,
                 searchQuery: [
                     {
                         queryName: 'MatchId',

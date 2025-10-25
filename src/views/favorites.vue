@@ -138,6 +138,9 @@ export default {
     flex-direction: column;
     position: relative;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 120px;
 }
 
 .favorites-view::-webkit-scrollbar-track {

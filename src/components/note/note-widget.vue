@@ -6,6 +6,7 @@
         <div v-else class="note-widget-container">
             <label>Type:</label>
             <multiselect
+                dark
                 v-model="note.selectedType"
                 :options="types"
                 :searchable="false"
@@ -58,9 +59,17 @@
 
             <div class="note-content">
                 <label>Heading:</label>
-                <input v-model="note.heading" type="text" />
+                <v-text-field
+                    dark
+                    v-model="note.heading"
+                    placeholder="Heading"
+                    value
+                    required
+                    autofocus
+                />
+
                 <label>Content:</label>
-                <quill-editor ref="myQuillEditor" v-model="note.noteContent" />
+                <quill-editor dark ref="myQuillEditor" v-model="note.noteContent" />
             </div>
 
             <v-btn v-if="!noteId" class="submit-btn" rounded @click="addNote()">Add Note</v-btn>
@@ -242,11 +251,39 @@ export default {
 };
 </script>
 <style type="text/css">
+.note-widget {
+    color: #fff;
+}
 .note-widget.multiselect {
     margin: 5px 0 20px;
 }
 
 .note-widget .note-content {
     margin-bottom: 20px;
+}
+
+/* Editor background and text color */
+.note-widget .ql-editor {
+    background-color: #333; /* Dark background */
+    color: #eee; /* Light text */
+}
+
+/* Code block styling */
+.note-widget .ql-snow .ql-editor pre.ql-syntax {
+    background-color: #23241f; /* Darker background for code */
+    color: #f8f8f2; /* Light text for code */
+}
+
+/* Toolbar icon colors */
+.note-widget .ql-toolbar .ql-stroke {
+    stroke: #fff; /* White stroke for icons */
+}
+
+.note-widget .ql-toolbar .ql-fill {
+    fill: #fff; /* White fill for icons */
+}
+
+.note-widget .ql-toolbar .ql-picker {
+    color: #fff; /* White text for dropdowns */
 }
 </style>

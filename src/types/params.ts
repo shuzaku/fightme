@@ -1,6 +1,7 @@
 interface Params {
     skip: Int16Array,
-    sortOption: string,
+    sort: string,
+    sortDirection: string,
     filter: string,
     id: string,
     slug: string,
@@ -19,6 +20,7 @@ interface Params {
         }
     ],
     tagFilter: string,
+    limit: number
 }
 
 export default Params

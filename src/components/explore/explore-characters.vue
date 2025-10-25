@@ -81,9 +81,7 @@ export default {
 .explore-characters .characters {
     display: flex;
     flex-wrap: wrap;
-}
-
-.explore-characters .characters {
+    gap: 8px;
 }
 
 .explore-characters .characters .character img {
@@ -92,5 +90,7 @@ export default {
     max-height: 75px;
     height: auto;
     cursor: pointer;
+    border-radius: 24px;
+    border: 1px solid #4447e2;
 }
 </style>

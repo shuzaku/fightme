@@ -1,0 +1,187 @@
+<!-- @format -->
+<template>
+    <div class="game-combos">
+        <div v-if="videos.length > 0">
+            <div
+                v-for="(video, index) in videos"
+                :key="index"
+                :class="{ selected: video.selected }"
+            >
+                <combo-video-card
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :isFirst="video.isFirst"
+                    :comboClipId="video.comboClipId"
+                    :account="account"
+                />
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import ComboVideoCard from '@/components/videos/combo-video-card';
+import VideosService from '@/services/videos-service';
+
+import Loading from '@/components/common/loading';
+
+export default {
+    name: 'GameCombos',
+
+    components: {
+        'combo-video-card': ComboVideoCard,
+
+        loading: Loading,
+    },
+
+    props: {
+        account: {
+            type: Object,
+            default: null,
+        },
+    },
+
+    data() {
+        return {
+            videos: [],
+            isLoading: true,
+            query: null,
+            favorites: [],
+            filter: null,
+            sort: null,
+            isLast: false,
+            loading: false,
+        };
+    },
+
+    computed: {
+        skip: function () {
+            return this.videos.length;
+        },
+
+        gameId: function () {
+            return this.$route.params.id;
+        },
+    },
+
+    watch: {
+        gameId: function () {
+            this.videos = [];
+            this.queryVideos();
+        },
+    },
+
+    mounted() {
+        this.queryVideos();
+        window.addEventListener('scroll', this.handleScroll);
+    },
+
+    beforeDestroy() {
+        window.removeEventListener('scroll', this.handleScroll);
+    },
+
+    methods: {
+        applySort(sort) {
+            this.videos = [];
+            this.sort = sort;
+            this.queryVideos();
+        },
+
+        filterbyTag(filter) {
+            this.videos = [];
+            this.tagFilter = filter;
+            this.queryVideos();
+        },
+
+        refreshQuery(newQuery) {
+            this.videos = [];
+            this.queryVideos(newQuery);
+        },
+
+        filterQuery(filter) {
+            this.videos = [];
+            this.filter = filter;
+            this.isLast = false;
+            this.queryVideos();
+        },
+
+        async queryVideos(newQuery) {
+            this.videos = [];
+            var queryParameter = {
+                skip: this.skip,
+                sort: this.sort,
+                filter: 'Combo',
+                searchQuery: [
+                    {
+                        queryName: 'GameId',
+                        queryValue: this.gameId,
+                    },
+                ],
+                sort: null,
+            };
+
+            const response = await VideosService.queryVideos(queryParameter);
+            this.hydrateVideos(response);
+            if (this.videos.length < 6) {
+                this.playFirstVideo();
+            }
+        },
+
+        hydrateVideos(response) {
+            response.data.videos.forEach((video) => {
+                this.videos.push({
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
+                    contentType: video.ContentType,
+                    isEditing: false,
+                    isPlaying: false,
+                });
+            });
+        },
+
+        playFirstVideo() {
+            this.videos[0].isPlaying = true;
+            this.loading = false;
+        },
+
+        onWaypoint({ el, going, direction }) {
+            var objectId = el.id;
+            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
+            if (going === this.$waypointMap.GOING_IN && direction) {
+                featuredVideo.isPlaying = true;
+            }
+
+            if (going === this.$waypointMap.GOING_OUT && direction) {
+                featuredVideo.isPlaying = false;
+            }
+        },
+
+        handleScroll() {
+            var bottomOfWindow =
+                document.documentElement.scrollTop + window.innerHeight ===
+                document.documentElement.offsetHeight;
+            if (bottomOfWindow && !this.isLoading) {
+                this.queryVideos();
+            }
+        },
+
+        addedNewVideo() {
+            this.videos = [];
+            this.queryVideos();
+        },
+    },
+};
+</script>
+
+<style>
+.game-combos {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+}
+
+.game-combos video {
+    max-width: 900px;
+    margin: 0 auto;
+    display: block;
+}
+</style>

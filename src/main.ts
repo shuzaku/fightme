@@ -13,6 +13,7 @@ import VueAxios from 'vue-axios'
 
 import _ from 'lodash';    
 import firebase from 'firebase/app'
+import AuthService from '@/services/auth-service'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -73,6 +74,9 @@ const router = new VueRouter({
 
 export const eventbus = new Vue();
 firebase.initializeApp(configOptions);
+
+// Initialize authentication service
+AuthService.initializeAuth();
 
 // Configuration VueAnalytics
 Vue.use(VueGtag, {

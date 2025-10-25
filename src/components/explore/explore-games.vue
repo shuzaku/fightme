@@ -1,7 +1,6 @@
 <!-- @format -->
 <template>
     <div class="explore-games">
-        <h3>Explore Games</h3>
         <div class="games">
             <div v-for="game in games" :key="game.id" class="game">
                 <game-card :game="game" />
@@ -33,7 +32,16 @@ export default {
 
     methods: {
         async getGames() {
-            const response = await GamesService.fetchGames();
+            var queryParameter = {
+                searchQuery: [
+                    {
+                        queryName: 'IsFeatured',
+                        queryValue: true,
+                    },
+                ],
+            };
+
+            const response = await GamesService.queryGames(queryParameter);
             this.games = response.data.games.map((game) => {
                 return {
                     id: game._id,

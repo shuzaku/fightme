@@ -29,12 +29,13 @@
                 </div>
                 <!--- video --->
                 <div v-if="!videoId" class="video-container">
-                    <v-radio-group v-model="video.origin" :mandatory="false">
+                    <v-radio-group dark v-model="video.origin" :mandatory="false">
                         <v-radio label="From the web" value="web"></v-radio>
                         <v-radio label="From my computer" value="computer"></v-radio>
                     </v-radio-group>
                     <div v-if="video.origin == 'web'" class="import-video-container">
                         <v-text-field
+                            dark
                             id="import-video"
                             v-model="importVideoUrl"
                             type="text"
@@ -629,6 +630,7 @@ export default {
 .post-video {
     text-align: left;
     margin: 0 auto;
+    color: #fff;
 }
 
 .post-video .players-container button,
@@ -636,6 +638,7 @@ export default {
 .post-video label,
 .post-video .or {
     display: block;
+    color: #fff;
 }
 
 .post-video .players-container,

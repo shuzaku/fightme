@@ -3,17 +3,17 @@
     <div :class="['follows']">
         <div class="follow-container">
             <div v-for="follow in follows" :key="follow.id">
-                <div class="follow" @click="navigate(follow)">
+                <div class="follow" @click="navigate(follow)" v-tooltip="follow.name">
                     <div class="avatar">
                         <div v-if="follow.imageUrl" class="image-container">
                             <img :src="follow.imageUrl" />
                         </div>
                         <div v-else class="blank-avatar"></div>
                     </div>
-                    <div class="follow-text">
+                    <!-- <div class="follow-text">
                         <p>{{ follow.name }}</p>
                         <p class="follow-type">{{ follow.type }}</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div v-if="!account" class="guest-msg">
@@ -156,46 +156,46 @@ export default {
 </script>
 <style type="text/css">
 .follows {
-    padding-top: 20px;
+    top: 60px;
+    position: fixed;
+    padding: 0 40px;
+    color: #fff;
+    background: #4447e2;
+    z-index: 888;
+    width: 100%;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    padding: 4px;
 }
 
-.follows .mdi-chevron-down {
-    transform: rotate(0deg);
-    transition: all 0.3s linear;
+.follows .follow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.follows.opened .mdi-chevron-down {
-    transform: rotate(-90deg);
-    transition: all 0.3s linear;
-}
 .follows .follow {
     color: #fff;
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-bottom: 15px;
     margin-left: 0px;
     transition: all 0.1s linear;
 }
 
-.follows .follow:hover {
-    margin-left: 5px;
-    transition: all 0.1s linear;
-}
-
 .follows .avatar {
-    width: 25px;
-    height: 25px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    margin: 7px 0px 0;
     background: #fff;
     margin-right: 10px;
 }
 
 .follows .avatar .image-container {
     border-radius: 50%;
-    width: 25px;
-    height: 25px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     border: 2px solid #3eb489;
@@ -221,5 +221,9 @@ export default {
 
 .follows .guest-msg {
     max-width: 80%;
+}
+
+.mobile .follows {
+    top: 50px;
 }
 </style>

@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="explore-updates">
-        <h3>Recent Updates</h3>
+        <h2>📰 Latest Update</h2>
         <div class="updates">
             <div v-for="update in updates" :key="update.id" class="update">
                 <update-card :update="update" />
@@ -95,5 +95,9 @@ export default {
     padding: 5px;
     font-size: 10px;
     background-color: #3eb489;
+}
+
+.mobile .explore-updates .update {
+    max-width: 50%;
 }
 </style>

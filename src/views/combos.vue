@@ -131,7 +131,7 @@ export default {
         async queryVideos() {
             var queryParameter = {
                 skip: this.skip,
-                sortOption: this.sort,
+                sort: this.sort,
                 filter: 'Combo',
                 searchQuery: this.searchQuery,
                 sort: null,

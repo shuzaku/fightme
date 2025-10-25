@@ -20,6 +20,7 @@
                 <div v-if="!videoId" class="video-container">
                     <div class="import-video-container">
                         <v-text-field
+                            dark
                             id="import-video"
                             v-model="importVideoUrl"
                             type="text"
@@ -173,7 +174,7 @@ export default {
     methods: {
         async submitVideo() {
             if (!this.video.id) {
-                this.postCombos();
+                this.validateVideo();
             } else {
                 await CombosService.patchCombo({
                     id: this.video.combo.id,
@@ -187,29 +188,35 @@ export default {
             }
         },
 
-        async postCombos() {
-            var combos = this.video.combos;
-            const response = await CombosService.addBulkCombos(
-                combos.map((combo) => {
+        async validateVideo() {
+            await VideosService.validateVideo({
+                Url: this.video.url,
+                GameId: this.video.gameId,
+                Combos: this.video.combos.map((combo) => {
                     return {
-                        CharacterId: combo.characterId,
+                        CharacterId: Array.isArray(combo.characterId)
+                            ? combo.characterId
+                            : [combo.characterId],
                         Inputs: combo.inputs,
                         Damage: combo.damage,
                         Hits: combo.hits,
                         StartTime: combo.startTime,
                         EndTime: combo.endTime,
-                        Tags: combo.tags,
-                        Url: this.video.url,
+                        Note: combo.note,
                     };
-                })
-            );
+                }),
+                VideoUrl: this.video.url,
+                SubmittedBy: this.account.id,
+                UpdatedBy: this.account.id,
+                ContentType: 'Combo',
+                ContentCreatorId: this.video.contentCreatorId || null,
+                VideoType: this.video.type,
+                Tags: this.video.tags,
+                StartTime: this.video.startTime,
+                EndTime: this.video.endTime,
+            });
 
-            for (var i = 0; i < this.video.combos.length; i++) {
-                let combo = this.video.combos[i];
-                combo.id = response.data.combos[i]._id;
-            }
-
-            this.postVideo();
+            this.$emit('closeModal');
         },
 
         importYoutube() {
@@ -234,29 +241,6 @@ export default {
             );
 
             this.video.type = 'twitter';
-        },
-
-        async postVideo() {
-            if (this.isValidated) {
-                var response = await VideosService.addVideo({
-                    Url: this.video.url,
-                    ContentType: 'Combo',
-                    VideoType: this.video.type,
-                    SubmittedBy: this.account.id,
-                    UpdatedBy: this.account.id,
-                    GameId: this.video.gameId,
-                });
-
-                if (response.data.err) {
-                    this.error = 'Video already exist';
-                    this.showErrorMessage = true;
-                } else {
-                    this.$emit('closeModal');
-                    eventbus.$emit('newVideoPosted');
-                }
-            } else {
-                this.showErrorMessage = true;
-            }
         },
 
         setGame(game) {
@@ -288,6 +272,7 @@ export default {
 .new-combo {
     text-align: left;
     margin: 0 auto;
+    color: #fff;
 }
 
 .new-combo .players-container button,
@@ -383,11 +368,6 @@ export default {
     margin-top: 0px;
 }
 
-.new-combo .inputs-container .v-input__slot,
-.new-combo .input-container .v-input__slot {
-    background: #fff;
-}
-
 .new-combo .inputs-container .v-input__slot {
     padding: 10px;
 }
@@ -399,7 +379,6 @@ export default {
 .new-combo .combo-container {
     border: 1px solid #eee;
     padding: 20px 10px;
-    background: #eee;
 }
 
 .new-combo .character-container h3 {
@@ -410,7 +389,6 @@ export default {
     border: 1px solid #eee;
     text-align: center;
     padding: 10px 20px 20px;
-    background: #eee;
     margin-bottom: 10px;
 }
 </style>
