@@ -260,6 +260,7 @@ export default {
 .home-view > .container {
     max-width: 1600px;
     padding: 50px;
+    margin: 0 auto;
 }
 
 .home-view .content {
