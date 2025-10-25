@@ -12,7 +12,11 @@
                 <div v-if="!isLoading" class="main-content-container">
                     <top-bar :account="account" />
                     <follows :account="account" />
-                    <sidebar v-if="isMobile && showMobileMenu" :account="account" />
+                    <sidebar
+                        v-if="isMobile && showMobileMenu"
+                        :account="account"
+                        @logout="logout()"
+                    />
                     <router-view :account="account" :isMobile="isMobile" />
                 </div>
             </div>
@@ -256,6 +260,9 @@ export default {
                     eventbus.$emit('account:loggedOut', this.account);
                 })
                 .catch(() => {});
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            this.$router.push('/');
         },
 
         getRequest() {

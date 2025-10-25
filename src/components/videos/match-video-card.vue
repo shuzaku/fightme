@@ -138,13 +138,13 @@
                         <v-icon dark> mdi-delete </v-icon>
                     </v-btn>
                     <v-btn
-                        v-if="!video.isFavorited"
+                        v-if="account && !video.isFavorited"
                         class="favorite-button"
                         @click="favoriteVideo()"
                     >
                         <v-icon light> mdi-heart-outline </v-icon>
                     </v-btn>
-                    <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                    <v-btn v-else-if="account" class="unfavorite-button" @click="unfavoriteVideo()">
                         <v-icon> mdi-heart </v-icon>
                     </v-btn>
                     <v-btn class="share-button" @click="copyLink()">
@@ -721,6 +721,7 @@ export default {
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
+    bottom: 5px;
 }
 
 #app .match-card .admin-controls button {

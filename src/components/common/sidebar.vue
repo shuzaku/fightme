@@ -60,9 +60,19 @@ export default {
         return {};
     },
 
+    computed: {
+        isAdmin() {
+            return this.account && this.account.role === 'Admin User';
+        },
+    },
+
     created() {},
 
-    methods: {},
+    methods: {
+        logOut() {
+            this.$emit('logout');
+        },
+    },
 };
 </script>
 

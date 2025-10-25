@@ -1,14 +1,7 @@
 <!-- @format -->
 <template>
     <div class="game-card">
-        <div
-            @click="navigate(game.id)"
-            class="cover-art"
-            :style="[
-                { 'background-image': `url(${game.coverArt})` },
-                { 'background-size': 'cover' },
-            ]"
-        />
+        <img @click="navigate(game.id)" class="cover-art" :src="game.coverArt" />
     </div>
 </template>
 

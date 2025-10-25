@@ -17,6 +17,7 @@
                 @character2Id:update="setCharacter2Id($event)"
             />
             <character-videos
+                id="character-videos"
                 :selectedVideoType="selectedVideoType"
                 :account="account"
                 :character2Id="character2Id"
@@ -142,6 +143,12 @@ export default {
 
         selectVideoType(selectedVideo) {
             this.selectedVideoType = selectedVideo;
+            this.$nextTick(() => {
+                const element = document.getElementById('character-videos');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
         },
 
         setCharacter2Id(character2Id) {
@@ -154,8 +161,7 @@ export default {
 <style>
 .character-view {
     position: relative;
-    padding-top: 100px;
-    padding: 140px 20px;
+    padding: 180px 20px;
     height: 100%;
     overflow: visible;
     width: 100%;

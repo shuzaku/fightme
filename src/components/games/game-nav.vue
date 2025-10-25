@@ -165,16 +165,17 @@ export default {
 }
 .game-nav .info-card {
     height: 40px;
-    border-radius: 15px;
+    border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    border: 2px solid #4447e2;
-    color: #4447e2;
+    border: 1px solid #ffffff30;
+    color: #ffffff;
     background: #242832;
     cursor: pointer;
     margin-right: 5px;
-    padding: 0 23px;
+    position: relative;
+    padding: 0 16px;
 }
 
 .game-nav .quick-nav {
@@ -220,6 +221,8 @@ export default {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .mobile .game-nav .game-header img {

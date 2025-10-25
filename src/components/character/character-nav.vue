@@ -4,13 +4,21 @@
         <div class="character-nav-container">
             <div class="character-nav-left">
                 <div class="character-header">
-                    <img class="character-img" :src="character.imageUrl" />
+                    <div class="character-image">
+                        <img class="character-img" :src="character.imageUrl" />
+                        <img
+                            @click="routeToGame()"
+                            v-if="game"
+                            class="game-logo game-logo-mobile"
+                            :src="game.logoUrl"
+                        />
+                    </div>
                     <div class="options">
                         <h2>{{ character.name }}</h2>
                         <img
                             @click="routeToGame()"
                             v-if="game"
-                            class="game-logo"
+                            class="game-logo game-logo-desktop"
                             :src="game.logoUrl"
                         />
                     </div>
@@ -394,6 +402,10 @@ export default {
     cursor: pointer;
 }
 
+.character-nav .game-logo-mobile {
+    display: none;
+}
+
 .mobile .character-nav .character-nav-container {
     flex-direction: column;
 }
@@ -433,5 +445,17 @@ export default {
 .mobile .character-nav .quick-nav .left-section {
     max-width: 100%;
     flex-wrap: wrap;
+}
+
+.mobile .character-nav .game-logo-mobile {
+    display: block;
+}
+
+.mobile .character-nav .game-logo-desktop {
+    display: none;
+}
+
+.mobile .character-image {
+    display: flex;
 }
 </style>

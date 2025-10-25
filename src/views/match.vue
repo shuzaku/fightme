@@ -1,35 +1,29 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="match-view">
-        <div v-if="videos.length > 0" class="videos-container">
-            <div
-                v-for="(video, index) in videos"
-                :key="index"
-                :class="{ selected: video.selected }"
-            >
-                <match-video-analysis-card
-                    v-if="video.contentType === 'Match'"
-                    ref="card"
-                    v-model="video.isPlaying"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
-                    :isFirst="video.isFirst"
-                    :matchId="video.matchId"
-                    :account="account"
-                />
-            </div>
+        <div v-if="video" class="videos-container">
+            <match-video-card
+                v-if="video.contentType === 'Match'"
+                ref="card"
+                v-model="video.isPlaying"
+                :favoriteVideos="account ? account.favoriteVideos : null"
+                :isFirst="video.isFirst"
+                :matchId="video.matchId"
+                :account="account"
+            />
         </div>
     </div>
 </template>
 
 <script>
 import VideosService from '@/services/videos-service';
-import MatchVideoAnalysisCard from '@/components/videos/match-video-analysis-card';
+import MatchVideoCard from '@/components/videos/match-video-card';
 
 export default {
     name: 'Match',
 
     components: {
-        'match-video-analysis-card': MatchVideoAnalysisCard,
+        'match-video-card': MatchVideoCard,
     },
 
     props: {
@@ -41,7 +35,7 @@ export default {
 
     data() {
         return {
-            videos: [],
+            video: null,
             loading: true,
             query: null,
             savedQuery: null,
@@ -56,10 +50,6 @@ export default {
     },
 
     computed: {
-        skip: function () {
-            return this.videos.length;
-        },
-
         videoId: function () {
             return this.$route.params.id;
         },
@@ -94,32 +84,14 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
-                this.videos.push({
-                    comboId: video.Combo ? video.Combo._id : null,
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
-                    isEditing: false,
-                    isFirst: false,
-                });
-            });
-            if (this.videos.length > 0) {
-                this.videos[0].isFirst = true;
-            }
-        },
-
-        handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
-                this.queryVideos();
-            }
-        },
-
-        addedNewVideo() {
-            this.videos = [];
-            this.queryVideos();
+            var responseData = response.data.videos[0];
+            this.video = {
+                comboId: responseData.Combo ? responseData.Combo._id : null,
+                matchId: responseData.Match ? responseData.Match._id : null,
+                contentType: responseData.ContentType,
+                isEditing: false,
+                isFirst: false,
+            };
         },
     },
 };
@@ -128,7 +100,7 @@ export default {
 <style>
 .match-view {
     position: relative;
-    padding-top: 30px;
+    padding-top: 160px;
     height: 100%;
     overflow: hidden;
     width: 100%;

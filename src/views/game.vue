@@ -12,7 +12,11 @@
             />
             <explore-characters :gameId="gameId" :key="gameId" />
 
-            <game-videos :selectedVideoType="selectedVideoType" :account="account" />
+            <game-videos
+                id="game-videos"
+                :selectedVideoType="selectedVideoType"
+                :account="account"
+            />
         </div>
     </div>
 </template>
@@ -87,6 +91,12 @@ export default {
 
         selectVideoType(selectedVideo) {
             this.selectedVideoType = selectedVideo;
+            this.$nextTick(() => {
+                const element = document.getElementById('game-videos');
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
         },
     },
 };
@@ -95,12 +105,13 @@ export default {
 <style>
 .game-view {
     position: relative;
-    padding-top: 140px;
     height: 100%;
     overflow: visible;
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
+    padding: 0 10px;
+    padding-top: 140px;
 }
 
 .game-view::-webkit-scrollbar-track {

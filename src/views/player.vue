@@ -371,7 +371,7 @@ export default {
 <style>
 .player-view {
     position: relative;
-    padding-top: 100px;
+    padding: 180px 20px;
     height: 100%;
     overflow: visible;
     width: 100%;

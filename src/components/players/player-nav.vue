@@ -199,17 +199,17 @@ export default {
 
 .player-nav .info-card {
     height: 40px;
-    border-radius: 15px;
+    border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    border: 2px solid #4447e2;
-    color: #4447e2;
+    border: 1px solid #ffffff30;
+    color: #ffffff;
     background: #242832;
     cursor: pointer;
     margin-right: 5px;
     position: relative;
-    padding: 0 23px;
+    padding: 0 16px;
 }
 
 .player-nav .quick-nav {
@@ -281,5 +281,7 @@ export default {
 
 .player-nav .match-types {
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 </style>

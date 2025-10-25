@@ -67,8 +67,9 @@ export default {
 .explore-games .cover-art {
     width: 200px;
     height: 266px;
-    background: cover;
     background-repeat: no-repeat;
+    max-width: 100%;
+    height: auto;
 }
 
 .explore-games .cover-art img {
@@ -91,5 +92,9 @@ export default {
 .explore-games h3 {
     color: #fff;
     margin-bottom: 24px;
+}
+
+.mobile .explore-games .game {
+    max-width: 31%;
 }
 </style>

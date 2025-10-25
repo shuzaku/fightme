@@ -2,18 +2,16 @@
 <template>
     <div :class="['follows']">
         <div class="follow-container">
-            <div v-for="follow in follows" :key="follow.id">
-                <div class="follow" @click="navigate(follow)" v-tooltip="follow.name">
-                    <div class="avatar">
-                        <div v-if="follow.imageUrl" class="image-container">
-                            <img :src="follow.imageUrl" />
+            <div class="follows-list">
+                <div v-for="follow in follows" :key="follow.id">
+                    <div class="follow" @click="navigate(follow)" v-tooltip="follow.name">
+                        <div class="avatar">
+                            <div v-if="follow.imageUrl" class="image-container">
+                                <img :src="follow.imageUrl" />
+                            </div>
+                            <div v-else class="blank-avatar"></div>
                         </div>
-                        <div v-else class="blank-avatar"></div>
                     </div>
-                    <!-- <div class="follow-text">
-                        <p>{{ follow.name }}</p>
-                        <p class="follow-type">{{ follow.type }}</p>
-                    </div> -->
                 </div>
             </div>
             <div v-if="!account" class="guest-msg">
@@ -158,16 +156,15 @@ export default {
 .follows {
     top: 60px;
     position: fixed;
-    padding: 0 40px;
     color: #fff;
     background: #4447e2;
     z-index: 888;
     width: 100%;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    padding: 4px;
+    padding: 8px;
 }
 
-.follows .follow-container {
+.follows .follows-list {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -220,7 +217,8 @@ export default {
 }
 
 .follows .guest-msg {
-    max-width: 80%;
+    text-align: center;
+    margin-top: 8px;
 }
 
 .mobile .follows {

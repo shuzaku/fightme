@@ -2,7 +2,7 @@
 <template>
     <div ref="videoList">
         <div v-if="isLoading"></div>
-        <div v-else class="match-card card">
+        <div v-else class="match-analysis-card card">
             <div
                 :id="matchId"
                 v-waypoint="{
@@ -1141,7 +1141,7 @@ export default {
 </script>
 
 <style>
-.match-card {
+.match-analysis-card {
     margin: 60px 0;
     display: flex;
     /* background-image: linear-gradient(#515b89, #171b33); */
@@ -1156,7 +1156,7 @@ export default {
     justify-content: start;
 }
 
-.match-card .aside {
+.match-analysis-card .aside {
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -1166,13 +1166,13 @@ export default {
     position: relative;
 }
 
-.match-card .versus {
+.match-analysis-card .versus {
     font-size: 25px;
     color: #3eb489;
     text-transform: uppercase;
 }
 
-.match-card .card-label {
+.match-analysis-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -1187,16 +1187,16 @@ export default {
     font-weight: 600;
 }
 
-.match-card .card-label {
+.match-analysis-card .card-label {
     background: #3c73a8;
 }
 
-.match-card video {
+.match-analysis-card video {
     width: 100%;
 }
 
-.match-card .character-name span,
-.match-card .game-title span {
+.match-analysis-card .character-name span,
+.match-analysis-card .game-title span {
     padding: 3px 20px;
     color: #242832;
     font-size: 20px;
@@ -1209,12 +1209,12 @@ export default {
     overflow: hidden;
 }
 
-.match-card .team2 .character-name span {
+.match-analysis-card .team2 .character-name span {
     color: #fff;
     background: #4447e2;
 }
 
-.match-card .player-name {
+.match-analysis-card .player-name {
     color: #fff;
     font-size: 20px;
     background: #131419;
@@ -1226,39 +1226,39 @@ export default {
     left: 10px;
 }
 
-.match-card .player-name p {
+.match-analysis-card .player-name p {
     font-weight: 400;
     font-size: 18px;
 }
 
-.match-card .character-name {
+.match-analysis-card .character-name {
     padding-top: 0px;
     font-size: 13px;
 }
 
-.match-card .character-name p {
+.match-analysis-card .character-name p {
     font-size: 14px;
     color: #242832;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.match-card .character {
+.match-analysis-card .character {
     padding: 5px;
 }
 
-.match-card .game {
+.match-analysis-card .game {
     margin-bottom: 20px;
     text-align: right;
 }
 
-.match-card .game .img-container img,
-.match-card .character .img-container img {
+.match-analysis-card .game .img-container img,
+.match-analysis-card .character .img-container img {
     width: 30px;
 }
 
-.match-card .game .img-container,
-.match-card .character .img-container {
+.match-analysis-card .game .img-container,
+.match-analysis-card .character .img-container {
     position: absolute;
     left: 0;
     top: 0;
@@ -1270,18 +1270,18 @@ export default {
     align-items: center;
 }
 
-.match-card .video-ghost {
+.match-analysis-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.match-card .nav {
+.match-analysis-card .nav {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
 }
 
-.match-card .navItem {
+.match-analysis-card .navItem {
     border: 2px solid #3eb489;
     color: #fff;
     width: 65px;
@@ -1292,23 +1292,23 @@ export default {
     font-size: 11px;
 }
 
-.match-card .navItem:hover,
-.match-card .navItem.active {
+.match-analysis-card .navItem:hover,
+.match-analysis-card .navItem.active {
     background: #3eb489;
 }
 
-.match-card .inputs {
+.match-analysis-card .inputs {
     border-radius: 3px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid #4a5689;
 }
 
-.match-card.card .edit-btn-container {
+.match-analysis-card.card .edit-btn-container {
     padding: 10px;
 }
 
-.match-card.card .edit-btn-container button {
+.match-analysis-card.card .edit-btn-container button {
     padding: 20px 10px;
     background-color: #4447e2 !important;
     border-radius: 50%;
@@ -1316,7 +1316,7 @@ export default {
     color: #fff;
 }
 
-.match-card .video-container {
+.match-analysis-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     position: relative;
@@ -1336,15 +1336,15 @@ export default {
     height: 100%;
 }
 
-.match-card .character-2 {
+.match-analysis-card .character-2 {
     top: 40px;
 }
 
-.match-card .character-3 {
+.match-analysis-card .character-3 {
     top: 120px;
 }
 
-.match-card .admin-controls {
+.match-analysis-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -1354,7 +1354,7 @@ export default {
     width: 100%;
 }
 
-#app .match-card .admin-controls button {
+#app .match-analysis-card .admin-controls button {
     width: 35px;
     height: 50px;
     min-width: initial;
@@ -1363,16 +1363,16 @@ export default {
     border-radius: 50%;
 }
 
-#app .match-card .admin-controls button:hover i::before {
+#app .match-analysis-card .admin-controls button:hover i::before {
     opacity: 1;
 }
 
-#app .match-card .admin-controls button i::before {
+#app .match-analysis-card .admin-controls button i::before {
     color: #3eb489;
     opacity: 0.9;
 }
 
-.match-card .admin-controls button.share-button {
+.match-analysis-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -1381,100 +1381,100 @@ export default {
     border-radius: 50%;
 }
 
-.match-card .player {
+.match-analysis-card .player {
     border: 1px dashed #3eb489;
     position: relative;
     padding-top: 10px;
     margin-bottom: 40px;
 }
 
-.match-card .team2 .player {
+.match-analysis-card .team2 .player {
     border: 1px dashed #4447e2;
 }
 
-.match-card .characters {
+.match-analysis-card .characters {
     display: flex;
     flex-wrap: wrap;
     padding: 5px;
 }
 
-.match-card h4 {
+.match-analysis-card h4 {
     color: #fff;
 }
 
-.match-card .label {
+.match-analysis-card .label {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 10px;
 }
 
-.match-card .label div {
+.match-analysis-card .label div {
     margin-right: 5px;
     color: #4447e2;
     text-decoration: underline;
 }
 
-.match-card .player1 .player,
-.match-card .player2 .player {
+.match-analysis-card .player1 .player,
+.match-analysis-card .player2 .player {
     margin-bottom: 20px;
     margin-top: 20px;
 }
 
-.match-card .stats table {
+.match-analysis-card .stats table {
     color: #fff;
     width: 100%;
 }
 
-.match-card .stats table .value {
+.match-analysis-card .stats table .value {
     text-align: center;
 }
 
-#app.mobile.small-mobile .match-card {
+#app.mobile.small-mobile .match-analysis-card {
     flex-direction: column;
 }
 
-#app.mobile.small-mobile .match-card .players {
+#app.mobile.small-mobile .match-analysis-card .players {
     display: flex;
     width: 100%;
     flex-direction: column;
 }
 
-#app.mobile.small-mobile .match-card .players .player {
+#app.mobile.small-mobile .match-analysis-card .players .player {
     margin-bottom: 0;
     max-width: 100%;
     width: 100%;
     margin-bottom: 20px;
 }
 
-#app.mobile.small-mobile .match-card .player-name {
+#app.mobile.small-mobile .match-analysis-card .player-name {
     top: -9px;
 }
 
-#app.mobile.small-mobile .match-card .characters {
+#app.mobile.small-mobile .match-analysis-card .characters {
     padding: 0 5px;
 }
 
-#app.mobile.small-mobile .match-card .character-name span {
+#app.mobile.small-mobile .match-analysis-card .character-name span {
     padding: 3px 20px 3px 40px;
 }
 
-#app.mobile.small-mobile .match-card .game {
+#app.mobile.small-mobile .match-analysis-card .game {
     margin-bottom: 0px;
 }
 
-#app.mobile.small-mobile .match-card .admin-controls button {
+#app.mobile.small-mobile .match-analysis-card .admin-controls button {
     height: 10px;
 }
 
-#app.mobile.small-mobile .match-card .player-name p {
+#app.mobile.small-mobile .match-analysis-card .player-name p {
     font-size: 12px;
 }
 
-#app.mobile.small-mobile .match-card .video-container {
+#app.mobile.small-mobile .match-analysis-card .video-container {
     padding-bottom: 56.25%;
 }
 
-#app.mobile.small-mobile .match-card .aside {
+#app.mobile.small-mobile .match-analysis-card .aside {
     max-width: 100%;
 }
 </style>

@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="match-view">
+    <div ref="videoViewRef" class="match-review">
         <loading v-if="loading"></loading>
         <tournament-match-video-analysis-card-test
             v-if="!loading && video.contentType === 'Tournament Match'"
@@ -225,7 +225,7 @@ export default {
 </script>
 
 <style>
-.match-view {
+.match-review {
     position: relative;
     padding-top: 30px;
     height: 100%;
@@ -233,29 +233,29 @@ export default {
     width: 100%;
 }
 
-.match-view::-webkit-scrollbar-track {
+.match-review::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.match-view::-webkit-scrollbar {
+.match-review::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.match-view::-webkit-scrollbar-thumb {
+.match-review::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.match-view .videos-container {
+.match-review .videos-container {
     position: relative;
     width: 100%;
 }
 
-.match-view .videos-container video {
+.match-review .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

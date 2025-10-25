@@ -471,4 +471,12 @@ export default {
 .mobile .home-view .fe-logo {
     margin-bottom: 30px;
 }
+
+.mobile .home-view > .container {
+    padding: 0 20px;
+}
+
+.mobile .home-view {
+    padding-top: 160px;
+}
 </style>

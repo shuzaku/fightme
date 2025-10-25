@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div ref="videoList">
-        <div class="match-card card">
+        <div class="tournament-match-card card">
             <div :id="video.matchId" class="video-container">
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
@@ -638,7 +638,7 @@ export default {
 </script>
 
 <style>
-.match-card {
+.tournament-match-card {
     margin: 60px 0;
     display: flex;
     /* background-image: linear-gradient(#515b89, #171b33); */
@@ -689,7 +689,7 @@ export default {
     font-weight: 400;
 }
 
-.match-card .aside {
+.tournament-match-card .aside {
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -699,13 +699,13 @@ export default {
     position: relative;
 }
 
-.match-card .versus {
+.tournament-match-card .versus {
     font-size: 25px;
     color: #3eb489;
     text-transform: uppercase;
 }
 
-.match-card .card-label {
+.tournament-match-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -720,16 +720,16 @@ export default {
     font-weight: 600;
 }
 
-.match-card .card-label {
+.tournament-match-card .card-label {
     background: #3c73a8;
 }
 
-.match-card video {
+.tournament-match-card video {
     width: 100%;
 }
 
-.match-card .character-name span,
-.match-card .game-title span {
+.tournament-match-card .character-name span,
+.tournament-match-card .game-title span {
     padding: 3px 20px;
     color: #242832;
     font-size: 20px;
@@ -742,12 +742,12 @@ export default {
     overflow: hidden;
 }
 
-.match-card .team2 .character-name span {
+.tournament-match-card .team2 .character-name span {
     color: #fff;
     background: #4447e2;
 }
 
-.match-card .player-name {
+.tournament-match-card .player-name {
     color: #fff;
     font-size: 20px;
     background: #131419;
@@ -759,39 +759,39 @@ export default {
     left: 10px;
 }
 
-.match-card .player-name p {
+.tournament-match-card .player-name p {
     font-weight: 400;
     font-size: 18px;
 }
 
-.match-card .character-name {
+.tournament-match-card .character-name {
     padding-top: 0px;
     font-size: 13px;
 }
 
-.match-card .character-name p {
+.tournament-match-card .character-name p {
     font-size: 14px;
     color: #242832;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.match-card .character {
+.tournament-match-card .character {
     padding: 5px;
 }
 
-.match-card .game {
+.tournament-match-card .game {
     margin-bottom: 20px;
     text-align: right;
 }
 
-.match-card .game .img-container img,
-.match-card .character .img-container img {
+.tournament-match-card .game .img-container img,
+.tournament-match-card .character .img-container img {
     width: 30px;
 }
 
-.match-card .game .img-container,
-.match-card .character .img-container {
+.tournament-match-card .game .img-container,
+.tournament-match-card .character .img-container {
     position: absolute;
     left: 0;
     top: 0;
@@ -803,18 +803,18 @@ export default {
     align-items: center;
 }
 
-.match-card .video-ghost {
+.tournament-match-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.match-card .nav {
+.tournament-match-card .nav {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
 }
 
-.match-card .navItem {
+.tournament-match-card .navItem {
     border: 2px solid #3eb489;
     color: #fff;
     width: 65px;
@@ -825,23 +825,23 @@ export default {
     font-size: 11px;
 }
 
-.match-card .navItem:hover,
-.match-card .navItem.active {
+.tournament-match-card .navItem:hover,
+.tournament-match-card .navItem.active {
     background: #3eb489;
 }
 
-.match-card .inputs {
+.tournament-match-card .inputs {
     border-radius: 3px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid #4a5689;
 }
 
-.match-card.card .edit-btn-container {
+.tournament-match-card.card .edit-btn-container {
     padding: 10px;
 }
 
-.match-card.card .edit-btn-container button {
+.tournament-match-card.card .edit-btn-container button {
     padding: 20px 10px;
     background-color: #4447e2 !important;
     border-radius: 50%;
@@ -849,7 +849,7 @@ export default {
     color: #fff;
 }
 
-.match-card .video-container {
+.tournament-match-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     position: relative;
@@ -870,15 +870,15 @@ export default {
     border: none;
 }
 
-.match-card .character-2 {
+.tournament-match-card .character-2 {
     top: 40px;
 }
 
-.match-card .character-3 {
+.tournament-match-card .character-3 {
     top: 120px;
 }
 
-.match-card .admin-controls {
+.tournament-match-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -888,7 +888,7 @@ export default {
     width: 100%;
 }
 
-#app .match-card .admin-controls button {
+#app .tournament-match-card .admin-controls button {
     width: 35px;
     height: 50px;
     min-width: initial;
@@ -897,16 +897,16 @@ export default {
     border-radius: 50%;
 }
 
-#app .match-card .admin-controls button:hover i::before {
+#app .tournament-match-card .admin-controls button:hover i::before {
     opacity: 1;
 }
 
-#app .match-card .admin-controls button i::before {
+#app .tournament-match-card .admin-controls button i::before {
     color: #3eb489;
     opacity: 0.9;
 }
 
-.match-card .admin-controls button.share-button {
+.tournament-match-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -915,101 +915,101 @@ export default {
     border-radius: 50%;
 }
 
-.match-card .player {
+.tournament-match-card .player {
     border: 1px dashed #3eb489;
     position: relative;
     padding-top: 10px;
     margin-bottom: 40px;
 }
 
-.match-card .team2 .player {
+.tournament-match-card .team2 .player {
     border: 1px dashed #4447e2;
 }
 
-.match-card .characters {
+.tournament-match-card .characters {
     display: flex;
     flex-wrap: wrap;
     padding: 5px;
 }
 
-.match-card h4 {
+.tournament-match-card h4 {
     color: #fff;
 }
 
-.match-card .label {
+.tournament-match-card .label {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 10px;
 }
 
-.match-card .label div,
+.tournament-match-card .label div,
 .mental-stack a {
     margin-right: 5px;
     color: #4447e2;
     text-decoration: underline;
 }
 
-.match-card .player1 .player,
-.match-card .player2 .player {
+.tournament-match-card .player1 .player,
+.tournament-match-card .player2 .player {
     margin-bottom: 20px;
     margin-top: 20px;
 }
 
-.match-card .stats table {
+.tournament-match-card .stats table {
     color: #fff;
     width: 100%;
 }
 
-.match-card .stats table .value {
+.tournament-match-card .stats table .value {
     text-align: center;
 }
 
-#app.mobile.small-mobile .match-card {
+#app.mobile.small-mobile .tournament-match-card {
     flex-direction: column;
 }
 
-#app.mobile.small-mobile .match-card .players {
+#app.mobile.small-mobile .tournament-match-card .players {
     display: flex;
     width: 100%;
     flex-direction: column;
 }
 
-#app.mobile.small-mobile .match-card .players .player {
+#app.mobile.small-mobile .tournament-match-card .players .player {
     margin-bottom: 0;
     max-width: 100%;
     width: 100%;
     margin-bottom: 20px;
 }
 
-#app.mobile.small-mobile .match-card .player-name {
+#app.mobile.small-mobile .tournament-match-card .player-name {
     top: -9px;
 }
 
-#app.mobile.small-mobile .match-card .characters {
+#app.mobile.small-mobile .tournament-match-card .characters {
     padding: 0 5px;
 }
 
-#app.mobile.small-mobile .match-card .character-name span {
+#app.mobile.small-mobile .tournament-match-card .character-name span {
     padding: 3px 20px 3px 40px;
 }
 
-#app.mobile.small-mobile .match-card .game {
+#app.mobile.small-mobile .tournament-match-card .game {
     margin-bottom: 0px;
 }
 
-#app.mobile.small-mobile .match-card .admin-controls button {
+#app.mobile.small-mobile .tournament-match-card .admin-controls button {
     height: 10px;
 }
 
-#app.mobile.small-mobile .match-card .player-name p {
+#app.mobile.small-mobile .tournament-match-card .player-name p {
     font-size: 12px;
 }
 
-#app.mobile.small-mobile .match-card .video-container {
+#app.mobile.small-mobile .tournament-match-card .video-container {
     padding-bottom: 56.25%;
 }
 
-#app.mobile.small-mobile .match-card .aside {
+#app.mobile.small-mobile .tournament-match-card .aside {
     max-width: 100%;
 }
 </style>
