@@ -1,34 +1,74 @@
 <!-- @format -->
 <template>
     <div class="character-nav">
-        <div class="character-header">
-            <img class="character-img" :src="character.imageUrl" />
-            <div class="options">
-                <h2>{{ character.name }}</h2>
+        <div class="character-nav-container">
+            <div class="character-nav-left">
+                <div class="character-header">
+                    <img class="character-img" :src="character.imageUrl" />
+                    <div class="options">
+                        <h2>{{ character.name }}</h2>
+                        <img
+                            @click="routeToGame()"
+                            v-if="game"
+                            class="game-logo"
+                            :src="game.logoUrl"
+                        />
+                    </div>
+                </div>
+                <p class="character-archetype">
+                    {{ character.archetype }}
+                </p>
+                <div class="stats">
+                    <div class="stat-card">
+                        <p class="label">Pick Rate</p>
+                        <p class="number">
+                            {{ character.pickRate ? `${character.pickRate}%` : '???' }}
+                        </p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Win Rate</p>
+                        <p class="number">
+                            {{ character.winRate ? `${character.winRate}%` : '???' }}
+                        </p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Tier</p>
+                        <p class="number">{{ character.tier ? character.tier : '???' }}</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Difficulty</p>
+                        <p class="number">{{ character.ease ? character.ease : '???' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="character-nav-right">
+                <youtube-media
+                    v-if="character.overViewUrl"
+                    :video-id="character.overViewUrl"
+                    :player-width="350"
+                    :player-height="200"
+                    :mute="true"
+                    :playsinline="1"
+                />
             </div>
         </div>
         <div v-if="showMenu" class="quick-nav">
-            <div v-if="account" class="followed-container">
-                <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
-                    <v-icon> mdi-heart-outline </v-icon>
-                </div>
-                <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
-                    <v-icon> mdi-heart </v-icon>
+            <div class="left-section">
+                <div v-for="tab in tabs" :key="tab" class="info-card" @click="selectedTab(tab)">
+                    {{ tab }}
                 </div>
             </div>
-            <div class="info-card combos" @click="routeToCharacterCombos()">Combos</div>
-            <div class="info-card matches" @click="filter('Match')">Online Matches</div>
-            <div class="info-card matches" @click="queryTournamentMatches()">
-                Tournament Matches
-            </div>
-            <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
-            <!-- <div class="info-card players" @click="togglePlayerPopup()">
-                Players
-                <v-icon> mdi-chevron-down </v-icon>
-            </div> -->
-            <div class="info-card matchup" @click="toggleMatchupPopup()">
-                Matchup
-                <v-icon> mdi-chevron-down </v-icon>
+
+            <div class="right-section">
+                <div class="info-card share">Share</div>
+                <div v-if="account" class="followed-container">
+                    <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
+                        <v-icon> mdi-heart-outline </v-icon>
+                    </div>
+                    <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
+                        <v-icon> mdi-heart </v-icon>
+                    </div>
+                </div>
             </div>
         </div>
         <div v-if="matchupPopupActive" class="popup">
@@ -58,8 +98,9 @@
 </template>
 
 <script>
-import CharactersService from '@/services/characters-service';
 import CharacterSearch from '@/components/character/character-search';
+import GamesService from '@/services/games-service';
+
 import { eventbus } from '@/main';
 
 export default {
@@ -87,20 +128,20 @@ export default {
             type: Boolean,
             default: true,
         },
+
+        character: {
+            type: Object,
+            default: null,
+        },
     },
 
     data() {
         return {
-            character: {
-                id: this.characterId,
-                name: null,
-                imageUrl: null,
-                gameId: null,
-                featuredPlayers: null,
-            },
             matchupPopupActive: false,
             playerPopupActive: false,
             isFollowed: false,
+            tabs: ['Combos', 'Matchups', 'Online Matches', 'Tournament Matches'],
+            game: null,
         };
     },
 
@@ -115,13 +156,8 @@ export default {
         },
     },
 
-    watch: {
-        characterId() {
-            this.getCharacter();
-        },
-    },
-
     created() {
+        this.getGame();
         eventbus.$on('account:update', this.isCharacterFollowed);
     },
 
@@ -130,48 +166,10 @@ export default {
     },
 
     mounted() {
-        if (this.characterId) {
-            this.getCharacter();
-        } else {
-            this.getCharacterBySlug();
-        }
         this.isCharacterFollowed();
     },
 
     methods: {
-        async getCharacter() {
-            const response = await CharactersService.getCharacter({
-                id: this.characterId,
-            });
-            this.character = this.hydrateCharacter(response.data.characters[0]);
-        },
-
-        async getCharacterBySlug() {
-            const response = await CharactersService.getCharacterBySlug({
-                slug: this.characterSlug.toUpperCase(),
-            });
-            this.character = this.hydrateCharacter(response.data.characters[0]);
-        },
-
-        hydrateCharacter(response) {
-            return {
-                id: response._id,
-                name: response.Name,
-                imageUrl: response.AvatarUrl,
-                gameId: response.GameId,
-                players: this.hydratePlayer(response.Players),
-            };
-        },
-
-        hydratePlayer(featuredPlayers) {
-            return featuredPlayers.map((player) => {
-                return {
-                    name: player.Name,
-                    id: player._id,
-                };
-            });
-        },
-
         filter(filterType) {
             this.$emit('character-filter:update', filterType);
         },
@@ -218,6 +216,26 @@ export default {
         queryTournamentMatches() {
             this.$emit('query-tournament-matches');
         },
+
+        selectedTab(tab) {
+            this.$emit('selected-video', tab);
+        },
+
+        getGame() {
+            GamesService.getGame({
+                id: this.character.gameId,
+            }).then((response) => {
+                this.game = {
+                    id: response.data._id,
+                    title: response.data.Title,
+                    logoUrl: response.data.LogoUrl,
+                };
+            });
+        },
+
+        routeToGame() {
+            this.$router.push(`/game/${this.game.id}`);
+        },
     },
 };
 </script>
@@ -225,20 +243,15 @@ export default {
 .character-nav {
     width: 100%;
     z-index: 99;
-    max-width: 665px;
 }
 
 .character-nav .character-header {
     height: 60px;
-    background: #242832;
-    color: #4447e2;
     width: 100%;
     display: flex;
-    align-items: center;
+    align-items: end;
     padding: 0 20px 0 0;
-    border: 2px solid #4447e2;
-    border-radius: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .character-nav .character-header .character-img {
@@ -247,36 +260,57 @@ export default {
     width: auto;
     position: relative;
     left: -10px;
-    background: #fff;
+
     border: 2px solid #4447e2;
 }
 
 .character-nav .character-header h2 {
     text-align: right;
-    font-size: 40px;
+    font-size: 50px;
+    font-weight: 800;
     color: #fff;
+    margin-bottom: 0px;
+}
+
+.character-nav .character-archetype {
+    font-size: 20px;
+    color: #ffffff80;
+    margin-bottom: 0px;
 }
 
 .character-nav .info-card {
     height: 40px;
-    border-radius: 15px;
+    border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    border: 2px solid #4447e2;
-    color: #4447e2;
+    border: 1px solid #ffffff30;
+    color: #ffffff;
     background: #242832;
     cursor: pointer;
     margin-right: 5px;
     position: relative;
-    padding: 0 23px;
+    padding: 0 16px;
+}
+
+.character-nav .info-card:hover {
+    background: #4447e270;
 }
 
 .character-nav .quick-nav {
     display: flex;
     align-items: center;
-    margin-top: 8px;
+    margin-top: 24px;
     flex-wrap: wrap;
+    gap: 4px;
+    justify-content: space-between;
+}
+
+.character-nav .quick-nav .left-section,
+.character-nav .quick-nav .right-section {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .character-nav .popup {
@@ -289,7 +323,7 @@ export default {
 
 .character-nav .mdi-chevron-down::before {
     content: '\F0140';
-    color: #4447e2;
+    color: #fff;
 }
 
 .character-nav .follow-btn,
@@ -299,14 +333,105 @@ export default {
 }
 
 .character-nav .v-icon.v-icon {
-    color: #4447e2;
+    color: #fff;
 }
 
 .character-nav .character-header .character-img {
-    border-radius: 50%;
+    border-radius: 25%;
     max-height: 70px;
     width: auto;
     position: relative;
     left: -10px;
+}
+
+.character-nav .stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.character-nav .stat-card {
+    background: #191b2490;
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 150px;
+    height: 85px;
+    width: 100%;
+    color: #ffffff90;
+    border: 1px solid #ffffff30;
+}
+
+.character-nav .stat-card .number {
+    font-size: 25px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.character-nav .stat-card .label {
+    font-size: 12px;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+.character-nav .matchup {
+    padding-right: 8px;
+}
+
+.character-nav .character-nav-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.character-nav .options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.character-nav .game-logo {
+    max-height: 70px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.mobile .character-nav .character-nav-container {
+    flex-direction: column;
+}
+
+.mobile .character-nav .character-nav-right {
+    display: flex;
+    justify-content: center;
+}
+
+.mobile .character-header,
+.mobile .character-header .options {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.mobile .character-nav .character-header {
+    height: initial;
+}
+
+.mobile .character-nav .character-header h2 {
+    text-align: left;
+}
+
+.mobile .character-nav .character-header .game-logo {
+    max-width: 50%;
+}
+
+.mobile .character-nav .stats {
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.mobile .character-nav .stat-card {
+    width: 47%;
+}
+
+.mobile .character-nav .quick-nav .left-section {
+    max-width: 100%;
+    flex-wrap: wrap;
 }
 </style>

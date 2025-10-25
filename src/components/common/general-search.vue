@@ -7,7 +7,7 @@
             :close-on-select="true"
             :clear-on-select="true"
             :preserve-search="true"
-            placeholder="Search players, characters, games, etc."
+            placeholder="Search players, characters, or games."
             group-label="category"
             group-values="values"
             label="value"
@@ -205,6 +205,7 @@ export default {
     background: #ffffff10;
     border: #3eb489 1px solid;
     border-radius: 15px;
+    padding: 10px 40px 0 16px;
 }
 
 .general-search .multiselect__select:before {
@@ -212,7 +213,7 @@ export default {
 }
 
 #app.mobile.small-mobile .general-search {
-    max-width: initial;
+    max-width: 100%;
 }
 
 .general-search .multiselect {
@@ -239,8 +240,17 @@ export default {
 .general-search .multiselect__input,
 .general-search .multiselect__single,
 .general-search .multiselect__option {
-    background: #444;
+    background: transparent;
     color: #fff;
+}
+
+.general-search .multiselect__option,
+.general-search .multiselect__content {
+    background: #2b2e36;
+}
+
+.general-search .multiselect__option--highlight {
+    background: #3eb489;
 }
 
 .general-search .search-category,

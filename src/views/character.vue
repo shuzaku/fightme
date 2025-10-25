@@ -1,83 +1,45 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="character-view">
-        <loading v-if="loading && videos.length <= 0"></loading>
+        <loading v-if="loading"></loading>
         <div v-else class="character-container">
             <character-nav
-                :characterId="characterId"
+                :character="character"
                 :characterSlug="characterSlug"
                 :account="account"
-                @character-filter:update="filterQuery($event)"
-                @query-tournament-matches="queryTournamentMatches()"
-                @query-online-matches="queryVideos()"
-                @query-combos="queryCombos()"
+                :selectedVideoType="selectedVideoType"
+                @selected-video="selectVideoType($event)"
             />
-            <div v-if="videos.length > 0" class="videos-container">
-                <div
-                    v-for="(video, index) in videos"
-                    :key="index"
-                    :class="{ selected: video.selected }"
-                >
-                    <match-video-card
-                        v-if="video.contentType === 'Match'"
-                        v-model="video.isPlaying"
-                        :favoriteVideos="account ? account.favoriteVideos : null"
-                        :isFirst="video.isFirst"
-                        :matchId="video.matchId"
-                        :account="account"
-                    />
-                    <combo-video-card
-                        v-if="video.contentType === 'Combo'"
-                        v-model="video.isPlaying"
-                        :favoriteVideos="account ? account.favoriteVideos : null"
-                        :isFirst="video.isFirst"
-                        :comboClipId="video.comboClipId"
-                        :account="account"
-                    />
-                    <montage-video-card
-                        v-if="video.contentType === 'Montage'"
-                        v-model="video.isPlaying"
-                        :montageId="video.montageId"
-                        :account="account"
-                        @video:delete="refreshDelete()"
-                    />
-                    <tournament-match-video-card
-                        v-if="video.contentType === 'Tournament Match'"
-                        :video="video"
-                        v-model="video.isPlaying"
-                        :favoriteVideos="account ? account.favoriteVideos : null"
-                        :account="account"
-                        :matchId="video.matchId"
-                    />
-                </div>
-            </div>
+            <character-overview
+                :character="character"
+                :selectedVideoType="selectedVideoType"
+                :character2Id="character2Id"
+                @character2Id:update="setCharacter2Id($event)"
+            />
+            <character-videos
+                :selectedVideoType="selectedVideoType"
+                :account="account"
+                :character2Id="character2Id"
+            />
         </div>
     </div>
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
-import MatchesService from '@/services/matches-service';
+import CharactersService from '@/services/characters-service';
 
-import MatchVideoCard from '@/components/videos/match-video-card';
-import ComboVideoCard from '@/components/videos/combo-video-card';
-import MontageVideoCard from '@/components/videos/montage-video-card';
 import CharacterNav from '@/components/character/character-nav';
 import Loading from '@/components/common/loading';
-import TournamentMatchService from '@/services/tournament-match-service';
-import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
-
-import { eventbus } from '@/main';
+import CharacterOverview from '@/components/character/character-overview';
+import CharacterVideos from '@/components/character/character-videos';
 
 export default {
     name: 'Character',
 
     components: {
-        'match-video-card': MatchVideoCard,
-        'combo-video-card': ComboVideoCard,
-        'montage-video-card': MontageVideoCard,
         'character-nav': CharacterNav,
-        'tournament-match-video-card': TournamentMatchVideoCard,
+        'character-overview': CharacterOverview,
+        'character-videos': CharacterVideos,
 
         loading: Loading,
     },
@@ -91,24 +53,20 @@ export default {
 
     data() {
         return {
-            videos: [],
-            isLoading: true,
-            query: null,
-            savedQuery: null,
-            favorites: [],
-            filter: null,
-            sort: null,
-            tagFilter: null,
-            isLast: false,
-            loading: false,
+            loading: true,
+            character: {
+                id: this.characterId,
+                name: null,
+                imageUrl: null,
+                gameId: null,
+                featuredPlayers: null,
+            },
+            selectedVideoType: 'Online Matches',
+            character2Id: [],
         };
     },
 
     computed: {
-        skip: function () {
-            return this.videos.length;
-        },
-
         characterId: function () {
             return this.$route.params.id;
         },
@@ -119,323 +77,75 @@ export default {
     },
 
     watch: {
-        characterId: function () {
-            this.videos = [];
-            this.queryVideos();
-        },
-
-        '$route.name': function () {
-            this.videos = [];
-            this.queryVideos();
+        characterId() {
+            this.getCharacter();
         },
     },
 
     mounted() {
-        this.queryVideos();
-        window.addEventListener('scroll', this.handleScroll);
-        eventbus.$on('newVideoPosted', this.addedNewVideo);
-        eventbus.$on('character-query', this.refreshQuery);
-        eventbus.$on('character-filter', this.filterQuery);
-        eventbus.$on('search', this.queryVideos);
-        eventbus.$on('filter-tag:update', this.filterbyTag);
-        eventbus.$on('matchup-filter', this.initiateQueryMatchup);
-        eventbus.$on('account:update', this.isCharacterFollowed);
+        if (this.characterId) {
+            this.getCharacter();
+        } else {
+            this.getCharacterBySlug();
+        }
     },
 
-    beforeDestroy() {
-        window.removeEventListener('scroll', this.handleScroll);
-        eventbus.$off('newVideoPosted', this.addedNewVideo);
-        eventbus.$off('character-query', this.refreshQuery);
-        eventbus.$off('character-filter', this.filterQuery);
-        eventbus.$off('search', this.queryVideos);
-        eventbus.$off('filter-tag:update', this.filterbyTag);
-        eventbus.$off('matchup-filter', this.initiateQueryMatchup);
-        eventbus.$off('account:update', this.isCharacterFollowed);
-    },
+    beforeDestroy() {},
 
     methods: {
-        applySort(sort) {
-            this.videos = [];
-            this.sort = sort;
-            this.queryVideos();
-        },
-
-        filterbyTag(filter) {
-            this.videos = [];
-            this.tagFilter = filter;
-            this.queryVideos();
-        },
-
-        refreshQuery(newQuery) {
-            this.videos = [];
-            this.queryVideos(newQuery);
-        },
-
-        filterQuery(filter) {
-            this.videos = [];
-            this.filter = filter;
-            this.isLast = false;
-            this.queryVideos();
-        },
-
-        async queryVideos(newQuery) {
-            if (this.isTournament) {
-                this.videos = [];
-                this.isTournament = false;
-                this.isLast = false;
-            }
-
-            if (!this.isLast && !this.loading) {
-                if (this.$route.name == 'Character Combo') {
-                    this.filter = 'Combo';
-                }
-
-                this.isLoading = true;
-                var queryParameter = {
-                    skip: this.skip,
-                    sortOption: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'CharacterId',
-                            queryValue: this.characterId,
-                        },
-                    ],
-                    filter: this.filter,
-                };
-
-                if (this.characterSlug) {
-                    queryParameter.searchQuery[0].queryName = 'CharacterSlug';
-                    queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
-                }
-
-                if (newQuery) {
-                    queryParameter.searchQuery.push(newQuery);
-                }
-
-                const response = await MatchesService.queryMatchesByCharacter(queryParameter);
-                if (response.data.matches.length === 0) {
-                    this.isLast = true;
-                }
-
-                this.hydrateVideos(response);
-                this.isLoading = false;
-            }
-        },
-
-        async queryTournamentMatches() {
-            if (!this.isTournament) {
-                this.videos = [];
-                this.isTournament = true;
-                this.isLast = false;
-            }
-
-            if (!this.isLast && !this.loading) {
-                this.loading = true;
-
-                var queryParameter = {
-                    skip: this.skip,
-                    sortOption: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'CharacterId',
-                            queryValue: this.characterId,
-                        },
-                    ],
-                    filter: this.filter,
-                };
-
-                const response = await TournamentMatchService.queryTournamentMatches({
-                    searchQuery: queryParameter ? queryParameter.searchQuery : null,
-                });
-
-                this.hydrateTournamentVideos(response);
-                if (this.videos.length > 0 && this.videos.length < 6) {
-                    this.playFirstVideo();
-                }
-                this.isLast = true;
-                this.loading = false;
-            }
-        },
-
-        hydrateVideos(response) {
-            response.data.matches.forEach((video) => {
-                this.videos.push({
-                    matchId: video._id,
-                    isEditing: false,
-                    isFirst: false,
-                    contentType: 'Match',
-                });
+        async getCharacter() {
+            this.loading = true;
+            this.selectedVideoType = 'Online Matches';
+            const response = await CharactersService.getCharacter({
+                id: this.characterId,
             });
-            if (this.videos.length > 0) {
-                this.videos[0].isFirst = true;
-            }
-        },
-
-        hydrateTournamentVideos(response) {
-            response.data.matches.forEach((video) => {
-                this.videos.push({
-                    matchId: video._id,
-                    contentType: 'Tournament Match',
-                    isEditing: false,
-                    isPlaying: false,
-                    videoUrl: video.VideoUrl,
-                    videoType: video.VideoPlatform,
-                    game: {
-                        title: video.Game[0].Title,
-                        logoUrl: video.Game[0].LogoUrl,
-                        id: video.Game[0]._id,
-                    },
-                    match: {
-                        team1Players: video.Team1Players.map((player) => {
-                            return {
-                                id: player.Id,
-                                slot: player.Slot,
-                                name: video.Team1Player.filter(
-                                    (searchPlayer) => searchPlayer._id === player.Id
-                                )[0].Name,
-                                characters: this.hydrateCharacters(
-                                    player.CharacterIds,
-                                    video.Team1PlayerCharacters
-                                ),
-                            };
-                        }),
-                        team2Players: video.Team2Players.map((player) => {
-                            return {
-                                id: player.Id,
-                                slot: player.Slot,
-                                name: video.Team2Player.filter(
-                                    (searchPlayer) => searchPlayer._id === player.Id
-                                )[0].Name,
-                                characters: this.hydrateCharacters(
-                                    player.CharacterIds,
-                                    video.Team2PlayerCharacters
-                                ),
-                            };
-                        }),
-                        startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
-                        endTime: video.ClipEnd ? this.convertTime(video.ClipEnd) : null,
-                        notes: video.Notes || null,
-                        secondaryNotes: video.SecondaryNotes || null,
-                    },
-                    tournament: {
-                        name: video.Tournament[0].Name,
-                        logoUrl: video.Tournament[0].Image,
-                    },
-                });
-            });
-        },
-
-        hydrateCharacters(characterIds, characters) {
-            var playerCharacters = [];
-
-            characterIds.forEach((id) => {
-                var filteredCharacter = characters.filter((character) => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].AvatarUrl,
-                });
-            });
-            return playerCharacters;
-        },
-
-        convertTime(time) {
-            var a = time.split(':');
-            var n = a.length;
-            var minutesToSeconds = null;
-            var hoursToSeconds = null;
-            var seconds = 0;
-            if (n === 3) {
-                hoursToSeconds = parseInt(a[0]) * 3600;
-                minutesToSeconds = parseInt(a[1]) * 60;
-                seconds = hoursToSeconds + minutesToSeconds + parseInt(a[2]);
-            } else if (n === 2) {
-                minutesToSeconds = parseInt(a[0]) * 60;
-                seconds = minutesToSeconds + parseInt(a[1]);
-            } else {
-                return parseInt(a[0]);
-            }
-            seconds === 0 ? seconds++ : seconds;
-            return seconds;
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
+            this.character = this.hydrateCharacter(response.data.characters[0]);
             this.loading = false;
         },
 
-        onWaypoint({ el, going, direction }) {
-            var objectId = el.id;
-            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
-            if (going === this.$waypointMap.GOING_IN && direction) {
-                featuredVideo.isPlaying = true;
-            }
-
-            if (going === this.$waypointMap.GOING_OUT && direction) {
-                featuredVideo.isPlaying = false;
-            }
+        async getCharacterBySlug() {
+            const response = await CharactersService.getCharacterBySlug({
+                slug: this.characterSlug.toUpperCase(),
+            });
+            this.character = this.hydrateCharacter(response.data.characters[0]);
         },
 
-        handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
-                if (this.isTournament) {
-                    this.queryTournamentMatches();
-                } else {
-                    this.queryVideos();
-                }
-            }
-        },
-
-        addedNewVideo() {
-            this.videos = [];
-            this.queryVideos();
-        },
-
-        initiateQueryMatchup(searchQuery) {
-            this.videos = [];
-            this.queryMatchup(searchQuery);
-        },
-
-        async queryMatchup(searchQuery) {
-            var queryParameter = {
-                skip: this.skip,
-                searchQuery: searchQuery,
+        hydrateCharacter(response) {
+            return {
+                id: response._id,
+                name: response.Name,
+                imageUrl: response.AvatarUrl,
+                gameId: response.GameId,
+                players: this.hydratePlayer(response.Players),
+                archetype: response.Archetype,
+                pickRate: response.PickRate,
+                winRate: response.WinRate,
+                tier: response.Tier,
+                difficulty: response.Ease,
+                gameplan: response.Gameplan,
+                strengths: response.Strengths,
+                weaknesses: response.Weakness,
+                overViewUrl: response.OverviewUrl,
+                ease: response.Ease,
+                wikiUrl: response.Wiki,
             };
-
-            const response = await VideosService.queryMatchup(queryParameter);
-            this.hydrateVideos(response);
-            this.isLoading = false;
         },
 
-        async fetchVideos() {
-            this.isLoading = true;
-            var queryParameter = {
-                skip: this.skip,
-                sortOption: this.sort,
-                filter: this.filter,
-                searchQuery: [
-                    {
-                        queryName: 'CharacterId',
-                        queryValue: this.characterId,
-                    },
-                ],
-                id: this.characterId,
-            };
+        hydratePlayer(featuredPlayers) {
+            return featuredPlayers.map((player) => {
+                return {
+                    name: player.Name,
+                    id: player._id,
+                };
+            });
+        },
 
-            if (this.savedSearchParam) {
-                queryParameter.searchQuery.push(this.savedSearchParam);
-            }
+        selectVideoType(selectedVideo) {
+            this.selectedVideoType = selectedVideo;
+        },
 
-            const response = await MatchesService.queryMatchesByCharacter(queryParameter);
-            if (response.data.matches.length === 0) {
-                this.isLast = true;
-            }
-
-            this.hydrateVideos(response);
-            this.isLoading = false;
+        setCharacter2Id(character2Id) {
+            this.character2Id = [character2Id];
         },
     },
 };
@@ -444,10 +154,13 @@ export default {
 <style>
 .character-view {
     position: relative;
-    padding-top: 40px;
+    padding-top: 100px;
+    padding: 140px 20px;
     height: 100%;
     overflow: visible;
     width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .character-view::-webkit-scrollbar-track {
@@ -467,9 +180,17 @@ export default {
     background-color: #515b89;
 }
 
+.character-view .character-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
 .character-view .videos-container {
     position: relative;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .character-view .videos-container video {

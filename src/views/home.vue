@@ -16,56 +16,80 @@
                     <div class="search-container">
                         <general-search />
                         <p class="recent-searches">
-                            Recent: <a href="">Tokido</a> <a href="">Ken vs JP</a>
+                            Popular: <a href="">Tokido</a> <a href="">Ken vs JP</a>
                             <a href="">GGST Sol</a>
                         </p>
                     </div>
-                    <div class="stats">
+                    <div class="stats" v-if="counts">
                         <div class="stat-card">
-                            <p class="number">1,240</p>
+                            <p class="number">{{ counts.matches | commaDelimited }}</p>
                             <p class="label">Matches Indexed</p>
                         </div>
                         <div class="stat-card">
-                            <p class="number">320</p>
+                            <p class="number">{{ counts.players | commaDelimited }}</p>
                             <p class="label">Players</p>
                         </div>
                         <div class="stat-card">
-                            <p class="number">12</p>
+                            <p class="number">{{ counts.tournaments | commaDelimited }}</p>
                             <p class="label">Tournaments</p>
                         </div>
                         <div class="stat-card">
-                            <p class="number">8</p>
+                            <p class="number">{{ counts.games | commaDelimited }}</p>
                             <p class="label">Games</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="featured-character">
-                    <img
-                        src="https://res.cloudinary.com/shuzchef/image/upload/v1758173083/Characters/2XKO/jinx.png"
+                    <character-slideshow
+                        :characters="recentCharacters"
+                        :auto-play="true"
+                        :interval="4000"
+                        :isMobile="isMobile"
                     />
                 </div>
             </div>
-            <div class="trending-matches">
-                <h2>🔥 Trending Matches</h2>
-                <div class="videos">
-                    <div class="video-placeholder"></div>
-                    <div class="video-placeholder"></div>
-                    <div class="video-placeholder"></div>
-                    <div class="video-placeholder"></div>
-                    <div class="video-placeholder"></div>
-                    <div class="video-placeholder"></div>
+            <div class="home-content">
+                <div class="trending-matches">
+                    <h2>🔥 Trending Matches</h2>
+                    <div class="videos">
+                        <youtube-media
+                            v-for="match in featuredMatches"
+                            :key="match.id"
+                            :video-id="match.url"
+                            :player-width="420"
+                            :player-height="240"
+                            :mute="true"
+                            :playsinline="1"
+                        />
+                    </div>
                 </div>
-            </div>
-            <div class="recent-tournaments">
-                <completed-tournaments />
-            </div>
-            <div class="latest-update">
-                <explore-updates />
-            </div>
-            <div class="cta">
-                <h2>Join the fight!</h2>
-                <button class="sign-up">Sign Up</button><button class="login">Login</button>
+                <div class="recent-tournaments">
+                    <completed-tournaments />
+                </div>
+                <div class="latest-update">
+                    <explore-updates />
+                </div>
+
+                <div class="featured-videos">
+                    <h2>🎥 Featured Videos</h2>
+                    <div class="videos">
+                        <youtube-media
+                            v-for="video in featuredVideos"
+                            :key="video.id"
+                            :video-id="video.url"
+                            ref="youtubeRef"
+                            :player-width="420"
+                            :player-height="240"
+                            :mute="true"
+                            :playsinline="1"
+                        />
+                    </div>
+                </div>
+                <div class="cta">
+                    <h2>Join the fight!</h2>
+                    <button class="sign-up">Sign Up</button><button class="login">Login</button>
+                </div>
             </div>
         </div>
     </div>
@@ -76,6 +100,11 @@ import { eventbus } from '@/main';
 import GeneralSearch from '@/components/common/general-search';
 import CompletedTournaments from '@/components/explore/completed-tournaments.vue';
 import ExploreUpdates from '@/components/explore/explore-updates.vue';
+import CharacterSlideshow from '@/components/common/character-slideshow.vue';
+import CharactersService from '@/services/characters-service';
+import FeaturedMatchesService from '@/services/featured-matches-service';
+import FeaturedVideosService from '@/services/featured-videos-service';
+import GeneralService from '@/services/general-service';
 
 export default {
     name: 'Home',
@@ -84,6 +113,7 @@ export default {
         'general-search': GeneralSearch,
         'completed-tournaments': CompletedTournaments,
         'explore-updates': ExploreUpdates,
+        'character-slideshow': CharacterSlideshow,
     },
 
     props: {
@@ -93,25 +123,117 @@ export default {
         },
     },
 
+    computed: {
+        isMobile() {
+            return this.$attrs.isMobile;
+        },
+    },
+
     data() {
         return {
             notes: null,
+            recentCharacters: null,
+            featuredMatches: null,
+            featuredVideos: null,
+            counts: {
+                players: null,
+                characters: null,
+                tournaments: null,
+                games: null,
+            },
         };
     },
 
     watch: {},
 
-    mounted() {},
+    mounted() {
+        this.getCounts();
+        this.getRecentCharacters();
+        this.getFeaturedMatches();
+        this.getFeaturedVideos();
+    },
 
     beforeDestroy() {},
 
-    methods: {},
+    methods: {
+        getCounts() {
+            GeneralService.getCounts().then((response) => {
+                var countsRes = response.data.data;
+                this.counts = {
+                    players: countsRes.players,
+                    characters: countsRes.characters,
+                    tournaments: countsRes.tournaments,
+                    games: countsRes.games,
+                    matches: countsRes.matches,
+                };
+            });
+        },
+
+        getRecentCharacters() {
+            var queryParameter = {
+                limit: 5,
+                sort: 'releaseDate',
+                sortDirection: 'desc',
+            };
+
+            CharactersService.fetchRecentCharacters(queryParameter).then((response) => {
+                this.recentCharacters = this.mapCharacters(response.data.characters);
+            });
+        },
+
+        mapCharacters(characters) {
+            return characters.map((character) => {
+                return {
+                    id: character._id,
+                    name: character.Name,
+                    imageUrl: character.ImageUrl,
+                    avatarUrl: character.AvatarUrl,
+                };
+            });
+        },
+
+        getFeaturedMatches() {
+            FeaturedMatchesService.fetchFeaturedMatches().then((response) => {
+                this.featuredMatches = this.mapMatches(response.data.video);
+            });
+        },
+
+        mapMatches(matches) {
+            return matches.map((match) => {
+                return {
+                    id: match._id,
+                    url: match.VideoUrl,
+                };
+            });
+        },
+
+        getFeaturedVideos() {
+            var queryParameter = {
+                limit: 3,
+                sort: '_id',
+                sortDirection: 'desc',
+            };
+
+            FeaturedVideosService.fetchFeaturedVideos(queryParameter).then((response) => {
+                this.featuredVideos = this.mapVideos(response.data.video);
+            });
+        },
+
+        mapVideos(videos) {
+            return videos.map((video) => {
+                return {
+                    id: video._id,
+                    url: video.VideoUrl,
+                };
+            });
+        },
+    },
 };
 </script>
 
 <style>
 .home-view {
-    padding-top: 40px;
+    padding-top: 90px;
     width: 100%;
     height: 100%;
 }
@@ -121,7 +243,7 @@ export default {
 }
 
 .home-view > .container {
-    max-width: 1400px;
+    max-width: 1600px;
     padding: 50px;
 }
 
@@ -131,6 +253,11 @@ export default {
     position: relative;
     z-index: 10;
     padding: 10vh 50px 50px;
+}
+
+.home-view .home-content {
+    max-width: 1300px;
+    margin: 0 auto;
 }
 
 .home-view .heading {
@@ -185,6 +312,7 @@ export default {
     display: flex;
     gap: 16px;
     margin-top: 40px;
+    flex-wrap: wrap;
 }
 
 .home-view .stat-card {
@@ -211,11 +339,13 @@ export default {
 
 .home-view .featured-character {
     position: absolute;
-    top: -10vh;
     right: 0;
     z-index: 0;
     opacity: 0.7;
     max-width: 45vw;
+    width: 100%;
+    height: 100%;
+    max-height: 105vh;
 }
 
 .home-view .featured-character img {
@@ -228,44 +358,98 @@ export default {
     background: #fff;
 }
 
-.home-view .trending-matches {
+.home-view .featured-videos {
     z-index: 10px;
     position: relative;
-    margin-bottom: 40px;
+    margin-top: 80px;
+}
+
+.home-view .featured-videos .videos {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .home-view .trending-matches .videos {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
+    justify-content: center;
+}
+
+.home-view .recent-tournaments,
+.home-view .latest-update {
+    margin-top: 80px;
 }
 
 .home-view .tournaments {
     display: flex;
-    gap: 8px;
+    gap: 11px;
     flex-wrap: wrap;
-    margin-bottom: 40px;
-}
-
-.home-view .tournament-placeholder {
-    width: 253px;
-    height: 60px;
-    background: #191b2490;
-    border-radius: 15px;
-    padding: 16px;
-    color: #ffffff;
-    border: 1px solid #ffffff30;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 80px;
 }
 
 .home-view .cta {
     text-align: center;
+    margin-top: 120px;
 }
 
 .home-view .cta button.sign-up {
     background: #3eb489;
     margin-right: 24px;
+}
+
+.mobile .home-view .stat-card {
+    max-width: 100%;
+    width: 48%;
+}
+
+.mobile .home-view .stats {
+    margin-bottom: 40px;
+}
+
+.mobile .home-view .tournaments,
+.mobile .home-view .updates,
+.mobile .home-view .videos {
+    justify-content: center;
+}
+
+.mobile .home-view h1 {
+    font-size: 40px;
+}
+
+.mobile .home-view .hero {
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    height: initial;
+}
+
+.mobile .home-view .hero .heading {
+    width: 100%;
+    max-width: 100%;
+}
+
+.mobile .home-view .hero .featured-character {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+}
+
+.mobile .home-view .stat-card {
+    width: 100%;
+    text-align: center;
+}
+
+.mobile .home-view .tournaments {
+    justify-content: flex-start;
+}
+
+.mobile .home-view h2 {
+    font-size: 28px;
+}
+
+.mobile .home-view .fe-logo {
+    margin-bottom: 30px;
 }
 </style>

@@ -30,7 +30,11 @@
                 @update:game="filterGame($event)"
             />
 
-            <bracket-search @filter:bracket="filterBracket($event)" :bracketFilters="tournament.bracketFilters" v-if="tournament.bracketFilters.length > 1"/>
+            <bracket-search
+                @filter:bracket="filterBracket($event)"
+                :bracketFilters="tournament.bracketFilters"
+                v-if="tournament.bracketFilters.length > 1"
+            />
         </div>
     </div>
 </template>
@@ -99,7 +103,6 @@ export default {
     },
 
     methods: {
-
         async getTournament() {
             this.isLoading = true;
             const response = await TournamentsService.getTournament({
@@ -115,7 +118,7 @@ export default {
                 bracketFilters: response.data.BracketFilters || [],
             };
 
-            this.isLoading = false
+            this.isLoading = false;
         },
 
         togglePopup() {
@@ -281,5 +284,13 @@ export default {
 
 .tournament-nav .filters .game-search .multiselect {
     margin-bottom: 0px;
+}
+
+.mobile .tournament-nav .title-row {
+    flex-wrap: wrap;
+}
+
+.mobile .tournament-nav .tournament-header {
+    width: 100%;
 }
 </style>

@@ -3,7 +3,7 @@ import axios from 'axios'
 export default() => {
     const instance = axios.create({
         baseURL: 'https://fightme-server.herokuapp.com/'
-        // baseURL: 'http://localhost:8081'
+        // baseURL: 'http://localhost:80'
     })
 
     // Add request interceptor to include auth token

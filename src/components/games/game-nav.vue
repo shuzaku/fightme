@@ -5,24 +5,23 @@
             <img :src="game.logoUrl" />
         </div>
         <div v-if="showMenu" class="quick-nav">
-            <div v-if="account" class="followed-container">
-                <div v-if="!isFollowed" class="follow-btn info-card" @click="followGame()">
-                    <v-icon> mdi-heart-outline </v-icon>
-                </div>
-                <div v-else class="unfollow-btn info-card" @click="unfollowGame()">
-                    <v-icon> mdi-heart </v-icon>
+            <div class="left-section">
+                <div v-for="tab in tabs" :key="tab" class="info-card" @click="selectedTab(tab)">
+                    {{ tab }}
                 </div>
             </div>
-            <div class="info-card combos" @click="routeToGameCombos()">Combos</div>
-            <div class="info-card matches" @click="queryOnlineMatches()">Online Matches</div>
-            <div class="info-card matches" @click="queryTournamentMatches()">
-                Tournament Matches
+
+            <div class="right-section">
+                <div class="info-card share">Share</div>
+                <div v-if="account" class="followed-container">
+                    <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
+                        <v-icon> mdi-heart-outline </v-icon>
+                    </div>
+                    <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
+                        <v-icon> mdi-heart </v-icon>
+                    </div>
+                </div>
             </div>
-            <!-- <div class="info-card montages" @click="filter('Montage')">Montages</div> -->
-            <!-- <div class="info-card character" @click="togglePopup()">
-                Characters
-                <v-icon> mdi-chevron-down </v-icon>
-            </div> -->
         </div>
         <div v-show="popupActive" class="popup">
             <character-search :gameId="gameId" @update:character="goToCharacter($event)" />
@@ -62,6 +61,7 @@ export default {
             game: null,
             popupActive: false,
             isFollowed: false,
+            tabs: ['Combos', 'Online Matches', 'Tournament Matches'],
         };
     },
 
@@ -103,18 +103,6 @@ export default {
             };
         },
 
-        filter(filterType) {
-            this.$emit('game-filter:update', filterType);
-        },
-
-        togglePopup() {
-            this.popupActive = !this.popupActive;
-        },
-
-        goToGame() {
-            this.$router.push(`/game/${this.gameId}`);
-        },
-
         unfollowGame() {
             eventbus.$emit('game:unfollow', this.gameId);
         },
@@ -134,16 +122,8 @@ export default {
             this.$router.push(`/character/${character.id}`);
         },
 
-        routeToGameCombos() {
-            this.$router.push(`/combos/game/${this.gameId}`);
-        },
-
-        queryTournamentMatches() {
-            this.$emit('query-tournament-matches');
-        },
-
-        queryOnlineMatches() {
-            this.$emit('query-online-matches');
+        selectedTab(tab) {
+            this.$emit('selected-video', tab);
         },
     },
 };
@@ -152,19 +132,16 @@ export default {
 .game-nav {
     width: 100%;
     z-index: 99;
-    max-width: 700px;
     margin-bottom: 16px;
 }
 
 .game-nav .game-header {
-    height: 80px;
-    background: #242832;
-    color: #4447e2;
+    height: 100px;
     width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 20px;
+    align-items: end;
+    padding: 0 20px 0 0;
+    margin-bottom: 10px;
 }
 
 .game-nav .game-header img {
@@ -227,5 +204,26 @@ export default {
 
 .game-nav .v-icon.v-icon {
     color: #4447e2;
+}
+
+.game-nav .quick-nav {
+    display: flex;
+    align-items: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: space-between;
+}
+
+.game-nav .quick-nav .left-section,
+.game-nav .quick-nav .right-section {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mobile .game-nav .game-header img {
+    width: auto;
+    max-height: 100px;
 }
 </style>

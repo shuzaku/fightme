@@ -15,6 +15,10 @@ export default {
     return Api().post('video?bulk=true', params)
   },
 
+  validateVideo(params: Params) {
+    return Api().post('video-validate', params)
+  },
+
   queryVideos (params: Params) {
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];
@@ -24,8 +28,8 @@ export default {
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
-    if(params.sortOption){
-      queryParams.push(`sort=${params.sortOption}`)
+    if(params.sort){
+      queryParams.push(`sort=${params.sort}`)
     }
     if(params.filter){
       queryParams.push(`filter=${params.filter}`)
@@ -45,8 +49,8 @@ export default {
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
-    if(params.sortOption){
-      queryParams.push(`sort=${params.sortOption}`)
+    if(params.sort){
+      queryParams.push(`sort=${params.sort}`)
     }
     if(params.filter){
       queryParams.push(`filter=${params.filter}`)
@@ -64,8 +68,8 @@ export default {
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
-    if(params.sortOption){
-      queryParams.push(`sort=${params.sortOption}`)
+    if(params.sort){
+      queryParams.push(`sort=${params.sort}`)
     }
     if(params.filter){
       queryParams.push(`filter=${params.filter}`)
@@ -83,8 +87,8 @@ export default {
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
-    if(params.sortOption){
-      queryParams.push(`sort=${params.sortOption}`)
+    if(params.sort){
+      queryParams.push(`sort=${params.sort}`)
     }
     if(params.filter){
       queryParams.push(`filter=${params.filter}`)
@@ -129,5 +133,18 @@ export default {
   querySlugMatchup(params: Params) {
     var skip = params.skip;
     return Api().get(`characterSlugMatchup?character1=${params.searchQuery[0].characters.character1}&character2=${params.searchQuery[0].characters.character2}&skip=${skip}`)
+  },
+
+  // Admin video approval methods
+  getPendingVideos(params: Params) {
+    return Api().get('video-validate?skip=' + params.skip)
+  },
+
+  approveVideo(videoId: string) {
+    return Api().post(`video-validate/approve/${videoId}`)
+  },
+
+  rejectVideo(videoId: string) {
+    return Api().delete(`video-validate/${videoId}`)
   }
 } 

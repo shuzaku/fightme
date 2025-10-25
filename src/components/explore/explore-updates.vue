@@ -96,4 +96,8 @@ export default {
     font-size: 10px;
     background-color: #3eb489;
 }
+
+.mobile .explore-updates .update {
+    max-width: 50%;
+}
 </style>

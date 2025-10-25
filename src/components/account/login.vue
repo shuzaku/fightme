@@ -34,37 +34,38 @@
                 required
                 autofocus
             />
+            <div class="buttons-container">
+                <v-btn
+                    v-if="!isResetPassword"
+                    class="submit-btn"
+                    rounded
+                    @click="submit()"
+                    :loading="isLoading"
+                    :disabled="isLoading"
+                >
+                    {{ isLoading ? 'Logging in...' : 'Login' }}
+                </v-btn>
 
-            <v-btn
-                v-if="!isResetPassword"
-                class="submit-btn"
-                rounded
-                @click="submit()"
-                :loading="isLoading"
-                :disabled="isLoading"
-            >
-                {{ isLoading ? 'Logging in...' : 'Login' }}
-            </v-btn>
+                <v-btn
+                    v-else
+                    class="reset-password-btn"
+                    rounded
+                    @click="resetPassword()"
+                    :disabled="!form.email"
+                >
+                    Reset Password
+                </v-btn>
 
-            <v-btn
-                v-else
-                class="reset-password-btn"
-                rounded
-                @click="resetPassword()"
-                :disabled="!form.email"
-            >
-                Reset Password
-            </v-btn>
-
-            <v-btn
-                class="reset-password-btn"
-                rounded
-                @click="TogglePasswordReset()"
-                :loading="isLoading"
-                :disabled="isLoading"
-            >
-                {{ isResetPassword ? 'Return toLogin' : 'Reset Password' }}
-            </v-btn>
+                <v-btn
+                    class="reset-password-btn"
+                    rounded
+                    @click="TogglePasswordReset()"
+                    :loading="isLoading"
+                    :disabled="isLoading"
+                >
+                    {{ isResetPassword ? 'Return to Login' : 'Reset Password' }}
+                </v-btn>
+            </div>
         </div>
     </div>
 </template>
@@ -248,5 +249,30 @@ export default {
 .login-modal .v-input input {
     border: none;
     margin-bottom: 0px;
+    color: #fff;
+}
+
+.login-modal .buttons-container {
+    display: flex;
+    gap: 10px;
+}
+
+.login-modal .v-input input::placeholder {
+    color: #fff;
+}
+
+.login-modal .theme--light.v-text-field > .v-input__control > .v-input__slot:before {
+    border-color: #fff;
+}
+
+.login-modal .theme--light.v-btn.v-btn--disabled.v-btn--has-bg {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.login-modal
+    .theme--light.v-text-field:not(.v-input--has-state):hover
+    > .v-input__control
+    > .v-input__slot:before {
+    border-color: #3eb489;
 }
 </style>

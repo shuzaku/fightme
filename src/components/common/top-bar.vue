@@ -2,10 +2,11 @@
 <template>
     <div class="top-bar">
         <div class="top-bar-nav">
-            <a href="/">
+            <a href="/" class="logo">
                 <img
                     src="https://res.cloudinary.com/shuzchef/image/upload/v1622816435/bb5h6tgdysfys9qi1du5.png"
                 />
+                <span>Fighters-Edge</span>
             </a>
 
             <a
@@ -99,6 +100,21 @@ export default {
     left: 15px;
 }
 
+.top-bar .logo {
+    font-size: 35px;
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Roboto';
+    font-weight: 800;
+}
+
+.mobile .top-bar .logo {
+    font-size: 20px;
+}
+
 .top-bar .avatar {
     width: 50px;
     height: 50px;
@@ -145,6 +161,7 @@ export default {
     background: #242832;
     top: 60px;
     padding: 10px 15px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
 }
 
 .top-bar .account-popup .name-row {
@@ -210,5 +227,13 @@ export default {
 
 #app.mobile.small-mobile .top-bar .hamburger-btn {
     display: block;
+}
+
+#app.mobile.small-mobile .top-bar .general-search {
+    display: none;
+}
+
+#app.mobile.small-mobile .top-bar .top-bar-nav {
+    max-width: 100%;
 }
 </style>

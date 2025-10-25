@@ -127,7 +127,7 @@ export default {
     width: 100%;
     z-index: 999;
     max-width: 600px;
-    background: #fff;
+    background: #242832;
     right: 0;
     top: 0px;
     border-radius: 20px;
@@ -135,6 +135,7 @@ export default {
     height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
+    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
 .modals .close-btn {

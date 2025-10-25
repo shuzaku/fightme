@@ -22,16 +22,15 @@ export default {
 
 <style>
 .update-card {
-    max-width: 190px;
+    max-width: 200px;
     color: #fff;
-    padding: 8px;
     position: relative;
 }
 
 .explore-updates .update .date {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: -10px;
+    left: -10px;
     padding: 5px;
     font-size: 10px;
     background-color: #3eb489;

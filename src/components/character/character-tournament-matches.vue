@@ -1,28 +1,14 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="games-view">
-        <tournament-nav
-            :tournamentId="tournamentId"
-            @filter:game="filterGame($event)"
-            @filter:bracket="filterBracket($event)"
-        />
-
-        <loading v-if="loading && videos.length <= 0"></loading>
-        <div v-else-if="videos.length > 0" class="videos-container">
-            <div
-                v-for="(video, index) in videos"
-                :key="index"
-                :class="{ selected: video.selected }"
-            >
-                <tournament-match-video-card
-                    v-if="video.contentType === 'Tournament Match'"
-                    :video="video"
-                    v-model="video.isPlaying"
-                    :favoriteVideos="account ? account.favoriteVideos : null"
-                    :account="account"
-                    :matchId="video.matchId"
-                />
-            </div>
+    <div v-if="videos.length > 0" class="character-tournament-matches">
+        <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
+            <tournament-match-video-card
+                :video="video"
+                v-model="video.isPlaying"
+                :favoriteVideos="account ? account.favoriteVideos : null"
+                :account="account"
+                :matchId="video.matchId"
+            />
         </div>
     </div>
 </template>
@@ -30,20 +16,15 @@
 <script>
 import TournamentMatchService from '@/services/tournament-match-service';
 import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
-import TournamentNav from '@/components/tournament/tournament-nav';
 import Loading from '@/components/common/loading';
-import ExploreCharacters from '@/components/explore/explore-characters';
-
-import { eventbus } from '@/main';
 
 export default {
-    name: 'Tournament',
+    name: 'CharacterOnlineMatches',
 
     components: {
         'tournament-match-video-card': TournamentMatchVideoCard,
-        'tournament-nav': TournamentNav,
+
         loading: Loading,
-        'explore-characters': ExploreCharacters,
     },
 
     props: {
@@ -56,50 +37,40 @@ export default {
     data() {
         return {
             videos: [],
+            isLoading: true,
             query: null,
-            savedQuery: null,
             favorites: [],
             filter: null,
             sort: null,
-            loading: false,
             isLast: false,
-            savedSearchParam: null,
-            bracketFilter: null,
-            gameFilter: null,
+            loading: false,
         };
     },
 
     computed: {
         skip: function () {
-            return this.videos.length || 0;
+            return this.videos.length;
         },
 
-        tournamentId: function () {
+        characterId: function () {
             return this.$route.params.id;
         },
     },
 
     watch: {
-        tournamentId: function () {
-            this.loading = true;
+        characterId: function () {
             this.videos = [];
             this.queryVideos();
-            this.loading = false;
         },
     },
 
     mounted() {
         this.queryVideos();
         window.addEventListener('scroll', this.handleScroll);
-        eventbus.$on('newVideoPosted', this.addedNewVideo);
-        eventbus.$on('search', this.queryVideos);
-        eventbus.$on('account:update', this.updateFavorites);
     },
 
     beforeDestroy() {
-        eventbus.$off('newVideoPosted');
-        eventbus.$off('search');
-        eventbus.$off('account:update');
+        window.removeEventListener('scroll', this.handleScroll);
     },
 
     methods: {
@@ -109,35 +80,51 @@ export default {
             this.queryVideos();
         },
 
-        applyFilter(filter) {
+        filterbyTag(filter) {
             this.videos = [];
-            this.filter = filter;
+            this.tagFilter = filter;
             this.queryVideos();
         },
 
-        async queryVideos(queryParam) {
-            this.loading = true;
+        refreshQuery(newQuery) {
+            this.videos = [];
+            this.queryVideos(newQuery);
+        },
 
-            this.savedSearchParam = queryParam;
+        filterQuery(filter) {
+            this.videos = [];
+            this.filter = filter;
+            this.isLast = false;
+            this.queryVideos();
+        },
 
-            var queryParameter = {
-                skip: this.skip,
-                sort: this.sort,
-                filter: this.filter,
-                searchQuery: [],
-                id: this.tournamentId,
-            };
+        async queryVideos() {
+            if (!this.isLast && !this.loading) {
+                this.loading = true;
 
-            if (queryParam && queryParam.length > 0) {
-                queryParameter.searchQuery.push(...queryParam);
+                var queryParameter = {
+                    skip: this.skip,
+                    sort: this.sort,
+                    searchQuery: [
+                        {
+                            queryName: 'CharacterId',
+                            queryValue: this.characterId,
+                        },
+                    ],
+                    filter: this.filter,
+                };
+
+                const response = await TournamentMatchService.queryTournamentMatches({
+                    searchQuery: queryParameter ? queryParameter.searchQuery : null,
+                });
+
+                this.hydrateVideos(response);
+                if (this.videos.length > 0 && this.videos.length < 6) {
+                    this.playFirstVideo();
+                }
+                this.isLast = true;
+                this.loading = false;
             }
-            const response = await TournamentMatchService.getTournamentMatches(queryParameter);
-
-            this.hydrateVideos(response);
-            if (this.videos.length > 0 && this.videos.length < 6) {
-                this.playFirstVideo();
-            }
-            this.loading = false;
         },
 
         hydrateVideos(response) {
@@ -148,6 +135,7 @@ export default {
                     isEditing: false,
                     isPlaying: false,
                     videoUrl: video.VideoUrl,
+                    videoType: video.VideoPlatform,
                     game: {
                         title: video.Game[0].Title,
                         logoUrl: video.Game[0].LogoUrl,
@@ -189,7 +177,6 @@ export default {
                         name: video.Tournament[0].Name,
                         logoUrl: video.Tournament[0].Image,
                     },
-                    videoType: video.VideoPlatform,
                 });
             });
         },
@@ -245,96 +232,35 @@ export default {
             }
         },
 
-        addedNewVideo() {
-            this.videos = [];
-            this.queryVideos();
-        },
-
-        filterGame(queryParam) {
-            this.videos = [];
-            var filters = [];
-            this.gameFilter = queryParam;
-
-            if (this.bracketFilter) {
-                filters.push(this.bracketFilter);
-            }
-
-            filters.push(this.gameFilter);
-            this.queryVideos(filters);
-        },
-
-        filterBracket(queryParam) {
-            this.videos = [];
-            var filters = [];
-            this.bracketFilter = queryParam;
-
-            if (this.gameFilter) {
-                filters.push(this.gameFilter);
-            }
-
-            filters.push(this.bracketFilter);
-            this.queryVideos(filters);
-        },
-
         handleScroll() {
             var bottomOfWindow =
                 document.documentElement.scrollTop + window.innerHeight ===
                 document.documentElement.offsetHeight;
             if (bottomOfWindow && !this.isLoading) {
-                this.fetchVideos();
+                if (this.isTournament) {
+                    this.queryTournamentMatches();
+                } else {
+                    this.queryVideos();
+                }
             }
         },
 
-        async fetchVideos() {
-            var filters = [];
-
-            if (this.gameFilter) {
-                filters.push(this.gameFilter);
-            }
-
-            if (this.bracketFilter) {
-                filters.push(this.bracketFilter);
-            }
-
-            this.queryVideos(filters);
+        addedNewVideo() {
+            this.videos = [];
+            this.queryVideos();
         },
     },
 };
 </script>
 
 <style>
-.games-view {
-    display: block;
-    position: relative;
-    padding: 140px 20px;
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-}
-
-.games-view::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    background-color: #1f1d2b;
-}
-
-.games-view::-webkit-scrollbar {
-    width: 12px;
-    background-color: #1f1d2b;
-}
-
-.games-view::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
-    background-color: #515b89;
-}
-
-.games-view .videos-container {
+.character-tournament-matches {
     position: relative;
     width: 100%;
+    max-width: 1100px;
 }
 
-.games-view .videos-container video {
+.character-tournament-matches video {
     max-width: 900px;
     margin: 0 auto;
     display: block;

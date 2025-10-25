@@ -1,51 +1,37 @@
 <!-- @format -->
 <template>
-    <div
-        ref="videoList"
-        class="combo-video-card"
-        :class="{ 'twitter-card': video.videoType === 'twitter' }"
-    >
-        <div v-if="isLoading" />
-        <div v-else class="combo-card card">
-            <div class="character-image" v-if="video.videoType === 'twitter'">
-                <img :src="video.combo.character.imageUrl" />
-            </div>
+    <div ref="videoList">
+        <div v-if="isLoading"></div>
+        <div v-else class="match-card card">
             <div
-                :id="comboClipId"
-                class="video-container"
+                :id="videoId"
                 v-waypoint="{
                     active: true,
-                    callback: onComboWaypoint,
+                    callback: onWaypoint,
                     options: intersectionOptions,
                 }"
+                class="video-container"
             >
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
                     ref="youtubeRef"
-                    :videoId="video.combo.clipUrl"
+                    :video-id="video.url"
                     :player-width="556"
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
-                        start: video.combo.startTime,
-                        end: video.combo.endTime,
+                        start: comboData ? comboData.startTime : video.match.startTime,
+                        end: comboData ? comboData.endTime : video.match.endTime,
                     }"
                     :mute="true"
                     :playsinline="1"
                     @ready="ready"
                 />
-
-                <tweet v-else-if="video.videoType === 'twitter'" id="1971339379064152483"
-                    ><loading></loading
-                ></tweet>
-
-                <video v-else ref="videoRef" loop controls muted>
-                    <source :src="video.url" type="video/mp4" />
-                </video>
             </div>
-            <div class="card-label">Combo</div>
-            <div v-if="!video.isEditing" class="aside">
-                <div class="combo-info">
+            <div class="card-label">{{ video.contentType }}</div>
+            <div class="aside">
+                <!-- Combo Video Display -->
+                <div v-if="comboData" class="combo-info">
                     <div class="game">
                         <div class="game-title" @click="queryGame(video.game.id)">
                             <p>
@@ -58,26 +44,112 @@
                             </p>
                         </div>
                     </div>
-                    <div class="character-name" @click="queryCharacter(video.combo.character.id)">
+
+                    <div class="character-name" @click="queryCharacter(comboData.character.id)">
                         <p>
                             <span>
                                 <div class="img-container">
-                                    <img :src="video.combo.character.avatarUrl" />
+                                    <img :src="comboData.character.avatarUrl" />
                                 </div>
-                                {{ video.combo.character.name }}</span
+                                {{ comboData.character.name }}</span
                             >
                         </p>
                     </div>
                     <div class="combo-stats">
-                        <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
-                        <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
+                        <p v-if="comboData.hits">{{ comboData.hits }} Hits</p>
+                        <p v-if="comboData.damage">{{ comboData.damage }} Damage</p>
                     </div>
                     <div class="combo-input">
-                        <p class="inputs">{{ video.combo.inputs }}</p>
+                        <p class="inputs">{{ comboData.inputs }}</p>
                     </div>
                 </div>
-                <div v-if="video.combo.tags" class="combo-tags">
-                    <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
+
+                <!-- Match Video Display -->
+                <div v-else class="info">
+                    <div class="game">
+                        <div class="game-title" @click="queryGame(video.game.id)">
+                            <p>
+                                <span>
+                                    <div class="img-container">
+                                        <img :src="video.game.logoUrl" />
+                                    </div>
+                                    {{ video.game.title }}</span
+                                >
+                            </p>
+                        </div>
+                    </div>
+                    <div class="players">
+                        <div class="team1">
+                            <div
+                                v-for="team1Player in video.match.team1Players"
+                                :key="team1Player.id"
+                                class="player"
+                            >
+                                <div
+                                    class="heavy-weight player-name"
+                                    @click="queryPlayer(team1Player.id)"
+                                >
+                                    <p>{{ team1Player.name }}</p>
+                                </div>
+                                <div class="characters">
+                                    <div
+                                        v-for="(character, index) in team1Player.characters"
+                                        :key="index"
+                                        class="character"
+                                    >
+                                        <div
+                                            class="character-name"
+                                            @click="queryCharacter(character.id)"
+                                        >
+                                            <p>
+                                                <span>
+                                                    <div class="img-container">
+                                                        <img :src="character.imageUrl" />
+                                                    </div>
+                                                    {{ character.name }}</span
+                                                >
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="team2">
+                            <div
+                                v-for="team2Player in video.match.team2Players"
+                                :key="team2Player.id"
+                                class="player"
+                            >
+                                <div
+                                    class="heavy-weight player-name"
+                                    @click="queryPlayer(team2Player.id)"
+                                >
+                                    <p>{{ team2Player.name }}</p>
+                                </div>
+                                <div class="characters">
+                                    <div
+                                        v-for="(character, index) in team2Player.characters"
+                                        :key="index"
+                                        class="character"
+                                    >
+                                        <div
+                                            class="character-name"
+                                            @click="queryCharacter(character.id)"
+                                        >
+                                            <p>
+                                                <span>
+                                                    <div class="img-container">
+                                                        <img :src="character.imageUrl" />
+                                                    </div>
+                                                    {{ character.name }}</span
+                                                >
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="admin-controls">
                     <collection-search
@@ -97,7 +169,7 @@
                     <v-btn v-if="isAdmin" @click="editVideo()">
                         <v-icon dark> mdi-wrench </v-icon>
                     </v-btn>
-                    <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                    <v-btn v-if="isAdmin" @click="deleteVideo()">
                         <v-icon dark> mdi-delete </v-icon>
                     </v-btn>
                     <v-btn
@@ -118,29 +190,31 @@
         </div>
     </div>
 </template>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<script>
-import VideosService from '@/services/videos-service';
-import CombosService from '@/services/combos-service';
-import CollectionsService from '@/services/collections-service';
-import CollectionSearch from '@/components/collection/collection-search';
-import { Tweet, Moment, Timeline } from 'vue-tweet-embed';
-import Loading from '@/components/common/loading';
 
+<script>
+import CollectionSearch from '@/components/collection/collection-search';
+import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'ComboCard',
+    inheritAttrs: false,
+    name: 'AdminVideoCard',
     components: {
         'collection-search': CollectionSearch,
-        tweet: Tweet,
-        loading: Loading,
     },
 
     props: {
-        comboClipId: {
+        video: {
+            type: Object,
+            required: true,
+        },
+        rawVideoData: {
+            type: Object,
+            required: true,
+        },
+        videoId: {
             type: String,
-            default: null,
+            required: true,
         },
         value: {
             type: Boolean,
@@ -162,13 +236,7 @@ export default {
 
     data() {
         return {
-            videoCurrentTime: 0,
-            isLoading: true,
-            video: {
-                videoType: null,
-                isPlaying: false,
-                isFavorited: false,
-            },
+            isLoading: false,
             intersectionOptions: {
                 root: null,
                 rootMargin: '0px 0px 0px 0px',
@@ -182,7 +250,28 @@ export default {
 
     computed: {
         isAdmin() {
-            return this.account && this.account.role === 'Admin User';
+            return this.account ? this.account.role === 'Admin User' : null;
+        },
+
+        comboData() {
+            var combo = this.rawVideoData.Combos[0];
+            if (this.rawVideoData.ContentType === 'Combo' && this.rawVideoData.Combos[0]) {
+                return {
+                    id: combo._id,
+                    character: {
+                        id: combo.CharacterId[0]._id,
+                        name: combo.CharacterId[0].Name,
+                        avatarUrl: combo.CharacterId[0].AvatarUrl,
+                        imageUrl: combo.CharacterId[0].ImageUrl,
+                    },
+                    damage: combo.Damage,
+                    hits: combo.Hits,
+                    inputs: combo.Inputs,
+                    startTime: combo.StartTime ? this.convertTime(combo.StartTime) : null,
+                    endTime: combo.EndTime ? this.convertTime(combo.EndTime) : null,
+                };
+            }
+            return null;
         },
     },
 
@@ -202,14 +291,8 @@ export default {
                 }
             }
 
-            if (this.video.isPlaying && this.video.combo.startTime) {
+            if (this.value === true && this.video.match.startTime) {
                 this.setTimer();
-            }
-        },
-
-        videoCurrentTime() {
-            if (this.videoCurrentTime > this.video.combo.endTime) {
-                this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
             }
         },
     },
@@ -218,65 +301,32 @@ export default {
         if (this.account && this.account.id) {
             this.getCollections();
         }
-        this.getCombo();
         this.playVideo();
     },
 
     methods: {
-        async getCombo() {
-            const response = await CombosService.getComboClip(this.comboClipId);
-            var comboResponse = response.data.comboClip[0];
-
-            this.video.combo = {
-                id: comboResponse._id,
-                character: {
-                    id: comboResponse.Character._id,
-                    name: comboResponse.Character.Name,
-                    avatarUrl: comboResponse.Character.AvatarUrl,
-                    imageUrl: comboResponse.Character.ImageUrl,
-                },
-                damage: comboResponse.Combo.Damage,
-                hits: comboResponse.Combo.Hits,
-                inputs: comboResponse.Combo.ComboInputs,
-                startTime: this.convertTime(comboResponse.StartTime),
-                endTime: this.convertTime(comboResponse.EndTime),
-                clipUrl: comboResponse.Url,
-            };
-            this.getVideo();
+        seekToTimestamp(seconds) {
+            this.$refs.youtubeRef.player.seekTo(seconds);
         },
 
         convertTime(time) {
             var a = time.split(':');
             var n = a.length;
-
+            var minutesToSeconds = null;
+            var hoursToSeconds = null;
             var seconds = 0;
-            if (n > 0) {
-                var minutesToSeconds = parseInt(a[0]) * 60;
+            if (n === 3) {
+                hoursToSeconds = parseInt(a[0]) * 3600;
+                minutesToSeconds = parseInt(a[1]) * 60;
+                seconds = hoursToSeconds + minutesToSeconds + parseInt(a[2]);
+            } else if (n === 2) {
+                minutesToSeconds = parseInt(a[0]) * 60;
                 seconds = minutesToSeconds + parseInt(a[1]);
             } else {
                 return parseInt(a[0]);
             }
-
+            seconds === 0 ? seconds++ : seconds;
             return seconds;
-        },
-
-        async getVideo() {
-            const response = await VideosService.getComboVideo(this.video.combo.clipUrl);
-            var videoResponse = response.data.videos[0];
-            this.video.videoType = videoResponse.VideoType;
-            this.video.game = {
-                title: videoResponse.Game.Title,
-                logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id,
-            };
-            this.video.isPlaying = false;
-            this.video.id = videoResponse._id;
-            this.isLoading = false;
-            this.video.combo.id = this.comboClipId;
-            this.video.contentType = 'Combo';
-            this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                : null;
         },
 
         playVideo() {
@@ -295,76 +345,51 @@ export default {
             this.player = event.target;
             if (this.video.isPlaying || this.isFirst) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.combo.startTime) {
+                if (this.video.isPlaying && this.video.startTime) {
                     this.setTimer();
                 }
             }
         },
 
-        async deleteVideo() {
-            const response = await VideosService.getVideo(this.video.id);
+        deleteVideo() {
+            this.$emit('video:delete', this.video);
+        },
 
-            var comboCount = response.data.video.length;
-            if (comboCount < 1) {
-                await VideosService.deleteVideo(this.video.id);
-            } else {
-                var videos = response.data.video;
-                var filteredCombos = videos.filter((video) => {
-                    return video.Combo._id != this.comboClipId;
-                });
-
-                filteredCombos = filteredCombos.map((combo) => {
-                    return {
-                        Id: combo.ComboId,
-                        StartTime: combo.Combo.StartTime,
-                        EndTime: combo.Combo.EndTime,
-                    };
-                });
-
-                var request = {
-                    id: this.video.id,
-                    Combos: filteredCombos,
-                    GameId: this.video.game.id,
-                };
-                await VideosService.patchVideo(request);
-            }
-            var comboResponse = await CombosService.deleteCombo(this.comboClipId);
-            this.$emit('video:delete', comboResponse);
+        queryPlayer(playerId) {
+            this.$router.push(`/player/${playerId}`);
         },
 
         queryCharacter(characterId) {
             this.$router.push(`/character/${characterId}`);
         },
 
+        queryGame(gameId) {
+            this.$router.push(`/game/${gameId}`);
+        },
+
         setTimer() {
             this.$nextTick(function () {
-                var setTimer = window.setInterval(() => {
+                window.setInterval(() => {
                     this.getTimeStamp();
                 }, 1000);
-                if (!this.video.isPlaying) {
-                    clearInterval(setTimer);
-                }
-                setTimer;
             });
         },
 
         getTimeStamp() {
-            if (this.player) {
-                this.videoCurrentTime = this.player.getCurrentTime();
-            }
+            this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
         },
 
         editVideo() {
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
-                name: 'video',
+                name: 'match',
                 videoId: this.video.id,
             });
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/combo/${this.comboClipId}`).then(() => {
-                alert('combo copied');
+            this.$copyText(`https://fighters-edge.com/match/${this.video.id}`).then(() => {
+                alert('match copied');
             });
         },
 
@@ -378,7 +403,7 @@ export default {
             this.video.isFavorited = false;
         },
 
-        onComboWaypoint({ el, going, direction }) {
+        onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             if (objectId) {
                 if (going === this.$waypointMap.GOING_IN && direction) {
@@ -395,11 +420,11 @@ export default {
                 return collection.id;
             });
 
-            var comboObject = { id: this.comboClipId, contentType: 'Combo' };
+            var matchObject = { id: this.videoId, contentType: 'Match' };
 
             this.collections.forEach((collection) => {
                 var collectionHasVideo = collection.videos.some((videos) => {
-                    return videos.id === this.comboClipId;
+                    return videos.id === this.videoId;
                 });
 
                 var collectionShouldHaveVideo = collectionIds.some((collectionId) => {
@@ -407,11 +432,11 @@ export default {
                 });
 
                 if (collectionShouldHaveVideo && !collectionHasVideo) {
-                    collection.videos.push(comboObject);
+                    collection.videos.push(matchObject);
                     this.patchCollection(collection);
                 } else if (!collectionShouldHaveVideo && collectionHasVideo) {
                     collection.videos = collection.videos.splice(
-                        collection.videos.indexOf(comboObject),
+                        collection.videos.indexOf(matchObject),
                         1
                     );
                     this.patchCollection(collection);
@@ -463,28 +488,23 @@ export default {
                 var collections = [];
                 this.collections.forEach((collection) => {
                     var hasVideo = collection.videos.some((video) => {
-                        return video.id === this.comboClipId;
+                        return video.id === this.videoId;
                     });
                     if (hasVideo) {
                         collections.push(collection.id);
                     }
                 });
                 return collections;
+            } else {
+                return [];
             }
-        },
-
-        openCollections(video) {
-            eventbus.$emit('open:widget', {
-                name: 'collections',
-                video: video,
-            });
         },
     },
 };
 </script>
 
 <style>
-.combo-video-card .combo-card {
+.match-card {
     margin: 60px 0;
     display: flex;
     /* background-image: linear-gradient(#515b89, #171b33); */
@@ -498,7 +518,7 @@ export default {
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.combo-video-card .combo-card .aside {
+.match-card .aside {
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -507,13 +527,13 @@ export default {
     width: 100%;
 }
 
-.combo-video-card .combo-card .versus {
+.match-card .versus {
     font-size: 25px;
     color: #3eb489;
     text-transform: uppercase;
 }
 
-.combo-video-card .combo-card .card-label {
+.match-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
@@ -528,17 +548,17 @@ export default {
     font-weight: 600;
 }
 
-.combo-video-card .combo-card .card-label {
+.match-card .card-label {
     background: #3c73a8;
 }
 
-.combo-video-card .combo-card video {
+.match-card video {
     width: 100%;
 }
 
-.combo-video-card .combo-card .character-name span,
-.combo-video-card .combo-card .game-title span {
-    padding: 6px 20px;
+.match-card .character-name span,
+.match-card .game-title span {
+    padding: 3px 20px;
     color: #242832;
     font-size: 20px;
     background: #3eb489;
@@ -550,7 +570,12 @@ export default {
     overflow: hidden;
 }
 
-.combo-video-card .combo-card .player-name {
+.match-card .team2 .character-name span {
+    color: #fff;
+    background: #4447e2;
+}
+
+.match-card .player-name {
     color: #fff;
     font-size: 20px;
     background: #131419;
@@ -562,39 +587,41 @@ export default {
     left: 10px;
 }
 
-.combo-video-card .combo-card .player-name p {
+.match-card .player-name p {
     font-weight: 400;
     font-size: 18px;
 }
 
-.combo-video-card .combo-card .character-name {
+.match-card .character-name {
     padding-top: 0px;
     font-size: 13px;
-    margin-bottom: 20px;
 }
 
-.combo-video-card .combo-card .character-name p {
+.match-card .character-name p {
     font-size: 14px;
     color: #242832;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.combo-video-card .combo-card .character {
+.match-card .character {
     padding: 5px;
 }
 
-.combo-video-card .combo-card .game {
+.match-card .game {
     margin-bottom: 20px;
+    text-align: right;
 }
 
-.combo-video-card .combo-card .game .img-container img,
-.combo-video-card .combo-card .character-name .img-container img {
+.match-card .game .img-container img,
+.match-card .character .img-container img,
+.match-card .character-name .img-container img {
     width: 30px;
 }
 
-.combo-video-card .combo-card .game .img-container,
-.combo-video-card .combo-card .character-name .img-container {
+.match-card .game .img-container,
+.match-card .character .img-container,
+.match-card .character-name .img-container {
     position: absolute;
     left: 0;
     top: 0;
@@ -606,25 +633,56 @@ export default {
     align-items: center;
 }
 
-.combo-video-card .combo-card .video-ghost {
+.match-card .video-ghost {
     height: 313px;
     width: 556px;
 }
 
-.combo-video-card .combo-card .inputs {
+.match-card .inputs {
     border-radius: 3px;
     padding: 10px;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid #4a5689;
-    min-height: 12em;
-    color: #fff;
 }
 
-.combo-video-card .combo-card.card .edit-btn-container {
+/* Combo-specific styles */
+.match-card .combo-info {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.match-card .combo-stats {
+    margin: 10px 0;
+}
+
+.match-card .combo-stats p {
+    color: #fff;
+    font-size: 14px;
+    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.match-card .combo-input {
+    margin-top: 10px;
+}
+
+.match-card .combo-input .inputs {
+    color: #fff;
+    font-family: monospace;
+    font-size: 12px;
+    word-break: break-all;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #3eb489;
+}
+
+.match-card.card .edit-btn-container {
     padding: 10px;
 }
 
-.combo-video-card .combo-card.card .edit-btn-container button {
+.match-card.card .edit-btn-container button {
     padding: 20px 10px;
     background-color: #4447e2 !important;
     border-radius: 50%;
@@ -632,7 +690,7 @@ export default {
     color: #fff;
 }
 
-.combo-video-card .video-container {
+.match-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
     position: relative;
@@ -640,25 +698,6 @@ export default {
     height: 0;
     overflow: hidden;
     min-width: 75%;
-}
-
-.combo-video-card.twitter-card .character-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.combo-video-card.twitter-card .character-image img {
-    max-width: 360px;
-}
-
-.combo-video-card.twitter-card .combo-card .video-container {
-    padding-bottom: 0;
-    height: 610px;
-    min-width: initial;
-    width: 520px;
-    display: flex;
-    align-items: center;
 }
 
 .video-container iframe,
@@ -671,22 +710,22 @@ export default {
     height: 100%;
 }
 
-.combo-video-card .combo-card .character-2 {
+.match-card .character-2 {
     top: 40px;
 }
 
-.combo-video-card .combo-card .character-3 {
+.match-card .character-3 {
     top: 120px;
 }
 
-.combo-video-card .combo-card .admin-controls {
+.match-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
 }
 
-#app .combo-video-card .combo-card .admin-controls button {
+#app .match-card .admin-controls button {
     width: 35px;
     height: 50px;
     min-width: initial;
@@ -695,16 +734,16 @@ export default {
     border-radius: 50%;
 }
 
-#app .combo-video-card .combo-card .admin-controls button:hover i::before {
+#app .match-card .admin-controls button:hover i::before {
     opacity: 1;
 }
 
-#app .combo-video-card .combo-card .admin-controls button i::before {
+#app .match-card .admin-controls button i::before {
     color: #3eb489;
     opacity: 0.9;
 }
 
-.combo-video-card .combo-card .admin-controls button.share-button {
+.match-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
@@ -713,47 +752,69 @@ export default {
     border-radius: 50%;
 }
 
-.combo-video-card .combo-card .combo-stats {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.combo-video-card .combo-card .combo-stats p {
-    font-size: 14px;
-    color: #fff;
-    font-weight: 600;
-}
-
-.combo-video-card .combo-card .player {
+.match-card .player {
     border: 1px dashed #3eb489;
     position: relative;
     padding-top: 10px;
     margin-bottom: 40px;
 }
 
-.combo-video-card .twitter-tweet iframe {
-    width: 450px !important;
+.match-card .team2 .player {
+    border: 1px dashed #4447e2;
 }
 
-#app.mobile.small-mobile .combo-video-card .combo-card {
+.match-card .characters {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+#app.mobile.small-mobile .match-card {
     flex-direction: column;
 }
 
-#app.mobile.small-mobile .combo-video-card .combo-card .players {
+#app.mobile.small-mobile .match-card .players {
     display: flex;
     width: 100%;
+    flex-direction: column;
 }
 
-#app.mobile.small-mobile .combo-video-card .combo-card .players .player {
+#app.mobile.small-mobile .match-card .players .player {
     margin-bottom: 0;
+    max-width: 100%;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
-#app.mobile.small-mobile .combo-video-card .combo-card .video-container {
+#app.mobile.small-mobile .match-card .player-name {
+    top: -9px;
+}
+
+#app.mobile.small-mobile .match-card .characters {
+    padding: 0 5px;
+}
+
+#app.mobile.small-mobile .match-card .character-name span {
+    padding: 3px 20px 3px 40px;
+}
+
+#app.mobile.small-mobile .match-card .game {
+    margin-bottom: 0px;
+}
+
+#app.mobile.small-mobile .match-card .admin-controls button {
+    height: 10px;
+}
+
+#app.mobile.small-mobile .match-card .player-name p {
+    font-size: 12px;
+}
+
+#app.mobile.small-mobile .match-card .video-container {
     padding-bottom: 56.25%;
 }
 
-#app.mobile.small-mobile .combo-video-card .combo-card .aside {
+#app.mobile.small-mobile .match-card .aside {
     max-width: 100%;
 }
 </style>

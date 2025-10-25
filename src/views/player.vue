@@ -146,7 +146,7 @@ export default {
                 this.isLoading = true;
                 var queryParameter = {
                     skip: this.skip,
-                    sortOption: this.sort,
+                    sort: this.sort,
                     searchQuery: [
                         {
                             queryName: 'PlayerId',
@@ -252,7 +252,7 @@ export default {
 
                 var queryParameter = {
                     skip: this.skip,
-                    sortOption: this.sort,
+                    sort: this.sort,
                     searchQuery: [
                         {
                             queryName: 'PlayerId',
@@ -371,10 +371,12 @@ export default {
 <style>
 .player-view {
     position: relative;
-    padding-top: 30px;
+    padding-top: 100px;
     height: 100%;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .player-view::-webkit-scrollbar-track {
@@ -397,6 +399,8 @@ export default {
 .player-view .videos-container {
     position: relative;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .player-view .videos-container video {

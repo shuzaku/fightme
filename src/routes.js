@@ -24,15 +24,16 @@ import Note from './views/notes.vue';
 import YoutubeGenerator from './views/youtube-generator.vue';
 import Tournament from './views/tournament.vue';
 import PlayerList from './views/player-list.vue';
-import PlayerMerge from './views/merge-players-view.vue'
+import PlayerMerge from './views/merge-players-view.vue';
 
-import MatchReview from './views/match-review.vue'
+import MatchReview from './views/match-review.vue';
+import AdminVideoApproval from './views/admin-video-approval.vue';
 
 const routes = [
     {
     path: '/', 
-    name: 'Explore', 
-    component: Explore,    
+    name: 'Home', 
+    component: Home,    
         meta: {
         title: 'Fighters Edge',
             metaTags: [
@@ -43,7 +44,7 @@ const routes = [
             ]
         }
     },
-    {path: '/* ', name: 'Explore', component: Explore},
+    {path: '/* ', name: 'Home', component: Home},
     {path: '/  200', name: 'Videos', component: Videos},
     {path: '/collections', name: 'Collections', component: Collections},
     {path: '/combos', name: 'Combos', component: Combos},
@@ -80,6 +81,7 @@ const routes = [
     {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge},
     {path: '/match/:id/review', name: 'MatchReview', component: MatchReview},
     {path: '/tournament/:id', name: 'Tournament', component: Tournament},
+    {path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval},
 ] 
 
 export default routes;   

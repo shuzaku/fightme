@@ -591,7 +591,7 @@ export default {
 
 .match-card .character-name span,
 .match-card .game-title span {
-    padding: 6px 20px;
+    padding: 3px 20px;
     color: #242832;
     font-size: 20px;
     background: #3eb489;

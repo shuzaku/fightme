@@ -44,7 +44,7 @@ export default {
 
             var queryParameter = {
                 searchQuery: searchQuery,
-                sortOption: 'EventDate desc',
+                sort: 'EventDate desc',
             };
 
             const response = await TournamentsService.queryTournaments(queryParameter);

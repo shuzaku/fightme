@@ -10,7 +10,10 @@
             />
             <div class="content-container">
                 <div v-if="!isLoading" class="main-content-container">
-                    <router-view :account="account" />
+                    <top-bar :account="account" />
+                    <follows :account="account" />
+                    <sidebar v-if="isMobile && showMobileMenu" :account="account" />
+                    <router-view :account="account" :isMobile="isMobile" />
                 </div>
             </div>
         </div>
@@ -18,23 +21,27 @@
 </template>
 
 <script>
+import './scripts/filters';
+
 import { eventbus } from '@/main';
-import NewNav from '@/components/common/new-nav';
 import Modal from '@/components/common/modal';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
 import moment from 'moment';
 import TopBar from '@/components/common/top-bar';
 import MoreInfoPanel from '@/components/common/more-info-panel';
+import Follows from '@/components/account/follows';
+import Sidebar from '@/components/common/sidebar';
 
 export default {
     name: 'App',
 
     components: {
-        'new-nav': NewNav,
         modal: Modal,
         'top-bar': TopBar,
         'more-info-panel': MoreInfoPanel,
+        follows: Follows,
+        sidebar: Sidebar,
     },
 
     data() {
@@ -473,5 +480,39 @@ button {
     border-radius: 24px;
     background: #191b24;
     color: #fff;
+}
+
+p {
+    line-height: 1.5em;
+}
+
+.content-container {
+    position: relative;
+    z-index: 1;
+}
+
+.container {
+    max-width: initial;
+    width: initial;
+    padding: initial;
+}
+
+.v-input--selection-controls .v-input__slot > .v-label,
+.v-input--selection-controls .v-radio > .v-label {
+    color: #fff;
+}
+
+.vue-tooltip-theme {
+    color: #fff;
+    background: #4447e2;
+    padding: 4px 16px;
+    border-radius: 24px;
+    font-family: 'Roboto';
+    z-index: 9999;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.main-content-container {
+    position: relative;
 }
 </style>

@@ -344,7 +344,7 @@ export default {
 
 .tournament-match-video-card .match-card .character-name span,
 .tournament-match-video-card .match-card .game-title span {
-    padding: 6px 20px;
+    padding: 3px 20px;
     color: #242832;
     font-size: 20px;
     background: #3eb489;
@@ -354,6 +354,10 @@ export default {
     position: relative;
     padding-left: 40px;
     overflow: hidden;
+}
+
+.tournament-match-video-card .match-card .game-title span {
+    padding: 3px 20px;
 }
 
 .tournament-match-video-card .match-card .team2 .character-name span {

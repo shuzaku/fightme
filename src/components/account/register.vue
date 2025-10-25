@@ -134,4 +134,23 @@ export default {
     border: none;
     margin-bottom: 0px;
 }
+
+.register-modal .v-input input::placeholder {
+    color: #fff;
+}
+
+.register-modal .theme--light.v-text-field > .v-input__control > .v-input__slot:before {
+    border-color: #fff;
+}
+
+.register-modal .theme--light.v-btn.v-btn--disabled.v-btn--has-bg {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.register-modal
+    .theme--light.v-text-field:not(.v-input--has-state):hover
+    > .v-input__control
+    > .v-input__slot:before {
+    border-color: #3eb489;
+}
 </style>

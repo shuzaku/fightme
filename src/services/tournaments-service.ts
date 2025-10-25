@@ -27,8 +27,8 @@ export default {
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
 
-    if(params.sortOption){
-      queryParams.push(`sort=${params.sortOption}`)
+    if(params.sort){
+      queryParams.push(`sort=${params.sort}`)
     }
 
     return Api().get(`tournamentQuery?${queryParams.join('&')}`)

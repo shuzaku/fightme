@@ -14,6 +14,9 @@
                     <!-- <a v-if="account" class="menu-item" href="/favorites">Favorites</a> -->
                     <a v-if="account" class="menu-item" href="/collections">Collections</a>
                     <a v-if="account" class="menu-item" href="/notes">Notes</a>
+                    <a v-if="isAdmin" class="menu-item admin-link" href="/admin/video-approval"
+                        >Admin Panel</a
+                    >
                     <a class="menu-item" @click="logOut()">Log Out</a>
                 </div>
                 <div v-else class="not-logged-in-buttons">
@@ -42,6 +45,12 @@ export default {
         return {
             accountPopupActive: false,
         };
+    },
+
+    computed: {
+        isAdmin() {
+            return this.account && this.account.role === 'Admin User';
+        },
     },
 
     mounted() {},
@@ -97,5 +106,10 @@ export default {
 
 .account-dropdown .account-actions button {
     color: #fff;
+}
+
+.account-dropdown .admin-link {
+    color: #ff6b6b !important;
+    font-weight: bold;
 }
 </style>

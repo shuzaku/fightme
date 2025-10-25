@@ -2,7 +2,7 @@
 <template>
     <div v-if="!isLoading || !videoId" class="new-match">
         <div class="formcontainer">
-            <h1 v-if="!videoId">Add Video</h1>
+            <h1 v-if="!videoId">Add Match</h1>
             <h1 v-else>Edit Video</h1>
             <div class="video-step">
                 <youtube-media
@@ -18,6 +18,7 @@
                 <div v-if="!videoId" class="video-container">
                     <div class="import-video-container">
                         <v-text-field
+                            dark
                             id="import-video"
                             v-model="importVideoUrl"
                             type="text"
@@ -87,7 +88,10 @@ export default {
                 endTime: '',
                 gameId: '',
                 combos: null,
-                match: null,
+                match: {
+                    team1Players: [],
+                    team2Players: [],
+                },
                 montage: null,
                 tournament: null,
                 tags: [],
@@ -176,7 +180,7 @@ export default {
 
         async submitVideo() {
             if (!this.videoId) {
-                this.postMatch();
+                this.validateVideo();
             } else {
                 await MatchesService.patchMatch({
                     id: this.video.match.id,
@@ -200,64 +204,36 @@ export default {
             }
         },
 
-        async postMatch() {
-            var match = {
+        async validateVideo() {
+            await VideosService.validateVideo({
+                Url: this.video.url,
+                GameId: this.video.gameId,
                 Team1Players: this.video.match.team1Players.map((player) => {
                     return {
                         Id: player.id,
                         Slot: 1,
-                        CharacterIds: player.characterIds,
+                        CharacterIds: player.characterIds.map((character) => character.id),
                     };
                 }),
                 Team2Players: this.video.match.team2Players.map((player) => {
                     return {
                         Id: player.id,
                         Slot: 2,
-                        CharacterIds: player.characterIds,
+                        CharacterIds: player.characterIds.map((character) => character.id),
                     };
                 }),
                 VideoUrl: this.video.url,
-                GameId: this.video.gameId,
                 SubmittedBy: this.account.id,
                 UpdatedBy: this.account.id,
-            };
+                ContentType: 'Match',
+                ContentCreatorId: this.video.contentCreatorId || null,
+                VideoType: this.video.type,
+                Tags: this.video.tags,
+                StartTime: this.video.startTime,
+                EndTime: this.video.endTime,
+            });
 
-            await MatchesService.addMatch(match);
-
-            if (this.video.type === 'uploaded') {
-                this.$refs.videoUploader.upload();
-            } else {
-                this.postVideo();
-            }
-        },
-
-        async postVideo() {
-            if (this.isValidated) {
-                var response = await VideosService.addVideo({
-                    Url: this.video.url,
-                    ContentType: this.video.contentType,
-                    ContentCreatorId: this.video.contentCreatorId,
-                    VideoType: this.video.type,
-                    VideoUrl: this.video.url,
-                    StartTime: this.video.startTime,
-                    EndTime: this.video.endTime,
-                    GameId: this.video.gameId,
-                    Combos: null,
-                    Tags: this.video.tags,
-                    SubmittedBy: this.account.id,
-                    UpdatedBy: this.account.id,
-                });
-
-                if (response.data.err) {
-                    this.error = 'Video already exist';
-                    this.showErrorMessage = true;
-                } else {
-                    this.$emit('closeModal');
-                    eventbus.$emit('newVideoPosted');
-                }
-            } else {
-                this.showErrorMessage = true;
-            }
+            this.$emit('closeModal');
         },
 
         setGame(game) {
@@ -373,6 +349,7 @@ export default {
 .new-match {
     text-align: left;
     margin: 0 auto;
+    color: #fff;
 }
 
 .new-match .video-step {
@@ -501,7 +478,7 @@ export default {
     border: 1px solid #eee;
     text-align: center;
     padding: 10px 20px 20px;
-    background: #eee;
+    background: transparent;
     margin-bottom: 10px;
 }
 </style>
