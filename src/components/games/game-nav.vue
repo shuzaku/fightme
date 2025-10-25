@@ -12,7 +12,7 @@
             </div>
 
             <div class="right-section">
-                <div class="info-card share">Share</div>
+                <div class="info-card share" @click="shareGame()">Share</div>
                 <div v-if="account" class="followed-container">
                     <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
                         <v-icon> mdi-heart-outline </v-icon>
@@ -124,6 +124,11 @@ export default {
 
         selectedTab(tab) {
             this.$emit('selected-video', tab);
+        },
+
+        shareGame() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Game link copied to clipboard');
         },
     },
 };

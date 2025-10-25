@@ -68,7 +68,7 @@
             </div>
 
             <div class="right-section">
-                <div class="info-card share">Share</div>
+                <div class="info-card share" @click="shareCharacter()">Share</div>
                 <div v-if="account" class="followed-container">
                     <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
                         <v-icon> mdi-heart-outline </v-icon>
@@ -243,6 +243,11 @@ export default {
 
         routeToGame() {
             this.$router.push(`/game/${this.game.id}`);
+        },
+
+        shareCharacter() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Character link copied to clipboard');
         },
     },
 };
