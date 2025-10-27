@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export default() => {
     const instance = axios.create({
-        baseURL: 'http://node-fightersedge-env.eba-wc4jpjyb.us-east-2.elasticbeanstalk.com/'
+        baseURL: 'https://fightme-server.herokuapp.com/'
         // baseURL: 'http://localhost:80'
     })
 
