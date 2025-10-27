@@ -248,7 +248,7 @@ export default {
 
 <style>
 .home-view {
-    padding-top: 90px;
+    padding-top: 160px;
     width: 100%;
     height: 100%;
 }
