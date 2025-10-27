@@ -237,7 +237,7 @@ export default {
                 },
                 damage: comboResponse.Combo.Damage,
                 hits: comboResponse.Combo.Hits,
-                inputs: comboResponse.Combo.ComboInputs,
+                inputs: comboResponse.Combo.Inputs[0],
                 startTime: this.convertTime(comboResponse.StartTime),
                 endTime: this.convertTime(comboResponse.EndTime),
                 clipUrl: comboResponse.Url,
