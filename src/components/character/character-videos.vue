@@ -2,16 +2,20 @@
 <template>
     <div class="character-videos">
         <div v-if="selectedVideoType === 'Combos'">
-            <character-combos :account="account" />
+            <character-combos :account="account" :characterId="characterId" />
         </div>
         <div v-else-if="selectedVideoType === 'Online Matches'">
-            <character-online-matches :account="account" />
+            <character-online-matches :account="account" :characterId="characterId" />
         </div>
         <div v-else-if="selectedVideoType === 'Tournament Matches'">
-            <character-tournament-matches :account="account" />
+            <character-tournament-matches :account="account" :characterId="characterId" />
         </div>
         <div v-else-if="selectedVideoType === 'Matchups'">
-            <character-matchups :account="account" :character2Id="character2Id" />
+            <character-matchups
+                :account="account"
+                :character2Id="character2Id"
+                :characterId="characterId"
+            />
         </div>
     </div>
 </template>
@@ -44,6 +48,11 @@ export default {
 
         character2Id: {
             type: Array,
+            default: null,
+        },
+
+        characterId: {
+            type: String,
             default: null,
         },
     },

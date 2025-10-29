@@ -33,6 +33,11 @@ export default {
             type: Object,
             default: null,
         },
+
+        characterId: {
+            type: String,
+            default: null,
+        },
     },
 
     data() {
@@ -51,10 +56,6 @@ export default {
     computed: {
         skip: function () {
             return this.videos.length;
-        },
-
-        characterId: function () {
-            return this.$route.params.id;
         },
     },
 

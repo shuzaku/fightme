@@ -19,6 +19,7 @@
             <character-videos
                 id="character-videos"
                 :selectedVideoType="selectedVideoType"
+                :characterId="character.id"
                 :account="account"
                 :character2Id="character2Id"
             />
