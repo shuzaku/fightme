@@ -124,7 +124,7 @@ export default {
             const response = await PlayersService.getPlayerBySlug({
                 slug: this.playerSlug,
             });
-            this.player = this.hydratePlayer(response.data);
+            this.player = this.hydratePlayer(response.data.players[0]);
         },
 
         hydratePlayer(response) {

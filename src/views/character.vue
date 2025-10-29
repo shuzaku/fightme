@@ -105,10 +105,13 @@ export default {
         },
 
         async getCharacterBySlug() {
+            this.loading = true;
+
             const response = await CharactersService.getCharacterBySlug({
                 slug: this.characterSlug.toUpperCase(),
             });
             this.character = this.hydrateCharacter(response.data.characters[0]);
+            this.loading = false;
         },
 
         hydrateCharacter(response) {
