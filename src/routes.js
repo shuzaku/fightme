@@ -72,7 +72,7 @@ const routes = [
     {path: '/favorite-matches', name: 'Favorites Matches', component: FavoriteMatches},
     {path: '/favorite-combos', name: 'Favorites Combos', component: FavoriteCombos},
     {path: '/test', name: 'test', component: Test},
-    {path: '/explore', name: 'explore', component: Explore},
+    {path: '/explore', name: 'explore', component: Home},
     {path: '/favorites', name: 'favorites', component: Favorites},
     {path: '/notes', name: 'notes', component: Note},
     {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator},
