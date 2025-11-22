@@ -59,6 +59,7 @@
             :accountId="account.id"
             @closeModal="closeModal()"
         />
+        <new-featured-video v-if="options.name === 'featured-video'" @closeModal="closeModal()" />
     </div>
 </template>
 
@@ -77,6 +78,7 @@ import register from '@/components/account/register';
 import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
 import noteWidget from '@/components/note/note-widget';
+import newFeaturedVideo from '@/components/videos/new-featured-video';
 
 export default {
     name: 'Modal',
@@ -96,6 +98,7 @@ export default {
         login: login,
         collections: collections,
         'note-widget': noteWidget,
+        'new-featured-video': newFeaturedVideo,
     },
 
     props: {

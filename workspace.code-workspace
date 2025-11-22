@@ -4,7 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "..\\server"
+			"path": "../Node-Fighters-Edge"
 		}
 	]
 }

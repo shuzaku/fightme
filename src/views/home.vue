@@ -58,6 +58,12 @@
                 </div>
             </div>
             <div class="home-content">
+                <div class="featured-games">
+                    <h2>🎮 Featured Games</h2>
+                    <div class="videos">
+                        <explore-games />
+                    </div>
+                </div>
                 <div class="trending-matches">
                     <h2>🔥 Trending Matches</h2>
                     <div class="videos">
@@ -70,12 +76,6 @@
                             :mute="true"
                             :playsinline="1"
                         />
-                    </div>
-                </div>
-                <div class="featured-games">
-                    <h2>🎮 Featured Games</h2>
-                    <div class="videos">
-                        <explore-games />
                     </div>
                 </div>
                 <div class="recent-tournaments">
@@ -102,7 +102,8 @@
                 </div>
                 <div class="cta">
                     <h2>Join the fight!</h2>
-                    <button class="sign-up">Sign Up</button><button class="login">Login</button>
+                    <button class="sign-up" @click="openRegisterModal()">Sign Up</button>
+                    <button class="login" @click="openLoginModal()">Login</button>
                 </div>
             </div>
         </div>
@@ -227,6 +228,7 @@ export default {
                 limit: 3,
                 sort: '_id',
                 sortDirection: 'desc',
+                Type: 'General',
             };
 
             FeaturedVideosService.fetchFeaturedVideos(queryParameter).then((response) => {
@@ -241,6 +243,14 @@ export default {
                     url: video.VideoUrl,
                 };
             });
+        },
+
+        openLoginModal() {
+            eventbus.$emit('open:widget', { name: 'login' });
+        },
+
+        openRegisterModal() {
+            eventbus.$emit('open:widget', { name: 'register' });
         },
     },
 };
@@ -384,6 +394,10 @@ export default {
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
+}
+
+.home-view .trending-matches {
+    margin-top: 80px;
 }
 
 .home-view .trending-matches .videos {

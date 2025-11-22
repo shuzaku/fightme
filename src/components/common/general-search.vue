@@ -14,6 +14,7 @@
             track-by="value"
             @input="setSearch()"
             @search-change="asyncFind"
+            :showNoOptions="false"
         >
         </multiselect>
     </div>

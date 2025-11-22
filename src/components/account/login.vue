@@ -275,4 +275,9 @@ export default {
     > .v-input__slot:before {
     border-color: #3eb489;
 }
+
+.login-modal .submit-btn {
+    background: #3eb489 !important;
+    color: #fff !important;
+}
 </style>

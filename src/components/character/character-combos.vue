@@ -23,15 +23,11 @@
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import VideosService from '@/services/videos-service';
 
-import Loading from '@/components/common/loading';
-
 export default {
     name: 'CharacterCombos',
 
     components: {
         'combo-video-card': ComboVideoCard,
-
-        loading: Loading,
     },
 
     props: {
@@ -50,7 +46,6 @@ export default {
             filter: null,
             sort: null,
             isLast: false,
-            loading: false,
         };
     },
 
@@ -106,7 +101,6 @@ export default {
         },
 
         async queryVideos(newQuery) {
-            this.videos = [];
             var queryParameter = {
                 skip: this.skip,
                 sort: this.sort,
@@ -120,8 +114,9 @@ export default {
                 sort: null,
             };
 
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await VideosService.queryComboClips(queryParameter);
             this.hydrateVideos(response);
+            this.isLoading = false;
             if (this.videos.length < 6) {
                 this.playFirstVideo();
             }
@@ -145,7 +140,7 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find((video) => video.matchId === objectId);
+            var featuredVideo = this.videos.find((video) => video.comboClipId === objectId);
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.isPlaying = true;
             }

@@ -28,60 +28,66 @@ import PlayerMerge from './views/merge-players-view.vue';
 
 import MatchReview from './views/match-review.vue';
 import AdminVideoApproval from './views/admin-video-approval.vue';
+import TierListMaker from './views/tier-list-maker.vue';
+import TierListGallery from './views/tier-list-gallery.vue';
+import TierListDetails from './views/tier-list-details.vue';
 
 const routes = [
     {
-    path: '/', 
-    name: 'Home', 
-    component: Home,    
+        path: '/',
+        name: 'Home',
+        component: Home,
         meta: {
-        title: 'Fighters Edge',
+            title: 'Fighters Edge',
             metaTags: [
                 {
-                name: 'Fighters-Edge',
-                content: 'Fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!'
+                    name: 'Fighters-Edge',
+                    content: 'Fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!'
                 }
             ]
         }
     },
-    {path: '/* ', name: 'Home', component: Home},
-    {path: '/  200', name: 'Videos', component: Videos},
-    {path: '/collections', name: 'Collections', component: Collections},
-    {path: '/combos', name: 'Combos', component: Combos},
-    {path: '/combo/:id', name: 'Combo', component: Combo},
-    {path: '/combos/game/:gameId', name: 'Game Combos', component: Combos},
-    {path: '/combos/character/:characterId', name: 'Character Combos', component: Combos},
-    {path: '/matches', name: 'Matches', component: Matches},
-    {path: '/matches/game/:gameId', name: 'Game Matches', component: Matches},
-    {path: '/matches/character/:characterId', name: 'Character Matches', component: Matches},
-    {path: '/match/:id', name: 'Match', component: Match},
-    {path: '/games', name: 'Games', component: Games},
-    {path: '/game/:id', name: 'Game', component: Game},
-    {path: '/home', name: 'Home', component: Home},
-    {path: '/montages/', name: 'Montages', component: Montages},
-    {path: '/matchups/:id/:id2', name: 'MatchUp', component: MatchUps},
-    {path: '/mu/:slug1/:slug2', name: 'Slug MatchUp', component: MatchUps},
-    {path: '/players/', name: 'Players', component: Player},
-    {path: '/player/:id', name: 'Player', component: Player},
-    {path: '/p/:slug', name: 'PlayerSlug', component: Player},
-    {path: '/character/:id', name: 'Character', component: Character},
-    {path: '/c/:slug', name: 'CharacterSlug', component: Character},
-    {path: '/character/:id/combos', name: 'Character Combo', component: Character},
-    {path: '/collection/:id', name: 'Collection', component: Collection},
-    {path: '/channel-scrapper', name: 'ChannelScrapper', component: ChannelScrapper},
-    {path: '/favorite-matches', name: 'Favorites Matches', component: FavoriteMatches},
-    {path: '/favorite-combos', name: 'Favorites Combos', component: FavoriteCombos},
-    {path: '/test', name: 'test', component: Test},
-    {path: '/explore', name: 'explore', component: Home},
-    {path: '/favorites', name: 'favorites', component: Favorites},
-    {path: '/notes', name: 'notes', component: Note},
-    {path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator},
-    {path: '/tournament-bulk', name: 'Tournament Bulk', component: Tournament},
-    {path: '/player-list', name: 'PlayerList', component: PlayerList},
-    {path: '/merge-players', name: 'MergePlayers', component: PlayerMerge},
-    {path: '/match/:id/review', name: 'MatchReview', component: MatchReview},
-    {path: '/tournament/:id', name: 'Tournament', component: Tournament},
-    {path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval},
-] 
+    { path: '/* ', name: 'Home', component: Home },
+    { path: '/  200', name: 'Videos', component: Videos },
+    { path: '/collections', name: 'Collections', component: Collections },
+    { path: '/combos', name: 'Combos', component: Combos },
+    { path: '/combo/:id', name: 'Combo', component: Combo },
+    { path: '/combos/game/:gameId', name: 'Game Combos', component: Combos },
+    { path: '/combos/character/:characterId', name: 'Character Combos', component: Combos },
+    { path: '/matches', name: 'Matches', component: Matches },
+    { path: '/matches/game/:gameId', name: 'Game Matches', component: Matches },
+    { path: '/matches/character/:characterId', name: 'Character Matches', component: Matches },
+    { path: '/match/:id', name: 'Match', component: Match },
+    { path: '/games', name: 'Games', component: Games },
+    { path: '/game/:id', name: 'Game', component: Game },
+    { path: '/home', name: 'Home', component: Home },
+    { path: '/montages/', name: 'Montages', component: Montages },
+    { path: '/matchups/:id/:id2', name: 'MatchUp', component: MatchUps },
+    { path: '/mu/:slug1/:slug2', name: 'Slug MatchUp', component: MatchUps },
+    { path: '/players/', name: 'Players', component: Player },
+    { path: '/player/:id', name: 'Player', component: Player },
+    { path: '/p/:slug', name: 'PlayerSlug', component: Player },
+    { path: '/character/:id', name: 'Character', component: Character },
+    { path: '/c/:slug', name: 'CharacterSlug', component: Character },
+    { path: '/character/:id/combos', name: 'Character Combo', component: Character },
+    { path: '/collection/:id', name: 'Collection', component: Collection },
+    { path: '/channel-scrapper', name: 'ChannelScrapper', component: ChannelScrapper },
+    { path: '/favorite-matches', name: 'Favorites Matches', component: FavoriteMatches },
+    { path: '/favorite-combos', name: 'Favorites Combos', component: FavoriteCombos },
+    { path: '/test', name: 'test', component: Test },
+    { path: '/explore', name: 'explore', component: Home },
+    { path: '/favorites', name: 'favorites', component: Favorites },
+    { path: '/notes', name: 'notes', component: Note },
+    { path: '/youtube-generator', name: 'Youtube Generator', component: YoutubeGenerator },
+    { path: '/tournament-bulk', name: 'Tournament Bulk', component: Tournament },
+    { path: '/player-list', name: 'PlayerList', component: PlayerList },
+    { path: '/merge-players', name: 'MergePlayers', component: PlayerMerge },
+    { path: '/match/:id/review', name: 'MatchReview', component: MatchReview },
+    { path: '/tournament/:id', name: 'Tournament', component: Tournament },
+    { path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval },
+    { path: '/tier-list-maker', name: 'TierListMaker', component: TierListMaker },
+    { path: '/tier-lists', name: 'TierListGallery', component: TierListGallery },
+    { path: '/tier-lists/:id', name: 'TierListDetails', component: TierListDetails },
+]
 
-export default routes;   
+export default routes;

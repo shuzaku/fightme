@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export default() => {
+export default () => {
     const instance = axios.create({
         baseURL: 'https://fightme-server.herokuapp.com/'
         // baseURL: 'http://localhost:80'

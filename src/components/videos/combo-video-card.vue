@@ -3,11 +3,11 @@
     <div
         ref="videoList"
         class="combo-video-card"
-        :class="{ 'twitter-card': video.videoType === 'twitter' }"
+        :class="{ 'twitter-card': video.combo.videoType === 'twitter' }"
     >
         <div v-if="isLoading" />
         <div v-else class="combo-card card">
-            <div class="character-image" v-if="video.videoType === 'twitter'">
+            <div class="character-image" v-if="video.combo.videoType === 'twitter'">
                 <img :src="video.combo.character.imageUrl" />
             </div>
             <div
@@ -20,7 +20,7 @@
                 }"
             >
                 <youtube-media
-                    v-if="video.videoType === 'youtube'"
+                    v-if="video.combo.videoType === 'youtube'"
                     ref="youtubeRef"
                     :videoId="video.combo.clipUrl"
                     :player-width="556"
@@ -35,12 +35,12 @@
                     @ready="ready"
                 />
 
-                <tweet v-else-if="video.videoType === 'twitter'" id="1971339379064152483"
+                <tweet v-else-if="video.combo.videoType === 'twitter'" id="1971339379064152483"
                     ><loading></loading
                 ></tweet>
 
                 <video v-else ref="videoRef" loop controls muted>
-                    <source :src="video.url" type="video/mp4" />
+                    <source :src="video.combo.url" type="video/mp4" />
                 </video>
             </div>
             <div class="card-label">Combo</div>
@@ -165,8 +165,18 @@ export default {
             videoCurrentTime: 0,
             isLoading: true,
             video: {
-                videoType: null,
-                isPlaying: false,
+                combo:{
+                    id: null,
+                    character: null,
+                    damage: null,
+                    hits: null,
+                    inputs: null,
+                    startTime: null,
+                    endTime: null,
+                    clipUrl: null,
+                    videoType: null,
+                    isFavorited: false,
+                },
                 isFavorited: false,
             },
             intersectionOptions: {
@@ -177,6 +187,7 @@ export default {
             player: null,
             collections: null,
             showCollections: false,
+            isPlaying: false
         };
     },
 
@@ -184,25 +195,27 @@ export default {
         isAdmin() {
             return this.account && this.account.role === 'Admin User';
         },
+
+
     },
 
     watch: {
-        'video.isPlaying'() {
-            if (this.video.videoType === 'uploaded') {
-                if (this.video.isPlaying === true) {
+        isPlaying() {
+            if (this.video.combo.videoType === 'uploaded') {
+                if (this.isPlaying === true) {
                     this.$refs.videoRef.play();
                 } else {
                     this.$refs.videoRef.pause();
                 }
-            } else if (this.video.videoType === 'youtube' && this.player) {
-                if (this.video.isPlaying === true) {
+            } else if (this.video.combo.videoType === 'youtube' && this.player) {
+                if (this.isPlaying === true) {
                     this.player.playVideo();
                 } else {
                     this.player.pauseVideo();
                 }
             }
 
-            if (this.video.isPlaying && this.video.combo.startTime) {
+            if (this.isPlaying && this.video.combo.startTime) {
                 this.setTimer();
             }
         },
@@ -214,11 +227,11 @@ export default {
         },
     },
 
-    created() {
+    async created() {
         if (this.account && this.account.id) {
             this.getCollections();
         }
-        this.getCombo();
+        await this.getCombo();
         this.playVideo();
     },
 
@@ -241,8 +254,31 @@ export default {
                 startTime: this.convertTime(comboResponse.StartTime),
                 endTime: this.convertTime(comboResponse.EndTime),
                 clipUrl: comboResponse.Url,
+                videoType: comboResponse.VideoType.toLowerCase(),
+                isFavorited: false,
             };
-            this.getVideo();
+
+            // // Extract game data from combo-clip response if available
+            if (comboResponse.Game) {
+                this.video.game = {
+                    title: comboResponse.Game.Title,
+                    logoUrl: comboResponse.Game.LogoUrl,
+                    id: comboResponse.Game._id,
+                };
+            }
+
+            // Extract video data if available
+            if (comboResponse.Video && comboResponse.Video.VideoType) {
+                this.video.id = comboResponse.Video._id;
+            }
+
+            this.isPlaying = false;
+            this.video.combo.id = this.comboClipId;
+            this.video.contentType = 'Combo';
+            this.video.isFavorited = this.favoriteVideos
+                ? this.favoriteVideos.some((video) => video.id === this.video.id)
+                : null;
+            this.isLoading = false;
         },
 
         convertTime(time) {
@@ -261,15 +297,17 @@ export default {
         },
 
         async getVideo() {
+            // This method is now deprecated but kept for backwards compatibility
+            // The getCombo method now handles all data extraction
             const response = await VideosService.getComboVideo(this.video.combo.clipUrl);
             var videoResponse = response.data.videos[0];
-            this.video.videoType = videoResponse.VideoType;
+            this.video.combo.videoType = videoResponse.VideoType;
             this.video.game = {
                 title: videoResponse.Game.Title,
                 logoUrl: videoResponse.Game.LogoUrl,
                 id: videoResponse.Game._id,
             };
-            this.video.isPlaying = false;
+            this.isPlaying = false;
             this.video.id = videoResponse._id;
             this.isLoading = false;
             this.video.combo.id = this.comboClipId;
@@ -280,22 +318,22 @@ export default {
         },
 
         playVideo() {
-            if (this.video.videoType === 'uploaded') {
-                if (this.video.isPlaying) {
+            if (this.video.combo.videoType === 'uploaded') {
+                if (this.isPlaying) {
                     this.$refs.videoRef.play();
                 }
-            } else if (this.video.videoType === 'youtube') {
-                if (this.video.isPlaying) {
-                    // this.player.playVideo();
+            } else if (this.video.combo.videoType === 'youtube') {
+                if (this.isPlaying) {
+                    this.player.playVideo();
                 }
             }
         },
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying || this.isFirst) {
+            if (this.isPlaying || this.isFirst) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.combo.startTime) {
+                if (this.isPlaying && this.video.combo.startTime) {
                     this.setTimer();
                 }
             }
@@ -341,7 +379,7 @@ export default {
                 var setTimer = window.setInterval(() => {
                     this.getTimeStamp();
                 }, 1000);
-                if (!this.video.isPlaying) {
+                if (!this.isPlaying) {
                     clearInterval(setTimer);
                 }
                 setTimer;
@@ -382,10 +420,10 @@ export default {
             var objectId = el.id;
             if (objectId) {
                 if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.video.isPlaying = true;
+                    this.isPlaying = true;
                 }
                 if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.video.isPlaying = false;
+                    this.isPlaying = false;
                 }
             }
         },
@@ -649,7 +687,7 @@ export default {
 }
 
 .combo-video-card.twitter-card .character-image img {
-    max-width: 360px;
+    max-width: 300px;
 }
 
 .combo-video-card.twitter-card .combo-card .video-container {

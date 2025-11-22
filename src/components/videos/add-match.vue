@@ -166,7 +166,7 @@ export default {
         },
 
         addCharacterToPlayer(characters, player) {
-            player.characterIds = characters;
+            player.characterIds = characters.map((character) => character.id);
             this.$emit('update:match', this.match);
         },
 

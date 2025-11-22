@@ -9,13 +9,9 @@
                 <span>Fighters-Edge</span>
             </a>
 
-            <a
-                v-if="account && account.role === 'Admin User'"
-                class="menu-item add-item"
-                @click="toggleAddPopup()"
-            >
+            <a v-if="account" class="menu-item add-item" @click="toggleAddPopup()">
                 <v-icon> mdi-plus </v-icon>
-                <create-options v-if="addPopupActive" />
+                <create-options v-if="addPopupActive" :account="account" />
             </a>
         </div>
         <general-search />

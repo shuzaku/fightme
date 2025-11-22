@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="games">
+    <div class="new-games">
         <div v-if="step === 'new-game'" class="add-game-container">
             <h1>Add Game</h1>
             <div class="form">
@@ -8,18 +8,27 @@
                     <img :src="game.logoUrl" class="logo" />
                     <v-btn class="remove-image-btn" @click="game.logoUrl = ''">X</v-btn>
                 </div>
-                <input v-model="game.title" type="text" name="title" placeholder="Title" />
-                <input
+                <v-text-field
+                    dark
+                    v-model="game.title"
+                    type="text"
+                    name="title"
+                    placeholder="Title"
+                />
+                <v-text-field
+                    dark
                     v-if="!game.logoUrl"
                     v-model="game.logoUrl"
                     type="text"
                     placeholder="Logo Url"
                 />
                 <div class="bulk-add-characters">
-                    <textarea
+                    <v-text-field
+                        dark
                         v-model="unfilteredCharacters"
                         name="character"
                         placeholder="Character Names (separated by commas)"
+                        type="text"
                     />
                 </div>
                 <div>
@@ -65,6 +74,7 @@
                         </div>
                         <p class="character-name">{{ character.name }}</p>
                         <v-text-field
+                            dark
                             v-if="!character.imageUrl"
                             v-model="character.imageUrl"
                             type="text"
@@ -177,58 +187,63 @@ export default {
 };
 </script>
 <style type="text/css">
-.games input {
+.new-games h1 {
+    color: #fff;
+}
+
+.new-games input {
     margin-bottom: 10px;
 }
 
-.games .game-characters-lists-container label {
+.new-games .game-characters-lists-container label {
     font-size: 11px;
     font-style: italic;
     margin-bottom: 5px;
     display: block;
 }
 
-.games .new-characters-container input {
+.new-games .new-characters-container input {
     margin: 5px;
 }
 
-.games .new-characters-container {
+.new-games .new-characters-container {
     margin-bottom: 50px;
 }
 
-.games .character-list li {
+.new-games .character-list li {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     padding: 10px;
 }
 
-.games .character-list .character-name {
+.new-games .character-list .character-name {
     width: 250px;
+    color: #fff;
 }
 
-.games .character-list .v-input {
+.new-games .character-list .v-input {
     max-width: 300px;
     margin-left: 30px;
     float: right;
 }
 
-.games .character-list li:nth-child(even) {
-    background: #eee;
+.new-games .character-list li:nth-child(even) {
+    background: #000;
 }
 
-.games .character-img-container {
+.new-games .character-img-container {
     position: relative;
     margin-right: 20px;
 }
 
-.games .character-img-container img {
+.new-games .character-img-container img {
     width: 50px;
     height: auto;
     border-radius: 50%;
 }
 
-.games .character-list .character-img-container .remove-image-btn {
+.new-games .character-list .character-img-container .remove-image-btn {
     width: 10px;
     height: 10px;
     min-width: 10px;
@@ -241,11 +256,11 @@ export default {
     right: 0;
 }
 
-.games .submit-btn {
+.new-games .submit-btn {
     margin-top: 20px;
 }
 
-.games .logo-img-container img {
+.new-games .logo-img-container img {
     width: 200px;
     height: auto;
     margin: 0 auto;

@@ -60,14 +60,6 @@ export default {
                     slug: character.Slug,
                 };
             });
-
-            if (this.value) {
-                this.value.forEach((characterId) => {
-                    this.selectedCharacters.push(
-                        this.characters.filter((character) => character.id === characterId)[0]
-                    );
-                });
-            }
         },
 
         navigate(id) {

@@ -112,7 +112,7 @@ export default {
 <style>
 .merge-players-view {
     width: 100%;
-    padding: 50px 0;
+    padding: 160px 0 0 0;
 }
 
 .merge-players-view .merge-container {

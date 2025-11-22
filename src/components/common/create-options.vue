@@ -18,56 +18,73 @@ import { eventbus } from '@/main';
 export default {
     components: {},
 
-    props: {},
+    props: {
+        account: {
+            type: Object,
+            default: null,
+        },
+    },
 
     data() {
         return {
-            createOptions: [
-                {
-                    name: 'video',
-                    value: 'video',
-                },
+            allCreateOptions: [
                 {
                     name: 'match',
                     value: 'match',
+                    adminOnly: false,
                 },
                 {
                     name: 'combo',
                     value: 'combo',
+                    adminOnly: false,
                 },
                 {
                     name: 'game',
                     value: 'game',
+                    adminOnly: true,
                 },
                 {
                     name: 'player',
                     value: 'player',
+                    adminOnly: true,
                 },
                 {
                     name: 'creator',
                     value: 'creator',
+                    adminOnly: true,
                 },
                 {
                     name: 'character',
                     value: 'character',
+                    adminOnly: true,
                 },
                 {
-                    name: 'tournament',
-                    value: 'tournament',
-                },
-                {
-                    name: 'article',
-                    value: 'article',
-                },
-                {
-                    name: 'event',
-                    value: 'event',
+                    name: 'featured-video',
+                    value: 'featured-video',
+                    adminOnly: true,
                 },
             ],
         };
     },
 
-    computed: {},
+    computed: {
+        isAdmin() {
+            return (
+                this.account &&
+                (this.account.role === 'Admin User' || this.account.role === 'admin')
+            );
+        },
+        createOptions() {
+            return this.allCreateOptions.filter((option) => {
+                // If option requires admin, check if user is admin
+                if (option.adminOnly) {
+                    return this.isAdmin;
+                }
+                // Otherwise, show to everyone
+                return true;
+            });
+        },
+    },
 
     created() {},
 
