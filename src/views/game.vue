@@ -12,18 +12,55 @@
             />
 
             <!-- Game Statistics Section -->
-            <div v-if="stats" class="game-stats">
-                <div class="stat-card">
-                    <p class="number">{{ stats.characters | commaDelimited }}</p>
-                    <p class="label">Characters</p>
+            <div class="stats-and-cta-container">
+                <div class="game-stats">
+                    <div class="stat-card">
+                        <p class="number">
+                            <span v-if="statsLoading && stats.characters === 0">...</span>
+                            <span v-else>{{ stats.characters | commaDelimited }}</span>
+                        </p>
+                        <p class="label">Characters</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="number">
+                            <span v-if="statsLoading && stats.matches === 0">...</span>
+                            <span v-else>{{ stats.matches | commaDelimited }}</span>
+                        </p>
+                        <p class="label">Matches</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="number">
+                            <span v-if="statsLoading && stats.combos === 0">...</span>
+                            <span v-else>{{ stats.combos | commaDelimited }}</span>
+                        </p>
+                        <p class="label">Combos</p>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <p class="number">{{ stats.matches | commaDelimited }}</p>
-                    <p class="label">Matches</p>
-                </div>
-                <div class="stat-card">
-                    <p class="number">{{ stats.combos | commaDelimited }}</p>
-                    <p class="label">Combos</p>
+
+                <!-- Compact CTA for games with content -->
+                <div v-if="!isNewGame && !statsLoading" class="game-cta-compact">
+                    <div class="cta-compact-content">
+                        <p class="cta-compact-text">Contribute to this game's community</p>
+                        <div class="cta-compact-actions">
+                            <v-btn
+                                class="cta-compact-btn"
+                                rounded
+                                small
+                                @click="openAddModal('match')"
+                                >Add Match</v-btn
+                            >
+                            <v-btn
+                                class="cta-compact-btn"
+                                rounded
+                                small
+                                @click="openAddModal('combo')"
+                                >Add Combo</v-btn
+                            >
+                            <v-btn class="cta-compact-btn" rounded small @click="createTierList"
+                                >Create Tier List</v-btn
+                            >
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -43,6 +80,47 @@
                     />
                 </div>
             </div>
+            <!-- Tier Lists Section -->
+            <div v-if="tierLists && tierLists.length > 0" class="tier-lists-section">
+                <h2>📊 Tier Lists</h2>
+                <div class="tier-lists-grid">
+                    <div
+                        v-for="list in tierLists"
+                        :key="list.id"
+                        class="tier-list-item"
+                        @click="goToTierListDetails(list.id)"
+                    >
+                        <div class="tier-list-header">
+                            <h3>{{ list.name }}</h3>
+                            <span class="tier-list-author">by {{ list.author }}</span>
+                        </div>
+                        <div class="tier-list-preview">
+                            <img
+                                v-for="(charUrl, index) in list.topCharacters"
+                                :key="index"
+                                :src="charUrl"
+                                class="preview-character"
+                                v-if="charUrl"
+                            />
+                        </div>
+                        <div class="tier-list-stats">
+                            <span><i class="fas fa-eye"></i> {{ list.views || 0 }}</span>
+                            <span><i class="fas fa-thumbs-up"></i> {{ list.likes || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Updates Section -->
+            <div v-if="gameUpdates && gameUpdates.length > 0" class="game-updates-section">
+                <h2>📰 Game Updates</h2>
+                <div class="updates">
+                    <div v-for="update in gameUpdates" :key="update.id" class="update">
+                        <update-card :update="update" />
+                    </div>
+                </div>
+            </div>
+
             <!-- Call to Action for New Games -->
             <div v-if="isNewGame" class="game-cta">
                 <h2>Help Build This Game's Community!</h2>
@@ -53,6 +131,7 @@
                 <div class="cta-actions">
                     <v-btn class="cta-btn" rounded @click="openAddModal('match')">Add Match</v-btn>
                     <v-btn class="cta-btn" rounded @click="openAddModal('combo')">Add Combo</v-btn>
+                    <v-btn class="cta-btn" rounded @click="createTierList">Create Tier List</v-btn>
                 </div>
             </div>
 
@@ -71,11 +150,11 @@ import Loading from '@/components/common/loading';
 import ExploreCharacters from '@/components/explore/explore-characters';
 import GameVideos from '@/components/games/game-videos';
 import GamesService from '@/services/games-service';
-import CharactersService from '@/services/characters-service';
-import TournamentsService from '@/services/tournaments-service';
-import VideosService from '@/services/videos-service';
-import TournamentMatchService from '@/services/tournament-match-service';
 import FeaturedVideosService from '@/services/featured-videos-service';
+import TierListsService from '@/services/tier-lists-service';
+import UpdatesService from '@/services/updates-service';
+import UpdateCard from '@/components/update/update-card';
+import moment from 'moment';
 import { eventbus } from '@/main';
 
 export default {
@@ -86,6 +165,7 @@ export default {
         loading: Loading,
         'explore-characters': ExploreCharacters,
         'game-videos': GameVideos,
+        'update-card': UpdateCard,
     },
 
     props: {
@@ -100,7 +180,7 @@ export default {
             return this.$route.params.id;
         },
         isNewGame: function () {
-            if (!this.stats) return false;
+            if (this.statsLoading) return false;
             return (
                 this.stats.matches === 0 && this.stats.combos === 0 && this.stats.tournaments === 0
             );
@@ -116,8 +196,16 @@ export default {
                 logo: null,
             },
             selectedVideoType: 'Online Matches',
-            stats: null,
+            stats: {
+                characters: 0,
+                matches: 0,
+                tournaments: 0,
+                combos: 0,
+            },
             featuredVideos: null,
+            tierLists: [],
+            statsLoading: false,
+            gameUpdates: [],
         };
     },
 
@@ -126,6 +214,8 @@ export default {
             this.getGame();
             this.getGameStats();
             this.getFeaturedVideos();
+            this.getTierLists();
+            this.getGameUpdates();
         },
     },
 
@@ -133,6 +223,8 @@ export default {
         this.getGame();
         this.getGameStats();
         this.getFeaturedVideos();
+        this.getTierLists();
+        this.getGameUpdates();
     },
 
     beforeDestroy() {},
@@ -155,89 +247,23 @@ export default {
         },
 
         async getGameStats() {
+            this.statsLoading = true;
             try {
-                // Get character count
-                const charactersResponse = await CharactersService.queryCharacters({
-                    searchQuery: [
-                        {
-                            queryName: 'GameId',
-                            queryValue: this.gameId,
-                        },
-                    ],
+                const response = await GamesService.getGameStats({
+                    id: this.gameId,
                 });
-                const characterCount = charactersResponse.data.characters
-                    ? charactersResponse.data.characters.length
-                    : 0;
-
-                // Get match count (online matches)
-                const matchesResponse = await VideosService.queryVideos({
-                    searchQuery: [
-                        {
-                            queryName: 'GameId',
-                            queryValue: this.gameId,
-                        },
-                    ],
-                    filter: 'Online Match',
-                });
-                const matchCount = matchesResponse.data.videos
-                    ? matchesResponse.data.videos.length
-                    : 0;
-
-                // Get tournament match count
-                const tournamentMatchesResponse =
-                    await TournamentMatchService.queryTournamentMatches({
-                        searchQuery: [
-                            {
-                                queryName: 'GameId',
-                                queryValue: this.gameId,
-                            },
-                        ],
-                    });
-                const tournamentMatchCount = tournamentMatchesResponse.data.matches
-                    ? tournamentMatchesResponse.data.matches.length
-                    : 0;
-
-                // Get tournament count
-                const tournamentsResponse = await TournamentsService.queryTournaments({
-                    searchQuery: [
-                        {
-                            queryName: 'Games',
-                            queryValue: this.gameId,
-                        },
-                    ],
-                });
-                const tournamentCount = tournamentsResponse.data.tournaments
-                    ? tournamentsResponse.data.tournaments.length
-                    : 0;
-
-                // Get combo count
-                const combosResponse = await VideosService.queryVideos({
-                    searchQuery: [
-                        {
-                            queryName: 'GameId',
-                            queryValue: this.gameId,
-                        },
-                    ],
-                    filter: 'Combo',
-                });
-                const comboCount = combosResponse.data.videos
-                    ? combosResponse.data.videos.length
-                    : 0;
 
                 this.stats = {
-                    characters: characterCount,
-                    matches: matchCount + tournamentMatchCount,
-                    tournaments: tournamentCount,
-                    combos: comboCount,
+                    characters: response.data.characters || 0,
+                    matches: response.data.matches || 0,
+                    tournaments: response.data.tournaments || 0,
+                    combos: response.data.combos || 0,
                 };
             } catch (error) {
                 console.error('Error fetching game stats:', error);
-                this.stats = {
-                    characters: 0,
-                    matches: 0,
-                    tournaments: 0,
-                    combos: 0,
-                };
+                // Keep existing stats on error rather than resetting to 0
+            } finally {
+                this.statsLoading = false;
             }
         },
 
@@ -275,6 +301,14 @@ export default {
             eventbus.$emit('open:widget', { name: option, valuse: option });
         },
 
+        createTierList() {
+            // Navigate to tier list maker with the current gameId as a query parameter
+            this.$router.push({
+                name: 'TierListMaker',
+                query: { gameId: this.gameId },
+            });
+        },
+
         getFeaturedVideos() {
             var queryParameter = {
                 limit: 3,
@@ -301,6 +335,85 @@ export default {
                     url: video.VideoUrl,
                 };
             });
+        },
+
+        async getTierLists() {
+            try {
+                const response = await TierListsService.getTierLists();
+                const allTierLists = this.mapTierListItems(response.data);
+                // Filter tier lists by current gameId
+                this.tierLists = allTierLists.filter((list) => list.gameId === this.gameId);
+            } catch (error) {
+                console.error('Error fetching tier lists:', error);
+                this.tierLists = [];
+            }
+        },
+
+        async getGameUpdates() {
+            try {
+                const response = await UpdatesService.fetchRecentUpdates();
+                const allUpdates = response.data.updates.map((update) => {
+                    return {
+                        id: update._id,
+                        type: update.Type,
+                        subType: update.SubType,
+                        games: update.Games,
+                        note: update.Note,
+                        date: moment(update.Date).add('days', 1).local().format('MM.DD.YY'),
+                        image: update.Image,
+                        link: update.Link,
+                    };
+                });
+                // Filter updates by current gameId
+                this.gameUpdates = allUpdates.filter((update) => {
+                    if (!update.games || !Array.isArray(update.games)) return false;
+                    return update.games.some((game) => {
+                        // Handle both ObjectId objects and string IDs
+                        const gameIdStr =
+                            typeof game === 'object' && game._id
+                                ? game._id.toString()
+                                : game.toString();
+                        return gameIdStr === this.gameId;
+                    });
+                });
+            } catch (error) {
+                console.error('Error fetching game updates:', error);
+                this.gameUpdates = [];
+            }
+        },
+
+        mapTierListItems(items) {
+            return items.map((item) => {
+                // Find top 3 characters
+                let topCharacters = [];
+                if (item.Tiers && item.Tiers.length > 0) {
+                    for (const tier of item.Tiers) {
+                        if (tier.Characters && tier.Characters.length > 0) {
+                            topCharacters = topCharacters.concat(tier.Characters);
+                            if (topCharacters.length >= 3) break;
+                        }
+                    }
+                }
+                topCharacters = topCharacters
+                    .slice(0, 3)
+                    .map((c) => c.AvatarUrl)
+                    .filter((url) => url);
+
+                return {
+                    id: item._id,
+                    gameId: item.GameId ? item.GameId._id : null,
+                    gameLogo: item.GameId ? item.GameId.LogoUrl : null,
+                    name: item.Name,
+                    author: item.OwnerId ? item.OwnerId.DisplayName : 'Unknown',
+                    views: item.Views || 0,
+                    likes: item.Likes ? item.Likes.length : 0,
+                    topCharacters: topCharacters,
+                };
+            });
+        },
+
+        goToTierListDetails(id) {
+            this.$router.push({ name: 'TierListDetails', params: { id: id } });
         },
     },
 };
@@ -348,11 +461,20 @@ export default {
     display: block;
 }
 
-.game-view .game-stats {
+.game-view .stats-and-cta-container {
     display: flex;
     gap: 16px;
     margin: 40px 0;
+    align-items: flex-start;
     flex-wrap: wrap;
+}
+
+.game-view .game-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 300px;
 }
 
 .game-view .game-stats .stat-card {
@@ -427,24 +549,83 @@ export default {
     background: #2d8a6a !important;
 }
 
+.game-view .game-cta-compact {
+    background: #191b2490;
+    border-radius: 12px;
+    padding: 16px 24px;
+    border: 1px solid #ffffff30;
+    flex: 0 0 auto;
+    min-width: 280px;
+    max-width: 400px;
+    height: 85px;
+    display: flex;
+    align-items: center;
+}
+
+.game-view .game-cta-compact .cta-compact-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+}
+
+.game-view .game-cta-compact .cta-compact-text {
+    color: #ffffff90;
+    font-size: 13px;
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.game-view .game-cta-compact .cta-compact-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.game-view .game-cta-compact .cta-compact-btn {
+    background: #3eb489 !important;
+    color: #fff !important;
+    padding: 6px 16px;
+    font-weight: 600;
+    text-transform: none;
+    font-size: 12px;
+    min-width: auto;
+    flex: 1;
+    min-width: 100px;
+    height: 28px;
+}
+
+.game-view .game-cta-compact .cta-compact-btn:hover {
+    background: #2d8a6a !important;
+}
+
+.mobile .game-view .stats-and-cta-container {
+    flex-direction: column;
+}
+
+.mobile .game-view .game-stats {
+    width: 100%;
+}
+
 .mobile .game-view .game-stats .stat-card {
     max-width: 100%;
     width: 48%;
 }
 
-.mobile .game-view .game-cta {
-    padding: 30px 20px;
+.mobile .game-view .game-cta-compact {
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
 }
 
-.mobile .game-view .game-cta h2 {
-    font-size: 24px;
-}
-
-.mobile .game-view .game-cta .cta-actions {
+.mobile .game-view .game-cta-compact .cta-compact-actions {
     flex-direction: column;
 }
 
-.mobile .game-view .game-cta .cta-btn {
+.mobile .game-view .game-cta-compact .cta-compact-btn {
     width: 100%;
 }
 
@@ -467,5 +648,141 @@ export default {
 
 .mobile .game-view .featured-videos .videos {
     justify-content: center;
+}
+
+.game-view .tier-lists-section {
+    margin: 60px 0;
+}
+
+.game-view .tier-lists-section h2 {
+    color: #fff;
+    font-size: 28px;
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+.game-view .tier-lists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.game-view .tier-list-item {
+    background: #191b2490;
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #ffffff30;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.game-view .tier-list-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.game-view .tier-list-header {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.game-view .tier-list-header h3 {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game-view .tier-list-author {
+    color: #ffffff90;
+    font-size: 12px;
+}
+
+.game-view .tier-list-preview {
+    display: flex;
+    gap: 8px;
+    min-height: 50px;
+    align-items: center;
+}
+
+.game-view .preview-character {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #333;
+    border: 1px solid #ffffff20;
+}
+
+.game-view .tier-list-stats {
+    display: flex;
+    gap: 15px;
+    color: #ffffff90;
+    font-size: 14px;
+    margin-top: auto;
+}
+
+.game-view .tier-list-stats i {
+    margin-right: 5px;
+}
+
+.mobile .game-view .tier-lists-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.game-view .game-updates-section {
+    margin: 60px 0;
+}
+
+.game-view .game-updates-section h2 {
+    color: #fff;
+    font-size: 28px;
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+.game-view .game-updates-section .updates {
+    display: flex;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.game-view .game-updates-section .update {
+    max-width: 333px;
+    color: #fff;
+    padding: 8px;
+    position: relative;
+}
+
+.game-view .game-updates-section .update-card {
+    max-width: 200px;
+    color: #fff;
+    position: relative;
+}
+
+.game-view .game-updates-section .update-card img {
+    width: 100%;
+}
+
+.game-view .game-updates-section .update .date {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    padding: 5px;
+    font-size: 10px;
+    background-color: #3eb489;
+}
+
+.mobile .game-view .game-updates-section .update {
+    max-width: 50%;
 }
 </style>

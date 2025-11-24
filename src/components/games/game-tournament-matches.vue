@@ -19,7 +19,7 @@ import TournamentMatchVideoCard from '@/components/videos/tournament-match-video
 import Loading from '@/components/common/loading';
 
 export default {
-    name: 'GameOnlineMatches',
+    name: 'TournamentMatchVideoCard',
 
     components: {
         'tournament-match-video-card': TournamentMatchVideoCard,
@@ -115,6 +115,7 @@ export default {
                 };
 
                 const response = await TournamentMatchService.queryTournamentMatches({
+                    skip: this.skip, // Add this line
                     searchQuery: queryParameter ? queryParameter.searchQuery : null,
                 });
 
@@ -137,29 +138,43 @@ export default {
                     videoUrl: video.VideoUrl,
                     videoType: video.VideoPlatform,
                     game: {
-                        title: video.Game[0].Title,
-                        logoUrl: video.Game[0].LogoUrl,
-                        id: video.Game[0]._id,
+                        title: video.Game && video.Game[0] ? video.Game[0].Title : '',
+                        logoUrl: video.Game && video.Game[0] ? video.Game[0].LogoUrl : '',
+                        id: video.Game && video.Game[0] ? video.Game[0]._id : '',
                     },
                     match: {
                         team1Players: video.Team1Players.map((player) => {
+                            const matchedPlayer =
+                                video.Team1Player && video.Team1Player.length > 0
+                                    ? video.Team1Player.find(
+                                          (searchPlayer) => searchPlayer._id === player.Id
+                                      )
+                                    : null;
                             return {
                                 id: player.Id,
                                 slot: player.Slot,
-                                name: video.Team1Player.filter(
-                                    (searchPlayer) => searchPlayer._id === player.Id
-                                )[0].Name,
-                                games: this.hydrateGames(player.GameIds, video.Team1PlayerGames),
+                                name: matchedPlayer ? matchedPlayer.Name : 'Unknown',
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team1PlayerCharacters
+                                ),
                             };
                         }),
                         team2Players: video.Team2Players.map((player) => {
+                            const matchedPlayer =
+                                video.Team2Player && video.Team2Player.length > 0
+                                    ? video.Team2Player.find(
+                                          (searchPlayer) => searchPlayer._id === player.Id
+                                      )
+                                    : null;
                             return {
                                 id: player.Id,
                                 slot: player.Slot,
-                                name: video.Team2Player.filter(
-                                    (searchPlayer) => searchPlayer._id === player.Id
-                                )[0].Name,
-                                games: this.hydrateGames(player.GameIds, video.Team2PlayerGames),
+                                name: matchedPlayer ? matchedPlayer.Name : 'Unknown',
+                                characters: this.hydrateCharacters(
+                                    player.CharacterIds,
+                                    video.Team2PlayerCharacters
+                                ),
                             };
                         }),
                         startTime: video.ClipStart ? this.convertTime(video.ClipStart) : null,
@@ -168,25 +183,39 @@ export default {
                         secondaryNotes: video.SecondaryNotes || null,
                     },
                     tournament: {
-                        name: video.Tournament[0].Name,
-                        logoUrl: video.Tournament[0].Image,
+                        name:
+                            video.Tournament && video.Tournament[0] ? video.Tournament[0].Name : '',
+                        logoUrl:
+                            video.Tournament && video.Tournament[0]
+                                ? video.Tournament[0].Image
+                                : '',
                     },
                 });
             });
         },
 
-        hydrateGames(gameIds, games) {
-            var playerGames = [];
+        hydrateCharacters(characterIds, characters) {
+            if (
+                !characterIds ||
+                !characters ||
+                !Array.isArray(characterIds) ||
+                !Array.isArray(characters)
+            ) {
+                return [];
+            }
 
-            gameIds.forEach((id) => {
-                var filteredGame = games.filter((game) => game._id === id);
-                playerGames.push({
-                    name: filteredGame[0].Name ? filteredGame[0].Name : null,
-                    id: filteredGame[0]._id,
-                    imageUrl: filteredGame[0].AvatarUrl,
-                });
+            var playerCharacters = [];
+            characterIds.forEach((id) => {
+                var filteredCharacter = characters.find((char) => char._id === id);
+                if (filteredCharacter) {
+                    playerCharacters.push({
+                        name: filteredCharacter.Name || null,
+                        id: filteredCharacter._id,
+                        imageUrl: filteredCharacter.AvatarUrl || filteredCharacter.ImageUrl || null,
+                    });
+                }
             });
-            return playerGames;
+            return playerCharacters;
         },
 
         convertTime(time) {

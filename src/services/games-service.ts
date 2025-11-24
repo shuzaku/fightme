@@ -28,5 +28,9 @@ export default {
 
   deleteGame (id: string) {
     return Api().delete('games/' + id)
+  },
+
+  getGameStats (params: Params) {
+    return Api().get('games/' + params.id + '/stats')
   }
 }

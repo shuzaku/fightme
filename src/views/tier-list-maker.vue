@@ -9,8 +9,15 @@
                     {{ game.title }}
                 </option>
             </select>
-            <input v-if="selectedGameId" v-model="tierListName" placeholder="Tier List Name" class="name-input" />
-            <button v-if="selectedGameId" @click="openSaveDialog" class="save-btn">Save Tier List</button>
+            <input
+                v-if="selectedGameId"
+                v-model="tierListName"
+                placeholder="Tier List Name"
+                class="name-input"
+            />
+            <button v-if="selectedGameId" @click="openSaveDialog" class="save-btn">
+                Save Tier List
+            </button>
         </div>
 
         <div v-if="showSaveDialog" class="save-dialog-overlay">
@@ -53,11 +60,7 @@
                 </div>
             </div>
 
-            <div
-                class="unassigned-pool"
-                @dragover.prevent
-                @drop="onDrop($event, 'unassigned')"
-            >
+            <div class="unassigned-pool" @dragover.prevent @drop="onDrop($event, 'unassigned')">
                 <h3>Unassigned Characters</h3>
                 <div class="pool-content">
                     <div
@@ -97,7 +100,7 @@ export default {
                 { name: 'D', color: '#bfff7f' },
             ],
             tierState: {
-                unassigned: []
+                unassigned: [],
             },
             tierListName: '',
             showSaveDialog: false,
@@ -106,29 +109,36 @@ export default {
     computed: {
         accountId() {
             return this.$attrs.account.id;
-        }
+        },
     },
     async mounted() {
         await this.fetchGames();
         this.initializeTierState();
+
+        // Auto-select game from query parameter if provided
+        if (this.$route.query.gameId) {
+            this.selectedGameId = this.$route.query.gameId;
+            // Trigger the game selection to load characters
+            await this.onGameSelect();
+        }
     },
     methods: {
         initializeTierState() {
             this.tierState = { unassigned: [] };
-            this.tiers.forEach(t => {
+            this.tiers.forEach((t) => {
                 this.$set(this.tierState, t.name, []);
             });
         },
         async fetchGames() {
             try {
                 const response = await GamesService.fetchGames();
-                    this.games = response.data.games.map((game) => {
-                        return {
-                            id: game._id,
-                            title: game.Title,
-                            logoUrl: game.LogoUrl,
-                        };
-                    });
+                this.games = response.data.games.map((game) => {
+                    return {
+                        id: game._id,
+                        title: game.Title,
+                        logoUrl: game.LogoUrl,
+                    };
+                });
             } catch (error) {
                 console.error('Error fetching games:', error);
             }
@@ -139,7 +149,7 @@ export default {
                 var searchQuery = [
                     {
                         queryName: 'GameId',
-                        queryValue: this.selectedGameId
+                        queryValue: this.selectedGameId,
                     },
                 ];
 
@@ -161,7 +171,6 @@ export default {
                 // Reset tiers
                 this.initializeTierState();
                 this.tierState.unassigned = characters;
-
             } catch (error) {
                 console.error('Error fetching characters:', error);
             }
@@ -199,17 +208,17 @@ export default {
                 return;
             }
 
-            const tiersData = this.tiers.map(tier => ({
+            const tiersData = this.tiers.map((tier) => ({
                 Name: tier.name,
                 Color: tier.color,
-                Characters: this.tierState[tier.name].map(c => c.id)
+                Characters: this.tierState[tier.name].map((c) => c.id),
             }));
 
             const payload = {
                 Name: this.tierListName,
                 GameId: this.selectedGameId,
                 OwnerId: this.accountId,
-                Tiers: tiersData
+                Tiers: tiersData,
             };
 
             try {
@@ -221,7 +230,7 @@ export default {
                 console.error('Error saving tier list:', error);
                 alert('Failed to save tier list.');
             }
-        }
+        },
     },
 };
 </script>
@@ -320,7 +329,7 @@ export default {
 .save-btn {
     margin-left: 10px;
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: white;
     border: none;
     border-radius: 5px;
@@ -377,7 +386,7 @@ export default {
 }
 
 .dialog-actions button:first-child {
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: white;
 }
 
