@@ -405,6 +405,7 @@ export default {
     max-height: 70px;
     margin-left: 10px;
     cursor: pointer;
+    max-width: 280px;
 }
 
 .character-nav .game-logo-mobile {

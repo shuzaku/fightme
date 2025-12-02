@@ -73,6 +73,15 @@ export default {
     margin-bottom: 20px;
     flex-wrap: wrap;
     justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    margin: -12px;
+    margin-bottom: 20px;
+}
+
+.explore-tournaments .tournament {
+    display: flex;
+    flex: 0 0 auto;
 }
 
 .explore-tournaments h3 {

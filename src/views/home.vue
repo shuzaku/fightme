@@ -30,18 +30,30 @@
                     </div>
                     <div class="stats" v-if="counts">
                         <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
                             <p class="number">{{ counts.matches | commaDelimited }}</p>
                             <p class="label">Matches Indexed</p>
                         </div>
                         <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
                             <p class="number">{{ counts.players | commaDelimited }}</p>
                             <p class="label">Players</p>
                         </div>
                         <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
                             <p class="number">{{ counts.tournaments | commaDelimited }}</p>
                             <p class="label">Tournaments</p>
                         </div>
                         <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
                             <p class="number">{{ counts.games | commaDelimited }}</p>
                             <p class="label">Games</p>
                         </div>
@@ -58,52 +70,76 @@
                 </div>
             </div>
             <div class="home-content">
-                <div class="featured-games">
-                    <h2>🎮 Featured Games</h2>
+                <div class="featured-games section-card">
+                    <div class="section-header">
+                        <i class="fas fa-gamepad section-icon"></i>
+                        <h2>Featured Games</h2>
+                    </div>
                     <div class="videos">
                         <explore-games />
                     </div>
                 </div>
-                <div class="trending-matches">
-                    <h2>🔥 Trending Matches</h2>
+                <div class="trending-matches section-card">
+                    <div class="section-header">
+                        <i class="fas fa-fire section-icon"></i>
+                        <h2>Trending Matches</h2>
+                    </div>
                     <div class="videos">
-                        <youtube-media
-                            v-for="match in featuredMatches"
-                            :key="match.id"
-                            :video-id="match.url"
-                            :player-width="420"
-                            :player-height="240"
-                            :mute="true"
-                            :playsinline="1"
-                        />
+                        <div v-for="match in featuredMatches" :key="match.id" class="video-card">
+                            <youtube-media
+                                :video-id="match.url"
+                                :player-width="420"
+                                :player-height="240"
+                                :mute="true"
+                                :playsinline="1"
+                            />
+                        </div>
                     </div>
                 </div>
-                <div class="recent-tournaments">
+                <div class="recent-tournaments section-card">
                     <completed-tournaments />
                 </div>
-                <div class="latest-update">
+                <div class="latest-update section-card">
                     <explore-updates />
                 </div>
 
-                <div class="featured-videos">
-                    <h2>🎥 Featured Videos</h2>
+                <div class="featured-videos section-card">
+                    <div class="section-header">
+                        <i class="fas fa-video section-icon"></i>
+                        <h2>Featured Videos</h2>
+                    </div>
                     <div class="videos">
-                        <youtube-media
-                            v-for="video in featuredVideos"
-                            :key="video.id"
-                            :video-id="video.url"
-                            ref="youtubeRef"
-                            :player-width="420"
-                            :player-height="240"
-                            :mute="true"
-                            :playsinline="1"
-                        />
+                        <div v-for="video in featuredVideos" :key="video.id" class="video-card">
+                            <youtube-media
+                                :video-id="video.url"
+                                ref="youtubeRef"
+                                :player-width="420"
+                                :player-height="240"
+                                :mute="true"
+                                :playsinline="1"
+                            />
+                        </div>
                     </div>
                 </div>
-                <div class="cta">
-                    <h2>Join the fight!</h2>
-                    <button class="sign-up" @click="openRegisterModal()">Sign Up</button>
-                    <button class="login" @click="openLoginModal()">Login</button>
+                <div class="cta section-card">
+                    <div class="cta-content">
+                        <div class="cta-icon">
+                            <i class="fas fa-fist-raised"></i>
+                        </div>
+                        <h2>Join the Fight!</h2>
+                        <p class="cta-description">
+                            Create an account to follow players, save favorite matches, and build
+                            your collection
+                        </p>
+                        <div class="cta-buttons">
+                            <button class="sign-up-btn" @click="openRegisterModal()">
+                                <i class="fas fa-user-plus"></i> Sign Up
+                            </button>
+                            <button class="login-btn" @click="openLoginModal()">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,7 +300,14 @@ export default {
 }
 
 .home-view .fe-logo {
-    width: 150px;
+    width: 180px;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.home-view .fe-logo:hover {
+    transform: scale(1.05);
 }
 
 .home-view > .container {
@@ -282,7 +325,7 @@ export default {
 }
 
 .home-view .home-content {
-    max-width: 1300px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -295,28 +338,40 @@ export default {
 }
 
 .home-view .recent-searches a {
-    color: #fff;
+    color: #3eb489;
     margin-left: 8px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.home-view .recent-searches a:hover {
+    color: #2d8a6a;
+    text-decoration: underline;
 }
 
 .home-view h1 {
     color: #fff;
-    opacity: 0.8;
-    font-size: 80px;
+    font-size: 72px;
     font-family: 'Roboto';
     font-weight: 800;
-    line-height: 1em;
+    line-height: 1.1em;
     margin-bottom: 24px;
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .home-view .hero .description {
-    color: #fff;
-    opacity: 0.8;
+    color: #ffffff90;
     font-family: 'Roboto';
     font-size: 18px;
     max-width: 600px;
     margin-bottom: 40px;
-    line-height: 1.6em;
+    line-height: 1.7em;
+    font-weight: 400;
 }
 
 .home-view .hero {
@@ -342,25 +397,66 @@ export default {
 }
 
 .home-view .stat-card {
-    background: #191b2490;
-    border-radius: 15px;
-    padding: 16px;
+    background: linear-gradient(135deg, #191b2490 0%, #242832 100%);
+    border-radius: 16px;
+    padding: 20px;
     max-width: 190px;
-    height: 85px;
+    min-height: 100px;
     width: 100%;
     color: #ffffff90;
-    border: 1px solid #ffffff30;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+
+.home-view .stat-icon {
+    font-size: 28px;
+    color: #3eb489;
+    margin-bottom: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.home-view .stat-icon i {
+    display: inline-block;
+}
+
+.home-view .stat-card:hover .stat-icon {
+    transform: scale(1.1);
+    color: #2d8a6a;
+}
+
+.home-view .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(62, 180, 137, 0.2);
+    border-color: rgba(62, 180, 137, 0.3);
 }
 
 .home-view .stat-card .number {
-    font-size: 25px;
+    font-size: 32px;
     font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #3eb489 0%, #2d8a6a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .home-view .stat-card .label {
-    font-size: 14px;
-    font-weight: 300;
+    font-size: 13px;
+    font-weight: 400;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffffff90;
 }
 
 .home-view .featured-character {
@@ -384,53 +480,182 @@ export default {
     background: #fff;
 }
 
+.home-view .section-card {
+    background: linear-gradient(135deg, rgba(25, 27, 36, 0.6) 0%, rgba(36, 40, 50, 0.8) 100%);
+    border-radius: 20px;
+    padding: 40px;
+    margin-top: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.home-view .section-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.home-view .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(62, 180, 137, 0.2);
+}
+
+.home-view .section-icon {
+    font-size: 24px;
+    color: #3eb489;
+}
+
+.home-view .section-card h2 {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
 .home-view .featured-videos {
     z-index: 10px;
     position: relative;
-    margin-top: 80px;
 }
 
-.home-view .featured-videos .videos {
+.home-view .featured-videos .videos,
+.home-view .trending-matches .videos {
     display: flex;
-    gap: 16px;
+    gap: 20px;
     flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.home-view .video-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.home-view .video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(62, 180, 137, 0.3);
 }
 
 .home-view .trending-matches {
-    margin-top: 80px;
-}
-
-.home-view .trending-matches .videos {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
+    position: relative;
 }
 
 .home-view .recent-tournaments,
 .home-view .latest-update {
-    margin-top: 80px;
+    position: relative;
 }
 
 .home-view .tournaments {
     display: flex;
     gap: 11px;
     flex-wrap: wrap;
-    margin-bottom: 80px;
+    margin-bottom: 0;
 }
 
 .home-view .cta {
     text-align: center;
-    margin-top: 120px;
+    background: linear-gradient(135deg, rgba(62, 180, 137, 0.1) 0%, rgba(45, 138, 106, 0.1) 100%);
+    border: 2px solid rgba(62, 180, 137, 0.3);
+}
+
+.home-view .cta-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.home-view .cta-icon {
+    font-size: 64px;
+    color: #3eb489;
+    margin-bottom: 8px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.home-view .cta h2 {
+    color: #fff;
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.home-view .cta-description {
+    color: #ffffff90;
+    font-size: 16px;
+    max-width: 500px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.home-view .cta-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.home-view .cta .sign-up-btn,
+.home-view .cta .login-btn {
+    padding: 14px 32px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-view .cta .sign-up-btn {
+    background: linear-gradient(135deg, #3eb489 0%, #2d8a6a 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(62, 180, 137, 0.3);
+}
+
+.home-view .cta .sign-up-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(62, 180, 137, 0.4);
+}
+
+.home-view .cta .login-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.home-view .cta .login-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
 }
 
 .home-view .featured-games {
-    margin-top: 80px;
+    position: relative;
 }
 
-.home-view .cta button.sign-up {
-    background: #3eb489;
-    margin-right: 24px;
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
 }
 
 .mobile .home-view .stat-card {
@@ -493,5 +718,37 @@ export default {
 
 .mobile .home-view {
     padding-top: 160px;
+}
+
+.mobile .home-view .cta-buttons {
+    flex-direction: column;
+    width: 100%;
+}
+
+.mobile .home-view .cta .sign-up-btn,
+.mobile .home-view .cta .login-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.mobile .home-view .section-card {
+    padding: 25px 20px;
+}
+
+.mobile .home-view .section-header {
+    flex-wrap: wrap;
+}
+
+.mobile .home-view .video-card {
+    width: 100%;
+    max-width: 100%;
+}
+
+.mobile .home-view .cta h2 {
+    font-size: 28px;
+}
+
+.mobile .home-view .cta-icon {
+    font-size: 48px;
 }
 </style>

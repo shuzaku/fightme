@@ -77,5 +77,14 @@ export default {
 
 .completed-tournaments .tournaments {
     display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 0;
+    margin: -12px;
+}
+
+.completed-tournaments .tournament {
+    display: flex;
+    flex: 0 0 auto;
 }
 </style>

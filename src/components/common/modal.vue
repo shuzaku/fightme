@@ -26,6 +26,7 @@
 
         <new-combo
             v-if="options.name === 'combo'"
+            :comboClipId="options.comboClipId"
             :videoId="options.videoId"
             :account="this.account"
             @closeModal="closeModal()"

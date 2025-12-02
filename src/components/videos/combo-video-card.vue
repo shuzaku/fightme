@@ -165,7 +165,7 @@ export default {
             videoCurrentTime: 0,
             isLoading: true,
             video: {
-                combo:{
+                combo: {
                     id: null,
                     character: null,
                     damage: null,
@@ -178,6 +178,7 @@ export default {
                     isFavorited: false,
                 },
                 isFavorited: false,
+                isEditing: false,
             },
             intersectionOptions: {
                 root: null,
@@ -187,7 +188,7 @@ export default {
             player: null,
             collections: null,
             showCollections: false,
-            isPlaying: false
+            isPlaying: false,
         };
     },
 
@@ -195,8 +196,6 @@ export default {
         isAdmin() {
             return this.account && this.account.role === 'Admin User';
         },
-
-
     },
 
     watch: {
@@ -233,6 +232,11 @@ export default {
         }
         await this.getCombo();
         this.playVideo();
+        eventbus.$on('newVideoPosted', this.resetEditing);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('newVideoPosted', this.resetEditing);
     },
 
     methods: {
@@ -268,8 +272,10 @@ export default {
             }
 
             // Extract video data if available
-            if (comboResponse.Video && comboResponse.Video.VideoType) {
+            if (comboResponse.Video && comboResponse.Video._id) {
                 this.video.id = comboResponse.Video._id;
+            } else if (comboResponse.VideoId) {
+                this.video.id = comboResponse.VideoId;
             }
 
             this.isPlaying = false;
@@ -393,9 +399,14 @@ export default {
         },
 
         editVideo() {
+            if (!this.comboClipId) {
+                console.error('Combo clip ID is not available for editing');
+                return;
+            }
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
-                name: 'video',
+                name: 'combo',
+                comboClipId: this.comboClipId,
                 videoId: this.video.id,
             });
         },
@@ -516,6 +527,10 @@ export default {
                 name: 'collections',
                 video: video,
             });
+        },
+
+        resetEditing() {
+            this.video.isEditing = false;
         },
     },
 };

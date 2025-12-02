@@ -754,35 +754,19 @@ export default {
     margin-bottom: 20px;
     flex-wrap: wrap;
     justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    margin: -12px;
+    margin-bottom: 20px;
 }
 
 .game-view .game-updates-section .update {
-    max-width: 333px;
-    color: #fff;
-    padding: 8px;
+    display: flex;
+    flex: 0 0 auto;
     position: relative;
-}
-
-.game-view .game-updates-section .update-card {
-    max-width: 200px;
-    color: #fff;
-    position: relative;
-}
-
-.game-view .game-updates-section .update-card img {
-    width: 100%;
-}
-
-.game-view .game-updates-section .update .date {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    padding: 5px;
-    font-size: 10px;
-    background-color: #3eb489;
 }
 
 .mobile .game-view .game-updates-section .update {
-    max-width: 50%;
+    max-width: none;
 }
 </style>

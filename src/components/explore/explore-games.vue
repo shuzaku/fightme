@@ -64,29 +64,23 @@ export default {
 </script>
 
 <style>
-.explore-games .cover-art {
-    width: 200px;
-    height: 266px;
-    background-repeat: no-repeat;
-    max-width: 100%;
-    height: auto;
-}
-
-.explore-games .cover-art img {
+.explore-games {
     width: 100%;
 }
 
 .explore-games .games {
     display: flex;
-    margin-bottom: 20px;
+    margin: -12px;
     flex-wrap: wrap;
     justify-content: flex-start;
-    align-items: center;
-    cursor: pointer;
+    align-items: flex-start;
+    gap: 0;
 }
 
 .explore-games .game {
-    margin: 3px;
+    flex: 0 0 calc((100% - 144px) / 6);
+    min-width: 180px;
+    max-width: 220px;
 }
 
 .explore-games h3 {
@@ -94,7 +88,37 @@ export default {
     margin-bottom: 24px;
 }
 
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .explore-games .game {
+        flex: 0 0 calc((100% - 120px) / 5);
+    }
+}
+
+@media (max-width: 1200px) {
+    .explore-games .game {
+        flex: 0 0 calc((100% - 96px) / 4);
+    }
+}
+
+@media (max-width: 768px) {
+    .explore-games .game {
+        flex: 0 0 calc((100% - 72px) / 3);
+    }
+}
+
+@media (max-width: 480px) {
+    .explore-games .game {
+        flex: 0 0 calc((100% - 48px) / 2);
+    }
+}
+
+/* Mobile Responsive */
+.mobile .explore-games .games {
+    justify-content: center;
+}
+
 .mobile .explore-games .game {
-    max-width: 31%;
+    max-width: none;
 }
 </style>

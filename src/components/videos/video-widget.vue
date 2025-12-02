@@ -1,14 +1,15 @@
 <!-- @format -->
 <template>
-    <div v-if="!isLoading || !videoId" class="post-video">
+    <div v-if="!isLoading && (!videoId || video)" class="post-video">
         <div class="formcontainer">
             <h1 v-if="!videoId">Add Video</h1>
             <h1 v-else>Edit Video</h1>
             <div v-show="currentStep === 'Video'" class="video-step">
-                <p v-show="showErrorMessage && !video.contentType" class="error-msg">
+                <p v-show="showErrorMessage && video && !video.contentType" class="error-msg">
                     Please select content type
                 </p>
                 <multiselect
+                    v-if="video"
                     v-model="video.contentType"
                     :options="contentTypes"
                     :multiple="false"
@@ -23,8 +24,10 @@
                     </template>
                 </multiselect>
                 <!--- game --->
-                <p v-show="showErrorMessage && !video.gameId" class="error-msg">Please Game</p>
-                <div class="game-container">
+                <p v-show="showErrorMessage && video && !video.gameId" class="error-msg">
+                    Please Game
+                </p>
+                <div v-if="video" class="game-container">
                     <game-search v-model="video.gameId" @update:game="setGame($event)" />
                 </div>
                 <!--- video --->
@@ -226,7 +229,10 @@ export default {
 
     mounted() {
         if (this.videoId) {
+            this.isLoading = true;
             this.getVideo();
+        } else {
+            this.isLoading = false;
         }
     },
 
@@ -492,68 +498,90 @@ export default {
         },
 
         async getVideo() {
-            const response = await VideosService.getVideo(this.videoId);
-            var videoResponse = response.data.video;
-            this.video = videoResponse.map((video) => {
-                return {
-                    id: video._id,
-                    contentType: video.ContentType,
-                    videoType: video.VideoType,
-                    inview: false,
-                    isEditing: false,
-                    isPlaying: false,
-                    url: video.Url,
-                    combo: video.ContentType === 'Combo' ? this.getCombos(video.Combo) : null,
-                    isFavorited: false,
-                    gameId: video.GameId,
-                    contentCreatorId: video.ContentCreatorId,
-                    tags: video.Tags
-                        ? video.Tags.map((tag) => {
-                              return tag._id;
-                          })
-                        : null,
-                    game: {
-                        id: video.Game._id,
-                        Title: video.Game.Title,
-                        LogoUrl: video.Game.LogoUrl,
-                    },
-                    match:
-                        video.ContentType === 'Match'
-                            ? {
-                                  id: video.Match._id,
-                                  team1Players: video.Match.Team1Players.map((player) => {
-                                      return {
-                                          id: player.Id,
-                                          slot: player.Slot,
-                                          name: video.Match.Team1Player.filter(
-                                              (searchPlayer) => searchPlayer._id === player.Id
-                                          )[0].Name,
-                                          characterIds: this.hydrateCharacters(
-                                              player.CharacterIds,
-                                              video.Match.Team1PlayerCharacters
-                                          ),
-                                          characterCount: player.CharacterIds.length,
-                                      };
-                                  }),
-                                  team2Players: video.Match.Team2Players.map((player) => {
-                                      return {
-                                          id: player.Id,
-                                          slot: player.Slot,
-                                          name: video.Match.Team2Player.filter(
-                                              (searchPlayer) => searchPlayer._id === player.Id
-                                          )[0].Name,
-                                          characterIds: this.hydrateCharacters(
-                                              player.CharacterIds,
-                                              video.Match.Team2PlayerCharacters
-                                          ),
-                                          characterCount: player.CharacterIds.length,
-                                      };
-                                  }),
-                              }
-                            : null,
-                };
-            })[0];
-            this.isLoading = false;
+            try {
+                const response = await VideosService.getVideo(this.videoId);
+                var videoResponse = response.data.video;
+                if (videoResponse && videoResponse.length > 0) {
+                    var videoData = videoResponse.map((video) => {
+                        return {
+                            id: video._id,
+                            contentType: video.ContentType,
+                            videoType: video.VideoType,
+                            inview: false,
+                            isEditing: false,
+                            isPlaying: false,
+                            url: video.Url,
+                            combo:
+                                video.ContentType === 'Combo' ? this.getCombos(video.Combo) : null,
+                            combos:
+                                video.ContentType === 'Combo' && video.Combo
+                                    ? [this.getCombos(video.Combo)]
+                                    : null,
+                            isFavorited: false,
+                            gameId: video.GameId,
+                            contentCreatorId: video.ContentCreatorId,
+                            tags: video.Tags
+                                ? video.Tags.map((tag) => {
+                                      return tag._id;
+                                  })
+                                : [],
+                            game: {
+                                id: video.Game._id,
+                                Title: video.Game.Title,
+                                LogoUrl: video.Game.LogoUrl,
+                            },
+                            match:
+                                video.ContentType === 'Match'
+                                    ? {
+                                          id: video.Match._id,
+                                          team1Players: video.Match.Team1Players.map((player) => {
+                                              return {
+                                                  id: player.Id,
+                                                  slot: player.Slot,
+                                                  name: video.Match.Team1Player.filter(
+                                                      (searchPlayer) =>
+                                                          searchPlayer._id === player.Id
+                                                  )[0].Name,
+                                                  characterIds: this.hydrateCharacters(
+                                                      player.CharacterIds,
+                                                      video.Match.Team1PlayerCharacters
+                                                  ),
+                                                  characterCount: player.CharacterIds.length,
+                                              };
+                                          }),
+                                          team2Players: video.Match.Team2Players.map((player) => {
+                                              return {
+                                                  id: player.Id,
+                                                  slot: player.Slot,
+                                                  name: video.Match.Team2Player.filter(
+                                                      (searchPlayer) =>
+                                                          searchPlayer._id === player.Id
+                                                  )[0].Name,
+                                                  characterIds: this.hydrateCharacters(
+                                                      player.CharacterIds,
+                                                      video.Match.Team2PlayerCharacters
+                                                  ),
+                                                  characterCount: player.CharacterIds.length,
+                                              };
+                                          }),
+                                      }
+                                    : null,
+                            montage: null,
+                            tournament: null,
+                            origin: 'web',
+                            startTime: '',
+                            endTime: '',
+                            type: video.VideoType,
+                        };
+                    })[0];
+                    // Merge with existing video object to preserve all properties
+                    this.video = { ...this.video, ...videoData };
+                }
+            } catch (error) {
+                console.error('Error loading video:', error);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         hydrateCharacters(characterIds, characters) {

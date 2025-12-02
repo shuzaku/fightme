@@ -57,26 +57,29 @@ export default {
 </script>
 
 <style>
-.explore-updates .update {
-    max-width: 333px;
-    color: #fff;
-    padding: 8px;
-}
-
-.explore-updates .logo {
-    width: 100%;
-    border: 1px solid #fff;
-}
-
 .explore-updates .updates {
     display: flex;
     margin-bottom: 20px;
     flex-wrap: wrap;
     justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    margin: -12px;
+    margin-bottom: 20px;
 }
 
-.explore-updates .game {
-    margin: 3px;
+.explore-updates .update {
+    display: flex;
+    flex: 0 0 auto;
+    position: relative;
+}
+
+.explore-updates h2 {
+    color: #fff;
+    margin-bottom: 48px;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Roboto', sans-serif;
 }
 
 .explore-updates h3 {
@@ -84,20 +87,7 @@ export default {
     margin-bottom: 24px;
 }
 
-.explore-updates .update {
-    position: relative;
-}
-
-.explore-updates .update .date {
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 5px;
-    font-size: 10px;
-    background-color: #3eb489;
-}
-
 .mobile .explore-updates .update {
-    max-width: 50%;
+    max-width: none;
 }
 </style>
