@@ -11,6 +11,14 @@
                 :matchId="video.matchId"
                 :account="account"
             />
+            <match-notes
+                v-if="video.matchId"
+                :matchId="video.matchId"
+                :account="account"
+                :videoPlayer="videoPlayer"
+                @capture-timestamp="captureTimestamp"
+                @seek-to-timestamp="seekToTimestamp"
+            />
         </div>
     </div>
 </template>
@@ -18,12 +26,14 @@
 <script>
 import VideosService from '@/services/videos-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
+import MatchNotes from '@/components/match/match-notes';
 
 export default {
     name: 'Match',
 
     components: {
         'match-video-card': MatchVideoCard,
+        'match-notes': MatchNotes,
     },
 
     props: {
@@ -46,6 +56,7 @@ export default {
             },
 
             hasTimeStamp: true,
+            videoPlayer: null,
         };
     },
 
@@ -92,6 +103,29 @@ export default {
                 isEditing: false,
                 isFirst: false,
             };
+
+            // Get video player reference after component is mounted
+            this.$nextTick(() => {
+                if (this.$refs.card) {
+                    this.videoPlayer = this.$refs.card.getVideoPlayer();
+                }
+            });
+        },
+
+        captureTimestamp() {
+            if (this.$refs.card) {
+                const timestamp = this.$refs.card.getCurrentTimestamp();
+                // Update video player reference
+                this.videoPlayer = this.$refs.card.getVideoPlayer();
+                return timestamp;
+            }
+            return null;
+        },
+
+        seekToTimestamp(timestamp) {
+            if (this.$refs.card) {
+                this.$refs.card.seekToTimestamp(timestamp);
+            }
         },
     },
 };
@@ -100,10 +134,12 @@ export default {
 <style>
 .match-view {
     position: relative;
-    padding-top: 160px;
+    padding: 180px 20px;
     height: 100%;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .match-view::-webkit-scrollbar-track {

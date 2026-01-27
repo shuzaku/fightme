@@ -31,6 +31,7 @@ import AdminVideoApproval from './views/admin-video-approval.vue';
 import TierListMaker from './views/tier-list-maker.vue';
 import TierListGallery from './views/tier-list-gallery.vue';
 import TierListDetails from './views/tier-list-details.vue';
+import ComboGenerator from './views/combo-generator.vue';
 
 const routes = [
     {
@@ -54,6 +55,8 @@ const routes = [
     { path: '/combo/:id', name: 'Combo', component: Combo },
     { path: '/combos/game/:gameId', name: 'Game Combos', component: Combos },
     { path: '/combos/character/:characterId', name: 'Character Combos', component: Combos },
+    { path: '/combo-generator', name: 'Combo Generator', component: ComboGenerator },
+    { path: '/combo-generator/character/:characterId', name: 'Character Combo Generator', component: ComboGenerator },
     { path: '/matches', name: 'Matches', component: Matches },
     { path: '/matches/game/:gameId', name: 'Game Matches', component: Matches },
     { path: '/matches/character/:characterId', name: 'Character Matches', component: Matches },

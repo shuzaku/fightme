@@ -8,20 +8,22 @@
                     <h3>{{ tournament.name }}</h3>
                 </div>
             </div>
-            <div class="details">
-                <div class="date-container">
-                    <v-icon> mdi-calendar-range </v-icon>
-                    <p class="date">{{ tournament.eventDate }}</p>
+            <div class="tournament-header-right">
+                <div class="details">
+                    <div class="date-container">
+                        <v-icon> mdi-calendar-range </v-icon>
+                        <p class="date">{{ tournament.eventDate }}</p>
+                    </div>
+                    <div class="location-container">
+                        <v-icon> mdi-map-marker </v-icon>
+                        <p class="location">{{ tournament.location }}</p>
+                    </div>
                 </div>
-                <div class="location-container">
-                    <v-icon> mdi-map-marker </v-icon>
-                    <p class="location">{{ tournament.location }}</p>
-                </div>
+                <a :href="tournament.bracketUrl" target="_blank" class="bracket-button">
+                    <tournament-bracket-svg />
+                    <p>Bracket</p>
+                </a>
             </div>
-            <a :href="tournament.bracketUrl" target="_blank" class="bracket-button">
-                <tournament-bracket-svg />
-                <p>Bracket</p>
-            </a>
         </div>
         <div class="filters">
             <game-search
@@ -144,13 +146,14 @@ export default {
 
 .tournament-nav .title-row {
     display: flex;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .tournament-nav .tournament-header {
     height: 80px;
     background: #242832;
     color: #4447e2;
-    width: calc(100% - 160px);
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -182,7 +185,8 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 8px;
+    padding: 8px 16px 8px 8px;
+    height: 100%;
 }
 
 .tournament-nav .bracket-button {
@@ -284,6 +288,11 @@ export default {
 
 .tournament-nav .filters .game-search .multiselect {
     margin-bottom: 0px;
+}
+
+.tournament-nav .tournament-header-right {
+    display: flex;
+    align-items: center;
 }
 
 .mobile .tournament-nav .title-row {

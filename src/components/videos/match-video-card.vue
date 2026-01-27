@@ -150,6 +150,9 @@
                     <v-btn class="share-button" @click="copyLink()">
                         <v-icon light> mdi-link </v-icon>
                     </v-btn>
+                    <v-btn class="view-match-button" @click="goToMatchPage()">
+                        <v-icon light> mdi-open-in-new </v-icon>
+                    </v-btn>
                 </div>
             </div>
         </div>
@@ -412,6 +415,20 @@ export default {
             this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
         },
 
+        getVideoPlayer() {
+            if (this.video.videoType === 'youtube' && this.player) {
+                return this.player;
+            }
+            return null;
+        },
+
+        getCurrentTimestamp() {
+            if (this.video.videoType === 'youtube' && this.player) {
+                return this.player.getCurrentTime();
+            }
+            return null;
+        },
+
         editVideo() {
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
@@ -424,6 +441,12 @@ export default {
             this.$copyText(`https://fighters-edge.com/match/${this.video.id}`).then(() => {
                 alert('match copied');
             });
+        },
+
+        goToMatchPage() {
+            if (this.video.id) {
+                this.$router.push(`/match/${this.video.id}`);
+            }
         },
 
         favoriteVideo() {
@@ -742,7 +765,8 @@ export default {
     opacity: 0.9;
 }
 
-.match-card .admin-controls button.share-button {
+.match-card .admin-controls button.share-button,
+.match-card .admin-controls button.view-match-button {
     width: 50px;
     height: 50px;
     min-width: initial;

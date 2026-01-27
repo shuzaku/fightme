@@ -10,6 +10,7 @@
             :clear-on-select="false"
             :preserve-search="true"
             :taggable="true"
+            :tag-position="tagPosition"
             placeholder="Search or add a Player"
             label="playerName"
             @tag="addPlayer($event)"
@@ -40,6 +41,10 @@ export default {
         value: {
             type: String,
             default: null,
+        },
+        tagPosition: {
+            type: String,
+            default: 'bottom',
         },
     },
 

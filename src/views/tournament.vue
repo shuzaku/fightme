@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoViewRef" class="games-view">
+    <div ref="videoViewRef" class="tournament-view">
         <tournament-nav
             :tournamentId="tournamentId"
             @filter:game="filterGame($event)"
@@ -303,38 +303,39 @@ export default {
 </script>
 
 <style>
-.games-view {
-    display: block;
+.tournament-view {
     position: relative;
-    padding: 140px 20px;
+    padding: 180px 20px;
     height: 100%;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
-.games-view::-webkit-scrollbar-track {
+.tournament-view::-webkit-scrollbar-track {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     background-color: #1f1d2b;
 }
 
-.games-view::-webkit-scrollbar {
+.tournament-view::-webkit-scrollbar {
     width: 12px;
     background-color: #1f1d2b;
 }
 
-.games-view::-webkit-scrollbar-thumb {
+.tournament-view::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
     background-color: #515b89;
 }
 
-.games-view .videos-container {
+.tournament-view .videos-container {
     position: relative;
     width: 100%;
 }
 
-.games-view .videos-container video {
+.tournament-view .videos-container video {
     max-width: 900px;
     margin: 0 auto;
     display: block;
