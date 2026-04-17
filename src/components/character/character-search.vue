@@ -17,11 +17,11 @@
             track-by="id"
         >
             <template slot="singleLabel" slot-scope="props">
-                <img class="option__image" :src="props.option.imageUrl" />
+                <img class="option__image" :src="props.option.avatarUrl" />
                 <span class="option__name">{{ props.option.name }}</span>
             </template>
             <template slot="option" slot-scope="props">
-                <img class="option__image" :src="props.option.imageUrl" />
+                <img class="option__image" :src="props.option.avatarUrl" />
                 <div class="option__desc">
                     <span class="option__name">{{ props.option.name }}</span>
                 </div>
@@ -110,7 +110,8 @@ export default {
                 return {
                     id: character._id,
                     name: character.Name,
-                    imageUrl: character.AvatarUrl,
+                    avatarUrl: character.AvatarUrl,
+                    imageUrl: character.ImageUrl,
                     slug: character.Slug,
                 };
             });

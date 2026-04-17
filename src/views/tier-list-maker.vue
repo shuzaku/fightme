@@ -15,6 +15,12 @@
                 placeholder="Tier List Name"
                 class="name-input"
             />
+            <input
+                v-if="selectedGameId"
+                v-model="tierListSource"
+                placeholder="Source (optional)"
+                class="name-input"
+            />
             <button v-if="selectedGameId" @click="openSaveDialog" class="save-btn">
                 Save Tier List
             </button>
@@ -103,6 +109,7 @@ export default {
                 unassigned: [],
             },
             tierListName: '',
+            tierListSource: '',
             showSaveDialog: false,
         };
     },
@@ -219,6 +226,7 @@ export default {
                 GameId: this.selectedGameId,
                 OwnerId: this.accountId,
                 Tiers: tiersData,
+                Source: this.tierListSource || undefined,
             };
 
             try {
@@ -226,6 +234,7 @@ export default {
                 alert('Tier list saved successfully!');
                 this.showSaveDialog = false;
                 this.tierListName = '';
+                this.tierListSource = '';
             } catch (error) {
                 console.error('Error saving tier list:', error);
                 alert('Failed to save tier list.');

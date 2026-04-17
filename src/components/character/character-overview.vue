@@ -44,7 +44,12 @@
         <div class="overview-right">
             <div class="top-guides overview-card">
                 <h3>Resources</h3>
-                <a :href="character.wikiUrl" target="_blank">Character Frame Data</a>
+                <a v-if="character.wikiUrl" :href="character.wikiUrl" target="_blank" class="wiki-link">
+                    <i class="fab fa-wikipedia-w"></i> Character Wiki
+                </a>
+                <a v-if="character.discordLink" :href="character.discordLink" target="_blank" class="discord-link">
+                    <i class="fab fa-discord"></i> Discord Server
+                </a>
             </div>
 
             <div v-if="selectedVideoType === 'Matchups'" class="overview-card">
@@ -218,6 +223,42 @@ export default {
     display: block;
     color: #3eb489;
     margin-bottom: 8px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.character-overview .top-guides a:hover {
+    color: #5ae1ae;
+}
+
+.character-overview .top-guides a.wiki-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #3eb489;
+}
+
+.character-overview .top-guides a.wiki-link:hover {
+    color: #5ae1ae;
+}
+
+.character-overview .top-guides a.wiki-link i {
+    font-size: 18px;
+}
+
+.character-overview .top-guides a.discord-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7289da;
+}
+
+.character-overview .top-guides a.discord-link:hover {
+    color: #99aab5;
+}
+
+.character-overview .top-guides a.discord-link i {
+    font-size: 18px;
 }
 
 .character-overview .overview-left {

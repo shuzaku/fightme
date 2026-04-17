@@ -133,6 +133,7 @@ export default {
                 overViewUrl: response.OverviewUrl,
                 ease: response.Ease,
                 wikiUrl: response.Wiki,
+                discordLink: response.DiscordLink,
             };
         },
 

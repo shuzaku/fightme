@@ -10,229 +10,249 @@
                 <p class="form-subtitle">Create and share combos for your favorite character</p>
                 <div class="allowed-games-notice">
                     <i class="fas fa-info-circle"></i>
-                    <span>Combos available for: 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken 8</span>
+                    <span
+                        >Combos available for: 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken
+                        8</span
+                    >
                 </div>
             </div>
 
             <div class="two-column-layout">
                 <!-- Left Column: Form Sections -->
                 <div class="form-column">
-                <!-- Game Selection (if character not pre-selected) -->
-            <div v-if="!characterFromRoute" class="form-section">
-                <div class="section-header">
-                    <i class="fas fa-gamepad section-icon"></i>
-                    <h2>Game</h2>
-                </div>
-                <div v-show="showErrorMessage && !selectedGameId" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>Please select a game</span>
-                </div>
-                <div class="game-container">
-                    <game-search
-                        v-model="selectedGameId"
-                        :filteredGameIds="allowedGameIds"
-                        @update:game="setGame($event)"
-                    />
-                </div>
-                <div v-if="selectedGame && !isAllowedGame" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>Combos are only available for 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken 8</span>
-                </div>
-            </div>
+                    <!-- Game Selection (if character not pre-selected) -->
+                    <div v-if="!characterFromRoute" class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-gamepad section-icon"></i>
+                            <h2>Game</h2>
+                        </div>
+                        <div v-show="showErrorMessage && !selectedGameId" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please select a game</span>
+                        </div>
+                        <div class="game-container">
+                            <game-search
+                                v-model="selectedGameId"
+                                :filteredGameIds="allowedGameIds"
+                                @update:game="setGame($event)"
+                            />
+                        </div>
+                        <div v-if="selectedGame && !isAllowedGame" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span
+                                >Combos are only available for 2XKO, Fatal Fury: COTW, GBVSR, GGST,
+                                SF6, and Tekken 8</span
+                            >
+                        </div>
+                    </div>
                     <!-- Character Selection -->
-            <div class="form-section">
-                <div class="section-header">
-                    <i class="fas fa-user-ninja section-icon"></i>
-                    <h2>Character</h2>
-                </div>
-                <div v-show="showErrorMessage && !selectedCharacter" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>Please select a character</span>
-                </div>
-                <div class="character-container">
-                    <character-search
-                        v-model="characterId"
-                        :gameId="selectedGameId"
-                        @update:character="setCharacter($event)"
-                    />
-                </div>
-            </div>
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-user-ninja section-icon"></i>
+                            <h2>Character</h2>
+                        </div>
+                        <div v-show="showErrorMessage && !selectedCharacter" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please select a character</span>
+                        </div>
+                        <div class="character-container">
+                            <character-search
+                                v-model="characterId"
+                                :gameId="selectedGameId"
+                                @update:character="setCharacter($event)"
+                            />
+                        </div>
+                    </div>
 
+                    <!-- Video Link Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-video section-icon"></i>
+                            <h2>Combo Video</h2>
+                        </div>
+                        <p class="section-hint">Paste a YouTube or Twitter video URL (optional)</p>
+                        <div class="video-container">
+                            <div class="input-wrapper">
+                                <i class="fas fa-link input-icon"></i>
+                                <v-text-field
+                                    dark
+                                    v-model="videoUrl"
+                                    type="text"
+                                    placeholder="YouTube or Twitter Video URL"
+                                    outlined
+                                    @input="processVideoUrl"
+                                />
+                            </div>
 
+                            <div v-if="videoUrl && videoType === 'twitter'" class="video-preview">
+                                <tweet :id="extractedVideoId" />
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- Video Link Section -->
-            <div class="form-section">
-                <div class="section-header">
-                    <i class="fas fa-video section-icon"></i>
-                    <h2>Combo Video</h2>
-                </div>
-                <p class="section-hint">Paste a YouTube or Twitter video URL (optional)</p>
-                <div class="video-container">
-                    <div class="input-wrapper">
-                        <i class="fas fa-link input-icon"></i>
-                        <v-text-field
-                            dark
-                            v-model="videoUrl"
-                            type="text"
-                            placeholder="YouTube or Twitter Video URL"
-                            outlined
-                            @input="processVideoUrl"
+                    <!-- Combo Notation Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-keyboard section-icon"></i>
+                            <h2>Combo Notation</h2>
+                        </div>
+                        <p class="section-hint">
+                            Enter the combo inputs using text or icon buttons
+                        </p>
+                        <combo-notation-input
+                            v-model="comboInputs"
+                            :gameId="selectedGameId"
+                            :gameAbbreviation="selectedGame ? selectedGame.abbreviation : null"
                         />
                     </div>
 
-                    <div v-if="videoUrl && videoType === 'twitter'" class="video-preview">
-                        <tweet :id="extractedVideoId" />
+                    <!-- Combo Stats -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-chart-line section-icon"></i>
+                            <h2>Combo Stats</h2>
+                        </div>
+                        <div class="stats-container">
+                            <div class="stat-input">
+                                <v-text-field
+                                    dark
+                                    v-model="comboDamage"
+                                    type="number"
+                                    placeholder="Damage"
+                                    outlined
+                                />
+                            </div>
+                            <div class="stat-input">
+                                <v-text-field
+                                    dark
+                                    v-model="comboHits"
+                                    type="number"
+                                    placeholder="Hits"
+                                    outlined
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Combo Notation Section -->
-            <div class="form-section">
-                <div class="section-header">
-                    <i class="fas fa-keyboard section-icon"></i>
-                    <h2>Combo Notation</h2>
-                </div>
-                <p class="section-hint">Enter the combo inputs using text or icon buttons</p>
-                <combo-notation-input
-                    v-model="comboInputs"
-                    :gameId="selectedGameId"
-                    :gameAbbreviation="selectedGame ? selectedGame.abbreviation : null"
-                />
-            </div>
-
-            <!-- Combo Stats -->
-            <div class="form-section">
-                <div class="section-header">
-                    <i class="fas fa-chart-line section-icon"></i>
-                    <h2>Combo Stats</h2>
-                </div>
-                <div class="stats-container">
-                    <div class="stat-input">
-                        <v-text-field
-                            dark
-                            v-model="comboDamage"
-                            type="number"
-                            placeholder="Damage"
-                            outlined
-                        />
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <v-btn
+                            class="submit-btn"
+                            rounded
+                            large
+                            block
+                            @click="submitCombo()"
+                            :disabled="!isValidated"
+                            :loading="isSubmitting"
+                        >
+                            <span v-if="!isSubmitting">
+                                <i class="fas fa-check"></i>
+                                Submit Combo
+                            </span>
+                            <span v-else>Submitting...</span>
+                        </v-btn>
                     </div>
-                    <div class="stat-input">
-                        <v-text-field
-                            dark
-                            v-model="comboHits"
-                            type="number"
-                            placeholder="Hits"
-                            outlined
-                        />
-                    </div>
-                </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="form-actions">
-                    <v-btn
-                        class="submit-btn"
-                        rounded
-                        large
-                        block
-                        @click="submitCombo()"
-                        :disabled="!isValidated"
-                        :loading="isSubmitting"
-                    >
-                        <span v-if="!isSubmitting">
-                            <i class="fas fa-check"></i>
-                            Submit Combo
-                        </span>
-                        <span v-else>Submitting...</span>
-                    </v-btn>
-                </div>
                 </div>
 
                 <!-- Right Column: Preview Section -->
                 <div class="preview-column">
                     <div v-if="showPreview" class="preview-section">
                         <div class="preview-container">
-                    <!-- Character Background Image -->
-                    <div 
-                        class="preview-background"
-                        :style="characterBackgroundStyle"
-                    ></div>
-                    
-                    <!-- Character Name and Game Title -->
-                    <div class="preview-header">
-                        <div v-if="selectedGame && selectedGame.title" class="game-title">{{ selectedGame.title }}</div>
-                        <div v-if="selectedCharacter && selectedCharacter.name" class="character-name">{{ selectedCharacter.name }} Combo</div>
-                    </div>
+                            <!-- Character Background Image -->
+                            <div class="preview-background" :style="characterBackgroundStyle"></div>
 
-                    <!-- Video Player -->
-                    <div class="preview-video-container">
-                        <div v-if="videoUrl && videoType === 'youtube'" class="preview-video-wrapper">
-                            <div class="preview-video">
-                                <youtube-media
-                                    ref="previewYoutubeRef"
-                                    :video-id="extractedVideoId"
-                                    :player-width="previewVideoWidth"
-                                    :player-height="previewVideoHeight"
-                                    :mute="true"
-                                    :playsinline="1"
-                                />
+                            <!-- Character Name and Game Title -->
+                            <div class="preview-header">
+                                <div v-if="selectedGame && selectedGame.title" class="game-title">
+                                    {{ selectedGame.title }}
+                                </div>
+                                <div
+                                    v-if="selectedCharacter && selectedCharacter.name"
+                                    class="character-name"
+                                >
+                                    {{ selectedCharacter.name }} Combo
+                                </div>
                             </div>
-                        </div>
-                        <div v-else-if="videoUrl && videoType === 'twitter'" class="preview-video">
-                            <tweet :id="extractedVideoId" />
-                        </div>
-                        <div v-else class="preview-video-placeholder">
-                            <i class="fas fa-video"></i>
-                            <p>Video preview will appear here</p>
-                        </div>
-                    </div>
 
-                    <!-- Input Notation Display -->
-                    <div v-if="comboInputs" class="preview-inputs">
-                        <div 
-                            v-for="(row, rowIndex) in parsedInputRows" 
-                            :key="rowIndex"
-                            class="input-row"
-                        >
-                            <div 
-                                v-for="(input, inputIndex) in row" 
-                                :key="inputIndex"
-                                class="input-item"
-                                :class="{ 'bracketed': input.bracketed }"
-                            >
-                                <img 
-                                    v-if="getInputIcon(input.text)"
-                                    :src="getInputIcon(input.text)"
-                                    :alt="input.text"
-                                    class="input-icon"
-                                />
-                                <span v-else class="input-text">{{ input.text }}</span>
+                            <!-- Video Player -->
+                            <div class="preview-video-container">
+                                <div
+                                    v-if="videoUrl && videoType === 'youtube'"
+                                    class="preview-video-wrapper"
+                                >
+                                    <div class="preview-video">
+                                        <youtube-media
+                                            ref="previewYoutubeRef"
+                                            :video-id="extractedVideoId"
+                                            :player-width="previewVideoWidth"
+                                            :player-height="previewVideoHeight"
+                                            :mute="true"
+                                            :playsinline="1"
+                                        />
+                                    </div>
+                                </div>
+                                <div
+                                    v-else-if="videoUrl && videoType === 'twitter'"
+                                    class="preview-video"
+                                >
+                                    <tweet :id="extractedVideoId" />
+                                </div>
+                                <div v-else class="preview-video-placeholder">
+                                    <i class="fas fa-video"></i>
+                                    <p>Video preview will appear here</p>
+                                </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Bottom Section: Stats and Branding -->
-                    <div class="preview-bottom">
-                        <!-- Branding -->
-                        <div class="preview-branding">
-                            <div class="brand-icon">
-                                <i class="fas fa-gamepad"></i>
+                            <!-- Input Notation Display -->
+                            <div v-if="comboInputs" class="preview-inputs">
+                                <div
+                                    v-for="(row, rowIndex) in parsedInputRows"
+                                    :key="rowIndex"
+                                    class="input-row"
+                                >
+                                    <div
+                                        v-for="(input, inputIndex) in row"
+                                        :key="inputIndex"
+                                        class="input-item"
+                                        :class="{ 
+                                            bracketed: input.bracketed,
+                                            'input-even': getGlobalInputIndex(rowIndex, inputIndex) % 2 === 0,
+                                            'input-odd': getGlobalInputIndex(rowIndex, inputIndex) % 2 === 1
+                                        }"
+                                    >
+                                        <img
+                                            v-if="getInputIcon(input.text)"
+                                            :src="getInputIcon(input.text)"
+                                            :alt="input.text"
+                                            class="input-icon"
+                                        />
+                                        <span v-else class="input-text">{{ input.text }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <span class="brand-text">Fighters-Edge.com</span>
-                        </div>
 
-                        <!-- Combo Stats Display -->
-                        <div v-if="comboHits || comboDamage" class="preview-stats">
-                            <div v-if="comboHits" class="stat-item">
-                                <span class="stat-value">{{ comboHits }}</span>
-                                <span class="stat-label">Hits</span>
+                            <!-- Bottom Section: Stats and Branding -->
+                            <div class="preview-bottom">
+                                <!-- Branding -->
+                                <div class="preview-branding">
+                                    <div class="brand-icon">
+                                        <i class="fas fa-gamepad"></i>
+                                    </div>
+                                    <span class="brand-text">Fighters-Edge.com</span>
+                                </div>
+
+                                <!-- Combo Stats Display -->
+                                <div v-if="comboHits || comboDamage" class="preview-stats">
+                                    <div v-if="comboHits" class="stat-item">
+                                        <span class="stat-value">{{ comboHits }}</span>
+                                        <span class="stat-label">Hits</span>
+                                    </div>
+                                    <div v-if="comboDamage" class="stat-item">
+                                        <span class="stat-value">{{ comboDamage }}</span>
+                                        <span class="stat-label">Dmg</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div v-if="comboDamage" class="stat-item">
-                                <span class="stat-value">{{ comboDamage }}</span>
-                                <span class="stat-label">Dmg</span>
-                            </div>
-                        </div>
-                    </div>
                         </div>
                     </div>
                     <div v-else class="preview-placeholder">
@@ -370,14 +390,14 @@ export default {
             games: [],
             // Icon mappings for preview
             arrowIcons: {
-                '1': arrow1,
-                '2': arrow2,
-                '3': arrow3,
-                '4': arrow4,
-                '6': arrow6,
-                '7': arrow7,
-                '8': arrow8,
-                '9': arrow9,
+                1: arrow1,
+                2: arrow2,
+                3: arrow3,
+                4: arrow4,
+                6: arrow6,
+                7: arrow7,
+                8: arrow8,
+                9: arrow9,
             },
             allGameIcons: {
                 sf6: {
@@ -419,24 +439,24 @@ export default {
                     U: gbvsrU,
                 },
                 t8: {
-                    '1': t8_1,
-                    '2': t8_2,
-                    '3': t8_3,
-                    '4': t8_4,
-                    '12': t8_12,
-                    '13': t8_13,
-                    '14': t8_14,
-                    '23': t8_23,
-                    '24': t8_24,
-                    '34': t8_34,
+                    1: t8_1,
+                    2: t8_2,
+                    3: t8_3,
+                    4: t8_4,
+                    12: t8_12,
+                    13: t8_13,
+                    14: t8_14,
+                    23: t8_23,
+                    24: t8_24,
+                    34: t8_34,
                 },
             },
             motionIcons: {
                 qcf: qcf,
                 qcb: qcb,
                 dp: dp,
-                '421': motion421,
-                '360': motion360,
+                421: motion421,
+                360: motion360,
                 r360: r360,
                 '180f': motion180f,
                 '180b': motion180b,
@@ -492,16 +512,16 @@ export default {
 
         parsedInputRows() {
             if (!this.comboInputs) return [];
-            
+
             // Parse inputs and group into rows (max 5 items per row based on image)
             const inputs = this.parseInputs(this.comboInputs);
             const rows = [];
             const itemsPerRow = 5;
-            
+
             for (let i = 0; i < inputs.length; i += itemsPerRow) {
                 rows.push(inputs.slice(i, i + itemsPerRow));
             }
-            
+
             return rows;
         },
 
@@ -544,7 +564,7 @@ export default {
                     this.selectedCharacter = {
                         id: character._id || characterId || null,
                         name: character.Name || 'Unknown Character',
-                        imageUrl: character.ImageUrl || character.AvatarUrl || '',
+                        imageUrl: character.ImageUrl || '',
                         avatarUrl: character.AvatarUrl || '',
                     };
                     this.characterId = [character._id];
@@ -570,16 +590,16 @@ export default {
         async setCharacter(character) {
             // Handle both array and single object formats
             let characterObj = null;
-            
+
             if (Array.isArray(character) && character.length > 0) {
                 characterObj = character[0];
             } else if (character && typeof character === 'object' && character.id) {
                 characterObj = character;
             }
-            
+
             if (characterObj && characterObj.id) {
                 this.characterId = [characterObj.id];
-                
+
                 // Set initial character data from the object to prevent undefined
                 this.selectedCharacter = {
                     id: characterObj.id,
@@ -587,24 +607,33 @@ export default {
                     imageUrl: characterObj.imageUrl || '',
                     avatarUrl: characterObj.imageUrl || '',
                 };
-                
+
                 // Load character's game to validate and get full data
                 try {
                     const charResponse = await CharactersService.getCharacter({
                         id: characterObj.id,
                     });
                     const charData = charResponse.data;
-                    
+
                     // Update selectedCharacter with full data including ImageUrl
                     if (charData) {
                         this.selectedCharacter = {
                             id: charData._id || characterObj.id || null,
-                            name: (charData.Name || characterObj.name || 'Unknown Character').trim(),
-                            imageUrl: (charData.ImageUrl || charData.AvatarUrl || characterObj.imageUrl || '').trim(),
+                            name: (
+                                charData.Name ||
+                                characterObj.name ||
+                                'Unknown Character'
+                            ).trim(),
+                            imageUrl: (
+                                charData.ImageUrl ||
+                                charData.AvatarUrl ||
+                                characterObj.imageUrl ||
+                                ''
+                            ).trim(),
                             avatarUrl: (charData.AvatarUrl || characterObj.imageUrl || '').trim(),
                         };
                     }
-                    
+
                     if (charData && charData.GameId) {
                         const gameResponse = await GamesService.getGame({
                             id: charData.GameId,
@@ -617,7 +646,7 @@ export default {
                                 abbreviation: game.Abbreviation || '',
                             };
                             this.selectedGameId = game._id;
-                            
+
                             // Validate game is allowed
                             if (!this.isAllowedGame) {
                                 this.showErrorMessage = true;
@@ -645,7 +674,7 @@ export default {
             if (game) {
                 this.selectedGame = game;
                 this.selectedGameId = game.id;
-                
+
                 // Validate game is allowed
                 if (!this.isAllowedGame) {
                     this.showErrorMessage = true;
@@ -703,10 +732,7 @@ export default {
                         this.videoUrl.indexOf('v=') + 2
                     );
                 }
-            } else if (
-                this.videoUrl.includes('x.com') ||
-                this.videoUrl.includes('twitter.com')
-            ) {
+            } else if (this.videoUrl.includes('x.com') || this.videoUrl.includes('twitter.com')) {
                 this.videoType = 'twitter';
                 this.extractedVideoId = this.videoUrl.substring(
                     this.videoUrl.indexOf('/status/') + 8
@@ -721,7 +747,9 @@ export default {
             if (!this.isValidated) {
                 this.showErrorMessage = true;
                 if (!this.isAllowedGame && this.selectedGame) {
-                    alert('Combos are only available for 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken 8');
+                    alert(
+                        'Combos are only available for 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken 8'
+                    );
                 }
                 return;
             }
@@ -729,7 +757,9 @@ export default {
             // Double-check game is allowed before submitting
             if (!this.isAllowedGame) {
                 this.showErrorMessage = true;
-                alert('Combos are only available for 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken 8');
+                alert(
+                    'Combos are only available for 2XKO, Fatal Fury: COTW, GBVSR, GGST, SF6, and Tekken 8'
+                );
                 this.isSubmitting = false;
                 return;
             }
@@ -793,58 +823,62 @@ export default {
 
         parseInputs(inputString) {
             if (!inputString) return [];
-            
-            // Split by spaces and common separators, preserving brackets
+
+            // Only split on ">" characters, preserve everything else including spaces
             const inputs = [];
             let currentBracketed = false;
             let currentText = '';
-            
+
             for (let i = 0; i < inputString.length; i++) {
                 const char = inputString[i];
-                
+
                 if (char === '[') {
-                    if (currentText.trim()) {
-                        this.addParsedInputs(currentText.trim(), currentBracketed, inputs);
-                        currentText = '';
-                    }
                     currentBracketed = true;
+                    currentText += char;
                 } else if (char === ']') {
-                    if (currentText.trim()) {
-                        this.addParsedInputs(currentText.trim(), currentBracketed, inputs);
-                        currentText = '';
-                    }
                     currentBracketed = false;
-                } else if (char === ' ' || char === '\t' || char === '\n') {
+                    currentText += char;
+                } else if (char === '>') {
+                    // Only ">" creates a new input
                     if (currentText.trim()) {
-                        this.addParsedInputs(currentText.trim(), currentBracketed, inputs);
+                        inputs.push({
+                            text: currentText.trim(),
+                            bracketed: currentBracketed,
+                        });
                         currentText = '';
+                        currentBracketed = false;
                     }
-                } else if (char === '>' || char === '<' || char === '+' || char === '-') {
-                    if (currentText.trim()) {
-                        this.addParsedInputs(currentText.trim(), currentBracketed, inputs);
-                        currentText = '';
-                    }
-                    // Skip separators
+                    // Skip the ">" character itself
                 } else {
+                    // Keep everything else (spaces, other characters) as part of the current input
                     currentText += char;
                 }
             }
-            
-            // Add remaining text
+
+            // Add remaining text as the last input
             if (currentText.trim()) {
-                this.addParsedInputs(currentText.trim(), currentBracketed, inputs);
+                inputs.push({
+                    text: currentText.trim(),
+                    bracketed: currentBracketed,
+                });
             }
-            
+
             return inputs;
         },
 
         addParsedInputs(text, bracketed, inputs) {
             // Split by common separators if they exist within the text
-            const parts = text.split(/([><+\-])/).filter(p => p && p.trim());
-            
+            const parts = text.split(/([><+\-])/).filter((p) => p && p.trim());
+
             for (const part of parts) {
                 const trimmed = part.trim();
-                if (trimmed && trimmed !== '>' && trimmed !== '<' && trimmed !== '+' && trimmed !== '-') {
+                if (
+                    trimmed &&
+                    trimmed !== '>' &&
+                    trimmed !== '<' &&
+                    trimmed !== '+' &&
+                    trimmed !== '-'
+                ) {
                     inputs.push({
                         text: trimmed,
                         bracketed: bracketed,
@@ -855,7 +889,7 @@ export default {
 
         getInputIcon(notation) {
             if (!notation) return null;
-            
+
             // Check if it's a directional input (1-9)
             if (/^[1-9]$/.test(notation)) {
                 return this.arrowIcons[notation] || null;
@@ -865,14 +899,14 @@ export default {
             if (this.motionIcons && this.motionIcons[notation]) {
                 return this.motionIcons[notation];
             }
-            
+
             // Also check for numeric notation equivalents
             const motionInputs = {
-                '236': 'qcf',
-                '214': 'qcb',
-                '623': 'dp',
-                '41236': '421',
-                '63214': '421',
+                236: 'qcf',
+                214: 'qcb',
+                623: 'dp',
+                41236: '421',
+                63214: '421',
             };
             if (motionInputs[notation] && this.motionIcons[motionInputs[notation]]) {
                 return this.motionIcons[motionInputs[notation]];
@@ -887,13 +921,13 @@ export default {
             if (this.attackIcons && this.attackIcons[notation]) {
                 return this.attackIcons[notation];
             }
-            
+
             // Try case-insensitive match
             const upperNotation = notation.toUpperCase();
             if (this.attackIcons && this.attackIcons[upperNotation]) {
                 return this.attackIcons[upperNotation];
             }
-            
+
             // Try lowercase match
             const lowerNotation = notation.toLowerCase();
             if (this.attackIcons && this.attackIcons[lowerNotation]) {
@@ -901,6 +935,17 @@ export default {
             }
 
             return null;
+        },
+
+        getGlobalInputIndex(rowIndex, inputIndex) {
+            // Calculate global index across all rows
+            let globalIndex = 0;
+            for (let i = 0; i < rowIndex; i++) {
+                if (this.parsedInputRows[i]) {
+                    globalIndex += this.parsedInputRows[i].length;
+                }
+            }
+            return globalIndex + inputIndex;
         },
     },
 };
@@ -1191,6 +1236,7 @@ export default {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     width: 100%;
     max-width: 100%;
+    padding-top: 200px;
 }
 
 .preview-background {
@@ -1212,7 +1258,13 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 40%, rgba(0, 0, 0, 0.8) 70%, rgba(0, 0, 0, 0.95) 100%);
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.2) 0%,
+        rgba(0, 0, 0, 0.5) 40%,
+        rgba(0, 0, 0, 0.8) 70%,
+        rgba(0, 0, 0, 0.95) 100%
+    );
 }
 
 .preview-header {
@@ -1348,7 +1400,7 @@ export default {
     background: rgba(128, 128, 128, 0.3);
     border: 1px solid rgba(128, 128, 128, 0.4);
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 6px 30px 6px 20px;
     min-width: 45px;
     height: 45px;
     display: flex;
@@ -1356,12 +1408,37 @@ export default {
     justify-content: center;
     transition: all 0.2s;
     clip-path: polygon(0% 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 0% 100%);
+    margin-left: -15px;
+}
+
+.input-item.input-even {
+    background: rgba(100, 150, 200, 0.3);
+    border-color: rgba(100, 150, 200, 0.5);
+}
+
+.input-item.input-odd {
+    background: rgba(200, 120, 150, 0.3);
+    border-color: rgba(200, 120, 150, 0.5);
+}
+
+.input-item:first {
+    margin-left: 0;
 }
 
 .input-item.bracketed {
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    background: rgba(128, 128, 128, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    background: rgba(128, 128, 128, 0.5) !important;
     position: relative;
+}
+
+.input-item.bracketed.input-even {
+    background: rgba(100, 150, 200, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.input-item.bracketed.input-odd {
+    background: rgba(200, 120, 150, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .input-item.bracketed::before {
