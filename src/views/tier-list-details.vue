@@ -1,7 +1,10 @@
 <template>
     <div class="tier-list-details" >
         <div class="header">
-            <h1>{{ tierList.name }}</h1>
+            <div class="header-info">
+                <h1>{{ tierList.name }}</h1>
+                <p v-if="tierList.source" class="source">Source: {{ tierList.source }}</p>
+            </div>
             <div class="actions">
                 <span class="stat"><i class="fas fa-eye"></i> {{ tierList.views }}</span>
                 <button @click="toggleLike" :class="{ liked: isLiked }">
@@ -66,6 +69,7 @@ export default {
                     tiers: this.mapTiers(response.data.Tiers),
                     likes: response.data.Likes,
                     views: response.data.Views,
+                    source: response.data.Source,
                 };
             } catch (error) {
                 console.error('Error fetching tier list:', error);
@@ -151,6 +155,19 @@ export default {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+}
+
+.header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.source {
+    font-size: 14px;
+    color: #aaa;
+    margin: 0;
+    font-style: italic;
 }
 
 .actions {

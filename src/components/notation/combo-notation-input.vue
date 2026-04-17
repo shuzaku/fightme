@@ -39,7 +39,12 @@
                     <span v-if="notationArray.length === 0" class="placeholder"
                         >Click buttons to build combo</span
                     >
-                    <div v-for="(item, index) in notationArray" :key="index" class="notation-item">
+                    <div 
+                        v-for="(item, index) in notationArray" 
+                        :key="index" 
+                        class="notation-item"
+                        :class="{ 'link-separator': item === '>' }"
+                    >
                         <img
                             v-if="getNotationIcon(item)"
                             :src="getNotationIcon(item)"
@@ -52,6 +57,18 @@
                         >
                     </div>
                 </div>
+            </div>
+
+            <!-- Quick Add Link Button -->
+            <div class="quick-link-button-container">
+                <button
+                    class="quick-link-btn"
+                    @click="addNotation('>')"
+                    title="Add Link (New Input)"
+                >
+                    <i class="fas fa-arrow-right"></i>
+                    <span>Add Link</span>
+                </button>
             </div>
 
             <div class="notation-buttons">
@@ -767,7 +784,43 @@ export default {
     border-radius: 8px;
     padding: 16px;
     min-height: 60px;
+    margin-bottom: 12px;
+}
+
+.quick-link-button-container {
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.quick-link-btn {
+    background: linear-gradient(135deg, #3eb489 0%, #2d8a6a 100%);
+    border: 1px solid #3eb489;
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(62, 180, 137, 0.3);
+}
+
+.quick-link-btn:hover {
+    background: linear-gradient(135deg, #4ec99a 0%, #3d9a7a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 180, 137, 0.4);
+}
+
+.quick-link-btn:active {
+    transform: translateY(0);
+}
+
+.quick-link-btn i {
+    font-size: 16px;
 }
 
 .current-notation {
@@ -791,6 +844,14 @@ export default {
     border-radius: 6px;
     padding: 6px 12px;
     color: #fff;
+}
+
+.notation-item.link-separator {
+    background: rgba(255, 193, 7, 0.2);
+    border-color: #ffc107;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 6px 16px;
 }
 
 .notation-icon {

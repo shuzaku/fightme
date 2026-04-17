@@ -1,8 +1,8 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="match-view">
-        <div v-if="video" class="videos-container">
-            <match-video-card
+        <div v-if="!loading && video" class="videos-container">
+            <match-video-analysis-card
                 v-if="video.contentType === 'Match'"
                 ref="card"
                 v-model="video.isPlaying"
@@ -25,14 +25,15 @@
 
 <script>
 import VideosService from '@/services/videos-service';
-import MatchVideoCard from '@/components/videos/match-video-card';
+import AnalysesService from '@/services/analyses-service';
+import MatchVideoAnalysisCard from '@/components/videos/match-video-analysis-card';
 import MatchNotes from '@/components/match/match-notes';
 
 export default {
     name: 'Match',
 
     components: {
-        'match-video-card': MatchVideoCard,
+        'match-video-analysis-card': MatchVideoAnalysisCard,
         'match-notes': MatchNotes,
     },
 
@@ -47,15 +48,7 @@ export default {
         return {
             video: null,
             loading: true,
-            query: null,
-            savedQuery: null,
-            intersectionOptions: {
-                root: null,
-                rootMargin: '0px 0px 0px 0px',
-                threshold: 1,
-            },
-
-            hasTimeStamp: true,
+            analyses: [],
             videoPlayer: null,
         };
     },
@@ -70,17 +63,10 @@ export default {
         this.queryVideos();
     },
 
-    created() {},
-
-    beforeDestroy() {},
-
     methods: {
         async queryVideos() {
+            this.loading = true;
             var queryParameter = {
-                skip: this.skip,
-                sort: this.sort,
-                filter: this.filter,
-                tagFilter: this.tagFilter,
                 searchQuery: [
                     {
                         queryName: 'Id',
@@ -90,21 +76,29 @@ export default {
             };
 
             const response = await VideosService.queryVideos(queryParameter);
-            this.hydrateVideos(response);
-            this.isLoading = false;
+            const videos = response && response.data && response.data.videos;
+            if (videos && videos.length > 0) {
+                this.hydrateVideos(response);
+            }
+            this.loading = false;
         },
 
         hydrateVideos(response) {
             var responseData = response.data.videos[0];
+            var matchId = responseData.Match ? responseData.Match._id : null;
             this.video = {
                 comboId: responseData.Combo ? responseData.Combo._id : null,
-                matchId: responseData.Match ? responseData.Match._id : null,
+                matchId: matchId,
                 contentType: responseData.ContentType,
                 isEditing: false,
+                isPlaying: false,
                 isFirst: false,
             };
 
-            // Get video player reference after component is mounted
+            if (matchId) {
+                this.queryAnalysis(matchId);
+            }
+
             this.$nextTick(() => {
                 if (this.$refs.card) {
                     this.videoPlayer = this.$refs.card.getVideoPlayer();
@@ -112,12 +106,40 @@ export default {
             });
         },
 
+        async queryAnalysis(matchId) {
+            if (!matchId) return;
+            const queryParameter = {
+                searchQuery: [
+                    {
+                        queryName: 'MatchId',
+                        queryValue: matchId,
+                    },
+                ],
+            };
+
+            const response = await AnalysesService.queryAnalysis(queryParameter);
+            this.analyses = response.data.analyses.map((analysis) => ({
+                matchId: analysis.MatchId,
+                matchType: analysis.MatchType,
+                detection: analysis.Detections,
+            }));
+
+            if (this.analyses[0] && this.analyses[0].detection) {
+                this.analyses[0].detection.forEach((detection) => {
+                    detection.formattedTime = this.formatSeconds(detection.timestamp);
+                });
+            }
+        },
+
+        formatSeconds(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        },
+
         captureTimestamp() {
             if (this.$refs.card) {
-                const timestamp = this.$refs.card.getCurrentTimestamp();
-                // Update video player reference
-                this.videoPlayer = this.$refs.card.getVideoPlayer();
-                return timestamp;
+                return this.$refs.card.getCurrentTimestamp();
             }
             return null;
         },

@@ -6,7 +6,7 @@
                 v-model="creatorUrl"
                 class="creator-input"
                 type="text"
-                placeholder="Creator Url"
+                placeholder="https://www.youtube.com/@username or channel URL"
             />
             <v-btn @click="getChannelId()">Search Creator</v-btn>
             <v-btn v-if="videos" @click="getChannelId()">NextPage</v-btn>
@@ -148,10 +148,42 @@ export default {
         },
 
         async getChannelId() {
-            this.channelId = this.creatorUrl.substring(
-                this.creatorUrl.indexOf('/channel/') + 9,
-                this.creatorUrl.length
-            );
+            const url = this.creatorUrl.trim();
+            let handle = null;
+
+            // Check if URL contains handle (@username) - e.g. https://www.youtube.com/@MESSATSU-SF6
+            if (url.includes('/@')) {
+                handle = url.substring(url.indexOf('/@') + 2).split('/')[0].split('?')[0];
+            } else if (url.startsWith('@')) {
+                handle = url.split('/')[0].split('?')[0].substring(1);
+            } else if (url.includes('@') && !url.includes('youtube.com')) {
+                handle = url.split('@')[1].split('/')[0].split('?')[0];
+            }
+
+            if (handle) {
+                try {
+                    const response = await this.axios.get(
+                        `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${handle}&key=AIzaSyCYRdDi_twi0Xq-4W70LJoargI63fI6ljg`
+                    );
+                    if (response.data.items && response.data.items.length > 0) {
+                        this.channelId = response.data.items[0].id;
+                    } else {
+                        this.error = 'Channel not found for handle: @' + handle;
+                        return;
+                    }
+                } catch (err) {
+                    this.error = err;
+                    return;
+                }
+            } else if (url.includes('/channel/')) {
+                // Legacy channel ID URL
+                this.channelId = url.substring(url.indexOf('/channel/') + 9).split('/')[0].split('?')[0];
+            } else {
+                this.error = 'Invalid URL. Use format: https://www.youtube.com/@username or https://www.youtube.com/channel/CHANNEL_ID';
+                return;
+            }
+
+            this.error = null;
             this.fetch();
             if (this.savedGame) {
                 this.setGame();
@@ -265,6 +297,8 @@ export default {
 <style>
 .channel-scrapper {
     padding-top: 150px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .channel-scrapper .search .v-input__slot {

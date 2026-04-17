@@ -15,7 +15,7 @@
                 <youtube-media
                     v-if="video.videoType === 'youtube'"
                     ref="youtubeRef"
-                    :video-id="XYZoB7QL9lw"
+                    :video-id="video.url"
                     :player-width="556"
                     :player-height="313"
                     :player-vars="{
@@ -30,37 +30,7 @@
             </div>
             <div class="card-label">Match</div>
             <div v-if="!video.isEditing" class="aside">
-                <div class="nav">
-                    <div
-                        :class="[currentNav === 'general' ? 'active' : '']"
-                        class="navItem"
-                        @click="setNav('general')"
-                    >
-                        General
-                    </div>
-                    <div
-                        :class="[currentNav === 'player1' ? 'active' : '']"
-                        class="navItem"
-                        @click="setNav('player1')"
-                    >
-                        Player 1
-                    </div>
-                    <div
-                        :class="[currentNav === 'player2' ? 'active' : '']"
-                        class="navItem"
-                        @click="setNav('player2')"
-                    >
-                        Player 2
-                    </div>
-                    <div
-                        :class="[currentNav === 'stats' ? 'active' : '']"
-                        class="navItem"
-                        @click="setNav('stats')"
-                    >
-                        Stats
-                    </div>
-                </div>
-                <div v-if="currentNav === 'general'" class="general">
+                <div class="general">
                     <div class="info">
                         <div class="game">
                             <div class="game-title" @click="queryGame(video.game.id)">
@@ -148,189 +118,6 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="currentNav === 'player1'" class="player1">
-                    <div class="team2">
-                        <div
-                            v-for="team2Player in video.match.team2Players"
-                            :key="team2Player.id"
-                            class="player"
-                        >
-                            <div
-                                class="heavy-weight player-name"
-                                @click="queryPlayer(team2Player.id)"
-                            >
-                                <p>{{ team2Player.name }}</p>
-                            </div>
-                            <div class="characters">
-                                <div
-                                    v-for="(character, index) in team2Player.characters"
-                                    :key="index"
-                                    class="character"
-                                >
-                                    <div
-                                        class="character-name"
-                                        @click="queryCharacter(character.id)"
-                                    >
-                                        <p>
-                                            <span>
-                                                <div class="img-container">
-                                                    <img :src="character.imageUrl" />
-                                                </div>
-                                                {{ character.name }}</span
-                                            >
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player1Counter.length > 0" class="trigger">
-                        <h4>Counters</h4>
-                        <div class="counters label">
-                            <div v-for="(timestamp, index) in player1Counter" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player1Reversal.length > 0" class="trigger">
-                        <h4>Reversal</h4>
-                        <div class="reversals label">
-                            <div v-for="(timestamp, index) in player1Reversal" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player1Punish.length > 0" class="trigger">
-                        <h4>Punish</h4>
-                        <div class="punishes label">
-                            <div v-for="(timestamp, index) in player1Punish" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player1Just.length > 0" class="trigger">
-                        <h4>Just</h4>
-                        <div class="just label">
-                            <div v-for="(timestamp, index) in player1Just" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div v-if="currentNav === 'player2'" class="player2">
-                    <div class="team1">
-                        <div
-                            v-for="team1Player in video.match.team1Players"
-                            :key="team1Player.id"
-                            class="player"
-                        >
-                            <div
-                                class="heavy-weight player-name"
-                                @click="queryPlayer(team1Player.id)"
-                            >
-                                <p>{{ team1Player.name }}</p>
-                            </div>
-                            <div class="characters">
-                                <div
-                                    v-for="(character, index) in team1Player.characters"
-                                    :key="index"
-                                    class="character"
-                                >
-                                    <div
-                                        class="character-name"
-                                        @click="queryCharacter(character.id)"
-                                    >
-                                        <p>
-                                            <span>
-                                                <div class="img-container">
-                                                    <img :src="character.imageUrl" />
-                                                </div>
-                                                {{ character.name }}</span
-                                            >
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player2Counter.length > 0" class="trigger">
-                        <h4>Counters</h4>
-                        <div class="counters label">
-                            <div v-for="(timestamp, index) in player2Counter" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player2Reversal.length > 0" class="trigger">
-                        <h4>Reversal</h4>
-                        <div class="reversals label">
-                            <div v-for="(timestamp, index) in player2Reversal" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player2Punish.length > 0" class="trigger">
-                        <h4>Punish</h4>
-                        <div class="punishes label">
-                            <div v-for="(timestamp, index) in player2Punish" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="player2Just.length > 0" class="trigger">
-                        <h4>Just</h4>
-                        <div class="just label">
-                            <div v-for="(timestamp, index) in player2Just" :key="index">
-                                <a @click="seekToTimeStamp(timestamp.s)">{{
-                                    timestamp.formattedTime
-                                }}</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div v-if="currentNav === 'stats'" class="stats">
-                    <table>
-                        <tr>
-                            <th></th>
-                            <th>Player1</th>
-                            <th>Player2</th>
-                        </tr>
-                        <tr>
-                            <td>Counters</td>
-                            <td class="value">{{ player1Counter.length }}</td>
-                            <td class="value">{{ player2Counter.length }}</td>
-                        </tr>
-                        <tr>
-                            <td>Reversals</td>
-                            <td class="value">{{ player1Reversal.length }}</td>
-                            <td class="value">{{ player2Reversal.length }}</td>
-                        </tr>
-                        <tr>
-                            <td>Punishes</td>
-                            <td class="value">{{ player1Punish.length }}</td>
-                            <td class="value">{{ player2Punish.length }}</td>
-                        </tr>
-                        <tr>
-                            <td>Justs</td>
-                            <td class="value">{{ player1Just.length }}</td>
-                            <td class="value">{{ player2Just.length }}</td>
-                        </tr>
-                    </table>
-                </div>
                 <div class="admin-controls">
                     <collection-search
                         v-if="showCollections"
@@ -368,12 +155,338 @@
                 </div>
             </div>
         </div>
+        <div v-if="!video.isEditing" class="match-analysis-details">
+            <div class="nav">
+                <div
+                    :class="[currentNav === 'general' ? 'active' : '']"
+                    class="navItem"
+                    @click="setNav('general')"
+                >
+                    General
+                </div>
+                <div
+                    :class="[currentNav === 'player1' ? 'active' : '']"
+                    class="navItem"
+                    @click="setNav('player1')"
+                >
+                    Player 1
+                </div>
+                <div
+                    :class="[currentNav === 'player2' ? 'active' : '']"
+                    class="navItem"
+                    @click="setNav('player2')"
+                >
+                    Player 2
+                </div>
+                <div
+                    :class="[currentNav === 'stats' ? 'active' : '']"
+                    class="navItem"
+                    @click="setNav('stats')"
+                >
+                    Stats
+                </div>
+            </div>
+            <div v-if="currentNav === 'player1'" class="player1">
+                <div class="team2">
+                    <div
+                        v-for="team2Player in video.match.team2Players"
+                        :key="team2Player.id"
+                        class="player"
+                    >
+                        <div
+                            class="heavy-weight player-name"
+                            @click="queryPlayer(team2Player.id)"
+                        >
+                            <p>{{ team2Player.name }}</p>
+                        </div>
+                        <div class="characters">
+                            <div
+                                v-for="(character, index) in team2Player.characters"
+                                :key="index"
+                                class="character"
+                            >
+                                <div
+                                    class="character-name"
+                                    @click="queryCharacter(character.id)"
+                                >
+                                    <p>
+                                        <span>
+                                            <div class="img-container">
+                                                <img :src="character.imageUrl" />
+                                            </div>
+                                            {{ character.name }}</span
+                                        >
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player1Counter.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p1-counter')">
+                        <span class="category-icon">{{ collapsedCategories['p1-counter'] ? '▶' : '▼' }}</span>
+                        Counters
+                        <span class="count-badge">{{ player1Counter.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p1-counter']" class="counters label">
+                        <div v-for="(timestamp, index) in player1Counter" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player1Reversal.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p1-reversal')">
+                        <span class="category-icon">{{ collapsedCategories['p1-reversal'] ? '▶' : '▼' }}</span>
+                        Reversal
+                        <span class="count-badge">{{ player1Reversal.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p1-reversal']" class="reversals label">
+                        <div v-for="(timestamp, index) in player1Reversal" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player1Punish.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p1-punish')">
+                        <span class="category-icon">{{ collapsedCategories['p1-punish'] ? '▶' : '▼' }}</span>
+                        Punish
+                        <span class="count-badge">{{ player1Punish.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p1-punish']" class="punishes label">
+                        <div v-for="(timestamp, index) in player1Punish" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player1HardKnockdown.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p1-hardknockdown')">
+                        <span class="category-icon">{{ collapsedCategories['p1-hardknockdown'] ? '▶' : '▼' }}</span>
+                        Hard Knockdown
+                        <span class="count-badge">{{ player1HardKnockdown.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p1-hardknockdown']" class="hard-knockdowns label">
+                        <div v-for="(timestamp, index) in player1HardKnockdown" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player1ThrowEscape.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p1-throwescape')">
+                        <span class="category-icon">{{ collapsedCategories['p1-throwescape'] ? '▶' : '▼' }}</span>
+                        Throw Escape
+                        <span class="count-badge">{{ player1ThrowEscape.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p1-throwescape']" class="throw-escapes label">
+                        <div v-for="(timestamp, index) in player1ThrowEscape" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player1Just.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p1-just')">
+                        <span class="category-icon">{{ collapsedCategories['p1-just'] ? '▶' : '▼' }}</span>
+                        Just
+                        <span class="count-badge">{{ player1Just.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p1-just']" class="just label">
+                        <div v-for="(timestamp, index) in player1Just" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="currentNav === 'player2'" class="player2">
+                <div class="team1">
+                    <div
+                        v-for="team1Player in video.match.team1Players"
+                        :key="team1Player.id"
+                        class="player"
+                    >
+                        <div
+                            class="heavy-weight player-name"
+                            @click="queryPlayer(team1Player.id)"
+                        >
+                            <p>{{ team1Player.name }}</p>
+                        </div>
+                        <div class="characters">
+                            <div
+                                v-for="(character, index) in team1Player.characters"
+                                :key="index"
+                                class="character"
+                            >
+                                <div
+                                    class="character-name"
+                                    @click="queryCharacter(character.id)"
+                                >
+                                    <p>
+                                        <span>
+                                            <div class="img-container">
+                                                <img :src="character.imageUrl" />
+                                            </div>
+                                            {{ character.name }}</span
+                                        >
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player2Counter.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p2-counter')">
+                        <span class="category-icon">{{ collapsedCategories['p2-counter'] ? '▶' : '▼' }}</span>
+                        Counters
+                        <span class="count-badge">{{ player2Counter.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p2-counter']" class="counters label">
+                        <div v-for="(timestamp, index) in player2Counter" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player2Reversal.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p2-reversal')">
+                        <span class="category-icon">{{ collapsedCategories['p2-reversal'] ? '▶' : '▼' }}</span>
+                        Reversal
+                        <span class="count-badge">{{ player2Reversal.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p2-reversal']" class="reversals label">
+                        <div v-for="(timestamp, index) in player2Reversal" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player2Punish.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p2-punish')">
+                        <span class="category-icon">{{ collapsedCategories['p2-punish'] ? '▶' : '▼' }}</span>
+                        Punish
+                        <span class="count-badge">{{ player2Punish.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p2-punish']" class="punishes label">
+                        <div v-for="(timestamp, index) in player2Punish" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player2HardKnockdown.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p2-hardknockdown')">
+                        <span class="category-icon">{{ collapsedCategories['p2-hardknockdown'] ? '▶' : '▼' }}</span>
+                        Hard Knockdown
+                        <span class="count-badge">{{ player2HardKnockdown.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p2-hardknockdown']" class="hard-knockdowns label">
+                        <div v-for="(timestamp, index) in player2HardKnockdown" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player2ThrowEscape.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p2-throwescape')">
+                        <span class="category-icon">{{ collapsedCategories['p2-throwescape'] ? '▶' : '▼' }}</span>
+                        Throw Escape
+                        <span class="count-badge">{{ player2ThrowEscape.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p2-throwescape']" class="throw-escapes label">
+                        <div v-for="(timestamp, index) in player2ThrowEscape" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="player2Just.length > 0" class="trigger">
+                    <h4 @click="toggleCategory('p2-just')">
+                        <span class="category-icon">{{ collapsedCategories['p2-just'] ? '▶' : '▼' }}</span>
+                        Just
+                        <span class="count-badge">{{ player2Just.length }}</span>
+                    </h4>
+                    <div v-show="!collapsedCategories['p2-just']" class="just label">
+                        <div v-for="(timestamp, index) in player2Just" :key="index">
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="currentNav === 'stats'" class="stats">
+                <div v-if="analysisSummary" class="analysis-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Duration</span>
+                        <span class="summary-value">{{ analysisSummary.video_duration_timestamp }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Events</span>
+                        <span class="summary-value">{{ analysisSummary.total_events }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Events / Min</span>
+                        <span class="summary-value">{{ analysisSummary.events_per_minute }}</span>
+                    </div>
+                </div>
+                <table>
+                    <tr>
+                        <th></th>
+                        <th>P1</th>
+                        <th>P2</th>
+                    </tr>
+                    <tr>
+                        <td>Counters</td>
+                        <td class="value">{{ player1Counter.length }}</td>
+                        <td class="value">{{ player2Counter.length }}</td>
+                    </tr>
+                    <tr>
+                        <td>Punish Counters</td>
+                        <td class="value">{{ player1Punish.length }}</td>
+                        <td class="value">{{ player2Punish.length }}</td>
+                    </tr>
+                    <tr>
+                        <td>Reversals</td>
+                        <td class="value">{{ player1Reversal.length }}</td>
+                        <td class="value">{{ player2Reversal.length }}</td>
+                    </tr>
+                    <tr>
+                        <td>Hard Knockdowns</td>
+                        <td class="value">{{ player1HardKnockdown.length }}</td>
+                        <td class="value">{{ player2HardKnockdown.length }}</td>
+                    </tr>
+                    <tr>
+                        <td>Throw Escapes</td>
+                        <td class="value">{{ player1ThrowEscape.length }}</td>
+                        <td class="value">{{ player2ThrowEscape.length }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div v-if="currentNav === 'general'" class="general-info">
+                <p>Select Player 1, Player 2, or Stats to view detailed analysis.</p>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
+import AnalysesService from '@/services/analyses-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
@@ -427,354 +540,9 @@ export default {
             collections: null,
             showCollections: false,
             currentNav: 'general',
-            // timestamps: [
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=11', s: '11' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=13', s: '13' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=14', s: '14' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=14', s: '14' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=15', s: '15' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=15', s: '15' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=18', s: '18' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=19', s: '19' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=27', s: '27' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=28', s: '28' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=34', s: '34' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=35', s: '35' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=41', s: '41' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=53', s: '53' },
-            //     { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=55', s: '55' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=73', s: '73' },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=73', s: '73' },
-            //     {
-            //         player: 1,
-            //         label: 'reversal',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=74',
-            //         s: '74',
-            //     },
-            //     { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=74', s: '74' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=74', s: '74' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=81', s: '81' },
-            //     { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=82', s: '82' },
-            //     { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=86', s: '86' },
-            //     { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=87', s: '87' },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=113',
-            //         s: '113',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=122',
-            //         s: '122',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=123',
-            //         s: '123',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=132',
-            //         s: '132',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=145',
-            //         s: '145',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'reversal',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=147',
-            //         s: '147',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=150',
-            //         s: '150',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=155',
-            //         s: '155',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=156',
-            //         s: '156',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=160',
-            //         s: '160',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=167',
-            //         s: '167',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=168',
-            //         s: '168',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=186',
-            //         s: '186',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=187',
-            //         s: '187',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=192',
-            //         s: '192',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=193',
-            //         s: '193',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=195',
-            //         s: '195',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=196',
-            //         s: '196',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=202',
-            //         s: '202',
-            //     },
-            //     {
-            //         player: 1,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=203',
-            //         s: '203',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=217',
-            //         s: '217',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=219',
-            //         s: '219',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=222',
-            //         s: '222',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=223',
-            //         s: '223',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=240',
-            //         s: '240',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'counter',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=241',
-            //         s: '241',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=242',
-            //         s: '242',
-            //     },
-            //     {
-            //         player: 2,
-            //         label: 'punish',
-            //         url: 'https://youtu.be/oCVezSyG94s?t=245',
-            //         s: '245',
-            //     },
-            // ],
-            timestamps: [
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=3', s: '3' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=4', s: '4' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=4', s: '4' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=10', s: '10' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=11', s: '11' },
-                { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=17', s: '17' },
-                { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=18', s: '18' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=18', s: '18' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=19', s: '19' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=21', s: '21' },
-                { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=22', s: '22' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=22', s: '22' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=23', s: '23' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=27', s: '27' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=44', s: '44' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=45', s: '45' },
-                { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=52', s: '52' },
-                { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=55', s: '55' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=60', s: '60' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=69', s: '69' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=70', s: '70' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=72', s: '72' },
-                { player: 2, label: 'reversal', url: 'https://youtu.be/oCVezSyG94s?t=73', s: '73' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=73', s: '73' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=77', s: '77' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=78', s: '78' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=79', s: '79' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=80', s: '80' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=80', s: '80' },
-                { player: 2, label: 'reversal', url: 'https://youtu.be/oCVezSyG94s?t=81', s: '81' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=82', s: '82' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=83', s: '83' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=85', s: '85' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=86', s: '86' },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=87', s: '87' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=87', s: '87' },
-                { player: 1, label: 'reversal', url: 'https://youtu.be/oCVezSyG94s?t=87', s: '87' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=88', s: '88' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=91', s: '91' },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=91', s: '91' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=97', s: '97' },
-                { player: 2, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=98', s: '98' },
-                { player: 1, label: 'counter', url: 'https://youtu.be/oCVezSyG94s?t=99', s: '99' },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=101',
-                    s: '101',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=106',
-                    s: '106',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=107',
-                    s: '107',
-                },
-                { player: 1, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=108', s: '108' },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=112',
-                    s: '112',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=113',
-                    s: '113',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=115',
-                    s: '115',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=115',
-                    s: '115',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=116',
-                    s: '116',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=116',
-                    s: '116',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=125',
-                    s: '125',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=125',
-                    s: '125',
-                },
-                {
-                    player: 2,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=126',
-                    s: '126',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=126',
-                    s: '126',
-                },
-                { player: 2, label: 'punish', url: 'https://youtu.be/oCVezSyG94s?t=127', s: '127' },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=130',
-                    s: '130',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=131',
-                    s: '131',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=137',
-                    s: '137',
-                },
-                {
-                    player: 1,
-                    label: 'counter',
-                    url: 'https://youtu.be/oCVezSyG94s?t=138',
-                    s: '138',
-                },
-            ],
+            timestamps: [],
+            analysisSummary: null,
+            collapsedCategories: {},
         };
     },
 
@@ -787,10 +555,16 @@ export default {
             return this.player1TimeStamps.filter((t) => t.label === 'counter');
         },
         player1Punish() {
-            return this.player1TimeStamps.filter((t) => t.label === 'punish');
+            return this.player1TimeStamps.filter((t) => t.label === 'punish_counter');
         },
         player1Reversal() {
             return this.player1TimeStamps.filter((t) => t.label === 'reversal');
+        },
+        player1HardKnockdown() {
+            return this.player1TimeStamps.filter((t) => t.label === 'hard_knockdown');
+        },
+        player1ThrowEscape() {
+            return this.player1TimeStamps.filter((t) => t.label === 'throw_escape');
         },
         player1Just() {
             return this.player1TimeStamps.filter((t) => t.label === 'just');
@@ -799,10 +573,16 @@ export default {
             return this.player2TimeStamps.filter((t) => t.label === 'counter');
         },
         player2Punish() {
-            return this.player2TimeStamps.filter((t) => t.label === 'punish');
+            return this.player2TimeStamps.filter((t) => t.label === 'punish_counter');
         },
         player2Reversal() {
             return this.player2TimeStamps.filter((t) => t.label === 'reversal');
+        },
+        player2HardKnockdown() {
+            return this.player2TimeStamps.filter((t) => t.label === 'hard_knockdown');
+        },
+        player2ThrowEscape() {
+            return this.player2TimeStamps.filter((t) => t.label === 'throw_escape');
         },
         player2Just() {
             return this.player2TimeStamps.filter((t) => t.label === 'just');
@@ -841,15 +621,18 @@ export default {
         if (this.account && this.account.id) {
             this.getCollections();
         }
-        this.convertSeconds();
-        this.setTimestamps();
         this.getMatch();
+        this.getAnalysis();
         this.playVideo();
     },
 
     methods: {
         seekToTimeStamp(seconds) {
             this.$refs.youtubeRef.player.seekTo(seconds);
+            this.$el.querySelector('.video-container').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
         },
 
         async getMatch() {
@@ -1122,6 +905,31 @@ export default {
             }
         },
 
+        async getAnalysis() {
+            try {
+                const response = await AnalysesService.queryAnalysis({
+                    searchQuery: [{ queryName: 'MatchId', queryValue: this.matchId }],
+                });
+                const analyses = (response.data && response.data.analyses) || response.data || [];
+                const analysis = Array.isArray(analyses) ? analyses[0] : analyses;
+                if (!analysis) return;
+
+                this.analysisSummary = analysis.summary || null;
+
+                const detections = analysis.Detections || [];
+                this.timestamps = detections.map((d) => ({
+                    player: d.player === 'p1' ? 1 : 2,
+                    label: d.label,
+                    s: parseFloat(d.timestamp),
+                    formattedTime: moment.utc(parseFloat(d.timestamp) * 1000).format('mm:ss'),
+                }));
+
+                this.setTimestamps();
+            } catch (e) {
+                console.error('[analysis] failed to load:', e);
+            }
+        },
+
         convertSeconds() {
             this.timestamps.forEach((t) => {
                 t.formattedTime = moment.utc(t.s * 1000).format('mm:ss');
@@ -1136,24 +944,92 @@ export default {
         setNav(item) {
             this.currentNav = item;
         },
+
+        toggleCategory(categoryId) {
+            this.$set(this.collapsedCategories, categoryId, !this.collapsedCategories[categoryId]);
+        },
     },
 };
 </script>
 
 <style>
 .match-analysis-card {
-    margin: 60px 0;
+    margin: 60px 0 20px 0;
     display: flex;
-    /* background-image: linear-gradient(#515b89, #171b33); */
     background: #242832;
     border: 5px solid #242832;
     border-radius: 15px;
-    margin-bottom: 30px;
     position: relative;
     cursor: pointer;
     width: 100%;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
     justify-content: start;
+}
+
+.match-analysis-details {
+    background: #242832;
+    border: 5px solid #242832;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    padding: 20px;
+    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
+}
+
+.match-analysis-details .nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.match-analysis-details .navItem {
+    border: 2px solid #3eb489;
+    color: #fff;
+    flex: 1;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.match-analysis-details .navItem:hover {
+    background: rgba(62, 180, 137, 0.2);
+}
+
+.match-analysis-details .navItem.active {
+    background: #3eb489;
+    box-shadow: 0 4px 12px rgba(62, 180, 137, 0.3);
+}
+
+.match-analysis-details .general-info {
+    color: #888;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 14px;
+}
+
+.match-analysis-details .player1,
+.match-analysis-details .player2,
+.match-analysis-details .stats {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .match-analysis-card .aside {
@@ -1164,6 +1040,29 @@ export default {
     max-width: 25%;
     width: 100%;
     position: relative;
+}
+
+.match-analysis-card .general {
+    overflow-y: auto;
+    max-height: 100%;
+}
+
+.match-analysis-card .general::-webkit-scrollbar {
+    width: 8px;
+}
+
+.match-analysis-card .general::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.match-analysis-card .general::-webkit-scrollbar-thumb {
+    background: #3eb489;
+    border-radius: 10px;
+}
+
+.match-analysis-card .general::-webkit-scrollbar-thumb:hover {
+    background: #4ecfa3;
 }
 
 .match-analysis-card .versus {
@@ -1275,26 +1174,10 @@ export default {
     width: 556px;
 }
 
-.match-analysis-card .nav {
-    display: flex;
-    justify-content: space-between;
+.match-analysis-details .player1 .player,
+.match-analysis-details .player2 .player {
     margin-bottom: 20px;
-}
-
-.match-analysis-card .navItem {
-    border: 2px solid #3eb489;
-    color: #fff;
-    width: 65px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    font-size: 11px;
-}
-
-.match-analysis-card .navItem:hover,
-.match-analysis-card .navItem.active {
-    background: #3eb489;
+    margin-top: 0;
 }
 
 .match-analysis-card .inputs {
@@ -1398,35 +1281,389 @@ export default {
     padding: 5px;
 }
 
-.match-analysis-card h4 {
+.match-analysis-details h4 {
     color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #3eb489;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
 }
 
-.match-analysis-card .label {
+.match-analysis-details h4:hover {
+    color: #3eb489;
+}
+
+.match-analysis-details h4 .category-icon {
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.match-analysis-details h4 .count-badge {
+    margin-left: auto;
+    background: #3eb489;
+    color: #242832;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.match-analysis-details .trigger {
+    margin-bottom: 20px;
+}
+
+.match-analysis-details .trigger .label {
+    animation: slideDown 0.3s ease;
+    overflow: hidden;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+    }
+}
+
+.match-analysis-details .label {
     display: flex;
     flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 10px;
 }
 
-.match-analysis-card .label div {
-    margin-right: 5px;
-    color: #4447e2;
-    text-decoration: underline;
+.match-analysis-details .label div {
+    margin-right: 0;
 }
 
-.match-analysis-card .player1 .player,
-.match-analysis-card .player2 .player {
+.match-analysis-details .label div a {
+    display: inline-block;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #4447e2 0%, #3c73a8 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.match-analysis-details .label div a:hover {
+    background: linear-gradient(135deg, #5558ff 0%, #4a8fd6 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(68, 71, 226, 0.4);
+}
+
+.match-analysis-details .label div a:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.match-analysis-details .counters.label div a {
+    background: linear-gradient(135deg, #e2447e 0%, #c73866 100%);
+}
+
+.match-analysis-details .counters.label div a:hover {
+    background: linear-gradient(135deg, #ff5591 0%, #e04777 100%);
+    box-shadow: 0 4px 8px rgba(226, 68, 126, 0.4);
+}
+
+.match-analysis-details .reversals.label div a {
+    background: linear-gradient(135deg, #db8c10 0%, #b97409 100%);
+}
+
+.match-analysis-details .reversals.label div a:hover {
+    background: linear-gradient(135deg, #ffa318 0%, #d79b0f 100%);
+    box-shadow: 0 4px 8px rgba(219, 140, 16, 0.4);
+}
+
+.match-analysis-details .punishes.label div a {
+    background: linear-gradient(135deg, #a144e2 0%, #8736c7 100%);
+}
+
+.match-analysis-details .punishes.label div a:hover {
+    background: linear-gradient(135deg, #b855ff 0%, #9f47e8 100%);
+    box-shadow: 0 4px 8px rgba(161, 68, 226, 0.4);
+}
+
+.match-analysis-details .throw-escapes.label div a {
+    background: linear-gradient(135deg, #3eb489 0%, #2d9370 100%);
+}
+
+.match-analysis-details .throw-escapes.label div a:hover {
+    background: linear-gradient(135deg, #4ecfa3 0%, #3aad86 100%);
+    box-shadow: 0 4px 8px rgba(62, 180, 137, 0.4);
+}
+
+.match-analysis-details .hard-knockdowns.label div a {
+    background: linear-gradient(135deg, #e24444 0%, #c73636 100%);
+}
+
+.match-analysis-details .hard-knockdowns.label div a:hover {
+    background: linear-gradient(135deg, #ff5555 0%, #e04040 100%);
+    box-shadow: 0 4px 8px rgba(226, 68, 68, 0.4);
+}
+
+.match-analysis-details .just.label div a {
+    background: linear-gradient(135deg, #44c7e2 0%, #36a8c7 100%);
+}
+
+.match-analysis-details .just.label div a:hover {
+    background: linear-gradient(135deg, #55ddff 0%, #40bfe0 100%);
+    box-shadow: 0 4px 8px rgba(68, 199, 226, 0.4);
+}
+
+.match-analysis-details .player1 .player,
+.match-analysis-details .player2 .player {
     margin-bottom: 20px;
-    margin-top: 20px;
+    margin-top: 0;
 }
 
-.match-analysis-card .stats table {
+.match-analysis-details .team1,
+.match-analysis-details .team2 {
+    margin-bottom: 30px;
+}
+
+.match-analysis-details .player {
+    background: linear-gradient(135deg, #2a2d3a 0%, #1a1d2a 100%);
+    border: 2px solid #3eb489;
+    border-radius: 12px;
+    padding: 20px 15px 15px 15px;
+    position: relative;
+}
+
+.match-analysis-details .team2 .player {
+    border-color: #4447e2;
+}
+
+.match-analysis-details .player-name {
+    color: #fff;
+    font-size: 18px;
+    background: linear-gradient(135deg, #3eb489 0%, #2d9370 100%);
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 20px;
+    position: absolute;
+    top: -15px;
+    left: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.match-analysis-details .player-name:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(62, 180, 137, 0.4);
+}
+
+.match-analysis-details .team2 .player-name {
+    background: linear-gradient(135deg, #4447e2 0%, #3c73a8 100%);
+}
+
+.match-analysis-details .team2 .player-name:hover {
+    box-shadow: 0 6px 12px rgba(68, 71, 226, 0.4);
+}
+
+.match-analysis-details .player-name p {
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+}
+
+.match-analysis-details .characters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.match-analysis-details .character {
+    flex: 0 0 auto;
+}
+
+.match-analysis-details .character-name {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.match-analysis-details .character-name:hover {
+    transform: translateY(-2px);
+}
+
+.match-analysis-details .character-name span {
+    padding: 8px 20px 8px 50px;
+    color: #242832;
+    font-size: 14px;
+    background: #3eb489;
+    border-radius: 25px;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.match-analysis-details .character-name:hover span {
+    box-shadow: 0 4px 12px rgba(62, 180, 137, 0.4);
+    background: #4ecfa3;
+}
+
+.match-analysis-details .team2 .character-name span {
+    color: #fff;
+    background: #4447e2;
+}
+
+.match-analysis-details .team2 .character-name:hover span {
+    background: #5558ff;
+    box-shadow: 0 4px 12px rgba(68, 71, 226, 0.4);
+}
+
+.match-analysis-details .character-name p {
+    margin: 0;
+}
+
+.match-analysis-details .character .img-container {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    height: 35px;
+    width: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.match-analysis-details .character .img-container img {
+    width: 35px;
+    height: 35px;
+    object-fit: cover;
+}
+
+.match-analysis-details .stats {
+    padding: 10px;
+}
+
+.match-analysis-details .stats table {
     color: #fff;
     width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+    background: #131419;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.match-analysis-card .stats table .value {
+.match-analysis-details .stats table th {
+    background: linear-gradient(135deg, #3eb489 0%, #2d9370 100%);
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 12px;
+    padding: 12px 8px;
+    border-bottom: 2px solid #242832;
+}
+
+.match-analysis-details .stats table th:first-child {
+    text-align: left;
+    padding-left: 16px;
+}
+
+.match-analysis-details .stats table tr {
+    transition: background 0.2s ease;
+}
+
+.match-analysis-details .stats table tr:not(:first-child):hover {
+    background: rgba(62, 180, 137, 0.1);
+}
+
+.match-analysis-details .stats table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 13px;
+}
+
+.match-analysis-details .stats table td:first-child {
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 500;
+    color: #aaa;
+}
+
+.match-analysis-details .stats table tr:last-child td {
+    border-bottom: none;
+}
+
+.match-analysis-details .stats table .value {
     text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: #3eb489;
+}
+
+.match-analysis-details .analysis-summary {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.match-analysis-details .summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #2a2d3a 0%, #1a1d2a 100%);
+    border-radius: 12px;
+    padding: 16px 12px;
+    flex: 1;
+    min-width: 80px;
+    border: 1px solid rgba(62, 180, 137, 0.2);
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.match-analysis-details .summary-item:hover {
+    border-color: #3eb489;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 180, 137, 0.2);
+}
+
+.match-analysis-details .summary-label {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.match-analysis-details .summary-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #3eb489;
+    text-shadow: 0 0 10px rgba(62, 180, 137, 0.3);
 }
 
 #app.mobile.small-mobile .match-analysis-card {
