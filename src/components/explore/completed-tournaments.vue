@@ -2,7 +2,7 @@
 <template>
     <div class="completed-tournaments">
         <h2>🏆 Recent Tournaments</h2>
-        <div class="tournaments">
+        <div class="tournaments tournaments--grid">
             <div v-for="(tournament, index) in tournaments" :key="tournament.id" class="tournament">
                 <tournament-card :tournament="tournament" v-if="index < 7" />
             </div>
@@ -75,16 +75,26 @@ export default {
     margin-bottom: 24px;
 }
 
-.completed-tournaments .tournaments {
-    display: flex;
-    flex-wrap: wrap;
+.completed-tournaments .tournaments--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: clamp(12px, 2.5vw, 18px);
+    width: 100%;
+    min-width: 0;
+    margin: 0;
     align-items: stretch;
-    gap: 0;
-    margin: -12px;
 }
 
 .completed-tournaments .tournament {
     display: flex;
-    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    .completed-tournaments .tournaments--grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>

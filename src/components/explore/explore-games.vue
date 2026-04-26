@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="explore-games">
-        <div class="games">
+        <div class="games games--grid">
             <div v-for="game in games" :key="game.id" class="game">
                 <game-card :game="game" />
             </div>
@@ -68,19 +68,21 @@ export default {
     width: 100%;
 }
 
-.explore-games .games {
-    display: flex;
-    margin: -12px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 0;
+.explore-games .games--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+    gap: clamp(12px, 2.5vw, 18px);
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    align-items: start;
 }
 
 .explore-games .game {
-    flex: 0 0 calc((100% - 144px) / 6);
-    min-width: 180px;
-    max-width: 220px;
+    display: flex;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
 }
 
 .explore-games h3 {
@@ -88,37 +90,9 @@ export default {
     margin-bottom: 24px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1400px) {
-    .explore-games .game {
-        flex: 0 0 calc((100% - 120px) / 5);
+@media (max-width: 600px) {
+    .explore-games .games--grid {
+        grid-template-columns: 1fr;
     }
-}
-
-@media (max-width: 1200px) {
-    .explore-games .game {
-        flex: 0 0 calc((100% - 96px) / 4);
-    }
-}
-
-@media (max-width: 768px) {
-    .explore-games .game {
-        flex: 0 0 calc((100% - 72px) / 3);
-    }
-}
-
-@media (max-width: 480px) {
-    .explore-games .game {
-        flex: 0 0 calc((100% - 48px) / 2);
-    }
-}
-
-/* Mobile Responsive */
-.mobile .explore-games .games {
-    justify-content: center;
-}
-
-.mobile .explore-games .game {
-    max-width: none;
 }
 </style>

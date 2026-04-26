@@ -63,12 +63,13 @@ export default {
 .game-card {
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    margin: 12px;
-    width: calc((100% - 144px) / 6);
-    min-width: 180px;
-    max-width: 220px;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     position: relative;
-    flex: 0 0 calc((100% - 144px) / 6);
+    flex: none;
 }
 
 .game-card:hover {
@@ -376,29 +377,7 @@ export default {
     transform: translateX(-50%) scaleX(1);
 }
 
-/* Tablet Responsive */
-@media (max-width: 1400px) {
-    .game-card {
-        width: calc((100% - 120px) / 5);
-        flex: 0 0 calc((100% - 120px) / 5);
-    }
-}
-
-@media (max-width: 1200px) {
-    .game-card {
-        width: calc((100% - 96px) / 4);
-        flex: 0 0 calc((100% - 96px) / 4);
-    }
-}
-
-/* Mobile Responsive */
 @media (max-width: 768px) {
-    .game-card {
-        width: calc((100% - 72px) / 3);
-        flex: 0 0 calc((100% - 72px) / 3);
-        margin: 12px;
-    }
-
     .game-title {
         font-size: 14px;
     }
@@ -414,13 +393,6 @@ export default {
 
     .view-text {
         font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .game-card {
-        width: calc((100% - 48px) / 2);
-        flex: 0 0 calc((100% - 48px) / 2);
     }
 }
 </style>

@@ -2,24 +2,39 @@
 <template>
     <div class="game-nav">
         <div v-if="game" class="game-header" :style="trendingStyle">
-            <img :src="game.logoUrl" />
-        </div>
-        <div v-if="showMenu" class="quick-nav">
-            <div class="left-section">
-                <div v-for="tab in tabs" :key="tab" class="info-card" @click="selectedTab(tab)">
-                    {{ tab }}
-                </div>
+            <div class="game-header-logo">
+                <img :src="game.logoUrl" />
             </div>
-
-            <div class="right-section">
+            <div v-if="showMenu" class="game-header-actions">
                 <div class="info-card share" @click="shareGame()">Share</div>
                 <div v-if="account" class="followed-container">
-                    <div v-if="!isFollowed" class="follow-btn info-card" @click="followCharacter()">
+                    <div
+                        v-if="!isFollowed"
+                        class="follow-btn info-card"
+                        @click="followCharacter()"
+                    >
                         <v-icon> mdi-heart-outline </v-icon>
                     </div>
                     <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
                         <v-icon> mdi-heart </v-icon>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="showMenu" class="quick-nav">
+            <div class="left-section" role="tablist" aria-label="Game content">
+                <div
+                    v-for="t in contentTabs"
+                    :key="t.id"
+                    class="info-card"
+                    :class="{
+                        'info-card--active': t.id === activeTabId,
+                    }"
+                    role="tab"
+                    :aria-selected="t.id === activeTabId"
+                    @click="onSelectContentTab(t.id)"
+                >
+                    {{ t.label }}
                 </div>
             </div>
         </div>
@@ -54,6 +69,17 @@ export default {
             type: Boolean,
             default: true,
         },
+
+        /** { id, label }[] from parent — Combos, Online, Tournament, optional Tier/Updates */
+        contentTabs: {
+            type: Array,
+            default: () => [],
+        },
+
+        activeTabId: {
+            type: String,
+            default: 'online',
+        },
     },
 
     data() {
@@ -61,17 +87,19 @@ export default {
             game: null,
             popupActive: false,
             isFollowed: false,
-            tabs: ['Combos', 'Online Matches', 'Tournament Matches'],
         };
     },
 
     computed: {
         trendingStyle() {
-            return {
-                'background-image': `url(${this.game.banner})`,
-                'background-size': 'cover',
-                'background-repeat': 'no-repeat',
-            };
+            if (this.game && this.game.banner) {
+                return {
+                    'background-image': `url(${this.game.banner})`,
+                    'background-size': 'cover',
+                    'background-repeat': 'no-repeat',
+                };
+            }
+            return {};
         },
     },
 
@@ -122,13 +150,21 @@ export default {
             this.$router.push(`/character/${character.id}`);
         },
 
-        selectedTab(tab) {
-            this.$emit('selected-video', tab);
+        onSelectContentTab(id) {
+            this.$emit('select-content-tab', id);
         },
 
         shareGame() {
             navigator.clipboard.writeText(window.location.href);
             alert('Game link copied to clipboard');
+        },
+
+        followCharacter() {
+            this.followGame();
+        },
+
+        unfollowCharacter() {
+            this.unfollowGame();
         },
     },
 };
@@ -141,17 +177,42 @@ export default {
 }
 
 .game-nav .game-header {
-    height: 100px;
+    min-height: 100px;
     width: 100%;
     display: flex;
-    align-items: end;
-    padding: 0 20px 0 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+    padding: 8px 12px 8px 16px;
     margin-bottom: 10px;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.game-nav .game-header img {
-    height: 100%;
+.game-nav .game-header-logo {
+    display: flex;
+    align-items: center;
+    min-height: 0;
+    flex: 0 1 auto;
+}
+
+.game-nav .game-header-logo img {
+    height: 100px;
+    max-height: 100px;
     width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.game-nav .game-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 10px;
+    z-index: 1;
 }
 
 .game-nav .game-header .divider {
@@ -183,10 +244,16 @@ export default {
     padding: 0 16px;
 }
 
-.game-nav .quick-nav {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
+.game-nav .info-card.info-card--active {
+    border-color: #3eb489;
+    color: #fff;
+    background: #1a2e28;
+    box-shadow: 0 0 0 1px #3eb489;
+}
+
+.game-nav .info-card.info-card--info {
+    white-space: nowrap;
+    max-width: 100%;
 }
 
 .game-nav .popup {
@@ -215,22 +282,20 @@ export default {
 .game-nav .quick-nav {
     display: flex;
     align-items: center;
-    margin-top: 24px;
+    margin-top: 20px;
     flex-wrap: wrap;
     gap: 4px;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
-.game-nav .quick-nav .left-section,
-.game-nav .quick-nav .right-section {
+.game-nav .quick-nav .left-section {
     display: flex;
     align-items: center;
-    gap: 4px;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.mobile .game-nav .game-header img {
+.mobile .game-nav .game-header-logo img {
     width: auto;
     max-height: 100px;
 }

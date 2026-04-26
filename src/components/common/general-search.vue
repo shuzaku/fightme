@@ -7,7 +7,7 @@
             :close-on-select="true"
             :clear-on-select="true"
             :preserve-search="true"
-            placeholder="Search players, characters, or games."
+            placeholder="Search players, games, characters"
             group-label="category"
             group-values="values"
             label="value"
@@ -189,24 +189,75 @@ export default {
 
 <style type="text/css">
 .general-search {
+    max-width: min(470px, 100%);
+    min-width: 0;
     width: 100%;
     color: #fff;
     text-align: center;
     background: transparent;
     display: flex;
     justify-content: center;
-    width: 470px;
+    align-items: center;
     margin-top: 10px;
     position: relative;
-    display: flex;
-    align-items: center;
+    box-sizing: border-box;
+}
+
+.general-search .multiselect {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
 }
 
 .general-search .multiselect__tags {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
     background: #ffffff10;
     border: #3eb489 1px solid;
     border-radius: 15px;
-    padding: 10px 40px 0 16px;
+    padding: 8px 40px 8px 16px;
+}
+
+.general-search .multiselect__tags-wrap,
+.general-search .multiselect__spinner {
+    flex: 0 0 auto;
+}
+
+/* When open, the search field should grow; when closed, input is width:0 and absolute */
+.general-search .multiselect--active .multiselect__input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Native text field: ellipsis for long query + placeholder (when open) */
+.general-search .multiselect__input {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Closed field / selected: flex ellipsis (basis 0 so clipping + … show reliably) */
+.general-search .multiselect__placeholder,
+.general-search .multiselect__single {
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: 100%;
+    margin-bottom: 0;
+    padding-top: 0;
+    color: #fff;
+    display: block;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 .general-search .multiselect__select:before {
@@ -215,10 +266,6 @@ export default {
 
 #app.mobile.small-mobile .general-search {
     max-width: 100%;
-}
-
-.general-search .multiselect {
-    margin-bottom: 10px;
 }
 
 .general-search .search-container {
@@ -264,7 +311,6 @@ export default {
     margin: 0 10px;
 }
 
-.general-search .multiselect__placeholder,
 .general-search .multiselect__option {
     color: #fff;
 }

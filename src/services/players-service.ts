@@ -38,4 +38,22 @@ export default {
   mergePlayers (params: MergePlayers) {
     return Api().get(`/mergePlayers/${params.player1Id}/${params.player2Id}`) 
   },
+
+  /**
+   * Binds a player to a user. Server sets `AccountId` on the player and adds
+   * the id to the account’s `LinkedPlayerIds` (array). Only `updatePlayer` is
+   * required; no separate account patch.
+   */
+  linkPlayerToUser(playerId, accountId) {
+    return this.updatePlayer(
+      { id: playerId, AccountId: accountId }
+    )
+  },
+
+  /** Unlinks; server removes the id from the account’s `LinkedPlayerIds`. */
+  unlinkPlayerFromUser(playerId) {
+    return this.updatePlayer(
+      { id: playerId, AccountId: null }
+    )
+  },
 } 

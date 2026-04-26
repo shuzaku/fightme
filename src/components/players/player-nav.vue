@@ -33,21 +33,120 @@
                     Tournament Matches
                 </div>
             </div>
+            <div
+                v-if="account"
+                class="player-account-link"
+            >
+                <div v-if="isOwnPlayerProfile" class="link-pill is-linked">
+                    This is your player profile
+                    <v-btn
+                        v-if="canUnlink"
+                        x-small
+                        text
+                        dark
+                        class="ml-1 link-action-text-btn"
+                        :disabled="linkLoading"
+                        @click="unlinkFromAccount"
+                    >
+                        Unlink
+                    </v-btn>
+                </div>
+                <div
+                    v-else-if="claimedByOther"
+                    class="link-pill linked-other"
+                >
+                    This player is linked to another account
+                </div>
+                <div
+                    v-else-if="canUseInstantLink"
+                    class="link-claim"
+                >
+                    <p class="link-pill subtext">As an admin, you can link this profile directly.</p>
+                    <v-btn
+                        small
+                        color="primary"
+                        dark
+                        depressed
+                        class="link-claim-primary"
+                        :loading="linkLoading"
+                        :disabled="!resolvedPlayerId"
+                        @click="linkToMyAccount"
+                    >
+                        This is me — link my account
+                    </v-btn>
+                </div>
+                <div
+                    v-else-if="hasPendingLinkRequest"
+                    class="link-claim"
+                >
+                    <div class="link-pill is-linked">
+                        Link request sent — an admin will review it.
+                    </div>
+                    <v-btn
+                        v-if="linkRequest && linkRequest._id"
+                        x-small
+                        text
+                        dark
+                        class="mt-1 link-action-text-btn"
+                        :disabled="requestLoading"
+                        @click="cancelLinkRequest"
+                    >
+                        Cancel request
+                    </v-btn>
+                </div>
+                <div
+                    v-else-if="hasRejectedLinkRequest"
+                    class="link-claim"
+                >
+                    <div class="link-pill linked-other">
+                        Your request to link this player was not approved
+                        <span v-if="linkRequest && linkRequest.RejectionNote"
+                            >: {{ linkRequest.RejectionNote }}</span
+                        >.
+                    </div>
+                    <v-btn
+                        small
+                        color="primary"
+                        dark
+                        depressed
+                        class="link-claim-primary mt-1"
+                        :loading="linkLoading"
+                        :disabled="!resolvedPlayerId"
+                        @click="requestLink"
+                    >
+                        Request again
+                    </v-btn>
+                </div>
+                <div v-else-if="canRequestLink" class="link-claim">
+                    <p class="link-pill subtext">
+                        Request a link to this player profile. An admin must approve it before the link
+                        is created.
+                    </p>
+                    <v-btn
+                        small
+                        color="primary"
+                        dark
+                        depressed
+                        class="link-claim-primary"
+                        :loading="linkLoading"
+                        :disabled="!resolvedPlayerId"
+                        @click="requestLink"
+                    >
+                        Request to link this player
+                    </v-btn>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import PlayersService from '@/services/players-service';
-import PlayerSearch from '@/components/players/player-search';
+import PlayerLinkRequestsService from '@/services/player-link-requests-service';
 import { eventbus } from '@/main';
 
 export default {
     name: 'PlayerNav',
-
-    components: {
-        'player-search': PlayerSearch,
-    },
 
     props: {
         playerId: {
@@ -70,15 +169,44 @@ export default {
         return {
             popupActive: false,
             isFollowed: false,
+            linkLoading: false,
+            requestLoading: false,
+            linkRequest: null,
             player: {
                 id: this.playerId,
                 name: null,
                 imageUrl: null,
+                accountId: null,
             },
         };
     },
 
     computed: {
+        resolvedPlayerId() {
+            if (this.playerId) {
+                return this.playerId;
+            }
+            return (this.player && this.player.id) || null;
+        },
+        isOwnPlayerProfile() {
+            return (
+                this.account &&
+                this.player &&
+                this.player.accountId &&
+                this.player.accountId === this.account.id
+            );
+        },
+        canUnlink() {
+            return this.isOwnPlayerProfile;
+        },
+        claimedByOther() {
+            return (
+                this.account &&
+                this.player &&
+                this.player.accountId &&
+                this.player.accountId !== this.account.id
+            );
+        },
         playerbubbleStyle() {
             return {
                 'background-image': `url(${this.player.imageUrl})`,
@@ -86,6 +214,49 @@ export default {
                 'background-repeat': 'no-repeat',
                 'background-position': '0% 20%',
             };
+        },
+        isAdmin() {
+            return (
+                this.account &&
+                String((this.account.role || this.account.accountType || '')).toLowerCase() ===
+                    'admin'
+            );
+        },
+        canUseInstantLink() {
+            return (
+                this.isAdmin && !this.player.accountId && this.claimedByOther === false
+            );
+        },
+        canRequestLink() {
+            return (
+                this.account &&
+                !this.isOwnPlayerProfile &&
+                !this.claimedByOther &&
+                !this.player.accountId &&
+                !this.isAdmin
+            );
+        },
+        hasPendingLinkRequest() {
+            if (this.isOwnPlayerProfile || this.claimedByOther || this.canUseInstantLink) {
+                return false;
+            }
+            if (this.isAdmin) {
+                return false;
+            }
+            return this.linkRequest && this.linkRequest.Status === 'pending' && !this
+                .player.accountId;
+        },
+        hasRejectedLinkRequest() {
+            if (
+                this.isOwnPlayerProfile ||
+                this.claimedByOther ||
+                this.isAdmin ||
+                this.player.accountId
+            ) {
+                return false;
+            }
+            return this.linkRequest && this.linkRequest.Status === 'rejected' && !this
+                .player.accountId;
         },
     },
 
@@ -97,10 +268,12 @@ export default {
 
     created() {
         eventbus.$on('account:update', this.isPlayerFollowed);
+        eventbus.$on('account:update', this.onAccountUpdate);
     },
 
     beforeDestroy() {
         eventbus.$off('account:update', this.isPlayerFollowed);
+        eventbus.$off('account:update', this.onAccountUpdate);
     },
 
     mounted() {
@@ -113,11 +286,38 @@ export default {
     },
 
     methods: {
+        onAccountUpdate() {
+            this.loadRequestStatus();
+        },
+        async loadRequestStatus() {
+            if (!this.account || !this.resolvedPlayerId) {
+                this.linkRequest = null;
+                return;
+            }
+            if (this.isOwnPlayerProfile) {
+                this.linkRequest = null;
+                return;
+            }
+            this.requestLoading = true;
+            try {
+                const { data } = await PlayerLinkRequestsService.getRequestForPlayer(
+                    this.account.id,
+                    this.resolvedPlayerId
+                );
+                this.linkRequest = (data && data.request) || null;
+            } catch (e) {
+                this.linkRequest = null;
+            } finally {
+                this.requestLoading = false;
+            }
+        },
         async getPlayer() {
             const response = await PlayersService.getPlayer({
                 id: this.playerId,
             });
             this.player = this.hydratePlayer(response.data);
+            await this.$nextTick();
+            return this.loadRequestStatus();
         },
 
         async getPlayerBySlug() {
@@ -125,6 +325,8 @@ export default {
                 slug: this.playerSlug,
             });
             this.player = this.hydratePlayer(response.data.players[0]);
+            await this.$nextTick();
+            return this.loadRequestStatus();
         },
 
         hydratePlayer(response) {
@@ -135,7 +337,107 @@ export default {
                 twitter: response.Twitter ? response.Twitter : null,
                 stream: response.Stream ? response.Stream : null,
                 youtube: response.Youtube ? response.Youtube : null,
+                accountId: response.AccountId || null,
             };
+        },
+
+        async linkToMyAccount() {
+            if (!this.resolvedPlayerId || !this.account) {
+                return;
+            }
+            this.linkLoading = true;
+            try {
+                await PlayersService.linkPlayerToUser(this.resolvedPlayerId, this.account.id);
+                this.linkRequest = null;
+                eventbus.$emit('refetch:account');
+                if (this.playerId) {
+                    await this.getPlayer();
+                } else {
+                    await this.getPlayerBySlug();
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-alert
+                alert(
+                    (e && e.response && e.response.data && e.response.data.message) ||
+                        (e && e.message) ||
+                        'Could not link. The API may need to support AccountId and LinkedPlayerIds on the server.'
+                );
+            } finally {
+                this.linkLoading = false;
+            }
+        },
+
+        async unlinkFromAccount() {
+            if (!this.resolvedPlayerId || !this.account) {
+                return;
+            }
+            this.linkLoading = true;
+            try {
+                await PlayersService.unlinkPlayerFromUser(this.resolvedPlayerId);
+                eventbus.$emit('refetch:account');
+                if (this.playerId) {
+                    await this.getPlayer();
+                } else {
+                    await this.getPlayerBySlug();
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-alert
+                alert(
+                    (e && e.response && e.response.data && e.response.data.message) ||
+                        (e && e.message) ||
+                        'Could not unlink profile.'
+                );
+            } finally {
+                this.linkLoading = false;
+            }
+        },
+        async requestLink() {
+            if (!this.resolvedPlayerId || !this.account) {
+                return;
+            }
+            this.linkLoading = true;
+            try {
+                const { data } = await PlayerLinkRequestsService.createRequest(
+                    this.account.id,
+                    this.resolvedPlayerId
+                );
+                if (data && data.request) {
+                    this.linkRequest = data.request;
+                } else {
+                    await this.loadRequestStatus();
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-alert
+                alert(
+                    (e && e.response && e.response.data && e.response.data.message) ||
+                        (e && e.message) ||
+                        'Could not send link request.'
+                );
+            } finally {
+                this.linkLoading = false;
+            }
+        },
+        async cancelLinkRequest() {
+            if (!this.linkRequest || !this.linkRequest._id || !this.account) {
+                return;
+            }
+            this.requestLoading = true;
+            try {
+                await PlayerLinkRequestsService.cancelRequest(
+                    this.linkRequest._id,
+                    this.account.id
+                );
+                this.linkRequest = null;
+            } catch (e) {
+                // eslint-disable-next-line no-alert
+                alert(
+                    (e && e.response && e.response.data && e.response.data.message) ||
+                        (e && e.message) ||
+                        'Could not cancel the request.'
+                );
+            } finally {
+                this.requestLoading = false;
+            }
         },
 
         filter(filterType) {
@@ -283,5 +585,72 @@ export default {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+}
+
+.player-nav .player-account-link {
+    margin-top: 16px;
+    max-width: 600px;
+}
+
+.player-nav .link-claim,
+.player-nav .link-pill {
+    font-size: 0.9rem;
+    color: #b0b3c4;
+    line-height: 1.4;
+}
+
+.player-nav .link-pill.is-linked {
+    color: #3eb489;
+}
+
+.player-nav .link-pill.linked-other {
+    color: #c4a45a;
+}
+
+.player-nav .link-pill.subtext {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    font-size: 0.85rem;
+    color: #8e92a0;
+}
+
+/* Filled CTA: same green as .game-title pills on match cards (#3eb489) */
+.player-nav .link-claim .v-btn.link-claim-primary {
+    background: #3eb489 !important;
+    border-color: #3eb489 !important;
+    color: #fff !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.player-nav .link-claim .v-btn.link-claim-primary .v-btn__content {
+    color: #fff !important;
+}
+
+.player-nav .link-claim .v-btn.link-claim-primary:hover,
+.player-nav .link-claim .v-btn.link-claim-primary:focus {
+    background: #2d8a6a !important;
+    border-color: #2d8a6a !important;
+}
+
+/* Other non-text in link-claim (if any) */
+.player-nav .link-claim .v-btn:not(.v-btn--text):not(.link-claim-primary) {
+    color: #f5f5ff !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.player-nav .link-claim .v-btn:not(.v-btn--text):not(.link-claim-primary) .v-btn__content {
+    color: inherit;
+}
+
+.player-nav .player-account-link .link-action-text-btn {
+    color: #c4c8e0 !important;
+    opacity: 0.95;
+}
+
+.player-nav .player-account-link .link-action-text-btn:hover {
+    color: #fff !important;
+    opacity: 1;
 }
 </style>
