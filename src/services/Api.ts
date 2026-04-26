@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export default () => {
     const instance = axios.create({
-        baseURL: 'https://fightme-server.herokuapp.com/'
+        baseURL: 'https://fightmeserver.fly.dev'
         // baseURL: 'http://localhost:80'
     })
 
