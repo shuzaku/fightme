@@ -37,6 +37,28 @@ import MoreInfoPanel from '@/components/common/more-info-panel';
 import Follows from '@/components/account/follows';
 import Sidebar from '@/components/common/sidebar';
 
+function normalizeLinkedPlayerIdsFromAccount(raw) {
+    if (!raw) {
+        return [];
+    }
+    if (Array.isArray(raw.LinkedPlayerIds) && raw.LinkedPlayerIds.length) {
+        return raw.LinkedPlayerIds.map(function (id) {
+            if (id == null) {
+                return null;
+            }
+            return id && id.toString ? id.toString() : String(id);
+        }).filter(Boolean);
+    }
+    if (raw.LinkedPlayerId) {
+        var s = raw.LinkedPlayerId;
+        if (s && s._id) {
+            s = s._id;
+        }
+        return [String(s)];
+    }
+    return [];
+}
+
 export default {
     name: 'App',
 
@@ -87,6 +109,7 @@ export default {
         eventbus.$on('account:logout', this.logout);
         eventbus.$on('account:loggedOut', this.resetAccount);
         eventbus.$on('account:loggedIn', this.getPersistantUser);
+        eventbus.$on('refetch:account', this.refetchCurrentAccount);
         eventbus.$on('toggle:mobile-nav', this.toggleMobileMenu);
         window.addEventListener('resize', this.calculateScreenWidth);
     },
@@ -104,6 +127,7 @@ export default {
         eventbus.$off('video:unfavorite', this.removeFavoriteVideo);
         eventbus.$off('account:logout', this.logout);
         eventbus.$off('account:loggedIn', this.getPersistantUser);
+        eventbus.$off('refetch:account', this.refetchCurrentAccount);
 
         window.removeEventListener('resize', this.calculateScreenWidth);
     },
@@ -117,6 +141,7 @@ export default {
             this.account = {
                 id: null,
                 role: 'unregistered user',
+                linkedPlayerIds: [],
             };
         },
 
@@ -210,6 +235,9 @@ export default {
                                 };
                             }) || [],
                         role: response.data.account[0].AccountType,
+                        linkedPlayerIds: normalizeLinkedPlayerIdsFromAccount(
+                            response.data.account[0]
+                        ),
                     };
                 }
                 eventbus.$emit('account:update', this.account);
@@ -249,6 +277,13 @@ export default {
                     globalScope.isLoading = false;
                 }
             });
+        },
+
+        refetchCurrentAccount() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                this.fetchAccount(user);
+            }
         },
 
         logout() {
@@ -467,12 +502,23 @@ export default {
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
 #app {
+    --app-top-bar-height: 84px;
+    /* Fixed strip under the top bar (follows avatars + optional guest line). Tuned in follows.vue */
+    --app-follows-bar-height: 72px;
     font-family: 'Roboto';
     min-height: 100vh;
     background: #242832;
     overflow: hidden;
     align-items: center;
     justify-content: center;
+}
+
+#app.mobile {
+    --app-top-bar-height: 70px;
+}
+
+#app.mobile.small-mobile {
+    --app-top-bar-height: 60px;
 }
 
 h2 {

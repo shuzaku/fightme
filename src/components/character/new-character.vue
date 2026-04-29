@@ -34,8 +34,10 @@
                             </button>
                         </div>
 
-                        <div class="input-wrapper">
-                            <i class="fas fa-user input-icon"></i>
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-user"></i>
+                            </div>
                             <v-text-field
                                 v-model="characterName"
                                 type="text"
@@ -43,36 +45,176 @@
                                 placeholder="Character Name"
                                 dark
                                 outlined
+                                hide-details
                             />
                         </div>
 
-                        <div class="input-wrapper">
-                            <i class="fas fa-image input-icon"></i>
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <v-text-field
+                                v-model="slug"
+                                type="text"
+                                name="slug"
+                                placeholder="URL slug (optional; defaults from name)"
+                                dark
+                                outlined
+                                hide-details
+                            />
+                        </div>
+
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="input-with-icon__field input-with-icon__field--search">
+                                <game-search v-model="game.id" @update:game="setGame($event)" />
+                            </div>
+                        </div>
+
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-image"></i>
+                            </div>
                             <v-text-field
                                 id="import-image"
                                 v-model="imageUrl"
                                 type="text"
-                                placeholder="Character Image Url"
+                                placeholder="Image URL (full art)"
                                 dark
                                 outlined
+                                hide-details
                             />
                         </div>
 
-                        <div class="input-wrapper">
-                            <i class="fas fa-portrait input-icon"></i>
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-portrait"></i>
+                            </div>
                             <v-text-field
                                 id="import-thumbnail"
                                 v-model="avatarUrl"
                                 type="text"
-                                placeholder="Character Avatar Url"
+                                placeholder="Avatar URL (portrait / thumbnail)"
                                 dark
                                 outlined
+                                hide-details
                             />
                         </div>
 
-                        <div class="input-wrapper">
-                            <i class="fas fa-gamepad input-icon"></i>
-                            <game-search v-model="game.id" @update:game="setGame($event)" />
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <v-text-field
+                                v-model="archetype"
+                                type="text"
+                                name="archetype"
+                                placeholder="Archetype (e.g. Power / Zoner / Boss)"
+                                dark
+                                outlined
+                                hide-details
+                            />
+                        </div>
+
+                        <div class="input-with-icon input-with-icon--top">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-clipboard"></i>
+                            </div>
+                            <v-textarea
+                                v-model="gameplan"
+                                name="gameplan"
+                                placeholder="Gameplan"
+                                dark
+                                outlined
+                                auto-grow
+                                rows="3"
+                                hide-details
+                            />
+                        </div>
+
+                        <div class="input-with-icon input-with-icon--top">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <v-textarea
+                                v-model="strengths"
+                                name="strengths"
+                                placeholder="Strengths"
+                                dark
+                                outlined
+                                auto-grow
+                                rows="2"
+                                hide-details
+                            />
+                        </div>
+
+                        <div class="input-with-icon input-with-icon--top">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <v-textarea
+                                v-model="weakness"
+                                name="weakness"
+                                placeholder="Weakness"
+                                dark
+                                outlined
+                                auto-grow
+                                rows="2"
+                                hide-details
+                            />
+                        </div>
+
+                        <div class="stacked-input-with-icon">
+                            <label class="stacked-input-with-icon__label" for="character-release-date">
+                                Release date (optional)
+                            </label>
+                            <div class="stacked-input-with-icon__row">
+                                <div class="input-icon-wrap" aria-hidden="true">
+                                    <i class="fas fa-calendar"></i>
+                                </div>
+                                <v-text-field
+                                    v-model="releaseDate"
+                                    class="stacked-input-with-icon__input"
+                                    type="date"
+                                    name="releaseDate"
+                                    id="character-release-date"
+                                    dark
+                                    outlined
+                                    hide-details
+                                />
+                            </div>
+                        </div>
+
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <v-text-field
+                                v-model="overviewUrl"
+                                type="text"
+                                name="overviewUrl"
+                                placeholder="Overview video ID (YouTube)"
+                                dark
+                                outlined
+                                hide-details
+                            />
+                        </div>
+
+                        <div class="input-with-icon">
+                            <div class="input-icon-wrap" aria-hidden="true">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <v-text-field
+                                v-model="wiki"
+                                type="text"
+                                name="wiki"
+                                placeholder="Wiki URL (required)"
+                                dark
+                                outlined
+                                hide-details
+                            />
                         </div>
                     </div>
 
@@ -83,7 +225,7 @@
                             large
                             block
                             @click="addCharacter()"
-                            :disabled="!characterName || !game.id"
+                            :disabled="!canSubmit"
                         >
                             <i class="fas fa-plus"></i> Submit Character
                         </v-btn>
@@ -109,6 +251,7 @@ export default {
     data() {
         return {
             characterName: '',
+            slug: '',
             game: {
                 name: null,
                 id: null,
@@ -116,19 +259,59 @@ export default {
             },
             imageUrl: null,
             avatarUrl: null,
+            archetype: '',
+            gameplan: '',
+            strengths: '',
+            weakness: '',
+            releaseDate: '',
+            overviewUrl: '',
+            wiki: '',
         };
+    },
+
+    computed: {
+        canSubmit() {
+            return (
+                Boolean(this.characterName && String(this.characterName).trim()) &&
+                Boolean(this.game && this.game.id) &&
+                Boolean(this.wiki && String(this.wiki).trim())
+            );
+        },
     },
 
     created() {},
 
     methods: {
+        addOptionalString(body, key, value) {
+            if (value != null && String(value).trim()) {
+                body[key] = String(value).trim();
+            }
+        },
+
         async addCharacter() {
-            await CharactersService.addCharacter({
-                Name: this.characterName,
+            const body = {
+                Name: String(this.characterName).trim(),
                 GameId: this.game.id,
-                ImageUrl: this.imageUrl,
-                AvatarUrl: this.avatarUrl,
-            });
+            };
+
+            this.addOptionalString(body, 'ImageUrl', this.imageUrl);
+            this.addOptionalString(body, 'AvatarUrl', this.avatarUrl);
+
+            if (this.slug && String(this.slug).trim()) {
+                body.Slug = String(this.slug).trim();
+            }
+            this.addOptionalString(body, 'Archetype', this.archetype);
+            this.addOptionalString(body, 'Gameplan', this.gameplan);
+            this.addOptionalString(body, 'Strengths', this.strengths);
+            this.addOptionalString(body, 'Weakness', this.weakness);
+            this.addOptionalString(body, 'OverviewUrl', this.overviewUrl);
+            body.Wiki = String(this.wiki).trim();
+
+            if (this.releaseDate) {
+                body.releaseDate = this.releaseDate;
+            }
+
+            await CharactersService.addCharacter(body);
 
             eventbus.$emit('updateSearch');
             this.closeModal();
@@ -166,8 +349,8 @@ export default {
     width: 100%;
     max-width: 900px;
     max-height: 90vh;
-    overflow-y: auto;
     display: flex;
+    flex-direction: column;
     background: linear-gradient(135deg, #191b2490 0%, #242832 100%);
     border-radius: 24px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -225,7 +408,10 @@ export default {
 .character-modal .character-content {
     display: flex;
     width: 100%;
-    min-height: 600px;
+    min-height: 0;
+    flex: 1 1 auto;
+    max-height: 90vh;
+    overflow: hidden;
 }
 
 .character-modal .character-graphic {
@@ -291,11 +477,17 @@ export default {
 }
 
 .character-modal .formcontainer {
-    flex: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
     padding: 50px 40px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .character-modal .character-header {
@@ -369,69 +561,112 @@ export default {
     font-size: 14px;
 }
 
-.character-modal .input-wrapper {
-    position: relative;
+/* Standalone label + icon row: avoids Vuetify outlined notch + native date input clipping. */
+.character-modal .stacked-input-with-icon {
     margin-bottom: 20px;
 }
 
-.character-modal .input-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
+.character-modal .stacked-input-with-icon__label {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 0 0 8px 52px;
+    letter-spacing: 0.01em;
+}
+
+.character-modal .stacked-input-with-icon__row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.character-modal .stacked-input-with-icon__input {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
+}
+
+.character-modal .input-with-icon {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.character-modal .input-with-icon--top {
+    align-items: flex-start;
+}
+
+.character-modal .input-with-icon--top .input-icon-wrap {
+    margin-top: 14px;
+}
+
+.character-modal .input-icon-wrap {
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: #ffffff60;
-    z-index: 2;
     font-size: 18px;
     pointer-events: none;
 }
 
-.character-modal .input-wrapper .v-input {
-    padding-left: 45px;
+.character-modal .input-with-icon .v-text-field,
+.character-modal .input-with-icon .v-textarea {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
 }
 
-.character-modal .input-wrapper .v-text-field {
-    margin-bottom: 0;
+.character-modal .input-with-icon__field {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
-.character-modal .input-wrapper .game-search {
-    padding-left: 45px;
+.character-modal .input-with-icon__field--search .game-search {
+    width: 100%;
 }
 
-.character-modal .input-wrapper .game-search >>> .multiselect {
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect {
     min-height: 50px;
 }
 
-.character-modal .input-wrapper .game-search >>> .multiselect__tags {
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect__tags {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
-    padding: 8px 16px 8px 40px !important;
+    padding: 8px 16px !important;
     transition: all 0.3s ease;
     min-height: 50px;
 }
 
-.character-modal .input-wrapper .game-search >>> .multiselect__tags:hover {
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect__tags:hover {
     border-color: rgba(62, 180, 137, 0.5) !important;
     background: rgba(255, 255, 255, 0.08) !important;
 }
 
-.character-modal .input-wrapper .game-search >>> .multiselect--active .multiselect__tags {
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect--active .multiselect__tags {
     border-color: #3eb489 !important;
     background: rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 0 0 3px rgba(62, 180, 137, 0.1);
 }
 
-.character-modal .input-wrapper .game-search >>> .multiselect__input,
-.character-modal .input-wrapper .game-search >>> .multiselect__single {
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect__input,
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect__single {
     background: transparent !important;
     color: #fff !important;
     font-size: 15px !important;
-    padding-left: 8px !important;
+    padding-left: 0 !important;
 }
 
-.character-modal .input-wrapper .game-search >>> .multiselect__placeholder {
+.character-modal .input-with-icon__field--search .game-search >>> .multiselect__placeholder {
     color: #ffffff60 !important;
-    padding-left: 8px !important;
+    padding-left: 0 !important;
 }
 
 .character-modal .v-text-field--outlined >>> .v-input__control {
@@ -464,6 +699,26 @@ export default {
 }
 
 .character-modal .v-text-field--outlined >>> .v-input__slot input::placeholder {
+    color: #ffffff60 !important;
+    opacity: 1;
+}
+
+.character-modal .v-textarea.v-text-field--outlined >>> .v-input__control {
+    min-height: auto;
+}
+
+.character-modal .v-textarea.v-text-field--outlined >>> .v-input__slot {
+    padding: 8px 16px !important;
+}
+
+.character-modal .v-textarea.v-text-field--outlined >>> .v-input__slot textarea {
+    color: #fff !important;
+    font-size: 15px;
+    line-height: 1.4;
+    margin-top: 0;
+}
+
+.character-modal .v-textarea.v-text-field--outlined >>> .v-input__slot textarea::placeholder {
     color: #ffffff60 !important;
     opacity: 1;
 }
@@ -564,7 +819,9 @@ export default {
 
     .character-modal .character-content {
         flex-direction: column;
-        min-height: auto;
+        flex: 1;
+        min-height: 0;
+        max-height: 95vh;
     }
 
     .character-modal .character-graphic {

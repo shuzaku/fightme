@@ -25,9 +25,11 @@ import YoutubeGenerator from './views/youtube-generator.vue';
 import Tournament from './views/tournament.vue';
 import PlayerList from './views/player-list.vue';
 import PlayerMerge from './views/merge-players-view.vue';
+import LinkUserToPlayer from './views/link-user-to-player-view.vue';
 
 import MatchReview from './views/match-review.vue';
 import AdminVideoApproval from './views/admin-video-approval.vue';
+import AdminPlayerLinkApproval from './views/admin-player-link-approval.vue';
 import TierListMaker from './views/tier-list-maker.vue';
 import TierListGallery from './views/tier-list-gallery.vue';
 import TierListDetails from './views/tier-list-details.vue';
@@ -85,9 +87,15 @@ const routes = [
     { path: '/tournament-bulk', name: 'Tournament Bulk', component: Tournament },
     { path: '/player-list', name: 'PlayerList', component: PlayerList },
     { path: '/merge-players', name: 'MergePlayers', component: PlayerMerge },
+    { path: '/link-user-to-player', name: 'LinkUserToPlayer', component: LinkUserToPlayer },
     { path: '/match/:id/review', name: 'MatchReview', component: MatchReview },
     { path: '/tournament/:id', name: 'Tournament', component: Tournament },
     { path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval },
+    {
+        path: '/admin/player-link-requests',
+        name: 'AdminPlayerLinkApproval',
+        component: AdminPlayerLinkApproval,
+    },
     { path: '/tier-list-maker', name: 'TierListMaker', component: TierListMaker },
     { path: '/tier-lists', name: 'TierListGallery', component: TierListGallery },
     { path: '/tier-lists/:id', name: 'TierListDetails', component: TierListDetails },

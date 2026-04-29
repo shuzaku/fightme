@@ -2,7 +2,7 @@
 <template>
     <div class="explore-tournaments">
         <h3>Upcoming Majors</h3>
-        <div class="tournaments">
+        <div class="tournaments tournaments--grid">
             <div v-for="tournament in tournaments" :key="tournament.id" class="tournament">
                 <tournament-card :tournament="tournament" />
             </div>
@@ -68,24 +68,31 @@ export default {
 </script>
 
 <style>
-.explore-tournaments .tournaments {
-    display: flex;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+.explore-tournaments .tournaments--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: clamp(12px, 2.5vw, 18px);
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 20px 0;
     align-items: stretch;
-    gap: 0;
-    margin: -12px;
-    margin-bottom: 20px;
 }
 
 .explore-tournaments .tournament {
     display: flex;
-    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
 }
 
 .explore-tournaments h3 {
     margin-bottom: 24px;
     color: #fff;
+}
+
+@media (max-width: 600px) {
+    .explore-tournaments .tournaments--grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>

@@ -79,14 +79,19 @@ export default {
 <style>
 .top-bar {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
+    box-sizing: border-box;
+    min-height: var(--app-top-bar-height, 84px);
     padding: 0 20px;
     position: fixed;
     top: 0;
     left: 0;
+    right: 0;
     z-index: 999;
     width: 100%;
+    max-width: 100vw;
     background: #1c1c24;
 }
 
@@ -101,10 +106,18 @@ export default {
     color: #fff;
     text-decoration: none;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 10px;
     font-family: 'Roboto';
     font-weight: 800;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.top-bar .logo span {
+    white-space: nowrap;
+    line-height: 1.05;
 }
 
 .mobile .top-bar .logo {
@@ -140,6 +153,7 @@ export default {
 .top-bar .general-search {
     max-width: 33%;
     width: 100%;
+    min-width: 0;
 }
 
 .top-bar .account-arrow {

@@ -73,8 +73,11 @@ export default {
 .tournament-card {
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    margin: 12px;
-    width: 200px;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     position: relative;
     height: 100%;
     display: flex;
@@ -434,13 +437,8 @@ export default {
     font-size: 10px;
 }
 
-/* Mobile Responsive */
+/* Typography / touch targets; width comes from parent grid */
 @media (max-width: 768px) {
-    .tournament-card {
-        width: calc((100% - 72px) / 3);
-        margin: 12px;
-    }
-
     .tournament-name {
         font-size: 13px;
     }
@@ -456,12 +454,6 @@ export default {
 
     .view-text {
         font-size: 11px;
-    }
-}
-
-@media (max-width: 480px) {
-    .tournament-card {
-        width: calc((100% - 48px) / 2);
     }
 }
 </style>

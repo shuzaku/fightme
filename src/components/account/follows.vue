@@ -154,22 +154,50 @@ export default {
 </script>
 <style type="text/css">
 .follows {
-    top: 60px;
+    /* Stack directly under the top bar; must match .top-bar min-height (:root --app-top-bar-height in App.vue) */
+    top: var(--app-top-bar-height, 84px);
+    left: 0;
+    right: 0;
     position: fixed;
     color: #fff;
     background: #4447e2;
-    z-index: 888;
+    z-index: 998;
     width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-    padding: 8px;
+    padding: 6px 10px 8px;
+    /* Keep height predictable: one scrollable row of avatars + optional guest line */
+    min-height: 0;
+    max-height: 120px;
+    overflow: hidden;
+}
+
+.follows .follow-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 0;
 }
 
 .follows .follows-list {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
-    justify-content: center;
-    max-width: 1200px;
+    justify-content: flex-start;
     margin: 0 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    gap: 0 6px;
+    padding: 0 2px 4px;
+    scrollbar-width: thin;
 }
 
 .follows .follow {
@@ -177,22 +205,24 @@ export default {
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-left: 0px;
+    margin-left: 0;
+    flex: 0 0 auto;
     transition: all 0.1s linear;
 }
 
 .follows .avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #fff;
-    margin-right: 10px;
+    margin-right: 6px;
+    flex-shrink: 0;
 }
 
 .follows .avatar .image-container {
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     border: 2px solid #3eb489;
@@ -218,10 +248,25 @@ export default {
 
 .follows .guest-msg {
     text-align: center;
-    margin-top: 8px;
+    margin: 0;
+    padding: 0 4px;
+    line-height: 1.25;
+    max-height: 2.5em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
-.mobile .follows {
-    top: 50px;
+.follows .guest-msg em {
+    font-size: 11px;
+    font-style: normal;
 }
+
+#app.mobile .follows .avatar,
+#app.mobile .follows .avatar .image-container {
+    width: 32px;
+    height: 32px;
+}
+
 </style>

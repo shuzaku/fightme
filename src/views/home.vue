@@ -10,8 +10,8 @@
                     />
                     <h1>Find Any Match, Any Player, Any Character</h1>
                     <p class="description">
-                        Fighters Edge indexes replay s from tournaments and streams so you can study
-                        matchups, follow your favorite players, and level up your game.
+                        Fighters Edge helps you find replays from tournaments and streams, study
+                        matchups, follow your favorite games and players, and level up.
                     </p>
                     <div class="search-container">
                         <general-search />
@@ -84,15 +84,17 @@
                         <i class="fas fa-fire section-icon"></i>
                         <h2>Trending Matches</h2>
                     </div>
-                    <div class="videos">
+                    <div class="videos videos--grid">
                         <div v-for="match in featuredMatches" :key="match.id" class="video-card">
-                            <youtube-media
-                                :video-id="match.url"
-                                :player-width="420"
-                                :player-height="240"
-                                :mute="true"
-                                :playsinline="1"
-                            />
+                            <div class="home-video-embed">
+                                <youtube-media
+                                    :video-id="match.url"
+                                    :player-width="640"
+                                    :player-height="360"
+                                    :mute="true"
+                                    :playsinline="1"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -108,16 +110,18 @@
                         <i class="fas fa-video section-icon"></i>
                         <h2>Featured Videos</h2>
                     </div>
-                    <div class="videos">
+                    <div class="videos videos--grid">
                         <div v-for="video in featuredVideos" :key="video.id" class="video-card">
-                            <youtube-media
-                                :video-id="video.url"
-                                ref="youtubeRef"
-                                :player-width="420"
-                                :player-height="240"
-                                :mute="true"
-                                :playsinline="1"
-                            />
+                            <div class="home-video-embed">
+                                <youtube-media
+                                    :video-id="video.url"
+                                    ref="youtubeRef"
+                                    :player-width="640"
+                                    :player-height="360"
+                                    :mute="true"
+                                    :playsinline="1"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -293,10 +297,14 @@ export default {
 </script>
 
 <style>
+/* Clear top bar + fixed follows (see App.vue / follows.vue) */
 .home-view {
-    padding-top: 160px;
+    padding-top: calc(
+        var(--app-top-bar-height, 84px) + var(--app-follows-bar-height, 72px) + clamp(24px, 4vw, 48px)
+    );
     width: 100%;
-    height: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
 }
 
 .home-view .fe-logo {
@@ -312,8 +320,9 @@ export default {
 
 .home-view > .container {
     max-width: 1600px;
-    padding: 50px;
+    padding: clamp(16px, 3vw, 50px);
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .home-view .content {
@@ -327,6 +336,9 @@ export default {
 .home-view .home-content {
     max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .home-view .heading {
@@ -523,15 +535,56 @@ export default {
     position: relative;
 }
 
-.home-view .featured-videos .videos,
-.home-view .trending-matches .videos {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+.home-view .featured-videos .videos--grid,
+.home-view .trending-matches .videos--grid,
+.home-view .latest-update .updates--grid,
+.home-view .featured-games .games--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+    gap: clamp(12px, 2.5vw, 20px);
+    width: 100%;
+    min-width: 0;
+    align-items: start;
+}
+
+.home-view .home-video-embed {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    padding-top: 56.25%;
+    min-width: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ensure vue-youtube root fills the 16:9 box */
+.home-view .home-video-embed > * {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* vue-youtube-embed may render wrapper div; target nested iframe */
+.home-view .home-video-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    border: 0;
+    border-radius: 12px;
 }
 
 .home-view .video-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -544,6 +597,16 @@ export default {
     box-shadow: 0 8px 25px rgba(62, 180, 137, 0.3);
 }
 
+@media (max-width: 600px) {
+    .home-view .featured-videos .videos--grid,
+    .home-view .trending-matches .videos--grid,
+    .home-view .latest-update .updates--grid,
+    .home-view .featured-games .games--grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+}
+
 .home-view .trending-matches {
     position: relative;
 }
@@ -553,10 +616,8 @@ export default {
     position: relative;
 }
 
-.home-view .tournaments {
-    display: flex;
-    gap: 11px;
-    flex-wrap: wrap;
+/* Tournament grid layout lives in completed-tournaments (tournaments--grid) */
+.home-view .recent-tournaments .tournaments {
     margin-bottom: 0;
 }
 
@@ -667,10 +728,13 @@ export default {
     margin-bottom: 40px;
 }
 
-.mobile .home-view .tournaments,
-.mobile .home-view .updates,
-.mobile .home-view .videos {
-    justify-content: center;
+/* Grid layouts: featured / trending / updates use templates + home.css */
+.mobile .home-view .latest-update .updates--grid,
+.mobile .home-view .featured-videos .videos--grid,
+.mobile .home-view .trending-matches .videos--grid,
+.mobile .home-view .featured-games .games--grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
 }
 
 .mobile .home-view h1 {
@@ -700,8 +764,9 @@ export default {
     text-align: center;
 }
 
-.mobile .home-view .tournaments {
-    justify-content: flex-start;
+.mobile .home-view .recent-tournaments .tournaments--grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
 }
 
 .mobile .home-view h2 {
@@ -716,9 +781,6 @@ export default {
     padding: 0 20px;
 }
 
-.mobile .home-view {
-    padding-top: 160px;
-}
 
 .mobile .home-view .cta-buttons {
     flex-direction: column;
@@ -742,6 +804,12 @@ export default {
 .mobile .home-view .video-card {
     width: 100%;
     max-width: 100%;
+}
+
+.mobile .home-view .featured-videos .videos--grid,
+.mobile .home-view .trending-matches .videos--grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
 }
 
 .mobile .home-view .cta h2 {
