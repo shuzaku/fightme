@@ -7,8 +7,9 @@
                 v-if="!loading"
                 :gameId="gameId"
                 :account="account"
-                :selectedVideoType="selectedVideoType"
-                @selected-video="selectVideoType($event)"
+                :content-tabs="allContentTabs"
+                :active-tab-id="activeContentTab"
+                @select-content-tab="onSelectContentTab"
             />
 
             <!-- Game Statistics Section -->
@@ -80,47 +81,6 @@
                     />
                 </div>
             </div>
-            <!-- Tier Lists Section -->
-            <div v-if="tierLists && tierLists.length > 0" class="tier-lists-section">
-                <h2>📊 Tier Lists</h2>
-                <div class="tier-lists-grid">
-                    <div
-                        v-for="list in tierLists"
-                        :key="list.id"
-                        class="tier-list-item"
-                        @click="goToTierListDetails(list.id)"
-                    >
-                        <div class="tier-list-header">
-                            <h3>{{ list.name }}</h3>
-                            <span class="tier-list-author">by {{ list.author }}</span>
-                        </div>
-                        <div class="tier-list-preview">
-                            <img
-                                v-for="(charUrl, index) in list.topCharacters"
-                                :key="index"
-                                :src="charUrl"
-                                class="preview-character"
-                                v-if="charUrl"
-                            />
-                        </div>
-                        <div class="tier-list-stats">
-                            <span><i class="fas fa-eye"></i> {{ list.views || 0 }}</span>
-                            <span><i class="fas fa-thumbs-up"></i> {{ list.likes || 0 }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Game Updates Section -->
-            <div v-if="gameUpdates && gameUpdates.length > 0" class="game-updates-section">
-                <h2>📰 Game Updates</h2>
-                <div class="updates">
-                    <div v-for="update in gameUpdates" :key="update.id" class="update">
-                        <update-card :update="update" />
-                    </div>
-                </div>
-            </div>
-
             <!-- Call to Action for New Games -->
             <div v-if="isNewGame" class="game-cta">
                 <h2>Help Build This Game's Community!</h2>
@@ -135,11 +95,73 @@
                 </div>
             </div>
 
-            <game-videos
-                id="game-videos"
-                :selectedVideoType="selectedVideoType"
-                :account="account"
-            />
+            <div
+                id="game-content-tabs"
+                class="game-content-tabs"
+                :aria-label="currentContentTabLabel"
+            >
+                <h2 class="visually-hidden-game-info">{{ currentContentTabLabel }}</h2>
+                <div
+                    v-show="isVideoContentTab"
+                    class="game-content-panel game-content-panel--videos"
+                >
+                    <game-videos
+                        id="game-videos"
+                        :selectedVideoType="selectedVideoType"
+                        :account="account"
+                    />
+                </div>
+                <div
+                    v-if="tierLists && tierLists.length"
+                    v-show="activeContentTab === 'tiers'"
+                    class="game-content-panel game-content-panel--tiers"
+                >
+                    <div class="tier-lists-grid">
+                        <div
+                            v-for="list in tierLists"
+                            :key="list.id"
+                            class="tier-list-item"
+                            @click="goToTierListDetails(list.id)"
+                        >
+                            <div class="tier-list-header">
+                                <h3>{{ list.name }}</h3>
+                                <span class="tier-list-author">by {{ list.author }}</span>
+                            </div>
+                            <div class="tier-list-preview">
+                                <img
+                                    v-for="(charUrl, index) in (list.topCharacters || []).filter(
+                                        (u) => u
+                                    )"
+                                    :key="index"
+                                    :src="charUrl"
+                                    class="preview-character"
+                                />
+                            </div>
+                            <div class="tier-list-stats">
+                                <span><i class="fas fa-eye"></i> {{ list.views || 0 }}</span>
+                                <span
+                                    ><i class="fas fa-thumbs-up"></i> {{ list.likes || 0 }}</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    v-if="gameUpdates && gameUpdates.length"
+                    v-show="activeContentTab === 'updates'"
+                    class="game-content-panel game-content-panel--updates"
+                >
+                    <div class="updates">
+                        <div
+                            v-for="update in gameUpdates"
+                            :key="update.id"
+                            class="update"
+                        >
+                            <update-card :update="update" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -185,6 +207,34 @@ export default {
                 this.stats.matches === 0 && this.stats.combos === 0 && this.stats.tournaments === 0
             );
         },
+        allContentTabs() {
+            const t = [
+                { id: 'combos', label: 'Combos' },
+                { id: 'online', label: 'Online Matches' },
+                { id: 'tournament', label: 'Tournament Matches' },
+            ];
+            if (this.tierLists && this.tierLists.length) {
+                t.push({ id: 'tiers', label: '📊 Tier lists' });
+            }
+            if (this.gameUpdates && this.gameUpdates.length) {
+                t.push({ id: 'updates', label: '📰 Game updates' });
+            }
+            return t;
+        },
+        isVideoContentTab() {
+            return (
+                this.activeContentTab === 'combos' ||
+                this.activeContentTab === 'online' ||
+                this.activeContentTab === 'tournament'
+            );
+        },
+        selectedVideoType() {
+            return this.mapTabIdToGameVideosLabel(this.activeContentTab);
+        },
+        currentContentTabLabel() {
+            const row = this.allContentTabs.find((r) => r.id === this.activeContentTab);
+            return row && row.label ? row.label : 'Content';
+        },
     },
 
     data() {
@@ -195,7 +245,10 @@ export default {
                 name: null,
                 logo: null,
             },
-            selectedVideoType: 'Online Matches',
+            /**
+             * Unified tab: combos | online (default) | tournament | tiers | updates
+             */
+            activeContentTab: 'online',
             stats: {
                 characters: 0,
                 matches: 0,
@@ -216,6 +269,13 @@ export default {
             this.getFeaturedVideos();
             this.getTierLists();
             this.getGameUpdates();
+            this.activeContentTab = 'online';
+        },
+        allContentTabs: {
+            deep: true,
+            handler() {
+                this.ensureActiveContentTab();
+            },
         },
     },
 
@@ -225,6 +285,9 @@ export default {
         this.getFeaturedVideos();
         this.getTierLists();
         this.getGameUpdates();
+        this.$nextTick(() => {
+            this.ensureActiveContentTab();
+        });
     },
 
     beforeDestroy() {},
@@ -267,32 +330,54 @@ export default {
             }
         },
 
-        selectVideoType(selectedVideo) {
-            this.selectedVideoType = selectedVideo;
+        mapTabIdToGameVideosLabel(id) {
+            if (id === 'combos') {
+                return 'Combos';
+            }
+            if (id === 'online') {
+                return 'Online Matches';
+            }
+            if (id === 'tournament') {
+                return 'Tournament Matches';
+            }
+            return 'Online Matches';
+        },
+
+        ensureActiveContentTab() {
+            const valid = (this.allContentTabs || []).some(
+                (t) => t && t.id === this.activeContentTab
+            );
+            if (!valid) {
+                this.activeContentTab = 'online';
+            }
+        },
+
+        onSelectContentTab(id) {
+            this.activeContentTab = id;
             this.$nextTick(() => {
-                const element = document.getElementById('game-videos');
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+                const el = document.getElementById('game-content-tabs');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
         },
 
         scrollToVideos() {
-            this.selectedVideoType = 'Online Matches';
+            this.activeContentTab = 'online';
             this.$nextTick(() => {
-                const element = document.getElementById('game-videos');
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+                const el = document.getElementById('game-content-tabs');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         },
 
         scrollToCombos() {
-            this.selectedVideoType = 'Combos';
+            this.activeContentTab = 'combos';
             this.$nextTick(() => {
-                const element = document.getElementById('game-videos');
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
+                const el = document.getElementById('game-content-tabs');
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
                 }
             });
         },
@@ -650,15 +735,28 @@ export default {
     justify-content: center;
 }
 
-.game-view .tier-lists-section {
+.game-view .game-content-tabs {
+    position: relative;
     margin: 60px 0;
+    scroll-margin-top: var(--app-top-bar-height, 84px);
+    background: transparent;
 }
 
-.game-view .tier-lists-section h2 {
-    color: #fff;
-    font-size: 28px;
-    margin-bottom: 24px;
-    font-weight: 600;
+.game-view .visually-hidden-game-info {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.game-view .game-content-panel {
+    background: transparent;
+    padding-top: 0;
 }
 
 .game-view .tier-lists-grid {
@@ -738,18 +836,7 @@ export default {
     gap: 15px;
 }
 
-.game-view .game-updates-section {
-    margin: 60px 0;
-}
-
-.game-view .game-updates-section h2 {
-    color: #fff;
-    font-size: 28px;
-    margin-bottom: 24px;
-    font-weight: 600;
-}
-
-.game-view .game-updates-section .updates {
+.game-view .game-content-tabs .updates {
     display: flex;
     margin-bottom: 20px;
     flex-wrap: wrap;
@@ -760,13 +847,13 @@ export default {
     margin-bottom: 20px;
 }
 
-.game-view .game-updates-section .update {
+.game-view .game-content-tabs .update {
     display: flex;
     flex: 0 0 auto;
     position: relative;
 }
 
-.mobile .game-view .game-updates-section .update {
+.mobile .game-view .game-content-tabs .update {
     max-width: none;
 }
 </style>

@@ -15,6 +15,13 @@
             <a v-if="isAdmin" class="menu-item admin-link" href="/admin/video-approval"
                 >Admin Panel</a
             >
+            <a
+                v-if="isAdmin"
+                class="menu-item admin-link"
+                href="/admin/player-link-requests"
+            >
+                Link requests
+            </a>
             <a class="menu-item" @click="logOut()">Log Out</a>
         </div>
         <div class="social-media">

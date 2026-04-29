@@ -2,7 +2,7 @@
 <template>
     <div class="login-overlay" @click.self="closeModal">
         <div class="login-modal">
-            <button class="close-button" @click="closeModal" aria-label="Close">
+            <button class="close-button" aria-label="Close" @click="closeModal">
                 <span class="close-icon">×</span>
             </button>
             <div class="login-content">
@@ -80,9 +80,9 @@
                     rounded
                     large
                     block
-                    @click="submit()"
                     :loading="isLoading"
                     :disabled="isLoading || !form.email || (!isResetPassword && !form.password)"
+                    @click="submit()"
                 >
                     <span v-if="!isLoading">
                         <i class="fas fa-sign-in-alt"></i> Login
@@ -96,9 +96,9 @@
                     rounded
                     large
                     block
-                    @click="resetPassword()"
                     :disabled="!form.email || isLoading"
                     :loading="isLoading"
+                    @click="resetPassword()"
                 >
                     <i class="fas fa-key"></i> Reset Password
                 </v-btn>
@@ -107,8 +107,8 @@
                     class="secondary-btn"
                     rounded
                     text
-                    @click="TogglePasswordReset()"
                     :disabled="isLoading"
+                    @click="TogglePasswordReset()"
                 >
                     {{ isResetPassword ? '← Return to Login' : 'Forgot Password?' }}
                 </v-btn>
@@ -124,6 +124,22 @@ import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
 import AuthService from '@/services/auth-service';
 import { eventbus } from '@/main';
+
+function linkedPlayerIdsFromRow(row) {
+    if (!row) {
+        return [];
+    }
+    if (Array.isArray(row.LinkedPlayerIds) && row.LinkedPlayerIds.length) {
+        return row.LinkedPlayerIds.map((id) =>
+            id && id.toString ? id.toString() : String(id)
+        );
+    }
+    if (row.LinkedPlayerId) {
+        const s = row.LinkedPlayerId;
+        return [String(s && s._id != null ? s._id : s)];
+    }
+    return [];
+}
 
 export default {
     data() {
@@ -218,6 +234,7 @@ export default {
                     collections: response.data.account[0].Collections,
                     accountType: response.data.account[0].AccountType,
                     role: user.role, // Include role from auth service
+                    linkedPlayerIds: linkedPlayerIdsFromRow(response.data.account[0]),
                 };
 
                 eventbus.$emit('account:login', this.account);
@@ -244,6 +261,7 @@ export default {
                 favoriteVideos: response.data.account[0].FavoriteVideos,
                 collections: response.data.account[0].Collections,
                 accountType: response.data.account[0].AccountType,
+                linkedPlayerIds: linkedPlayerIdsFromRow(response.data.account[0]),
             };
 
             eventbus.$emit('account:login', this.account);

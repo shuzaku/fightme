@@ -56,8 +56,11 @@ export default {
 .update-card {
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    margin: 8px;
-    width: 196px;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     position: relative;
     height: 100%;
     display: flex;
@@ -79,8 +82,11 @@ export default {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     position: relative;
     z-index: 2;
-    width: 196px;
-    height: 92px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    aspect-ratio: 196 / 92;
+    height: auto;
 }
 
 .update-card:hover .card-inner {
@@ -351,13 +357,7 @@ export default {
     font-size: 10px;
 }
 
-/* Mobile Responsive */
 @media (max-width: 768px) {
-    .update-card {
-        width: calc((100% - 72px) / 3);
-        margin: 12px;
-    }
-
     .view-icon {
         width: 50px;
         height: 50px;
@@ -369,12 +369,6 @@ export default {
 
     .view-text {
         font-size: 11px;
-    }
-}
-
-@media (max-width: 480px) {
-    .update-card {
-        width: calc((100% - 48px) / 2);
     }
 }
 </style>

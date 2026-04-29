@@ -2,7 +2,7 @@
 <template>
     <div class="explore-updates">
         <h2>📰 Latest Update</h2>
-        <div class="updates">
+        <div class="updates updates--grid">
             <div v-for="update in updates" :key="update.id" class="update">
                 <update-card :update="update" />
             </div>
@@ -57,20 +57,21 @@ export default {
 </script>
 
 <style>
-.explore-updates .updates {
-    display: flex;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+.explore-updates .updates--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: clamp(12px, 2.5vw, 18px);
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 20px 0;
     align-items: stretch;
-    gap: 0;
-    margin: -12px;
-    margin-bottom: 20px;
 }
 
 .explore-updates .update {
     display: flex;
-    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
     position: relative;
 }
 
@@ -87,7 +88,9 @@ export default {
     margin-bottom: 24px;
 }
 
-.mobile .explore-updates .update {
-    max-width: none;
+@media (max-width: 600px) {
+    .explore-updates .updates--grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
