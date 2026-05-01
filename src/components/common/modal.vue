@@ -13,6 +13,7 @@
         <new-video
             v-if="options.name === 'video'"
             :videoId="options.videoId"
+            :matchId="options.matchId"
             :account="this.account"
             @closeModal="closeModal()"
         />
@@ -20,6 +21,7 @@
         <new-match
             v-if="options.name === 'match'"
             :videoId="options.videoId"
+            :matchId="options.matchId"
             :account="this.account"
             @closeModal="closeModal()"
         />

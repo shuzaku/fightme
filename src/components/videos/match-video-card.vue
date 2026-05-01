@@ -32,7 +32,10 @@
             <div v-if="!video.isEditing" class="aside">
                 <div class="info">
                     <div class="game">
-                        <div class="game-title" @click="queryGame(video.game.id)">
+                        <div
+                            class="game-title"
+                            @click="video.game.id && queryGame(video.game.id)"
+                        >
                             <p>
                                 <span>
                                     <div class="img-container">
@@ -206,6 +209,7 @@ export default {
                 isPlaying: false,
                 url: null,
                 isFavorited: false,
+                game: { title: '', logoUrl: '', id: null },
             },
             intersectionOptions: {
                 root: null,
@@ -271,12 +275,13 @@ export default {
             var matchResponse = response.data.matches[0];
             this.video.match = {
                 team1Players: matchResponse.Team1Players.map((player) => {
+                    const team1 = matchResponse.Team1Player.find(
+                        (searchPlayer) => String(searchPlayer._id) === String(player.Id)
+                    );
                     return {
                         id: player.Id,
                         slot: player.Slot,
-                        name: matchResponse.Team1Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
+                        name: team1 ? team1.Name : '',
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team1PlayerCharacters
@@ -284,12 +289,13 @@ export default {
                     };
                 }),
                 team2Players: matchResponse.Team2Players.map((player) => {
+                    const team2 = matchResponse.Team2Player.find(
+                        (searchPlayer) => String(searchPlayer._id) === String(player.Id)
+                    );
                     return {
                         id: player.Id,
                         slot: player.Slot,
-                        name: matchResponse.Team2Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
+                        name: team2 ? team2.Name : '',
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team2PlayerCharacters
@@ -303,7 +309,24 @@ export default {
                 endTime: matchResponse.StartTime ? this.convertTime(matchResponse.EndTime) : null,
             };
             this.video.url = matchResponse.VideoUrl;
+            var gFromMatch =
+                matchResponse.Game && matchResponse.Game.length
+                    ? matchResponse.Game[0]
+                    : null;
+            if (gFromMatch) {
+                this.video.game = {
+                    title: gFromMatch.Title || '',
+                    logoUrl: gFromMatch.LogoUrl || '',
+                    id: gFromMatch._id,
+                };
+            }
             this.getVideo();
+        },
+
+        looksLikeYoutubeVideoId(url) {
+            if (!url || typeof url !== 'string') return false;
+            var s = url.trim();
+            return /^[a-zA-Z0-9_-]{11}$/.test(s);
         },
 
         convertTime(time) {
@@ -328,14 +351,19 @@ export default {
 
         hydrateCharacters(characterIds, characters) {
             var playerCharacters = [];
+            if (!characterIds || !characters) return playerCharacters;
 
             characterIds.forEach((id) => {
-                var filteredCharacter = characters.filter((character) => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].AvatarUrl,
-                });
+                var filteredCharacter = characters.find(
+                    (character) => String(character._id) === String(id)
+                );
+                if (filteredCharacter) {
+                    playerCharacters.push({
+                        name: filteredCharacter.Name ? filteredCharacter.Name : null,
+                        id: filteredCharacter._id,
+                        imageUrl: filteredCharacter.AvatarUrl,
+                    });
+                }
             });
             return playerCharacters;
         },
@@ -343,23 +371,41 @@ export default {
         async getVideo() {
             this.isLoading = true;
 
-            const response = await VideosService.getMatchVideo(this.video.url);
+            try {
+                const response = await VideosService.getMatchVideo(this.video.url);
+                const list = response.data.videos || [];
+                var videoResponse = list[0];
 
-            var videoResponse = response.data.videos[0];
-            this.video.videoType = videoResponse.VideoType;
-            this.video.game = {
-                title: videoResponse.Game.Title,
-                logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id,
-            };
-            this.video.isPlaying = false;
-            this.video.id = videoResponse._id;
-            this.isLoading = false;
-            this.video.match.id = this.matchId;
-            this.video.contentType = 'Match';
-            this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                : null;
+                if (!videoResponse) {
+                    if (this.looksLikeYoutubeVideoId(this.video.url)) {
+                        this.video.videoType = 'youtube';
+                    }
+                    this.isLoading = false;
+                    return;
+                }
+
+                const vt = videoResponse.VideoType;
+                this.video.videoType = typeof vt === 'string' ? vt.toLowerCase() : vt;
+                const g = videoResponse.Game;
+                this.video.game = g
+                    ? {
+                          title: g.Title,
+                          logoUrl: g.LogoUrl,
+                          id: g._id,
+                      }
+                    : { title: '', logoUrl: '', id: null };
+                this.video.isPlaying = false;
+                this.video.id = videoResponse._id;
+                this.video.match.id = this.matchId;
+                this.video.contentType = 'Match';
+                this.video.isFavorited = this.favoriteVideos
+                    ? this.favoriteVideos.some((video) => video.id === this.video.id)
+                    : null;
+            } catch (e) {
+                console.error('getMatchVideo failed', e);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
         playVideo() {
@@ -433,7 +479,7 @@ export default {
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
                 name: 'match',
-                videoId: this.video.id,
+                matchId: this.matchId,
             });
         },
 

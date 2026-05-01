@@ -5,8 +5,19 @@
         <div class="players-container">
             <div class="team1">
                 <div class="player1" v-for="(player, index) in match.team1Players" :key="index">
-                    <div class="player-container">
+                    <div class="player-header">
                         <h3>Team 1 Player {{ index + 1 }}</h3>
+                        <v-btn
+                            v-if="match.team1Players.length > 1"
+                            icon
+                            small
+                            class="remove-player-btn"
+                            @click="removeFromTeam1(index)"
+                        >
+                            <i class="fas fa-times"></i>
+                        </v-btn>
+                    </div>
+                    <div class="player-container">
                         <player-search
                             v-model="player.id"
                             @update:player="addPlayerToTeam1($event, index)"
@@ -29,8 +40,19 @@
             <div class="versus">Vs.</div>
             <div class="team2">
                 <div class="player2" v-for="(player, index) in match.team2Players" :key="index">
+                    <div class="player-header">
+                        <h3>Team 2 Player {{ index + 1 }}</h3>
+                        <v-btn
+                            v-if="match.team2Players.length > 1"
+                            icon
+                            small
+                            class="remove-player-btn"
+                            @click="removeFromTeam2(index)"
+                        >
+                            <i class="fas fa-times"></i>
+                        </v-btn>
+                    </div>
                     <div class="player-container">
-                        <h3>Team 2 Player {{ index }}</h3>
                         <player-search
                             v-model="player.id"
                             multiple
@@ -228,6 +250,16 @@ export default {
                 characterCount: 1,
             });
         },
+
+        removeFromTeam1(index) {
+            this.match.team1Players.splice(index, 1);
+            this.$emit('update:match', this.match);
+        },
+
+        removeFromTeam2(index) {
+            this.match.team2Players.splice(index, 1);
+            this.$emit('update:match', this.match);
+        },
     },
 };
 </script>
@@ -238,5 +270,26 @@ export default {
     padding: 8px;
     border-top: 1px dashed #ccc;
     border-bottom: 1px dashed #ccc;
+}
+
+.add-match .player-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.add-match .player-header h3 {
+    margin: 0;
+}
+
+.add-match .remove-player-btn {
+    color: #ff6b6b !important;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.add-match .remove-player-btn:hover {
+    opacity: 1;
 }
 </style>

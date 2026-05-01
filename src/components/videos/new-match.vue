@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div v-if="!isLoading || !videoId" class="new-match">
+    <div v-if="!isLoading || (!videoId && !matchId)" class="new-match">
         <div class="formcontainer">
             <div class="form-header">
                 <div class="header-icon">
@@ -80,6 +80,12 @@
                 />
             </div>
 
+            <!-- Error Message -->
+            <div v-if="error" class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ error }}</span>
+            </div>
+
             <!-- Submit Button -->
             <div class="form-actions">
                 <v-btn
@@ -121,6 +127,11 @@ export default {
 
     props: {
         videoId: {
+            type: String,
+            default: null,
+        },
+
+        matchId: {
             type: String,
             default: null,
         },
@@ -207,8 +218,12 @@ export default {
     },
 
     mounted() {
-        if (this.videoId) {
+        if (this.matchId) {
+            this.loadMatch();
+        } else if (this.videoId) {
             this.getVideo();
+        } else {
+            this.isLoading = false;
         }
     },
 
@@ -240,7 +255,7 @@ export default {
         async submitVideo() {
             this.isSubmitting = true;
             try {
-                if (!this.videoId) {
+                if (!this.videoId && !this.matchId) {
                     await this.validateVideo();
                 } else {
                     await MatchesService.patchMatch({
@@ -308,77 +323,167 @@ export default {
             this.video.gameId = game.id;
         },
 
+        async loadMatch() {
+            try {
+                const response = await MatchesService.getMatch(this.matchId);
+                const rows = response.data.matches || [];
+                if (rows.length > 0) {
+                    this.video = this.mapMatchResponse(rows[0]);
+                } else {
+                    this.error = 'Match not found';
+                }
+            } catch (error) {
+                console.error('Error loading match:', error);
+                this.error = 'Failed to load match';
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
         async getVideo() {
-            const response = await VideosService.getVideo(this.videoId);
-            var videoResponse = response.data.video;
-            this.video = videoResponse.map((video) => {
-                return {
-                    id: video._id,
-                    contentType: video.ContentType,
-                    videoType: video.VideoType,
-                    inview: false,
-                    isEditing: false,
-                    isPlaying: false,
-                    url: video.Url,
-                    combo: null,
-                    isFavorited: false,
-                    gameId: video.GameId,
-                    contentCreatorId: video.ContentCreatorId,
-                    tags: video.Tags
-                        ? video.Tags.map((tag) => {
-                              return tag._id;
-                          })
+            try {
+                const response = await VideosService.getVideo(this.videoId);
+                var videoResponse = response.data.video;
+                if (videoResponse && videoResponse.length > 0) {
+                    this.video = this.mapVideoResponse(videoResponse[0]);
+                }
+            } catch (error) {
+                console.error('Error loading video:', error);
+                this.error = 'Failed to load video';
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        mapVideoResponse(video) {
+            var g = video.Game;
+            if (Array.isArray(g) && g.length) {
+                g = g[0];
+            }
+            if (!g || !g._id) {
+                g = null;
+            }
+            return {
+                id: video._id,
+                contentType: video.ContentType,
+                videoType: video.VideoType,
+                url: video.Url,
+                combo: null,
+                gameId: video.GameId,
+                contentCreatorId: video.ContentCreatorId,
+                tags: video.Tags ? video.Tags.map((tag) => tag._id) : null,
+                game: g
+                    ? {
+                          id: g._id,
+                          Title: g.Title,
+                          LogoUrl: g.LogoUrl,
+                      }
+                    : { id: null, Title: '', LogoUrl: '' },
+                match:
+                    video.ContentType === 'Match'
+                        ? {
+                              id: video.Match._id,
+                              team1Players: video.Match.Team1Players.map((player) => {
+                                  const p = video.Match.Team1Player.find(
+                                      (searchPlayer) =>
+                                          String(searchPlayer._id) === String(player.Id)
+                                  );
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: p ? p.Name : '',
+                                      characterIds: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team1PlayerCharacters
+                                      ),
+                                      characterCount: player.CharacterIds.length,
+                                  };
+                              }),
+                              team2Players: video.Match.Team2Players.map((player) => {
+                                  const p = video.Match.Team2Player.find(
+                                      (searchPlayer) =>
+                                          String(searchPlayer._id) === String(player.Id)
+                                  );
+                                  return {
+                                      id: player.Id,
+                                      slot: player.Slot,
+                                      name: p ? p.Name : '',
+                                      characterIds: this.hydrateCharacters(
+                                          player.CharacterIds,
+                                          video.Match.Team2PlayerCharacters
+                                      ),
+                                      characterCount: player.CharacterIds.length,
+                                  };
+                              }),
+                          }
                         : null,
-                    game: {
-                        id: video.Game._id,
-                        Title: video.Game.Title,
-                        LogoUrl: video.Game.LogoUrl,
-                    },
-                    match:
-                        video.ContentType === 'Match'
-                            ? {
-                                  id: video.Match._id,
-                                  team1Players: video.Match.Team1Players.map((player) => {
-                                      return {
-                                          id: player.Id,
-                                          slot: player.Slot,
-                                          name: video.Match.Team1Player.filter(
-                                              (searchPlayer) => searchPlayer._id === player.Id
-                                          )[0].Name,
-                                          characterIds: this.hydrateCharacters(
-                                              player.CharacterIds,
-                                              video.Match.Team1PlayerCharacters
-                                          ),
-                                          characterCount: player.CharacterIds.length,
-                                      };
-                                  }),
-                                  team2Players: video.Match.Team2Players.map((player) => {
-                                      return {
-                                          id: player.Id,
-                                          slot: player.Slot,
-                                          name: video.Match.Team2Player.filter(
-                                              (searchPlayer) => searchPlayer._id === player.Id
-                                          )[0].Name,
-                                          characterIds: this.hydrateCharacters(
-                                              player.CharacterIds,
-                                              video.Match.Team2PlayerCharacters
-                                          ),
-                                          characterCount: player.CharacterIds.length,
-                                      };
-                                  }),
-                              }
-                            : null,
-                };
-            })[0];
-            this.isLoading = false;
+            };
+        },
+
+        mapMatchResponse(m) {
+            const g = m.Game && m.Game.length ? m.Game[0] : null;
+            return {
+                id: m._id,
+                contentType: 'Match',
+                videoType: 'youtube',
+                type: 'youtube',
+                url: m.VideoUrl || '',
+                combo: null,
+                gameId: m.GameId,
+                contentCreatorId: null,
+                tags: [],
+                startTime: m.StartTime || '',
+                endTime: m.EndTime || '',
+                game: g
+                    ? { id: g._id, Title: g.Title, LogoUrl: g.LogoUrl }
+                    : { id: null, Title: '', LogoUrl: '' },
+                match: {
+                    id: m._id,
+                    team1Players: (m.Team1Players || []).map((player) => {
+                        const p = (m.Team1Player || []).find(
+                            (searchPlayer) => String(searchPlayer._id) === String(player.Id)
+                        );
+                        return {
+                            id: player.Id,
+                            slot: player.Slot,
+                            name: p ? p.Name : '',
+                            characterIds: this.hydrateCharacters(
+                                player.CharacterIds,
+                                m.Team1PlayerCharacters || []
+                            ),
+                            characterCount: (player.CharacterIds || []).length,
+                        };
+                    }),
+                    team2Players: (m.Team2Players || []).map((player) => {
+                        const p = (m.Team2Player || []).find(
+                            (searchPlayer) => String(searchPlayer._id) === String(player.Id)
+                        );
+                        return {
+                            id: player.Id,
+                            slot: player.Slot,
+                            name: p ? p.Name : '',
+                            characterIds: this.hydrateCharacters(
+                                player.CharacterIds,
+                                m.Team2PlayerCharacters || []
+                            ),
+                            characterCount: (player.CharacterIds || []).length,
+                        };
+                    }),
+                },
+            };
         },
 
         hydrateCharacters(characterIds, characters) {
             var playerCharacters = [];
+            if (!characterIds || !characters) return playerCharacters;
 
             characterIds.forEach((id) => {
-                var filteredCharacter = characters.filter((character) => character._id === id);
-                playerCharacters.push(filteredCharacter[0]._id);
+                var filteredCharacter = characters.find(
+                    (character) => String(character._id) === String(id)
+                );
+                if (filteredCharacter) {
+                    playerCharacters.push(filteredCharacter._id);
+                }
             });
             return playerCharacters;
         },

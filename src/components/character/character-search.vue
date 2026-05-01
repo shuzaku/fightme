@@ -106,7 +106,7 @@ export default {
 
             const response = await CharactersService.queryCharacters(queryParameter);
 
-            this.characters = response.data.characters.map((character) => {
+            this.characters = (response.data.characters || []).map((character) => {
                 return {
                     id: character._id,
                     name: character.Name,
@@ -116,11 +116,12 @@ export default {
                 };
             });
 
-            if (this.value.length > 0) {
+            if (this.value && this.value.length > 0) {
                 this.value.forEach((characterId) => {
-                    this.selectedCharacters.push(
-                        this.characters.filter((character) => character.id === characterId)[0]
+                    const found = this.characters.find(
+                        (character) => String(character.id) === String(characterId)
                     );
+                    if (found) this.selectedCharacters.push(found);
                 });
             } else if (this.defaultSelect) {
                 this.selectedCharacters = this.characters[0];

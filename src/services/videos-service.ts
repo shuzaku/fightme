@@ -105,6 +105,10 @@ export default {
     return Api().get('video/' + id)
   },
 
+  getVideoByMatchId(matchId: string) {
+    return Api().get('video-by-match/' + matchId)
+  },
+
   deleteVideo(id: string) {
     return Api().delete('videos/' + id)
   },

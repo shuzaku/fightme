@@ -2,8 +2,7 @@ import axios from 'axios'
 
 export default () => {
     const instance = axios.create({
-        baseURL: 'https://fightmeserver.fly.dev'
-        // baseURL: 'http://localhost:80'
+        baseURL: process.env.VUE_APP_API_URL
     })
 
     // Add request interceptor to include auth token
