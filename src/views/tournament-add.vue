@@ -237,7 +237,7 @@ export default {
                     Team1Players: match.team1Players.map((player) => {
                         return {
                             Id: player.id,
-                            Slot: 1,
+                            Slot: player.slot || 1,
                             CharacterIds: player.characterIds.map((character) => {
                                 return character.id;
                             }),
@@ -246,7 +246,7 @@ export default {
                     Team2Players: match.team2Players.map((player) => {
                         return {
                             Id: player.id,
-                            Slot: 2,
+                            Slot: player.slot || 2,
                             CharacterIds: player.characterIds.map((character) => {
                                 return character.id;
                             }),

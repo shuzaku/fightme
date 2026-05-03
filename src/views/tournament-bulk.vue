@@ -182,14 +182,14 @@ export default {
                     TournamentId: video.tournamentId,
                     Team1Players: [
                         {
-                            Slot: 1,
+                            Slot: video.player1.slot || 1,
                             Id: video.player1.id,
                             CharacterIds: video.player1.characters,
                         },
                     ],
                     Team2Players: [
                         {
-                            Slot: 2,
+                            Slot: video.player2.slot || 2,
                             Id: video.player2.id,
                             CharacterIds: video.player2.characters,
                         },

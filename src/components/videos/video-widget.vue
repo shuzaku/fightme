@@ -287,14 +287,14 @@ export default {
                             Team1Players: this.video.match.team1Players.map((player) => {
                                 return {
                                     Id: player.id,
-                                    Slot: 1,
+                                    Slot: player.slot,
                                     CharacterIds: player.characterIds,
                                 };
                             }),
                             Team2Players: this.video.match.team2Players.map((player) => {
                                 return {
                                     Id: player.id,
-                                    Slot: 2,
+                                    Slot: player.slot,
                                     CharacterIds: player.characterIds,
                                 };
                             }),
@@ -345,14 +345,14 @@ export default {
                 Team1Players: this.video.match.team1Players.map((player) => {
                     return {
                         Id: player.id,
-                        Slot: 1,
+                        Slot: player.slot || 1,
                         CharacterIds: player.characterIds,
                     };
                 }),
                 Team2Players: this.video.match.team2Players.map((player) => {
                     return {
                         Id: player.id,
-                        Slot: 2,
+                        Slot: player.slot || 2,
                         CharacterIds: player.characterIds,
                     };
                 }),
@@ -377,14 +377,14 @@ export default {
                     Team1Players: match.team1Players.map((player) => {
                         return {
                             Id: player.id,
-                            Slot: 1,
+                            Slot: player.slot || 1,
                             CharacterIds: player.characterIds,
                         };
                     }),
                     Team2Players: match.team2Players.map((player) => {
                         return {
                             Id: player.id,
-                            Slot: 2,
+                            Slot: player.slot || 2,
                             CharacterIds: player.characterIds,
                         };
                     }),

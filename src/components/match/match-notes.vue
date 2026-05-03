@@ -165,13 +165,39 @@ import MatchNotesService from '@/services/match-notes-service';
 import moment from 'moment';
 import { eventbus } from '@/main';
 
+function normalizeVideoId(raw) {
+    if (raw == null || raw === '') return '';
+    const s = String(raw).trim();
+    if (!s) return '';
+    if (s.includes('youtu.be/')) {
+        return s.split('youtu.be/')[1].split(/[?&#]/)[0];
+    }
+    if (s.includes('youtube.com') || s.includes('youtube-nocookie.com')) {
+        const vMatch = s.match(/[?&]v=([^&]+)/);
+        if (vMatch) return vMatch[1];
+        const embedMatch = s.match(/\/embed\/([^?&#]+)/);
+        if (embedMatch) return embedMatch[1];
+    }
+    if (s.includes('v=')) {
+        let id = s.substring(s.indexOf('v=') + 2);
+        const amp = id.indexOf('&');
+        if (amp !== -1) id = id.substring(0, amp);
+        return id;
+    }
+    return s;
+}
+
 export default {
     name: 'MatchNotes',
 
     props: {
         matchId: {
             type: String,
-            required: true,
+            default: '',
+        },
+        videoUrl: {
+            type: String,
+            default: '',
         },
         account: {
             type: Object,
@@ -208,13 +234,30 @@ export default {
         };
     },
 
+    computed: {
+        normalizedVideoUrl() {
+            return normalizeVideoId(this.videoUrl);
+        },
+        notesLookupKey() {
+            if (this.normalizedVideoUrl) {
+                return 'v:' + this.normalizedVideoUrl;
+            }
+            if (this.matchId) {
+                return 'm:' + this.matchId;
+            }
+            return '';
+        },
+    },
+
     watch: {
-        matchId: {
+        notesLookupKey: {
             immediate: true,
-            handler() {
-                if (this.matchId) {
-                    this.loadNotes();
+            handler(key) {
+                if (!key) {
+                    this.notes = [];
+                    return;
                 }
+                this.loadNotes();
             },
         },
         videoPlayer: {
@@ -237,17 +280,26 @@ export default {
 
     methods: {
         async loadNotes() {
-            if (!this.matchId) return;
+            let searchQuery = [];
+            if (this.normalizedVideoUrl) {
+                searchQuery.push({
+                    queryName: 'VideoUrl',
+                    queryValue: this.normalizedVideoUrl,
+                });
+            } else if (this.matchId) {
+                searchQuery.push({
+                    queryName: 'MatchId',
+                    queryValue: this.matchId,
+                });
+            } else {
+                this.notes = [];
+                return;
+            }
 
             this.isLoading = true;
             try {
                 const queryParameter = {
-                    searchQuery: [
-                        {
-                            queryName: 'MatchId',
-                            queryValue: this.matchId,
-                        },
-                    ],
+                    searchQuery: searchQuery,
                 };
 
                 const response = await MatchNotesService.queryMatchNotes(queryParameter);
@@ -400,7 +452,8 @@ export default {
             this.isSaving = true;
             try {
                 const noteData = {
-                    MatchId: this.matchId,
+                    VideoUrl: this.normalizedVideoUrl || null,
+                    MatchId: this.matchId || null,
                     Heading: this.noteForm.heading || null,
                     Content: this.noteForm.content,
                     AuthorId: this.account.id,

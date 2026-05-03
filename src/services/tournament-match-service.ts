@@ -32,4 +32,17 @@ export default {
     return Api().get(`/tournament-matches?${queryParams.join('&')}`)
   },
 
+  getTournamentMatchById(id: string) {
+    var enc = encodeURIComponent(id)
+    return Api().get(`/tournament-matches?skip=0&queryName=Id&queryValue=${enc}`)
+  },
+
+  updateTournamentMatch(id: string, body: Record<string, unknown>) {
+    return Api().put(`tournament-matches/${encodeURIComponent(id)}`, body)
+  },
+
+  bulkInsertTournamentMatches(matches: any[]) {
+    return Api().post('tournament-matches/bulk', { matches })
+  },
+
 }

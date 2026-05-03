@@ -23,10 +23,14 @@ import Collection from './views/collection.vue';
 import Note from './views/notes.vue';
 import YoutubeGenerator from './views/youtube-generator.vue';
 import Tournament from './views/tournament.vue';
+import TournamentMatch from './views/tournament-match.vue';
+import TournamentMatchesImport from './views/tournament-matches-import.vue';
+import CreateTournament from './views/create-tournament.vue';
 import PlayerList from './views/player-list.vue';
 import PlayerMerge from './views/merge-players-view.vue';
 import LinkUserToPlayer from './views/link-user-to-player-view.vue';
 
+import DeviceAuth from './views/device-auth.vue';
 import MatchReview from './views/match-review.vue';
 import AdminVideoApproval from './views/admin-video-approval.vue';
 import AdminPlayerLinkApproval from './views/admin-player-link-approval.vue';
@@ -63,6 +67,13 @@ const routes = [
     { path: '/matches/game/:gameId', name: 'Game Matches', component: Matches },
     { path: '/matches/character/:characterId', name: 'Character Matches', component: Matches },
     { path: '/match/:id', name: 'Match', component: Match },
+    { path: '/tournament-match/:id', name: 'TournamentMatch', component: TournamentMatch },
+    {
+        path: '/tournament-matches-import',
+        name: 'TournamentMatchesImport',
+        component: TournamentMatchesImport,
+    },
+    { path: '/create-tournament', name: 'CreateTournament', component: CreateTournament },
     { path: '/games', name: 'Games', component: Games },
     { path: '/game/:id', name: 'Game', component: Game },
     { path: '/home', name: 'Home', component: Home },
@@ -88,6 +99,7 @@ const routes = [
     { path: '/player-list', name: 'PlayerList', component: PlayerList },
     { path: '/merge-players', name: 'MergePlayers', component: PlayerMerge },
     { path: '/link-user-to-player', name: 'LinkUserToPlayer', component: LinkUserToPlayer },
+    { path: '/device-auth', name: 'DeviceAuth', component: DeviceAuth },
     { path: '/match/:id/review', name: 'MatchReview', component: MatchReview },
     { path: '/tournament/:id', name: 'Tournament', component: Tournament },
     { path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval },

@@ -12,8 +12,9 @@
                 :account="account"
             />
             <match-notes
-                v-if="video.matchId"
-                :matchId="video.matchId"
+                v-if="video && (video.videoUrl || video.matchId)"
+                :match-id="video.matchId || ''"
+                :video-url="video.videoUrl || ''"
                 :account="account"
                 :videoPlayer="videoPlayer"
                 @capture-timestamp="captureTimestamp"
@@ -89,6 +90,7 @@ export default {
             this.video = {
                 comboId: responseData.Combo ? responseData.Combo._id : null,
                 matchId: matchId,
+                videoUrl: responseData.Url || '',
                 contentType: responseData.ContentType,
                 isEditing: false,
                 isPlaying: false,

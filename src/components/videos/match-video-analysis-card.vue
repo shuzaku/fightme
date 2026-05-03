@@ -193,10 +193,7 @@
                         :key="team2Player.id"
                         class="player"
                     >
-                        <div
-                            class="heavy-weight player-name"
-                            @click="queryPlayer(team2Player.id)"
-                        >
+                        <div class="heavy-weight player-name" @click="queryPlayer(team2Player.id)">
                             <p>{{ team2Player.name }}</p>
                         </div>
                         <div class="characters">
@@ -205,10 +202,7 @@
                                 :key="index"
                                 class="character"
                             >
-                                <div
-                                    class="character-name"
-                                    @click="queryCharacter(character.id)"
-                                >
+                                <div class="character-name" @click="queryCharacter(character.id)">
                                     <p>
                                         <span>
                                             <div class="img-container">
@@ -224,7 +218,9 @@
                 </div>
                 <div v-if="player1Counter.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-counter')">
-                        <span class="category-icon">{{ collapsedCategories['p1-counter'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-counter'] ? '▶' : '▼'
+                        }}</span>
                         Counters
                         <span class="count-badge">{{ player1Counter.length }}</span>
                     </h4>
@@ -238,7 +234,9 @@
                 </div>
                 <div v-if="player1Reversal.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-reversal')">
-                        <span class="category-icon">{{ collapsedCategories['p1-reversal'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-reversal'] ? '▶' : '▼'
+                        }}</span>
                         Reversal
                         <span class="count-badge">{{ player1Reversal.length }}</span>
                     </h4>
@@ -252,7 +250,9 @@
                 </div>
                 <div v-if="player1Punish.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-punish')">
-                        <span class="category-icon">{{ collapsedCategories['p1-punish'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-punish'] ? '▶' : '▼'
+                        }}</span>
                         Punish
                         <span class="count-badge">{{ player1Punish.length }}</span>
                     </h4>
@@ -266,11 +266,16 @@
                 </div>
                 <div v-if="player1HardKnockdown.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-hardknockdown')">
-                        <span class="category-icon">{{ collapsedCategories['p1-hardknockdown'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-hardknockdown'] ? '▶' : '▼'
+                        }}</span>
                         Hard Knockdown
                         <span class="count-badge">{{ player1HardKnockdown.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p1-hardknockdown']" class="hard-knockdowns label">
+                    <div
+                        v-show="!collapsedCategories['p1-hardknockdown']"
+                        class="hard-knockdowns label"
+                    >
                         <div v-for="(timestamp, index) in player1HardKnockdown" :key="index">
                             <a @click="seekToTimeStamp(timestamp.s)">{{
                                 timestamp.formattedTime
@@ -280,11 +285,16 @@
                 </div>
                 <div v-if="player1ThrowEscape.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-throwescape')">
-                        <span class="category-icon">{{ collapsedCategories['p1-throwescape'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-throwescape'] ? '▶' : '▼'
+                        }}</span>
                         Throw Escape
                         <span class="count-badge">{{ player1ThrowEscape.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p1-throwescape']" class="throw-escapes label">
+                    <div
+                        v-show="!collapsedCategories['p1-throwescape']"
+                        class="throw-escapes label"
+                    >
                         <div v-for="(timestamp, index) in player1ThrowEscape" :key="index">
                             <a @click="seekToTimeStamp(timestamp.s)">{{
                                 timestamp.formattedTime
@@ -294,7 +304,9 @@
                 </div>
                 <div v-if="player1Just.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-just')">
-                        <span class="category-icon">{{ collapsedCategories['p1-just'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-just'] ? '▶' : '▼'
+                        }}</span>
                         Just
                         <span class="count-badge">{{ player1Just.length }}</span>
                     </h4>
@@ -314,10 +326,7 @@
                         :key="team1Player.id"
                         class="player"
                     >
-                        <div
-                            class="heavy-weight player-name"
-                            @click="queryPlayer(team1Player.id)"
-                        >
+                        <div class="heavy-weight player-name" @click="queryPlayer(team1Player.id)">
                             <p>{{ team1Player.name }}</p>
                         </div>
                         <div class="characters">
@@ -326,10 +335,7 @@
                                 :key="index"
                                 class="character"
                             >
-                                <div
-                                    class="character-name"
-                                    @click="queryCharacter(character.id)"
-                                >
+                                <div class="character-name" @click="queryCharacter(character.id)">
                                     <p>
                                         <span>
                                             <div class="img-container">
@@ -345,7 +351,9 @@
                 </div>
                 <div v-if="player2Counter.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-counter')">
-                        <span class="category-icon">{{ collapsedCategories['p2-counter'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-counter'] ? '▶' : '▼'
+                        }}</span>
                         Counters
                         <span class="count-badge">{{ player2Counter.length }}</span>
                     </h4>
@@ -359,7 +367,9 @@
                 </div>
                 <div v-if="player2Reversal.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-reversal')">
-                        <span class="category-icon">{{ collapsedCategories['p2-reversal'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-reversal'] ? '▶' : '▼'
+                        }}</span>
                         Reversal
                         <span class="count-badge">{{ player2Reversal.length }}</span>
                     </h4>
@@ -373,7 +383,9 @@
                 </div>
                 <div v-if="player2Punish.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-punish')">
-                        <span class="category-icon">{{ collapsedCategories['p2-punish'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-punish'] ? '▶' : '▼'
+                        }}</span>
                         Punish
                         <span class="count-badge">{{ player2Punish.length }}</span>
                     </h4>
@@ -387,11 +399,16 @@
                 </div>
                 <div v-if="player2HardKnockdown.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-hardknockdown')">
-                        <span class="category-icon">{{ collapsedCategories['p2-hardknockdown'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-hardknockdown'] ? '▶' : '▼'
+                        }}</span>
                         Hard Knockdown
                         <span class="count-badge">{{ player2HardKnockdown.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p2-hardknockdown']" class="hard-knockdowns label">
+                    <div
+                        v-show="!collapsedCategories['p2-hardknockdown']"
+                        class="hard-knockdowns label"
+                    >
                         <div v-for="(timestamp, index) in player2HardKnockdown" :key="index">
                             <a @click="seekToTimeStamp(timestamp.s)">{{
                                 timestamp.formattedTime
@@ -401,11 +418,16 @@
                 </div>
                 <div v-if="player2ThrowEscape.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-throwescape')">
-                        <span class="category-icon">{{ collapsedCategories['p2-throwescape'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-throwescape'] ? '▶' : '▼'
+                        }}</span>
                         Throw Escape
                         <span class="count-badge">{{ player2ThrowEscape.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p2-throwescape']" class="throw-escapes label">
+                    <div
+                        v-show="!collapsedCategories['p2-throwescape']"
+                        class="throw-escapes label"
+                    >
                         <div v-for="(timestamp, index) in player2ThrowEscape" :key="index">
                             <a @click="seekToTimeStamp(timestamp.s)">{{
                                 timestamp.formattedTime
@@ -415,7 +437,9 @@
                 </div>
                 <div v-if="player2Just.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-just')">
-                        <span class="category-icon">{{ collapsedCategories['p2-just'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-just'] ? '▶' : '▼'
+                        }}</span>
                         Just
                         <span class="count-badge">{{ player2Just.length }}</span>
                     </h4>
@@ -432,7 +456,9 @@
                 <div v-if="analysisSummary" class="analysis-summary">
                     <div class="summary-item">
                         <span class="summary-label">Duration</span>
-                        <span class="summary-value">{{ analysisSummary.video_duration_timestamp }}</span>
+                        <span class="summary-value">{{
+                            analysisSummary.video_duration_timestamp
+                        }}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">Total Events</span>
@@ -1376,6 +1402,7 @@ export default {
 
 .match-analysis-details .counters.label div a {
     background: linear-gradient(135deg, #e2447e 0%, #c73866 100%);
+    color: #fff;
 }
 
 .match-analysis-details .counters.label div a:hover {

@@ -13,7 +13,8 @@ export default {
   queryMatchNotes(params: Params) {
     var queryNames = params.searchQuery.map(param => { return param.queryName }); 
     var queryValue = params.searchQuery.map(param => { return param.queryValue }); 
-    return Api().get('match-note-query?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
+    var encodedValues = queryValue.map(function (v) { return encodeURIComponent(v); });
+    return Api().get('match-note-query?queryName=' + queryNames.join(',') + '&queryValue=' + encodedValues.join(','))
   },
 
   updateMatchNote(params: Params) {

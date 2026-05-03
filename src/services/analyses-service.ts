@@ -4,8 +4,8 @@ import Params from '@/types/params'
 
 export default {
   queryAnalysis(params: Params){
-      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
-      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      var queryNames = params.searchQuery.map(param => { return param.queryName})
+      var queryValue = params.searchQuery.map(param => { return encodeURIComponent(String(param.queryValue)) })
       return Api().get('matchAnalysis?queryName=' + queryNames.join(',') + '&queryValue=' + queryValue.join(','))
   },
 } 

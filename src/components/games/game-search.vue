@@ -72,15 +72,18 @@ export default {
 
     computed: {
         filteredGames() {
-            if (!this.filteredGameIds) {
+            const raw = this.filteredGameIds;
+            if (!raw || !raw.length) {
                 return this.games;
-            } else {
-                return this.games.filter((game) => {
-                    return this.filteredGameIds.some((filteredGameid) => {
-                        return game.id === filteredGameid;
-                    });
-                });
             }
+            const norm = function (id) {
+                if (id == null) return '';
+                return id.toString ? String(id.toString()) : String(id);
+            };
+            return this.games.filter((game) => {
+                const gid = norm(game.id);
+                return raw.some((fid) => gid === norm(fid));
+            });
         },
     },
 
@@ -121,7 +124,10 @@ export default {
             this.isLoading = false;
 
             if (this.value) {
-                this.selectedGame = this.games.filter((game) => game.id === this.value);
+                this.selectedGame =
+                    this.games.find((game) => String(game.id) === String(this.value)) || null;
+            } else {
+                this.selectedGame = null;
             }
         },
 
