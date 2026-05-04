@@ -576,10 +576,19 @@ export default {
 
 /* Mobile responsive */
 @media (max-width: 900px) {
+    .register-overlay {
+        padding: 0;
+        align-items: flex-start;
+    }
+
     .register-modal {
         max-width: 100%;
         flex-direction: column;
-        max-height: 95vh;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .register-modal .register-content {
@@ -590,11 +599,11 @@ export default {
     .register-modal .register-graphic {
         flex: 0 0 auto;
         padding: 40px 20px;
-        min-height: 200px;
+        min-height: 180px;
     }
 
     .register-modal .register-logo {
-        max-width: 200px;
+        max-width: 180px;
     }
 
     .register-modal .graphic-circle-1 {
@@ -613,29 +622,113 @@ export default {
     }
 
     .register-modal .formcontainer {
-        padding: 30px 25px;
+        padding: 30px 25px 40px;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .register-modal .register-header {
         text-align: center;
+        margin-bottom: 25px;
     }
 
     .register-modal .register-header h2 {
         font-size: 28px;
     }
+
+    .register-modal .form-fields {
+        margin-bottom: 20px;
+    }
+
+    .register-modal .input-wrapper {
+        margin-bottom: 16px;
+    }
+
+    .register-modal .buttons-container {
+        padding-bottom: 20px;
+    }
 }
 
 @media (max-width: 600px) {
     .register-overlay {
-        padding: 10px;
+        padding: 0;
     }
 
     .register-modal {
-        border-radius: 16px;
+        border-radius: 0;
+    }
+
+    .register-modal .register-graphic {
+        padding: 30px 15px;
+        min-height: 150px;
+    }
+
+    .register-modal .register-logo {
+        max-width: 150px;
     }
 
     .register-modal .formcontainer {
-        padding: 25px 20px;
+        padding: 25px 20px 30px;
+    }
+
+    .register-modal .register-header h2 {
+        font-size: 24px;
+    }
+
+    .register-modal .register-header {
+        margin-bottom: 20px;
+    }
+
+    .register-modal .form-fields {
+        margin-bottom: 16px;
+    }
+
+    .register-modal .input-wrapper {
+        margin-bottom: 14px;
+    }
+
+    .register-modal .close-button {
+        width: 40px;
+        height: 40px;
+        top: 16px;
+        right: 16px;
+    }
+
+    .register-modal .close-icon {
+        font-size: 28px;
+    }
+}
+
+/* Ensure buttons are always visible */
+@media (max-height: 700px) {
+    .register-modal .register-graphic {
+        min-height: 120px;
+        padding: 20px;
+    }
+
+    .register-modal .register-logo {
+        max-width: 120px;
+    }
+
+    .register-modal .formcontainer {
+        padding: 20px;
+    }
+
+    .register-modal .register-header {
+        margin-bottom: 16px;
+    }
+
+    .register-modal .register-header h2 {
+        font-size: 24px;
+    }
+
+    .register-modal .form-fields {
+        margin-bottom: 16px;
+    }
+
+    .register-modal .input-wrapper {
+        margin-bottom: 12px;
     }
 }
 </style>

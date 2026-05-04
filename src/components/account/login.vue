@@ -694,10 +694,19 @@ export default {
 
 /* Mobile responsive */
 @media (max-width: 900px) {
+    .login-overlay {
+        padding: 0;
+        align-items: flex-start;
+    }
+
     .login-modal {
         max-width: 100%;
         flex-direction: column;
-        max-height: 95vh;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .login-modal .login-content {
@@ -708,11 +717,11 @@ export default {
     .login-modal .login-graphic {
         flex: 0 0 auto;
         padding: 40px 20px;
-        min-height: 200px;
+        min-height: 180px;
     }
 
     .login-modal .login-logo {
-        max-width: 200px;
+        max-width: 180px;
     }
 
     .login-modal .graphic-circle-1 {
@@ -731,29 +740,113 @@ export default {
     }
 
     .login-modal .formcontainer {
-        padding: 30px 25px;
+        padding: 30px 25px 40px;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .login-modal .login-header {
         text-align: center;
+        margin-bottom: 25px;
     }
 
     .login-modal .login-header h2 {
         font-size: 28px;
     }
+
+    .login-modal .form-fields {
+        margin-bottom: 20px;
+    }
+
+    .login-modal .input-wrapper {
+        margin-bottom: 16px;
+    }
+
+    .login-modal .buttons-container {
+        padding-bottom: 20px;
+    }
 }
 
 @media (max-width: 600px) {
     .login-overlay {
-        padding: 10px;
+        padding: 0;
     }
 
     .login-modal {
-        border-radius: 16px;
+        border-radius: 0;
+    }
+
+    .login-modal .login-graphic {
+        padding: 30px 15px;
+        min-height: 150px;
+    }
+
+    .login-modal .login-logo {
+        max-width: 150px;
     }
 
     .login-modal .formcontainer {
-        padding: 25px 20px;
+        padding: 25px 20px 30px;
+    }
+
+    .login-modal .login-header h2 {
+        font-size: 24px;
+    }
+
+    .login-modal .login-header {
+        margin-bottom: 20px;
+    }
+
+    .login-modal .form-fields {
+        margin-bottom: 16px;
+    }
+
+    .login-modal .input-wrapper {
+        margin-bottom: 14px;
+    }
+
+    .login-modal .close-button {
+        width: 40px;
+        height: 40px;
+        top: 16px;
+        right: 16px;
+    }
+
+    .login-modal .close-icon {
+        font-size: 28px;
+    }
+}
+
+/* Ensure buttons are always visible */
+@media (max-height: 700px) {
+    .login-modal .login-graphic {
+        min-height: 120px;
+        padding: 20px;
+    }
+
+    .login-modal .login-logo {
+        max-width: 120px;
+    }
+
+    .login-modal .formcontainer {
+        padding: 20px;
+    }
+
+    .login-modal .login-header {
+        margin-bottom: 16px;
+    }
+
+    .login-modal .login-header h2 {
+        font-size: 24px;
+    }
+
+    .login-modal .form-fields {
+        margin-bottom: 16px;
+    }
+
+    .login-modal .input-wrapper {
+        margin-bottom: 12px;
     }
 }
 </style>

@@ -22,7 +22,9 @@
             >
                 Link requests
             </a>
-            <a class="menu-item" @click="logOut()">Log Out</a>
+            <a v-if="account" class="menu-item" @click="logOut()">Log Out</a>
+            <a v-if="!account" class="menu-item" @click="logIn()">Log In</a>
+            <a v-if="!account" class="menu-item" @click="signUp()">Sign Up</a>
         </div>
         <div class="social-media">
             <div class="svg-container">
@@ -53,6 +55,7 @@
 import Follows from '@/components/account/follows';
 import AccountDropdown from '@/components/account/account-dropdown';
 import BlueskyIcon from '@/components/svg/bluesky-icon';
+import { eventbus } from '@/main';
 
 export default {
     components: {
@@ -83,6 +86,14 @@ export default {
     methods: {
         logOut() {
             this.$emit('logout');
+        },
+
+        logIn() {
+            eventbus.$emit('open:widget', { name: 'login' });
+        },
+
+        signUp() {
+            eventbus.$emit('open:widget', { name: 'register' });
         },
     },
 };
