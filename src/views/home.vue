@@ -125,6 +125,38 @@
                         </div>
                     </div>
                 </div>
+                <div class="community-section section-card">
+                    <div class="section-header">
+                        <i class="fas fa-users section-icon"></i>
+                        <h2>Join Our Community</h2>
+                    </div>
+                    <p class="community-description">
+                        Connect with the FGC, share your matches, get tips, and stay updated on the latest tournament news
+                    </p>
+                    <div class="community-links">
+                        <a href="https://discord.gg/jKbEWfwqkn" target="_blank" class="community-link discord-link">
+                            <font-awesome-icon :icon="['fab', 'discord']" />
+                            <span>Join Discord Server</span>
+                        </a>
+                        <div class="social-icons">
+                            <a href="https://www.youtube.com/channel/UCEQbjKp4CDP1JzrzAcQEh8Q" target="_blank" class="social-icon" title="YouTube">
+                                <font-awesome-icon :icon="['fab', 'youtube']" />
+                            </a>
+                            <a href="https://bsky.app/profile/fighters-edge.bsky.social" target="_blank" class="social-icon" title="Bluesky">
+                                <bluesky-icon width="24" height="24" />
+                            </a>
+                            <a href="https://twitter.com/fightersedgefgc" target="_blank" class="social-icon" title="Twitter">
+                                <font-awesome-icon :icon="['fab', 'twitter']" />
+                            </a>
+                            <a href="https://www.tiktok.com/@fighters_edge?lang=en" target="_blank" class="social-icon" title="TikTok">
+                                <font-awesome-icon :icon="['fab', 'tiktok']" />
+                            </a>
+                            <a href="https://www.instagram.com/fighters_edge_fgc/" target="_blank" class="social-icon" title="Instagram">
+                                <font-awesome-icon :icon="['fab', 'instagram']" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <div class="cta section-card">
                     <div class="cta-content">
                         <div class="cta-icon">
@@ -161,6 +193,7 @@ import FeaturedMatchesService from '@/services/featured-matches-service';
 import FeaturedVideosService from '@/services/featured-videos-service';
 import GeneralService from '@/services/general-service';
 import ExploreGames from '@/components/explore/explore-games.vue';
+import BlueskyIcon from '@/components/svg/bluesky-icon';
 export default {
     name: 'Home',
 
@@ -170,6 +203,7 @@ export default {
         'explore-updates': ExploreUpdates,
         'character-slideshow': CharacterSlideshow,
         'explore-games': ExploreGames,
+        'bluesky-icon': BlueskyIcon,
     },
 
     props: {
@@ -621,6 +655,77 @@ export default {
     margin-bottom: 0;
 }
 
+.home-view .community-section {
+    background: #242832;
+    text-align: center;
+}
+
+.home-view .community-section .community-description {
+    color: #b0b3c4;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.home-view .community-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+.home-view .discord-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: #5865F2;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+}
+
+.home-view .discord-link:hover {
+    background: #4752C4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(88, 101, 242, 0.4);
+}
+
+.home-view .discord-link svg {
+    font-size: 1.5rem;
+}
+
+.home-view .social-icons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.home-view .social-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1c1c24;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: 2px solid #3eb489;
+}
+
+.home-view .social-icon:hover {
+    background: #3eb489;
+    transform: scale(1.1);
+}
+
 .home-view .cta {
     text-align: center;
     background: linear-gradient(135deg, rgba(62, 180, 137, 0.1) 0%, rgba(45, 138, 106, 0.1) 100%);
@@ -810,6 +915,17 @@ export default {
 .mobile .home-view .trending-matches .videos--grid {
     grid-template-columns: 1fr;
     gap: 16px;
+}
+
+.mobile .home-view .discord-link {
+    font-size: 1rem;
+    padding: 14px 24px;
+}
+
+.mobile .home-view .social-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
 }
 
 .mobile .home-view .cta h2 {

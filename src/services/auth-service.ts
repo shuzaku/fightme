@@ -113,7 +113,7 @@ class AuthService {
   canUserCreateVideos(userRole?: string): boolean {
     const user = this.getUser();
     const role = userRole || (user ? user.role : '');
-    return ['admin', 'Admin User', 'user'].includes(role || '');
+    return ['admin', 'user'].includes(role || '');
   }
 
   /**
@@ -122,7 +122,7 @@ class AuthService {
   isAdmin(userRole?: string): boolean {
     const user = this.getUser();
     const role = userRole || (user ? user.role : '');
-    return role === 'admin' || role === 'Admin User';
+    return role === 'admin';
   }
 
   /**

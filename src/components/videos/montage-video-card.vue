@@ -151,7 +151,7 @@ export default {
             return this.video.combo.inputs.join(' > ');
         },
         isAdmin() {
-            return this.account.role === 'Admin User';
+            return this.account.role === 'admin';
         },
     },
 

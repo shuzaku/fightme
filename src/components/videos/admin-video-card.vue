@@ -250,7 +250,7 @@ export default {
 
     computed: {
         isAdmin() {
-            return this.account ? this.account.role === 'Admin User' : null;
+            return this.account ? this.account.role === 'admin' : null;
         },
 
         comboData() {

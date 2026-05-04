@@ -153,7 +153,7 @@ export default {
         isAdmin() {
             return (
                 this.account &&
-                (this.account.role === 'Admin User' || this.account.role === 'admin')
+                this.account.role === 'admin'
             );
         },
     },

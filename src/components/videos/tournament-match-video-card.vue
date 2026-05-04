@@ -498,7 +498,7 @@ export default {
 
     computed: {
         isAdmin() {
-            return !!(this.account && this.account.role === 'Admin User');
+            return !!(this.account && this.account.role === 'admin');
         },
         canOpenMatchPage() {
             return !!(this.video && this.video.matchId);

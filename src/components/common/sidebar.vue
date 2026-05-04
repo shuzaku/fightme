@@ -29,6 +29,9 @@
                 <a href="https://www.youtube.com/channel/UCEQbjKp4CDP1JzrzAcQEh8Q" target="_blank">
                     <font-awesome-icon :icon="['fab', 'youtube']" />
                 </a>
+                <a href="https://bsky.app/profile/fighters-edge.bsky.social" target="_blank">
+                    <bluesky-icon width="15" height="15" />
+                </a>
                 <a href="https://twitter.com/fightersedgefgc" target="_blank">
                     <font-awesome-icon :icon="['fab', 'twitter']" />
                 </a>
@@ -38,7 +41,7 @@
                 <a href="https://www.instagram.com/fighters_edge_fgc/" target="_blank">
                     <font-awesome-icon :icon="['fab', 'instagram']" />
                 </a>
-                <a href="https://discord.gg/n373TGP727" target="_blank">
+                <a href="https://discord.gg/jKbEWfwqkn" target="_blank">
                     <font-awesome-icon :icon="['fab', 'discord']" />
                 </a>
             </div>
@@ -49,11 +52,13 @@
 <script>
 import Follows from '@/components/account/follows';
 import AccountDropdown from '@/components/account/account-dropdown';
+import BlueskyIcon from '@/components/svg/bluesky-icon';
 
 export default {
     components: {
         follows: Follows,
         'account-dropdown': AccountDropdown,
+        'bluesky-icon': BlueskyIcon,
     },
 
     props: {
@@ -69,7 +74,7 @@ export default {
 
     computed: {
         isAdmin() {
-            return this.account && this.account.role === 'Admin User';
+            return this.account && this.account.role === 'admin';
         },
     },
 
@@ -119,7 +124,9 @@ export default {
 .sidebar .svg-container {
     display: flex;
     justify-content: space-between;
-    max-width: 150px;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 200px;
 }
 
 .sidebar .svg-container path {

@@ -15,6 +15,20 @@
             </a>
         </div>
         <general-search />
+        <div class="social-links">
+            <a href="https://discord.gg/jKbEWfwqkn" target="_blank" class="social-link" title="Join our Discord">
+                <font-awesome-icon :icon="['fab', 'discord']" />
+            </a>
+            <a href="https://www.youtube.com/channel/UCEQbjKp4CDP1JzrzAcQEh8Q" target="_blank" class="social-link" title="YouTube">
+                <font-awesome-icon :icon="['fab', 'youtube']" />
+            </a>
+            <a href="https://bsky.app/profile/fighters-edge.bsky.social" target="_blank" class="social-link" title="Bluesky">
+                <bluesky-icon width="20" height="20" />
+            </a>
+            <a href="https://twitter.com/fightersedgefgc" target="_blank" class="social-link" title="Twitter">
+                <font-awesome-icon :icon="['fab', 'twitter']" />
+            </a>
+        </div>
         <button class="hamburger-btn">
             <font-awesome-icon :icon="['fa', 'bars']" @click="showMobileMenu" />
         </button>
@@ -27,6 +41,7 @@ import GeneralSearch from '@/components/common/general-search';
 import CreateOptions from '@/components/common/create-options';
 import TwitchLoginButton from '@/components/account/twitch-login-button';
 import AccountDropdown from '@/components/account/account-dropdown';
+import BlueskyIcon from '@/components/svg/bluesky-icon';
 
 import { eventbus } from '@/main';
 
@@ -36,6 +51,7 @@ export default {
         'create-options': CreateOptions,
         'twitch-login-button': TwitchLoginButton,
         'account-dropdown': AccountDropdown,
+        'bluesky-icon': BlueskyIcon,
     },
 
     props: {
@@ -223,12 +239,35 @@ export default {
     top: 30px;
 }
 
+.top-bar .social-links {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 0 20px;
+}
+
+.top-bar .social-link {
+    color: #fff;
+    font-size: 20px;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.top-bar .social-link:hover {
+    color: #3eb489;
+}
+
 .top-bar .hamburger-btn {
     display: none;
 }
 
 .top-bar .hamburger-btn svg path {
     fill: #fff;
+}
+
+#app.mobile.small-mobile .top-bar .social-links {
+    display: none;
 }
 
 #app.mobile.small-mobile .top-bar .account-dropdown {
