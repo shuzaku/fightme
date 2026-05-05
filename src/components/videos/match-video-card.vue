@@ -32,18 +32,8 @@
             <div v-if="!video.isEditing" class="aside">
                 <div class="info">
                     <div class="game">
-                        <div
-                            class="game-title"
-                            @click="video.game.id && queryGame(video.game.id)"
-                        >
-                            <p>
-                                <span>
-                                    <div class="img-container">
-                                        <img :src="video.game.logoUrl" />
-                                    </div>
-                                    {{ video.game.title }}</span
-                                >
-                            </p>
+                        <div class="game-title" @click="video.game.id && queryGame(video.game.id)">
+                            <img :src="video.game.logoUrl" />
                         </div>
                     </div>
                     <div class="players">
@@ -310,9 +300,7 @@ export default {
             };
             this.video.url = matchResponse.VideoUrl;
             var gFromMatch =
-                matchResponse.Game && matchResponse.Game.length
-                    ? matchResponse.Game[0]
-                    : null;
+                matchResponse.Game && matchResponse.Game.length ? matchResponse.Game[0] : null;
             if (gFromMatch) {
                 this.video.game = {
                     title: gFromMatch.Title || '',
@@ -670,6 +658,10 @@ export default {
     position: relative;
     padding-left: 40px;
     overflow: hidden;
+}
+
+.match-card .game-title img {
+    max-width: 100px;
 }
 
 .match-card .team2 .character-name span {

@@ -39,15 +39,11 @@
                 <div class="info">
                     <div class="top">
                         <div class="game">
-                            <div class="game-title" @click="queryGame(video.game.id)">
-                                <p>
-                                    <span>
-                                        <div class="img-container">
-                                            <img :src="video.game.logoUrl" />
-                                        </div>
-                                        {{ video.game.title }}</span
-                                    >
-                                </p>
+                            <div
+                                class="game-title"
+                                @click="video.game.id && queryGame(video.game.id)"
+                            >
+                                <img :src="video.game.logoUrl" />
                             </div>
                         </div>
                         <div class="players">
@@ -265,7 +261,10 @@
         </div>
 
         <!-- ── ANALYSIS STATS ────────────────────────────────────────────── -->
-        <div v-if="analysis && (analysisSummary || analysisTimestamps.length)" class="match-analysis-details">
+        <div
+            v-if="analysis && (analysisSummary || analysisTimestamps.length)"
+            class="match-analysis-details"
+        >
             <div class="nav">
                 <div
                     :class="[currentNav === 'general' ? 'active' : '']"
@@ -305,7 +304,9 @@
                         class="trigger"
                     >
                         <h4 @click="toggleCategory('p1-' + cat.key)">
-                            <span class="category-icon">{{ collapsedCategories['p1-' + cat.key] ? '▶' : '▼' }}</span>
+                            <span class="category-icon">{{
+                                collapsedCategories['p1-' + cat.key] ? '▶' : '▼'
+                            }}</span>
                             {{ cat.label }}
                             <span class="count-badge">{{ p1Timestamps(cat.key).length }}</span>
                         </h4>
@@ -316,7 +317,9 @@
                         </div>
                     </div>
                 </template>
-                <p v-if="player1Timestamps.length === 0" class="no-data">No Player 1 detections found.</p>
+                <p v-if="player1Timestamps.length === 0" class="no-data">
+                    No Player 1 detections found.
+                </p>
             </div>
 
             <div v-if="currentNav === 'player2'" class="player2">
@@ -327,7 +330,9 @@
                         class="trigger"
                     >
                         <h4 @click="toggleCategory('p2-' + cat.key)">
-                            <span class="category-icon">{{ collapsedCategories['p2-' + cat.key] ? '▶' : '▼' }}</span>
+                            <span class="category-icon">{{
+                                collapsedCategories['p2-' + cat.key] ? '▶' : '▼'
+                            }}</span>
                             {{ cat.label }}
                             <span class="count-badge">{{ p2Timestamps(cat.key).length }}</span>
                         </h4>
@@ -338,14 +343,18 @@
                         </div>
                     </div>
                 </template>
-                <p v-if="player2Timestamps.length === 0" class="no-data">No Player 2 detections found.</p>
+                <p v-if="player2Timestamps.length === 0" class="no-data">
+                    No Player 2 detections found.
+                </p>
             </div>
 
             <div v-if="currentNav === 'stats'" class="stats">
                 <div v-if="analysisSummary" class="analysis-summary">
                     <div class="summary-item">
                         <span class="summary-label">Duration</span>
-                        <span class="summary-value">{{ analysisSummary.video_duration_timestamp }}</span>
+                        <span class="summary-value">{{
+                            analysisSummary.video_duration_timestamp
+                        }}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">Total Events</span>
@@ -606,7 +615,8 @@ export default {
                       name: t0.Name,
                       games: (t0.Games || [])
                           .map((gid) => {
-                              var id = gid != null && gid.toString ? gid.toString() : String(gid || '');
+                              var id =
+                                  gid != null && gid.toString ? gid.toString() : String(gid || '');
                               return id ? { id, title: '' } : null;
                           })
                           .filter(Boolean),
@@ -633,7 +643,9 @@ export default {
         mapRawToEditMatch(raw) {
             function mapTeam(players, defaultSlotBase) {
                 if (!players || !players.length) {
-                    return [{ id: null, characterIds: [], slot: defaultSlotBase, characterCount: 1 }];
+                    return [
+                        { id: null, characterIds: [], slot: defaultSlotBase, characterCount: 1 },
+                    ];
                 }
                 return players.map((p, i) => ({
                     id: p.Id != null ? (p.Id.toString ? p.Id.toString() : String(p.Id)) : null,
@@ -1416,5 +1428,9 @@ export default {
     opacity: 0.5;
     font-size: 0.85rem;
     padding: 8px 0;
+}
+
+.tournament-match-video-card .game-title img {
+    max-width: 100px;
 }
 </style>
