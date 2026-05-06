@@ -1,6 +1,11 @@
 <!-- @format -->
 <template>
     <div ref="videoList" class="tournament-match-video-card">
+        <transition name="toast-fade">
+            <div v-if="toastMessage" class="share-toast">
+                <i class="fas fa-check-circle"></i> {{ toastMessage }}
+            </div>
+        </transition>
         <div class="match-card card">
             <div
                 :id="video.matchId"
@@ -149,6 +154,32 @@
                     >
                         <v-icon light> mdi-open-in-new </v-icon>
                     </v-btn>
+                    <v-btn class="share-button" title="Share" @click.stop="toggleSharePanel">
+                        <v-icon light> mdi-share-variant </v-icon>
+                    </v-btn>
+                </div>
+
+                <!-- Share Panel -->
+                <div v-if="showSharePanel" class="share-panel">
+                    <div class="share-panel-title">Share this match</div>
+                    <div class="share-actions">
+                        <button class="share-action-btn" @click="copyLink">
+                            <i class="fas fa-link"></i>
+                            <span>Copy Link</span>
+                        </button>
+                        <button class="share-action-btn share-action-btn--primary" @click="shareAtCurrentTime">
+                            <i class="fas fa-clock"></i>
+                            <span>Share at <strong>{{ currentTimeDisplay }}</strong></span>
+                        </button>
+                        <button class="share-action-btn share-action-btn--twitter" @click="tweetMatch">
+                            <i class="fab fa-twitter"></i>
+                            <span>Tweet This Match</span>
+                        </button>
+                        <button class="share-action-btn share-action-btn--discord" @click="discordShare">
+                            <i class="fab fa-discord"></i>
+                            <span>Copy for Discord</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -484,6 +515,9 @@ export default {
             player: null,
             collections: null,
             showCollections: false,
+            showSharePanel: false,
+            toastMessage: '',
+            toastTimer: null,
             isPlaying: false,
             isEditing: false,
             editLoading: false,
@@ -542,6 +576,29 @@ export default {
         analysisCategories() {
             var gameId = this.video && this.video.game && String(this.video.game.id);
             return GAME_CATEGORIES[gameId] || GAME_CATEGORIES.default;
+        },
+
+        currentTimeDisplay() {
+            const s = Math.floor(this.videoCurrentTime);
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        },
+
+        matchUrl() {
+            return `https://www.fighters-edge.com/tournament-match/${this.video && this.video.matchId}`;
+        },
+
+        p1Name() {
+            return this.video && this.video.match && this.video.match.team1Players && this.video.match.team1Players[0]
+                ? this.video.match.team1Players[0].name
+                : 'Player 1';
+        },
+
+        p2Name() {
+            return this.video && this.video.match && this.video.match.team2Players && this.video.match.team2Players[0]
+                ? this.video.match.team2Players[0].name
+                : 'Player 2';
         },
     },
 
@@ -804,13 +861,85 @@ export default {
             this.player = event.target;
             if (this.isPlaying || this.isFirst) {
                 this.player.playVideo();
-                if (this.isPlaying && this.video.startTime) {
-                    this.setTimer();
-                }
             }
+            // Auto-seek to ?t= timestamp if present in the URL
+            const t = this.$route && this.$route.query && parseInt(this.$route.query.t);
+            if (t && t > 0) {
+                setTimeout(() => this.player.seekTo(t, true), 500);
+            }
+            this.setTimer();
             this.$nextTick(() => {
                 this.$emit('player-ready', this.getVideoPlayer());
             });
+        },
+
+        /* ── share ─────────────────────────────────────────── */
+
+        showToast(msg) {
+            this.toastMessage = msg;
+            clearTimeout(this.toastTimer);
+            this.toastTimer = setTimeout(() => { this.toastMessage = ''; }, 2500);
+        },
+
+        toggleSharePanel() {
+            this.showSharePanel = !this.showSharePanel;
+        },
+
+        buildUrl(seconds) {
+            return seconds ? `${this.matchUrl}?t=${Math.floor(seconds)}` : this.matchUrl;
+        },
+
+        formatSecs(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        },
+
+        copyLink() {
+            const url = this.buildUrl();
+            if (navigator.share) {
+                navigator.share({ title: `${this.p1Name} vs ${this.p2Name} — Fighters Edge`, url }).catch(() => {});
+            } else {
+                this.$copyText(url).then(() => this.showToast('Link copied!'));
+            }
+            this.showSharePanel = false;
+        },
+
+        shareAtCurrentTime() {
+            const p = this.getVideoPlayer();
+            const seconds = p && typeof p.getCurrentTime === 'function' ? Math.floor(p.getCurrentTime()) : 0;
+            this.shareAtTime(seconds);
+        },
+
+        shareAtTime(seconds) {
+            const url = this.buildUrl(seconds);
+            const ts = this.formatSecs(seconds);
+            if (navigator.share) {
+                navigator.share({
+                    title: `${this.p1Name} vs ${this.p2Name} at ${ts} — Fighters Edge`,
+                    url,
+                }).catch(() => {});
+            } else {
+                this.$copyText(url).then(() => this.showToast(`Link copied at ${ts}!`));
+            }
+            this.showSharePanel = false;
+        },
+
+        tweetMatch() {
+            const url = this.buildUrl();
+            const text = `Watch ${this.p1Name} vs ${this.p2Name} on Fighters Edge`;
+            window.open(
+                `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&via=fightersedgefgc`,
+                '_blank', 'width=550,height=420'
+            );
+            this.showSharePanel = false;
+        },
+
+        discordShare() {
+            const url = this.buildUrl();
+            this.$copyText(`**${this.p1Name} vs ${this.p2Name}** — Fighters Edge\n${url}`)
+                .then(() => this.showToast('Copied for Discord!'));
+            this.showSharePanel = false;
         },
 
         /* ── navigation ────────────────────────────────────── */
@@ -1433,4 +1562,85 @@ export default {
 .tournament-match-video-card .game-title img {
     max-width: 100px;
 }
+
+/* ── Share Panel ──────────────────────────────────────────── */
+.tournament-match-video-card .share-panel {
+    background: #1a1d2a;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 16px;
+    width: 100%;
+}
+
+.tournament-match-video-card .share-panel-title {
+    color: #ffffff80;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.tournament-match-video-card .share-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tournament-match-video-card .share-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.tournament-match-video-card .share-action-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+}
+
+.tournament-match-video-card .share-action-btn i { width: 16px; text-align: center; flex-shrink: 0; }
+
+.tournament-match-video-card .share-action-btn--primary { border-color: rgba(62,180,137,0.4); background: rgba(62,180,137,0.1); }
+.tournament-match-video-card .share-action-btn--primary:hover { background: rgba(62,180,137,0.2); border-color: #3eb489; }
+.tournament-match-video-card .share-action-btn--primary i { color: #3eb489; }
+
+.tournament-match-video-card .share-action-btn--twitter { border-color: rgba(29,161,242,0.3); background: rgba(29,161,242,0.08); }
+.tournament-match-video-card .share-action-btn--twitter:hover { background: rgba(29,161,242,0.18); border-color: #1da1f2; }
+.tournament-match-video-card .share-action-btn--twitter i { color: #1da1f2; }
+
+.tournament-match-video-card .share-action-btn--discord { border-color: rgba(88,101,242,0.3); background: rgba(88,101,242,0.08); }
+.tournament-match-video-card .share-action-btn--discord:hover { background: rgba(88,101,242,0.18); border-color: #5865f2; }
+.tournament-match-video-card .share-action-btn--discord i { color: #5865f2; }
+
+/* ── Toast ────────────────────────────────────────────────── */
+.share-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3eb489;
+    color: #131419;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: 30px;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(62,180,137,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.toast-fade-enter-active, .toast-fade-leave-active { transition: opacity 0.3s ease, transform 0.3s ease; }
+.toast-fade-enter, .toast-fade-leave-to { opacity: 0; transform: translateX(-50%) translateY(10px); }
 </style>

@@ -1,6 +1,11 @@
 <!-- @format -->
 <template>
     <div ref="videoList">
+        <transition name="toast-fade">
+            <div v-if="toastMessage" class="share-toast">
+                <i class="fas fa-check-circle"></i> {{ toastMessage }}
+            </div>
+        </transition>
         <div v-if="isLoading"></div>
         <div v-else class="match-card card">
             <div
@@ -194,6 +199,8 @@ export default {
         return {
             videoCurrentTime: 0,
             isLoading: true,
+            toastMessage: '',
+            toastTimer: null,
             video: {
                 videoType: null,
                 isPlaying: false,
@@ -487,15 +494,29 @@ export default {
             });
         },
 
+        showToast(msg) {
+            this.toastMessage = msg;
+            clearTimeout(this.toastTimer);
+            this.toastTimer = setTimeout(() => { this.toastMessage = ''; }, 2500);
+        },
+
+        buildMatchUrl(seconds) {
+            const base = `https://www.fighters-edge.com/match/${this.matchId}`;
+            return seconds ? `${base}?t=${Math.floor(seconds)}` : base;
+        },
+
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/match/${this.video.id}`).then(() => {
-                alert('match copied');
-            });
+            const url = this.buildMatchUrl();
+            if (navigator.share) {
+                navigator.share({ title: 'Fighters Edge', url }).catch(() => {});
+            } else {
+                this.$copyText(url).then(() => this.showToast('Link copied!'));
+            }
         },
 
         goToMatchPage() {
-            if (this.video.id) {
-                this.$router.push(`/match/${this.video.id}`);
+            if (this.matchId) {
+                this.$router.push(`/match/${this.matchId}`);
             }
         },
 
@@ -893,5 +914,32 @@ export default {
 
 #app.mobile.small-mobile .match-card .aside {
     max-width: 100%;
+}
+
+.share-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3eb489;
+    color: #131419;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: 30px;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(62,180,137,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.toast-fade-enter-active, .toast-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast-fade-enter, .toast-fade-leave-to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
 }
 </style>

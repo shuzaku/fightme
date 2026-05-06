@@ -1,6 +1,12 @@
 <!-- @format -->
 <template>
     <div ref="videoList">
+        <!-- Toast notification -->
+        <transition name="toast-fade">
+            <div v-if="toastMessage" class="share-toast">
+                <i class="fas fa-check-circle"></i> {{ toastMessage }}
+            </div>
+        </transition>
         <div v-if="isLoading"></div>
         <div v-else class="match-analysis-card card">
             <div
@@ -149,9 +155,32 @@
                     <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
                         <v-icon> mdi-heart </v-icon>
                     </v-btn>
-                    <v-btn class="share-button" @click="copyLink()">
-                        <v-icon light> mdi-link </v-icon>
+                    <v-btn class="share-button" @click="toggleSharePanel()">
+                        <v-icon light> mdi-share-variant </v-icon>
                     </v-btn>
+                </div>
+
+                <!-- Share Panel -->
+                <div v-if="showSharePanel" class="share-panel">
+                    <div class="share-panel-title">Share this match</div>
+                    <div class="share-actions">
+                        <button class="share-action-btn" @click="copyLink()">
+                            <i class="fas fa-link"></i>
+                            <span>Copy Link</span>
+                        </button>
+                        <button class="share-action-btn share-action-btn--primary" @click="shareAtCurrentTime()">
+                            <i class="fas fa-clock"></i>
+                            <span>Share at <strong>{{ currentTimeDisplay }}</strong></span>
+                        </button>
+                        <button class="share-action-btn share-action-btn--twitter" @click="tweetMatch()">
+                            <i class="fab fa-twitter"></i>
+                            <span>Tweet This Match</span>
+                        </button>
+                        <button class="share-action-btn share-action-btn--discord" @click="discordShare()">
+                            <i class="fab fa-discord"></i>
+                            <span>Copy for Discord</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -226,95 +255,67 @@
                     </h4>
                     <div v-show="!collapsedCategories['p1-counter']" class="counters label">
                         <div v-for="(timestamp, index) in player1Counter" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1Reversal.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-reversal')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p1-reversal'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p1-reversal'] ? '▶' : '▼' }}</span>
                         Reversal
                         <span class="count-badge">{{ player1Reversal.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p1-reversal']" class="reversals label">
                         <div v-for="(timestamp, index) in player1Reversal" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1Punish.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-punish')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p1-punish'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p1-punish'] ? '▶' : '▼' }}</span>
                         Punish
                         <span class="count-badge">{{ player1Punish.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p1-punish']" class="punishes label">
                         <div v-for="(timestamp, index) in player1Punish" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1HardKnockdown.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-hardknockdown')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p1-hardknockdown'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p1-hardknockdown'] ? '▶' : '▼' }}</span>
                         Hard Knockdown
                         <span class="count-badge">{{ player1HardKnockdown.length }}</span>
                     </h4>
-                    <div
-                        v-show="!collapsedCategories['p1-hardknockdown']"
-                        class="hard-knockdowns label"
-                    >
+                    <div v-show="!collapsedCategories['p1-hardknockdown']" class="hard-knockdowns label">
                         <div v-for="(timestamp, index) in player1HardKnockdown" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1ThrowEscape.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-throwescape')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p1-throwescape'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p1-throwescape'] ? '▶' : '▼' }}</span>
                         Throw Escape
                         <span class="count-badge">{{ player1ThrowEscape.length }}</span>
                     </h4>
-                    <div
-                        v-show="!collapsedCategories['p1-throwescape']"
-                        class="throw-escapes label"
-                    >
+                    <div v-show="!collapsedCategories['p1-throwescape']" class="throw-escapes label">
                         <div v-for="(timestamp, index) in player1ThrowEscape" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1Just.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-just')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p1-just'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p1-just'] ? '▶' : '▼' }}</span>
                         Just
                         <span class="count-badge">{{ player1Just.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p1-just']" class="just label">
                         <div v-for="(timestamp, index) in player1Just" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
@@ -359,95 +360,67 @@
                     </h4>
                     <div v-show="!collapsedCategories['p2-counter']" class="counters label">
                         <div v-for="(timestamp, index) in player2Counter" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2Reversal.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-reversal')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p2-reversal'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p2-reversal'] ? '▶' : '▼' }}</span>
                         Reversal
                         <span class="count-badge">{{ player2Reversal.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p2-reversal']" class="reversals label">
                         <div v-for="(timestamp, index) in player2Reversal" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2Punish.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-punish')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p2-punish'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p2-punish'] ? '▶' : '▼' }}</span>
                         Punish
                         <span class="count-badge">{{ player2Punish.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p2-punish']" class="punishes label">
                         <div v-for="(timestamp, index) in player2Punish" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2HardKnockdown.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-hardknockdown')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p2-hardknockdown'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p2-hardknockdown'] ? '▶' : '▼' }}</span>
                         Hard Knockdown
                         <span class="count-badge">{{ player2HardKnockdown.length }}</span>
                     </h4>
-                    <div
-                        v-show="!collapsedCategories['p2-hardknockdown']"
-                        class="hard-knockdowns label"
-                    >
+                    <div v-show="!collapsedCategories['p2-hardknockdown']" class="hard-knockdowns label">
                         <div v-for="(timestamp, index) in player2HardKnockdown" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2ThrowEscape.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-throwescape')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p2-throwescape'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p2-throwescape'] ? '▶' : '▼' }}</span>
                         Throw Escape
                         <span class="count-badge">{{ player2ThrowEscape.length }}</span>
                     </h4>
-                    <div
-                        v-show="!collapsedCategories['p2-throwescape']"
-                        class="throw-escapes label"
-                    >
+                    <div v-show="!collapsedCategories['p2-throwescape']" class="throw-escapes label">
                         <div v-for="(timestamp, index) in player2ThrowEscape" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2Just.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-just')">
-                        <span class="category-icon">{{
-                            collapsedCategories['p2-just'] ? '▶' : '▼'
-                        }}</span>
+                        <span class="category-icon">{{ collapsedCategories['p2-just'] ? '▶' : '▼' }}</span>
                         Just
                         <span class="count-badge">{{ player2Just.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p2-just']" class="just label">
                         <div v-for="(timestamp, index) in player2Just" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{
-                                timestamp.formattedTime
-                            }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
                         </div>
                     </div>
                 </div>
@@ -565,6 +538,9 @@ export default {
             player: null,
             collections: null,
             showCollections: false,
+            showSharePanel: false,
+            toastMessage: '',
+            toastTimer: null,
             currentNav: 'general',
             timestamps: [],
             analysisSummary: null,
@@ -575,6 +551,29 @@ export default {
     computed: {
         isAdmin() {
             return this.account ? this.account.role === 'admin' : null;
+        },
+
+        currentTimeDisplay() {
+            const s = Math.floor(this.videoCurrentTime);
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        },
+
+        matchUrl() {
+            return `https://www.fighters-edge.com/match/${this.matchId}`;
+        },
+
+        p1Name() {
+            return this.video.match && this.video.match.team1Players && this.video.match.team1Players[0]
+                ? this.video.match.team1Players[0].name
+                : 'Player 1';
+        },
+
+        p2Name() {
+            return this.video.match && this.video.match.team2Players && this.video.match.team2Players[0]
+                ? this.video.match.team2Players[0].name
+                : 'Player 2';
         },
 
         player1Counter() {
@@ -777,6 +776,12 @@ export default {
                     this.setTimer();
                 }
             }
+            // Auto-seek to ?t= timestamp if present in the URL
+            const t = this.$route && this.$route.query && parseInt(this.$route.query.t);
+            if (t && t > 0) {
+                setTimeout(() => this.player.seekTo(t, true), 500);
+            }
+            this.setTimer();
         },
 
         async deleteVideo() {
@@ -818,10 +823,67 @@ export default {
             });
         },
 
+        showToast(msg) {
+            this.toastMessage = msg;
+            clearTimeout(this.toastTimer);
+            this.toastTimer = setTimeout(() => { this.toastMessage = ''; }, 2500);
+        },
+
+        toggleSharePanel() {
+            this.showSharePanel = !this.showSharePanel;
+        },
+
+        buildUrl(seconds) {
+            const base = this.matchUrl;
+            return seconds ? `${base}?t=${Math.floor(seconds)}` : base;
+        },
+
+        formatSeconds(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        },
+
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/match/${this.video.id}`).then(() => {
-                alert('match copied');
-            });
+            const url = this.buildUrl();
+            if (navigator.share) {
+                navigator.share({ title: `${this.p1Name} vs ${this.p2Name} — Fighters Edge`, url });
+            } else {
+                this.$copyText(url).then(() => this.showToast('Link copied!'));
+            }
+        },
+
+        shareAtCurrentTime() {
+            const seconds = this.player ? Math.floor(this.player.getCurrentTime()) : 0;
+            this.shareAtTime(seconds);
+        },
+
+        shareAtTime(seconds) {
+            const url = this.buildUrl(seconds);
+            const ts = this.formatSeconds(seconds);
+            if (navigator.share) {
+                navigator.share({
+                    title: `${this.p1Name} vs ${this.p2Name} at ${ts} — Fighters Edge`,
+                    url,
+                }).catch(() => {});
+            } else {
+                this.$copyText(url).then(() => this.showToast(`Link copied at ${ts}!`));
+            }
+        },
+
+        tweetMatch() {
+            const url = this.buildUrl();
+            const text = `Watch ${this.p1Name} vs ${this.p2Name} on Fighters Edge`;
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&via=fightersedgefgc`;
+            window.open(tweetUrl, '_blank', 'width=550,height=420');
+            this.showSharePanel = false;
+        },
+
+        discordShare() {
+            const url = this.buildUrl();
+            const text = `**${this.p1Name} vs ${this.p2Name}** — Fighters Edge\n${url}`;
+            this.$copyText(text).then(() => this.showToast('Copied for Discord!'));
+            this.showSharePanel = false;
         },
 
         favoriteVideo() {
@@ -1740,5 +1802,113 @@ export default {
 
 #app.mobile.small-mobile .match-analysis-card .aside {
     max-width: 100%;
+}
+
+/* ── Share Panel ──────────────────────────────────────────── */
+.match-analysis-card .share-panel {
+    background: #1a1d2a;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 16px;
+    width: 100%;
+}
+
+.match-analysis-card .share-panel-title {
+    color: #ffffff80;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.match-analysis-card .share-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.match-analysis-card .share-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    width: 100%;
+}
+
+.match-analysis-card .share-action-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+}
+
+.match-analysis-card .share-action-btn i {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.match-analysis-card .share-action-btn--primary {
+    border-color: rgba(62,180,137,0.4);
+    background: rgba(62,180,137,0.1);
+}
+.match-analysis-card .share-action-btn--primary:hover {
+    background: rgba(62,180,137,0.2);
+    border-color: #3eb489;
+}
+.match-analysis-card .share-action-btn--primary i { color: #3eb489; }
+
+.match-analysis-card .share-action-btn--twitter {
+    border-color: rgba(29,161,242,0.3);
+    background: rgba(29,161,242,0.08);
+}
+.match-analysis-card .share-action-btn--twitter:hover {
+    background: rgba(29,161,242,0.18);
+    border-color: #1da1f2;
+}
+.match-analysis-card .share-action-btn--twitter i { color: #1da1f2; }
+
+.match-analysis-card .share-action-btn--discord {
+    border-color: rgba(88,101,242,0.3);
+    background: rgba(88,101,242,0.08);
+}
+.match-analysis-card .share-action-btn--discord:hover {
+    background: rgba(88,101,242,0.18);
+    border-color: #5865f2;
+}
+.match-analysis-card .share-action-btn--discord i { color: #5865f2; }
+
+/* ── Toast ────────────────────────────────────────────────── */
+.share-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3eb489;
+    color: #131419;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: 30px;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(62,180,137,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.toast-fade-enter-active, .toast-fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast-fade-enter, .toast-fade-leave-to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
 }
 </style>
