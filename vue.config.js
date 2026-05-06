@@ -1,5 +1,4 @@
 module.exports = {
-  "transpileDependencies": [
-    "vuetify"
-  ]
+  transpileDependencies: ['vuetify'],
+  outputDir: '../Node-Fighters-Edge/dist',
 }

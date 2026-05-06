@@ -29,6 +29,7 @@ import VideosService from '@/services/videos-service';
 import AnalysesService from '@/services/analyses-service';
 import MatchVideoAnalysisCard from '@/components/videos/match-video-analysis-card';
 import MatchNotes from '@/components/match/match-notes';
+import { setOgMeta, matchOgUrl } from '@/services/og-meta-service';
 
 export default {
     name: 'Match',
@@ -99,6 +100,11 @@ export default {
 
             if (matchId) {
                 this.queryAnalysis(matchId);
+                setOgMeta({
+                    title: 'Match — Fighters Edge',
+                    imageUrl: matchOgUrl(matchId),
+                    pageUrl: `https://www.fighters-edge.com/match/${this.videoId}`,
+                });
             }
 
             this.$nextTick(() => {

@@ -84,32 +84,7 @@ export default {
     align-items: center;
 }
 
-.account-dropdown .account-actions {
-    min-width: 150px;
-    padding: 20px 10px;
-}
-
-.account-dropdown .account-actions .logged-in {
-    display: flex;
-    flex-direction: column;
-}
-
-.account-dropdown .account-actions .logged-in .menu-item {
-    margin-left: 0px;
-    font-size: 18px;
-}
-
-.account-dropdown .account-actions .not-logged-in-buttons button {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.account-dropdown .account-actions button {
-    color: #fff;
-}
-
 .account-dropdown .admin-link {
-    color: #ff6b6b !important;
-    font-weight: bold;
+    color: #ff8f8f !important;
 }
 </style>

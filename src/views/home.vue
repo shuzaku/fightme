@@ -69,111 +69,115 @@
                     />
                 </div>
             </div>
+
             <div class="home-content">
-                <div class="featured-games section-card">
-                    <div class="section-header">
-                        <i class="fas fa-gamepad section-icon"></i>
-                        <h2>Featured Games</h2>
+                <!-- Browse by game -->
+                <div class="featured-games home-section">
+                    <div class="home-section-header">
+                        <h2 class="home-section-h2">Browse by game</h2>
+                        <a href="/games" class="home-view-all">All games →</a>
                     </div>
-                    <div class="videos">
-                        <explore-games />
-                    </div>
+                    <explore-games />
                 </div>
-                <div class="trending-matches section-card">
-                    <div class="section-header">
-                        <i class="fas fa-fire section-icon"></i>
-                        <h2>Trending Matches</h2>
+
+                <!-- Trending this week -->
+                <div class="trending-matches home-section">
+                    <div class="home-section-header">
+                        <h2 class="home-section-h2">Trending this week</h2>
+                        <a href="/matches" class="home-view-all">View all →</a>
                     </div>
-                    <div class="videos videos--grid">
-                        <div v-for="match in featuredMatches" :key="match.id" class="video-card">
-                            <div class="home-video-embed">
-                                <youtube-media
-                                    :video-id="match.url"
-                                    :player-width="640"
-                                    :player-height="360"
-                                    :mute="true"
-                                    :playsinline="1"
+                    <div class="home-trending-grid">
+                        <a
+                            v-for="match in featuredMatches"
+                            :key="match.id"
+                            :href="`/match/${match.id}`"
+                            class="home-match-card"
+                        >
+                            <div class="home-match-thumb">
+                                <img
+                                    :src="`https://img.youtube.com/vi/${match.url}/hqdefault.jpg`"
+                                    :alt="match.title || 'Featured match'"
+                                    loading="lazy"
                                 />
+                                <div class="home-match-play-btn">
+                                    <i class="fas fa-play"></i>
+                                </div>
                             </div>
-                        </div>
+                            <div class="home-match-meta">
+                                <p class="home-match-title">{{ match.title || 'Featured match' }}</p>
+                                <p class="home-match-event">{{ match.subtitle || 'Fighters Edge' }}</p>
+                            </div>
+                        </a>
+                        <template v-if="!featuredMatches || featuredMatches.length === 0">
+                            <div v-for="i in 6" :key="'sk' + i" class="home-match-card home-match-card--skeleton">
+                                <div class="home-match-thumb home-sk-box"></div>
+                                <div class="home-match-meta">
+                                    <div class="home-sk-line" style="width: 68%"></div>
+                                    <div class="home-sk-line" style="width: 44%; margin-top: 7px"></div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
+
+                <!-- Recent Tournaments -->
                 <div class="recent-tournaments section-card">
                     <completed-tournaments />
                 </div>
-                <div class="latest-update section-card">
-                    <explore-updates />
-                </div>
 
-                <div class="featured-videos section-card">
-                    <div class="section-header">
-                        <i class="fas fa-video section-icon"></i>
-                        <h2>Featured Videos</h2>
-                    </div>
-                    <div class="videos videos--grid">
-                        <div v-for="video in featuredVideos" :key="video.id" class="video-card">
-                            <div class="home-video-embed">
-                                <youtube-media
-                                    :video-id="video.url"
-                                    ref="youtubeRef"
-                                    :player-width="640"
-                                    :player-height="360"
-                                    :mute="true"
-                                    :playsinline="1"
-                                />
+                <!-- Combined CTA + Community -->
+                <div class="cta-community section-card">
+                    <div class="cta-community-inner">
+                        <div class="cta-col">
+                            <div class="cta-icon">
+                                <i class="fas fa-fist-raised"></i>
+                            </div>
+                            <h2>Join the Fight!</h2>
+                            <p class="cta-description">
+                                Create an account to follow players, save favorite matches, and build
+                                your collection
+                            </p>
+                            <div class="cta-buttons">
+                                <button class="sign-up-btn" @click="openRegisterModal()">
+                                    <i class="fas fa-user-plus"></i> Sign Up
+                                </button>
+                                <button class="login-btn" @click="openLoginModal()">
+                                    <i class="fas fa-sign-in-alt"></i> Login
+                                </button>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="community-section section-card">
-                    <div class="section-header">
-                        <i class="fas fa-users section-icon"></i>
-                        <h2>Join Our Community</h2>
-                    </div>
-                    <p class="community-description">
-                        Connect with the FGC, share your matches, get tips, and stay updated on the latest tournament news
-                    </p>
-                    <div class="community-links">
-                        <a href="https://discord.gg/jKbEWfwqkn" target="_blank" class="community-link discord-link">
-                            <font-awesome-icon :icon="['fab', 'discord']" />
-                            <span>Join Discord Server</span>
-                        </a>
-                        <div class="social-icons">
-                            <a href="https://www.youtube.com/channel/UCEQbjKp4CDP1JzrzAcQEh8Q" target="_blank" class="social-icon" title="YouTube">
-                                <font-awesome-icon :icon="['fab', 'youtube']" />
-                            </a>
-                            <a href="https://bsky.app/profile/fighters-edge.bsky.social" target="_blank" class="social-icon" title="Bluesky">
-                                <bluesky-icon width="24" height="24" />
-                            </a>
-                            <a href="https://twitter.com/fightersedgefgc" target="_blank" class="social-icon" title="Twitter">
-                                <font-awesome-icon :icon="['fab', 'twitter']" />
-                            </a>
-                            <a href="https://www.tiktok.com/@fighters_edge?lang=en" target="_blank" class="social-icon" title="TikTok">
-                                <font-awesome-icon :icon="['fab', 'tiktok']" />
-                            </a>
-                            <a href="https://www.instagram.com/fighters_edge_fgc/" target="_blank" class="social-icon" title="Instagram">
-                                <font-awesome-icon :icon="['fab', 'instagram']" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="cta section-card">
-                    <div class="cta-content">
-                        <div class="cta-icon">
-                            <i class="fas fa-fist-raised"></i>
-                        </div>
-                        <h2>Join the Fight!</h2>
-                        <p class="cta-description">
-                            Create an account to follow players, save favorite matches, and build
-                            your collection
-                        </p>
-                        <div class="cta-buttons">
-                            <button class="sign-up-btn" @click="openRegisterModal()">
-                                <i class="fas fa-user-plus"></i> Sign Up
-                            </button>
-                            <button class="login-btn" @click="openLoginModal()">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </button>
+                        <div class="cta-community-divider"></div>
+                        <div class="community-col">
+                            <div class="section-header">
+                                <i class="fas fa-users section-icon"></i>
+                                <h2>Join Our Community</h2>
+                            </div>
+                            <p class="community-description">
+                                Connect with the FGC, share your matches, get tips, and stay updated on the latest tournament news
+                            </p>
+                            <div class="community-links">
+                                <a href="https://discord.gg/jKbEWfwqkn" target="_blank" class="community-link discord-link">
+                                    <font-awesome-icon :icon="['fab', 'discord']" />
+                                    <span>Join Discord Server</span>
+                                </a>
+                                <div class="social-icons">
+                                    <a href="https://www.youtube.com/channel/UCEQbjKp4CDP1JzrzAcQEh8Q" target="_blank" class="social-icon" title="YouTube">
+                                        <font-awesome-icon :icon="['fab', 'youtube']" />
+                                    </a>
+                                    <a href="https://bsky.app/profile/fighters-edge.bsky.social" target="_blank" class="social-icon" title="Bluesky">
+                                        <bluesky-icon width="24" height="24" />
+                                    </a>
+                                    <a href="https://twitter.com/fightersedgefgc" target="_blank" class="social-icon" title="Twitter">
+                                        <font-awesome-icon :icon="['fab', 'twitter']" />
+                                    </a>
+                                    <a href="https://www.tiktok.com/@fighters_edge?lang=en" target="_blank" class="social-icon" title="TikTok">
+                                        <font-awesome-icon :icon="['fab', 'tiktok']" />
+                                    </a>
+                                    <a href="https://www.instagram.com/fighters_edge_fgc/" target="_blank" class="social-icon" title="Instagram">
+                                        <font-awesome-icon :icon="['fab', 'instagram']" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -190,7 +194,7 @@ import ExploreUpdates from '@/components/explore/explore-updates.vue';
 import CharacterSlideshow from '@/components/common/character-slideshow.vue';
 import CharactersService from '@/services/characters-service';
 import FeaturedMatchesService from '@/services/featured-matches-service';
-import FeaturedVideosService from '@/services/featured-videos-service';
+import MatchesService from '@/services/matches-service';
 import GeneralService from '@/services/general-service';
 import ExploreGames from '@/components/explore/explore-games.vue';
 import BlueskyIcon from '@/components/svg/bluesky-icon';
@@ -223,8 +227,9 @@ export default {
         return {
             notes: null,
             recentCharacters: null,
-            featuredMatches: null,
-            featuredVideos: null,
+            featuredMatches: [],
+            weeklyCount: null,
+            weeklyCountInterval: null,
             counts: {
                 players: null,
                 characters: null,
@@ -240,10 +245,13 @@ export default {
         this.getCounts();
         this.getRecentCharacters();
         this.getFeaturedMatches();
-        this.getFeaturedVideos();
+        this.getWeeklyCount();
+        this.weeklyCountInterval = setInterval(this.getWeeklyCount, 60000);
     },
 
-    beforeDestroy() {},
+    beforeDestroy() {
+        clearInterval(this.weeklyCountInterval);
+    },
 
     methods: {
         getCounts() {
@@ -256,7 +264,26 @@ export default {
                     games: countsRes.games,
                     matches: countsRes.matches,
                 };
+                var weekly = countsRes.weeklyMatches !== undefined ? countsRes.weeklyMatches
+                           : countsRes.recentMatches !== undefined ? countsRes.recentMatches
+                           : countsRes.matchesThisWeek !== undefined ? countsRes.matchesThisWeek
+                           : null;
+                if (weekly != null && this.weeklyCount == null) {
+                    this.weeklyCount = weekly;
+                }
             });
+        },
+
+        getWeeklyCount() {
+            var since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            GeneralService.getCountsSince(since)
+                .then((response) => {
+                    var d = response.data.data;
+                    if (d && d.matches != null) {
+                        this.weeklyCount = d.matches;
+                    }
+                })
+                .catch(() => {});
         },
 
         getRecentCharacters() {
@@ -283,39 +310,30 @@ export default {
         },
 
         getFeaturedMatches() {
-            FeaturedMatchesService.fetchFeaturedMatches().then((response) => {
-                this.featuredMatches = this.mapMatches(response.data.video);
-            });
-        },
+            FeaturedMatchesService.fetchFeaturedMatches({ limit: 6 }).then((response) => {
+                this.featuredMatches = (response.data.video || []).slice(0, 6).map((m) => ({
+                    id: m._id,
+                    url: m.VideoUrl,
+                    title: null,
+                    subtitle: null,
+                }));
 
-        mapMatches(matches) {
-            return matches.map((match) => {
-                return {
-                    id: match._id,
-                    url: match.VideoUrl,
-                };
-            });
-        },
-
-        getFeaturedVideos() {
-            var queryParameter = {
-                limit: 3,
-                sort: '_id',
-                sortDirection: 'desc',
-                Type: 'General',
-            };
-
-            FeaturedVideosService.fetchFeaturedVideos(queryParameter).then((response) => {
-                this.featuredVideos = this.mapVideos(response.data.video);
-            });
-        },
-
-        mapVideos(videos) {
-            return videos.map((video) => {
-                return {
-                    id: video._id,
-                    url: video.VideoUrl,
-                };
+                this.featuredMatches.forEach((match, i) => {
+                    MatchesService.getMatch(match.id)
+                        .then((mr) => {
+                            var m = mr.data.match;
+                            if (!m) return;
+                            var t1 = m.Team1 && m.Team1[0] ? m.Team1[0].Name : null;
+                            var t2 = m.Team2 && m.Team2[0] ? m.Team2[0].Name : null;
+                            var game = m.Game && m.Game[0] ? m.Game[0].Title : null;
+                            this.$set(this.featuredMatches, i, {
+                                ...this.featuredMatches[i],
+                                title: t1 && t2 ? `${t1} vs ${t2}` : null,
+                                subtitle: game || null,
+                            });
+                        })
+                        .catch(() => {});
+                });
             });
         },
 
@@ -369,7 +387,7 @@ export default {
 
 .home-view .home-content {
     max-width: 1400px;
-    margin: 0 auto;
+    margin: clamp(48px, 8vw, 96px) auto 0;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -377,6 +395,36 @@ export default {
 
 .home-view .heading {
     width: 60%;
+}
+
+.home-view .search-container .multiselect__tags {
+    box-shadow: 0 0 18px 4px rgba(62, 180, 137, 0.28),
+                0 0 40px 8px rgba(62, 180, 137, 0.12);
+    animation: search-glow-pulse 3s ease-in-out infinite;
+    transition: box-shadow 0.2s ease;
+}
+
+.home-view .search-container .multiselect__tags:hover {
+    box-shadow: 0 0 24px 6px rgba(62, 180, 137, 0.42),
+                0 0 60px 14px rgba(62, 180, 137, 0.18);
+    animation: none;
+}
+
+.home-view .search-container .multiselect--active .multiselect__tags {
+    box-shadow: 0 0 30px 8px rgba(62, 180, 137, 0.55),
+                0 0 70px 18px rgba(62, 180, 137, 0.22);
+    animation: none;
+}
+
+@keyframes search-glow-pulse {
+    0%, 100% {
+        box-shadow: 0 0 18px 4px rgba(62, 180, 137, 0.28),
+                    0 0 40px 8px rgba(62, 180, 137, 0.12);
+    }
+    50% {
+        box-shadow: 0 0 26px 7px rgba(62, 180, 137, 0.40),
+                    0 0 55px 14px rgba(62, 180, 137, 0.16);
+    }
 }
 
 .home-view .recent-searches {
@@ -934,5 +982,289 @@ export default {
 
 .mobile .home-view .cta-icon {
     font-size: 48px;
+}
+
+/* ── Stats strip ── */
+.home-view .home-stats-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 28px 0;
+    margin-bottom: 0;
+}
+
+.home-view .home-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 36px;
+}
+
+.home-view .home-stat--featured {
+    position: relative;
+}
+
+.home-view .home-stat-num {
+    font-size: 30px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.home-view .home-stat-num--accent {
+    font-size: 34px;
+    background: linear-gradient(135deg, #3eb489 0%, #56d4a8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.home-view .home-stat-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.home-view .home-stat-live-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #3eb489;
+    box-shadow: 0 0 6px #3eb489;
+    animation: home-live-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes home-live-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px #3eb489; }
+    50%       { opacity: 0.5; box-shadow: 0 0 12px #3eb489; }
+}
+
+.home-view .home-stat-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+@media (max-width: 680px) {
+    .home-view .home-stat-divider {
+        display: none;
+    }
+
+    .home-view .home-stat {
+        padding: 8px 20px;
+    }
+}
+
+/* ── Restyled flat sections (games + trending) ── */
+.home-view .home-section {
+    margin-bottom: clamp(40px, 6vw, 72px);
+}
+
+.home-view .home-section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.home-view .home-section-h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.home-view .home-view-all {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.45);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.home-view .home-view-all:hover {
+    color: #3eb489;
+}
+
+/* ── Trending thumbnail grid ── */
+.home-view .home-trending-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.home-view .home-match-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #1e2130;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.home-view .home-match-card:hover {
+    border-color: rgba(62, 180, 137, 0.35);
+    transform: translateY(-2px);
+}
+
+.home-view .home-match-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #14161d;
+    overflow: hidden;
+}
+
+.home-view .home-match-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.home-view .home-match-card:hover .home-match-thumb img {
+    transform: scale(1.04);
+}
+
+.home-view .home-match-play-btn {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.home-view .home-match-card:hover .home-match-play-btn {
+    opacity: 1;
+}
+
+.home-view .home-match-play-btn i {
+    font-size: 28px;
+    color: #fff;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+.home-view .home-match-meta {
+    padding: 12px 14px 14px;
+}
+
+.home-view .home-match-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.home-view .home-match-event {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+}
+
+.home-view .home-match-card--skeleton {
+    pointer-events: none;
+}
+
+.home-view .home-sk-box {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(90deg, #1e2130 25%, #262b3d 50%, #1e2130 75%);
+    background-size: 200% 100%;
+    animation: home-shimmer 1.4s infinite;
+}
+
+.home-view .home-sk-line {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #1e2130 25%, #262b3d 50%, #1e2130 75%);
+    background-size: 200% 100%;
+    animation: home-shimmer 1.4s infinite;
+}
+
+@keyframes home-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── Combined CTA + Community ── */
+.home-view .cta-community {
+    background: linear-gradient(135deg, rgba(25, 27, 36, 0.6) 0%, rgba(36, 40, 50, 0.8) 100%);
+}
+
+.home-view .cta-community-inner {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+}
+
+.home-view .cta-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+}
+
+.home-view .community-col {
+    flex: 1;
+}
+
+.home-view .community-col .community-description {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 15px;
+    line-height: 1.65;
+    margin: 0 0 24px;
+}
+
+.home-view .cta-community-divider {
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+@media (max-width: 820px) {
+    .home-view .home-trending-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 680px) {
+    .home-view .home-trending-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .home-view .cta-community-inner {
+        flex-direction: column;
+    }
+
+    .home-view .cta-community-divider {
+        width: 100%;
+        height: 1px;
+        align-self: auto;
+    }
 }
 </style>

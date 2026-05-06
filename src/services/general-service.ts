@@ -14,5 +14,9 @@ export default {
 
   getCounts() {
     return Api().get('counts')
-  }
+  },
+
+  getCountsSince(since: string) {
+    return Api().get(`counts?since=${encodeURIComponent(since)}`)
+  },
 } 

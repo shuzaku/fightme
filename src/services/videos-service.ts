@@ -152,6 +152,10 @@ export default {
     return Api().delete(`video-validate/${videoId}`)
   },
 
+  incrementViews(videoId: string) {
+    return Api().post(`video/${videoId}/view`)
+  },
+
   queryComboClips(params: Params) {
     var skip = params.skip || 0;
     var queryParams = [`skip=${skip}`];

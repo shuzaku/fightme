@@ -48,6 +48,7 @@ import PlayerNav from '@/components/players/player-nav';
 import Loading from '@/components/common/loading';
 import { eventbus } from '@/main';
 import TournamentMatchService from '@/services/tournament-match-service';
+import { setOgMeta, playerOgUrl } from '@/services/og-meta-service';
 
 export default {
     name: 'Player',
@@ -109,6 +110,13 @@ export default {
             this.updateFavorites();
         }
         this.queryVideos();
+        if (this.playerId) {
+            setOgMeta({
+                title: 'Player Profile — Fighters Edge',
+                imageUrl: playerOgUrl(this.playerId),
+                pageUrl: `https://www.fighters-edge.com/player/${this.playerId}`,
+            });
+        }
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);

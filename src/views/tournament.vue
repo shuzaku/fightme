@@ -35,6 +35,7 @@ import Loading from '@/components/common/loading';
 import ExploreCharacters from '@/components/explore/explore-characters';
 
 import { eventbus } from '@/main';
+import { setOgMeta, tournamentOgUrl } from '@/services/og-meta-service';
 
 export default {
     name: 'Tournament',
@@ -90,6 +91,13 @@ export default {
 
     mounted() {
         this.queryVideos();
+        if (this.tournamentId) {
+            setOgMeta({
+                title: 'Tournament — Fighters Edge',
+                imageUrl: tournamentOgUrl(this.tournamentId),
+                pageUrl: `https://www.fighters-edge.com/tournament/${this.tournamentId}`,
+            });
+        }
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);

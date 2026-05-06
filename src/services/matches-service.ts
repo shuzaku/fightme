@@ -67,6 +67,14 @@ export default {
     return Api().get(`/matchesPlayer?${queryParams.join('&')}`)
   },
 
+  queryMatchesFeed(params: { skip: number; gameId?: string; characterId?: string; playerId?: string }) {
+    const queryParams = [`skip=${params.skip}`];
+    if (params.gameId)       queryParams.push(`gameId=${params.gameId}`);
+    if (params.characterId)  queryParams.push(`characterId=${params.characterId}`);
+    if (params.playerId)     queryParams.push(`playerId=${params.playerId}`);
+    return Api().get(`matchesFeed?${queryParams.join('&')}`);
+  },
+
   queryMatchesByGame(params: Params){
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];

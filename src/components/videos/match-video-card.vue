@@ -234,6 +234,10 @@ export default {
                 }
             }
 
+            if (this.video.isPlaying === true) {
+                this.recordView();
+            }
+
             if (this.value === true && this.video.match.startTime) {
                 this.setTimer();
             }
@@ -255,6 +259,18 @@ export default {
     },
 
     methods: {
+        recordView() {
+            if (!this.video.id) return;
+            var storageKey = `fe_viewed_${this.video.id}`;
+            try {
+                if (sessionStorage.getItem(storageKey)) return;
+                sessionStorage.setItem(storageKey, '1');
+            } catch (e) {
+                // sessionStorage unavailable — count anyway
+            }
+            VideosService.incrementViews(this.video.id).catch(() => {});
+        },
+
         seekToTimestamp(seconds) {
             this.$refs.youtubeRef.player.seekTo(seconds);
         },

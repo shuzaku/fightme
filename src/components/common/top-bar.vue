@@ -184,29 +184,33 @@ export default {
 .top-bar .account-popup {
     position: absolute;
     right: 0;
-    background: #242832;
-    top: 60px;
-    padding: 10px 15px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    top: calc(100% + 10px);
+    background: #1e2130;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    min-width: 200px;
+    z-index: 1000;
 }
 
 .top-bar .account-popup .name-row {
     display: flex;
     align-items: center;
     color: #fff;
-    border-bottom: 1px solid #fff;
-    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .top-bar .account-popup .name-row .avatar {
-    margin-right: 20px;
+    margin-right: 12px;
     width: 30px;
     height: 30px;
 }
 
 .top-bar .account-popup .account-actions {
-    min-width: 150px;
-    padding: 20px 10px;
+    padding: 8px 0;
 }
 
 .top-bar .account-popup .account-actions .logged-in {
@@ -215,13 +219,70 @@ export default {
 }
 
 .top-bar .account-popup .account-actions .logged-in .menu-item {
-    margin-left: 0px;
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.top-bar .account-popup .account-actions .logged-in .menu-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+
+.top-bar .account-popup .account-actions .logged-in .menu-item:last-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 4px;
+    color: rgba(255, 100, 100, 0.85);
+}
+
+.top-bar .account-popup .account-actions .logged-in .menu-item:last-child:hover {
+    background: rgba(255, 80, 80, 0.08);
+    color: #ff6b6b;
+}
+
+.top-bar .account-popup .account-actions .not-logged-in-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
 }
 
 .top-bar .account-popup .account-actions .not-logged-in-buttons button {
-    display: block;
-    margin-bottom: 5px;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.top-bar .account-popup .account-actions .not-logged-in-buttons button:first-child {
+    background: #3eb489;
+    color: #fff;
+}
+
+.top-bar .account-popup .account-actions .not-logged-in-buttons button:first-child:hover {
+    background: #2d8a6a;
+}
+
+.top-bar .account-popup .account-actions .not-logged-in-buttons button:last-child {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.top-bar .account-popup .account-actions .not-logged-in-buttons button:last-child:hover {
+    background: rgba(255, 255, 255, 0.13);
+    color: #fff;
 }
 
 .top-bar .account-popup .account-actions button {

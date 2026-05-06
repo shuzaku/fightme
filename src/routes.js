@@ -38,6 +38,9 @@ import TierListMaker from './views/tier-list-maker.vue';
 import TierListGallery from './views/tier-list-gallery.vue';
 import TierListDetails from './views/tier-list-details.vue';
 import ComboGenerator from './views/combo-generator.vue';
+import HowItWorks from './views/how-it-works.vue';
+import UseCases from './views/use-cases.vue';
+import Landing from './views/landing.vue';
 
 const routes = [
     {
@@ -45,16 +48,18 @@ const routes = [
         name: 'Home',
         component: Home,
         meta: {
-            title: 'Fighters Edge',
+            title: 'Fighters Edge — Find any matchup, instantly',
             metaTags: [
                 {
                     name: 'Fighters-Edge',
-                    content: 'Fighters-edge.com is a tool to query through all your favorite players, games, characters, matchups, etc, check it out today!'
+                    content: 'Fighters-edge.com is the search engine for fighting game footage. Find any matchup, any player, any tournament — free, forever.'
                 }
             ]
         }
     },
-    { path: '/* ', name: 'Home', component: Home },
+    { path: '/home-classic', name: 'Home', component: Home },
+    { path: '/* ', name: 'Landing', component: Landing },
+    { path: '/landing', name: 'Landing', component: Landing },
     { path: '/  200', name: 'Videos', component: Videos },
     { path: '/collections', name: 'Collections', component: Collections },
     { path: '/combos', name: 'Combos', component: Combos },
@@ -111,6 +116,8 @@ const routes = [
     { path: '/tier-list-maker', name: 'TierListMaker', component: TierListMaker },
     { path: '/tier-lists', name: 'TierListGallery', component: TierListGallery },
     { path: '/tier-lists/:id', name: 'TierListDetails', component: TierListDetails },
+    { path: '/how-it-works', name: 'HowItWorks', component: HowItWorks },
+    { path: '/use-cases', name: 'UseCases', component: UseCases },
 ]
 
 export default routes;

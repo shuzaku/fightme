@@ -29,6 +29,7 @@
 
 <script>
 import CharactersService from '@/services/characters-service';
+import { setOgMeta, characterOgUrl } from '@/services/og-meta-service';
 
 import CharacterNav from '@/components/character/character-nav';
 import Loading from '@/components/common/loading';
@@ -116,6 +117,11 @@ export default {
         },
 
         hydrateCharacter(response) {
+            setOgMeta({
+                title: `${response.Name} — Fighters Edge`,
+                imageUrl: characterOgUrl(response._id),
+                pageUrl: `https://www.fighters-edge.com/character/${response._id}`,
+            });
             return {
                 id: response._id,
                 name: response.Name,
