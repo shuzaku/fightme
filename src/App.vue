@@ -28,6 +28,7 @@
 import './scripts/filters';
 
 import { eventbus } from '@/main';
+import { trackMatchSaved } from '@/services/analytics-service';
 import Modal from '@/components/common/modal';
 import firebase from 'firebase';
 import AccountsService from '@/services/accounts-service';
@@ -319,6 +320,8 @@ export default {
             } else {
                 targetId = video.id;
             }
+
+            trackMatchSaved({ content_type: video.contentType, video_id: targetId });
 
             var favoriteVideos = this.createFavoriteVideoRequest(targetId, video);
             this.account.favoriteVideos = favoriteVideos;

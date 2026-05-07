@@ -25,6 +25,7 @@
 import CollectionsService from '@/services/collections-service';
 import AccountsService from '@/services/accounts-service';
 import { eventbus } from '@/main';
+import { trackCollectionCreated } from '@/services/analytics-service';
 
 export default {
     name: 'CollectionSearch',
@@ -84,6 +85,7 @@ export default {
             });
 
             this.newCollectionId = response.data.collections._id;
+            trackCollectionCreated({ collection_id: this.newCollectionId });
 
             this.account.collections.push(this.newCollectionId);
 
