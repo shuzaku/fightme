@@ -38,6 +38,7 @@
 <script>
 import TierListsService from '@/services/tier-lists-service';
 import CharactersService from '@/services/characters-service';
+import { setPageTitle } from '@/services/og-meta-service';
 
 export default {
     name: 'TierListDetails',
@@ -71,6 +72,12 @@ export default {
                     views: response.data.Views,
                     source: response.data.Source,
                 };
+                if (this.tierList.name) {
+                    setPageTitle(
+                        `${this.tierList.name} tier list`,
+                        `View the ${this.tierList.name} tier list on Fighters Edge.`
+                    );
+                }
             } catch (error) {
                 console.error('Error fetching tier list:', error);
             }

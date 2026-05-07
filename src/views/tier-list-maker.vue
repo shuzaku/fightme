@@ -122,11 +122,12 @@ export default {
         await this.fetchGames();
         this.initializeTierState();
 
-        // Auto-select game from query parameter if provided
+        // Auto-select game from query parameter if provided, then clean the URL
         if (this.$route.query.gameId) {
             this.selectedGameId = this.$route.query.gameId;
-            // Trigger the game selection to load characters
             await this.onGameSelect();
+            // Replace so the ?gameId= param doesn't persist in the address bar or get shared
+            this.$router.replace({ path: '/tier-list-maker' }).catch(() => {});
         }
     },
     methods: {

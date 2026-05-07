@@ -49,6 +49,8 @@ import Loading from '@/components/common/loading';
 import { eventbus } from '@/main';
 import TournamentMatchService from '@/services/tournament-match-service';
 import { setOgMeta, playerOgUrl } from '@/services/og-meta-service';
+import PlayersService from '@/services/players-service';
+import { injectJsonLd, removeJsonLd, buildPerson } from '@/services/json-ld-service';
 
 export default {
     name: 'Player',
@@ -110,13 +112,7 @@ export default {
             this.updateFavorites();
         }
         this.queryVideos();
-        if (this.playerId) {
-            setOgMeta({
-                title: 'Player Profile — Fighters Edge',
-                imageUrl: playerOgUrl(this.playerId),
-                pageUrl: `https://www.fighters-edge.com/player/${this.playerId}`,
-            });
-        }
+        this.setPlayerMeta();
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('newVideoPosted', this.addedNewVideo);
         eventbus.$on('search', this.queryVideos);
@@ -130,9 +126,46 @@ export default {
         eventbus.$off('search', this.queryVideos);
         eventbus.$off('account:update', this.updateFavorites);
         eventbus.$off('player-filter', this.refreshQuery);
+        removeJsonLd();
     },
 
     methods: {
+        async setPlayerMeta() {
+            try {
+                let name = null;
+                let twitter = null;
+                if (this.playerId) {
+                    const res = await PlayersService.getPlayer({ id: this.playerId });
+                    name    = res.data && res.data.Name    ? res.data.Name    : null;
+                    twitter = res.data && res.data.Twitter ? res.data.Twitter : null;
+                } else if (this.playerSlug) {
+                    const res = await PlayersService.getPlayerBySlug({ slug: this.playerSlug });
+                    const p  = res.data && res.data.players && res.data.players[0];
+                    name    = p ? p.Name    : null;
+                    twitter = p ? p.Twitter : null;
+                }
+                const id      = this.playerId || '';
+                const pageUrl = `https://fighters-edge.com/player/${id}`;
+                const title   = name ? `${name} matches` : 'Player matches';
+                const desc    = name
+                    ? `Watch every indexed match for ${name} on Fighters Edge. Filter by character, tournament, and more.`
+                    : 'Browse player match footage on Fighters Edge.';
+
+                setOgMeta({ title, description: desc, imageUrl: playerOgUrl(id), pageUrl, ogType: 'profile' });
+
+                const sameAs = [];
+                if (twitter) sameAs.push(`https://twitter.com/${twitter.replace(/^@/, '')}`);
+
+                injectJsonLd(buildPerson({
+                    name: name || 'Player',
+                    pageUrl,
+                    sameAs: sameAs.length ? sameAs : undefined,
+                }));
+            } catch (_) {
+                // silently ignore — not critical
+            }
+        },
+
         applySort(sort) {
             this.videos = [];
             this.sort = sort;

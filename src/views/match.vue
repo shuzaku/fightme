@@ -10,6 +10,7 @@
                 :isFirst="video.isFirst"
                 :matchId="video.matchId"
                 :account="account"
+                @match:loaded="onMatchLoaded"
             />
             <match-notes
                 v-if="video && (video.videoUrl || video.matchId)"
@@ -28,6 +29,7 @@
 import MatchVideoAnalysisCard from '@/components/videos/match-video-analysis-card';
 import MatchNotes from '@/components/match/match-notes';
 import { setOgMeta, matchOgUrl } from '@/services/og-meta-service';
+import { injectJsonLd, removeJsonLd, buildVideoObject } from '@/services/json-ld-service';
 
 export default {
     name: 'Match',
@@ -68,7 +70,38 @@ export default {
         this.loadMatch();
     },
 
+    beforeDestroy() {
+        removeJsonLd();
+    },
+
     methods: {
+        onMatchLoaded({ videoId, gameTitle, team1Players, team2Players, uploadDate }) {
+            const p1 = team1Players && team1Players[0] ? team1Players[0].name : null;
+            const p2 = team2Players && team2Players[0] ? team2Players[0].name : null;
+            const matchName = p1 && p2 ? `${p1} vs ${p2}` : 'Match';
+            const desc = gameTitle
+                ? `${matchName} — ${gameTitle} match footage on Fighters Edge.`
+                : `${matchName} match footage on Fighters Edge.`;
+            const pageUrl = `https://fighters-edge.com/match/${this.matchId}`;
+
+            // Update title now that we have real player names
+            setOgMeta({
+                title: matchName,
+                description: desc,
+                imageUrl: matchOgUrl(this.matchId),
+                pageUrl,
+                ogType: 'video.other',
+            });
+
+            injectJsonLd(buildVideoObject({
+                name: matchName,
+                description: desc,
+                videoId,
+                uploadDate: uploadDate || undefined,
+                pageUrl,
+            }));
+        },
+
         loadMatch() {
             if (!this.matchId) return;
             this.loading = true;
@@ -81,9 +114,11 @@ export default {
                 isFirst: false,
             };
             setOgMeta({
-                title: 'Match — Fighters Edge',
+                title: 'Match',
+                description: 'Watch this match on Fighters Edge — indexed pro and tournament footage with auto-timestamps.',
                 imageUrl: matchOgUrl(this.matchId),
-                pageUrl: `https://www.fighters-edge.com/match/${this.matchId}`,
+                pageUrl: `https://fighters-edge.com/match/${this.matchId}`,
+                ogType: 'video.other',
             });
             this.loading = false;
             this.$nextTick(() => {

@@ -14,6 +14,7 @@ import VueAxios from 'vue-axios'
 import _ from 'lodash';    
 import firebase from 'firebase/app'
 import AuthService from '@/services/auth-service'
+import { setPageTitle, setCanonicalForRoute } from '@/services/og-meta-service'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -74,6 +75,19 @@ const router = new VueRouter({
 
 export const eventbus = new Vue();
 firebase.initializeApp(configOptions);
+
+// Apply static route meta + full OG tags. Dynamic pages call setOgMeta/setPageTitle themselves.
+router.afterEach((to) => {
+    const meta = to.meta as Record<string, any>;
+
+    // Always keep the canonical in sync with the navigated path (strips query params & hash)
+    setCanonicalForRoute(to.path);
+
+    if (meta && meta.title) {
+        // setPageTitle sets title, description, og:*, twitter:*, canonical — all in one call
+        setPageTitle(meta.title as string, meta.description as string | undefined);
+    }
+});
 
 // Initialize authentication service
 AuthService.initializeAuth();

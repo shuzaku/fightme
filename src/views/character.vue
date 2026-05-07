@@ -118,9 +118,10 @@ export default {
 
         hydrateCharacter(response) {
             setOgMeta({
-                title: `${response.Name} — Fighters Edge`,
+                title: `${response.Name} matches`,
+                description: `Watch every indexed match and combo clip featuring ${response.Name} on Fighters Edge. Filter by opponent, player, and tournament.`,
                 imageUrl: characterOgUrl(response._id),
-                pageUrl: `https://www.fighters-edge.com/character/${response._id}`,
+                pageUrl: `https://fighters-edge.com/character/${response._id}`,
             });
             return {
                 id: response._id,

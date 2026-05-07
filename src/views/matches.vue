@@ -102,6 +102,7 @@ import MatchesService from '@/services/matches-service';
 import GamesService from '@/services/games-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import { eventbus } from '@/main';
+import { setPageTitle } from '@/services/og-meta-service';
 
 export default {
     name: 'Matches',
@@ -194,6 +195,24 @@ export default {
             if (this.gameId && this.featuredGames.length) {
                 const matched = this.featuredGames.find((g) => g.id === this.gameId);
                 this.activeGameTitle = matched ? matched.title : null;
+            }
+            const gameLabel  = this.activeGameTitle || null;
+            const charLabel  = this.activeCharacterTitle || null;
+            if (gameLabel) {
+                setPageTitle(
+                    `${gameLabel} matches`,
+                    `Browse every indexed ${gameLabel} match on Fighters Edge.`
+                );
+            } else if (charLabel) {
+                setPageTitle(
+                    `${charLabel} matches`,
+                    `Browse every indexed ${charLabel} match on Fighters Edge.`
+                );
+            } else {
+                setPageTitle(
+                    'Match footage',
+                    'Browse thousands of indexed pro and tournament matches across Street Fighter 6, Tekken 8, 2XKO, GGST, and more.'
+                );
             }
         },
 

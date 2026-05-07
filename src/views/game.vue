@@ -178,6 +178,7 @@ import UpdatesService from '@/services/updates-service';
 import UpdateCard from '@/components/update/update-card';
 import moment from 'moment';
 import { eventbus } from '@/main';
+import { setPageTitle } from '@/services/og-meta-service';
 
 export default {
     name: 'Game',
@@ -306,6 +307,11 @@ export default {
                 name: game.Title,
                 logo: game.LogoUrl || null,
             };
+            setPageTitle(
+                `${game.Title} matches & combos`,
+                `Browse every indexed ${game.Title} match, combo clip, character, and tournament on Fighters Edge.`,
+                game.LogoUrl || undefined
+            );
             this.loading = false;
         },
 

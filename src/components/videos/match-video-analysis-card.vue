@@ -561,7 +561,7 @@ export default {
         },
 
         matchUrl() {
-            return `https://www.fighters-edge.com/match/${this.matchId}`;
+            return `https://fighters-edge.com/match/${this.matchId}`;
         },
 
         p1Name() {
@@ -754,6 +754,14 @@ export default {
             this.video.isFavorited = this.favoriteVideos
                 ? this.favoriteVideos.some((video) => video.id === this.video.id)
                 : null;
+
+            this.$emit('match:loaded', {
+                videoId: this.video.url,
+                gameTitle: this.video.game ? this.video.game.title : '',
+                team1Players: this.video.match ? this.video.match.team1Players : [],
+                team2Players: this.video.match ? this.video.match.team2Players : [],
+                uploadDate: videoResponse.createdAt || null,
+            });
         },
 
         playVideo() {

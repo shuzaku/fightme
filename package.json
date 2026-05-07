@@ -6,7 +6,8 @@
     "serve": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve"
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+    "sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.1.2",

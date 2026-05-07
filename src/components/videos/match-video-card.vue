@@ -501,7 +501,7 @@ export default {
         },
 
         buildMatchUrl(seconds) {
-            const base = `https://www.fighters-edge.com/match/${this.matchId}`;
+            const base = `https://fighters-edge.com/match/${this.matchId}`;
             return seconds ? `${base}?t=${Math.floor(seconds)}` : base;
         },
 

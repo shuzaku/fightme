@@ -41,6 +41,7 @@ import CharactersService from '@/services/characters-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import CharacterNav from '@/components/character/character-nav';
 import Loading from '@/components/common/loading';
+import { setPageTitle } from '@/services/og-meta-service';
 
 import { eventbus } from '@/main';
 
@@ -110,6 +111,7 @@ export default {
             (this.character1Slug && this.character2Slug)
         ) {
             this.queryVideos();
+            this.setMatchupTitle();
         }
         window.addEventListener('scroll', this.handleScroll);
         eventbus.$on('account:update', this.updateFavorites);
@@ -125,6 +127,23 @@ export default {
     },
 
     methods: {
+        setMatchupTitle() {
+            const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
+            if (this.character1Slug && this.character2Slug) {
+                const c1 = cap(this.character1Slug);
+                const c2 = cap(this.character2Slug);
+                setPageTitle(
+                    `${c1} vs ${c2} matchup footage`,
+                    `Watch every indexed ${c1} vs ${c2} match on Fighters Edge. Filter by player, tournament tier, and more.`
+                );
+            } else {
+                setPageTitle(
+                    'Matchup footage',
+                    'Watch character matchup footage on Fighters Edge. Filter by player, tournament, and skill level.'
+                );
+            }
+        },
+
         async queryVideos() {
             var searchQuery = [
                 {

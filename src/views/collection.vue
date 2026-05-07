@@ -33,6 +33,7 @@ import MatchVideoCard from '@/components/videos/match-video-card';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 
 import CollectionsService from '@/services/collections-service';
+import { setPageTitle } from '@/services/og-meta-service';
 
 import { eventbus } from '@/main';
 
@@ -97,6 +98,13 @@ export default {
     methods: {
         async getCollection() {
             const response = await CollectionsService.queryCollection(this.collectionId);
+            const col = response.data.collection && response.data.collection[0];
+            if (col && col.Name) {
+                setPageTitle(
+                    col.Name,
+                    `Watch the "${col.Name}" collection on Fighters Edge.`
+                );
+            }
             this.hydrateVideos(response);
         },
 

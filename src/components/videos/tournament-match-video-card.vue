@@ -586,7 +586,7 @@ export default {
         },
 
         matchUrl() {
-            return `https://www.fighters-edge.com/tournament-match/${this.video && this.video.matchId}`;
+            return `https://fighters-edge.com/tournament-match/${this.video && this.video.matchId}`;
         },
 
         p1Name() {

@@ -36,6 +36,7 @@ import ExploreCharacters from '@/components/explore/explore-characters';
 
 import { eventbus } from '@/main';
 import { setOgMeta, tournamentOgUrl } from '@/services/og-meta-service';
+import { injectJsonLd, removeJsonLd, buildSportsEvent } from '@/services/json-ld-service';
 
 export default {
     name: 'Tournament',
@@ -93,9 +94,10 @@ export default {
         this.queryVideos();
         if (this.tournamentId) {
             setOgMeta({
-                title: 'Tournament — Fighters Edge',
+                title: 'Tournament',
+                description: 'Watch tournament match footage and browse brackets on Fighters Edge.',
                 imageUrl: tournamentOgUrl(this.tournamentId),
-                pageUrl: `https://www.fighters-edge.com/tournament/${this.tournamentId}`,
+                pageUrl: `https://fighters-edge.com/tournament/${this.tournamentId}`,
             });
         }
         window.addEventListener('scroll', this.handleScroll);
@@ -108,6 +110,7 @@ export default {
         eventbus.$off('newVideoPosted');
         eventbus.$off('search');
         eventbus.$off('account:update');
+        removeJsonLd();
     },
 
     methods: {
@@ -149,6 +152,29 @@ export default {
         },
 
         hydrateVideos(response) {
+            const firstVideo = response.data.matches[0];
+            if (firstVideo && this.videos.length === 0) {
+                const t        = firstVideo.Tournament && firstVideo.Tournament[0];
+                const tName    = t ? t.Name  : null;
+                const tDate    = t ? (t.Date || t.StartDate || null) : null;
+                const pageUrl  = `https://fighters-edge.com/tournament/${this.tournamentId}`;
+
+                if (tName) {
+                    setOgMeta({
+                        title: tName,
+                        description: `Watch every indexed match from ${tName} on Fighters Edge.`,
+                        imageUrl: tournamentOgUrl(this.tournamentId),
+                        pageUrl,
+                    });
+
+                    injectJsonLd(buildSportsEvent({
+                        name: tName,
+                        pageUrl,
+                        startDate: tDate || undefined,
+                        sport: 'Fighting game',
+                    }));
+                }
+            }
             response.data.matches.forEach((video) => {
                 this.videos.push({
                     matchId: video._id,
