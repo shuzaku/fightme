@@ -37,7 +37,7 @@ export default {
 .games-view {
     position: relative;
     justify-content: space-around;
-    padding-top: 80px;
+    padding-top: 200px;
     height: 100%;
     overflow: hidden;
 }

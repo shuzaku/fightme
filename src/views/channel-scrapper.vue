@@ -296,7 +296,7 @@ export default {
 
 <style>
 .channel-scrapper {
-    padding-top: 150px;
+    padding-top: 200px;
     max-width: 1200px;
     margin: 0 auto;
 }

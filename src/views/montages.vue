@@ -198,6 +198,7 @@ export default {
     justify-content: space-around;
     height: 100%;
     flex-direction: column;
+    padding-top: 200px;
 }
 
 .montages-view::-webkit-scrollbar-track {

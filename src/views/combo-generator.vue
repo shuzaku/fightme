@@ -953,7 +953,7 @@ export default {
 
 <style type="text/css" scoped>
 .combo-generator {
-    padding: 40px 20px;
+    padding: 200px 20px 40px;
     min-height: calc(100vh - 100px);
     display: flex;
     justify-content: center;

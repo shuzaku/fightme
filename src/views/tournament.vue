@@ -7,6 +7,22 @@
             @filter:bracket="filterBracket($event)"
         />
 
+        <!-- ── Top Players ─────────────────────────────────────────────── -->
+        <div v-if="topPlayers.length > 0" class="tv-top-players">
+            <span class="tv-section-label">Top Players</span>
+            <div class="tv-players-scroll">
+                <button
+                    v-for="player in topPlayers"
+                    :key="player.id"
+                    :class="['tv-player-chip', { active: playerFilter === player.id }]"
+                    @click="filterPlayer(player)"
+                >
+                    <span class="tv-player-name">{{ player.name }}</span>
+                    <span class="tv-player-count">{{ player.count }}W</span>
+                </button>
+            </div>
+        </div>
+
         <loading v-if="loading && videos.length <= 0"></loading>
         <div v-else-if="videos.length > 0" class="videos-container">
             <div
@@ -68,6 +84,7 @@ export default {
             savedSearchParam: null,
             bracketFilter: null,
             gameFilter: null,
+            playerFilter: null,
         };
     },
 
@@ -79,12 +96,35 @@ export default {
         tournamentId: function () {
             return this.$route.params.id;
         },
+
+        topPlayers() {
+            // Count match appearances per player across loaded videos
+            const counts = {};
+            this.videos.forEach((video) => {
+                const allPlayers = [
+                    ...(video.match.team1Players || []),
+                    ...(video.match.team2Players || []),
+                ];
+                allPlayers.forEach((p) => {
+                    if (!p || !p.id) return;
+                    const key = String(p.id);
+                    if (!counts[key]) counts[key] = { id: key, name: p.name, count: 0 };
+                    counts[key].count++;
+                });
+            });
+            return Object.values(counts)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 12);
+        },
     },
 
     watch: {
         tournamentId: function () {
             this.loading = true;
             this.videos = [];
+            this.gameFilter = null;
+            this.bracketFilter = null;
+            this.playerFilter = null;
             this.queryVideos();
             this.loading = false;
         },
@@ -286,28 +326,37 @@ export default {
 
         filterGame(queryParam) {
             this.videos = [];
-            var filters = [];
-            this.gameFilter = queryParam;
-
-            if (this.bracketFilter) {
-                filters.push(this.bracketFilter);
-            }
-
-            filters.push(this.gameFilter);
-            this.queryVideos(filters);
+            this.gameFilter = queryParam || null;
+            this.bracketFilter = null;
+            this.playerFilter = null;
+            this.queryVideos(this.activeFilters());
         },
 
         filterBracket(queryParam) {
             this.videos = [];
-            var filters = [];
-            this.bracketFilter = queryParam;
+            this.bracketFilter = queryParam || null;
+            this.playerFilter = null;
+            this.queryVideos(this.activeFilters());
+        },
 
-            if (this.gameFilter) {
-                filters.push(this.gameFilter);
+        activeFilters() {
+            return [this.gameFilter, this.bracketFilter, this.playerFilter].filter(Boolean);
+        },
+
+        filterPlayer(player) {
+            this.videos = [];
+            // Toggle: clicking the active player clears the filter
+            if (this.playerFilter === player.id) {
+                this.playerFilter = null;
+            } else {
+                this.playerFilter = player.id;
             }
-
-            filters.push(this.bracketFilter);
-            this.queryVideos(filters);
+            const playerQuery = this.playerFilter
+                ? { queryName: 'PlayerId', queryValue: this.playerFilter }
+                : null;
+            this.queryVideos(
+                [this.gameFilter, this.bracketFilter, playerQuery].filter(Boolean)
+            );
         },
 
         handleScroll() {
@@ -320,17 +369,7 @@ export default {
         },
 
         async fetchVideos() {
-            var filters = [];
-
-            if (this.gameFilter) {
-                filters.push(this.gameFilter);
-            }
-
-            if (this.bracketFilter) {
-                filters.push(this.bracketFilter);
-            }
-
-            this.queryVideos(filters);
+            this.queryVideos(this.activeFilters());
         },
     },
 };
@@ -339,11 +378,11 @@ export default {
 <style>
 .tournament-view {
     position: relative;
-    padding: 180px 20px;
+    padding: 200px 20px 40px;
     height: 100%;
     overflow: visible;
     width: 100%;
-    max-width: 1100px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -373,5 +412,82 @@ export default {
     max-width: 900px;
     margin: 0 auto;
     display: block;
+}
+
+/* ── Top Players strip ───────────────────────────────────────────────────── */
+.tv-top-players {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+
+.tv-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tv-players-scroll {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex: 1;
+    min-width: 0;
+}
+
+.tv-players-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.tv-player-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    flex-shrink: 0;
+}
+
+.tv-player-chip:hover {
+    background: rgba(62, 180, 137, 0.1);
+    border-color: rgba(62, 180, 137, 0.35);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tv-player-chip.active {
+    background: rgba(62, 180, 137, 0.15);
+    border-color: #3eb489;
+    color: #3eb489;
+}
+
+.tv-player-chip.active .tv-player-count {
+    background: rgba(62, 180, 137, 0.25);
+}
+
+.tv-player-count {
+    font-size: 10px;
+    font-weight: 700;
+    color: #3eb489;
+    background: rgba(62, 180, 137, 0.12);
+    border-radius: 10px;
+    padding: 1px 6px;
 }
 </style>

@@ -173,7 +173,7 @@ export default {
 <style>
 .character-view {
     position: relative;
-    padding: 180px 20px;
+    padding: 200px 20px;
     height: 100%;
     overflow: visible;
     width: 100%;

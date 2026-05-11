@@ -140,7 +140,7 @@ export default {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding-top: 120px;
+    padding-top: 200px;
 }
 
 .favorites-view::-webkit-scrollbar-track {

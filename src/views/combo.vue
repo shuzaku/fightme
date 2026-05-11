@@ -235,7 +235,7 @@ export default {
     display: flex;
     align-items: flex-start;
     position: relative;
-    padding-top: 30px;
+    padding-top: 200px;
     height: 100%;
     overflow: hidden;
 }

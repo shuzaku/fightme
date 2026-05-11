@@ -149,7 +149,7 @@ export default {
     align-items: flex-start;
     position: relative;
     justify-content: space-around;
-    padding-top: 30px;
+    padding-top: 200px;
     height: 100%;
     overflow: hidden;
 }

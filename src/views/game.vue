@@ -519,7 +519,7 @@ export default {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 10px;
-    padding-top: 140px;
+    padding-top: 200px;
 }
 
 .game-view::-webkit-scrollbar-track {

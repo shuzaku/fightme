@@ -96,7 +96,7 @@ export default {
 <style>
 .collections {
     width: 100%;
-    padding-top: 50px;
+    padding-top: 200px;
 }
 
 .collections .collection-cards {

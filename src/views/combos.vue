@@ -183,7 +183,7 @@ export default {
 .combos-view {
     display: block;
     position: relative;
-    padding-top: 30px;
+    padding-top: 200px;
     height: 100%;
     overflow: hidden;
     width: 100%;

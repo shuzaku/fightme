@@ -280,7 +280,7 @@ export default {
 
 <style>
 .channel-scrapper {
-    padding-top: 150px;
+    padding-top: 200px;
 }
 
 .channel-scrapper .search .v-input__slot {

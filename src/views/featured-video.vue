@@ -172,7 +172,7 @@ export default {
 <style>
 .videos-view {
     position: relative;
-    padding-top: 30px;
+    padding-top: 200px;
     height: 100%;
     overflow: hidden;
     width: 100%;

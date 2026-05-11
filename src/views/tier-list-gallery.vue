@@ -93,7 +93,7 @@ export default {
 
 <style scoped>
 .tier-list-gallery {
-    padding: 160px 20px 20px;
+    padding: 200px 20px 20px;
     color: white;
     max-width: 1200px;
     margin: 0 auto;

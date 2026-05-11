@@ -4,7 +4,12 @@
         <div class="follow-container">
             <div class="follows-list">
                 <div v-for="follow in follows" :key="follow.id">
-                    <div class="follow" @click="navigate(follow)" v-tooltip="follow.name">
+                    <div
+                        class="follow"
+                        @click="navigate(follow)"
+                        @mouseenter="onFollowHover($event, follow)"
+                        @mouseleave="activeTooltip = null"
+                    >
                         <div class="avatar">
                             <div v-if="follow.imageUrl" class="image-container">
                                 <img :src="follow.imageUrl" />
@@ -13,6 +18,9 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div v-if="activeTooltip" class="follows-tooltip" :style="tooltipStyle">
+                {{ activeTooltip }}
             </div>
             <div v-if="!account" class="guest-msg">
                 <em>Login/Sign Up to follow your favorite games, characters, and players.</em>
@@ -42,6 +50,8 @@ export default {
             follows: [],
             isOpen: false,
             isLoading: false,
+            activeTooltip: null,
+            tooltipStyle: {},
         };
     },
     computed: {
@@ -149,6 +159,15 @@ export default {
         navigate(follow) {
             this.$router.push(`/${follow.type}/${follow.id}`);
         },
+
+        onFollowHover(event, follow) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            this.tooltipStyle = {
+                left: `${rect.left + rect.width / 2}px`,
+                top: `${rect.bottom + 8}px`,
+            };
+            this.activeTooltip = follow.name;
+        },
     },
 };
 </script>
@@ -197,7 +216,12 @@ export default {
     -webkit-overflow-scrolling: touch;
     gap: 0 6px;
     padding: 0 2px 4px;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.follows .follows-list::-webkit-scrollbar {
+    display: none;
 }
 
 .follows .follow {
@@ -267,6 +291,21 @@ export default {
 #app.mobile .follows .avatar .image-container {
     width: 32px;
     height: 32px;
+}
+
+.follows-tooltip {
+    position: fixed;
+    transform: translateX(-50%);
+    background: #1a1d2e;
+    color: #fff;
+    font-size: 11px;
+    font-family: 'Roboto', sans-serif;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+    z-index: 9999;
 }
 
 </style>

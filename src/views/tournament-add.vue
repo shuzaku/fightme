@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="tournament-view">
+    <div class="tournament-add-view">
         <div class="video-info">
             <!--- game --->
             <p v-show="showErrorMessage && !video.gameId" class="error-msg">Please Game</p>
@@ -409,10 +409,10 @@ export default {
 </script>
 
 <style type="text/css">
-.tournament-view {
+.tournament-add-view {
     background: #fff;
     width: 100%;
-    padding: 40px 20px;
+    padding: 200px 20px 40px;
     border-radius: 15px;
     display: flex;
     justify-content: space-between;

@@ -317,7 +317,7 @@ export default {
 .yt-generator {
     min-height: 100vh;
     background: linear-gradient(135deg, #1a1d29 0%, #242832 100%);
-    padding: 120px 20px 50px;
+    padding: 200px 20px 50px;
 }
 
 .generator-container {
