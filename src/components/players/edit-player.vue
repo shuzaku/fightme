@@ -1,177 +1,138 @@
 <!-- @format -->
 <template>
-    <div class="edit-players">
+    <div class="edit-player">
         <h1>Edit Player</h1>
-        <v-text-field
-            id="import-image"
-            type="text"
-            v-model="player.playerImg"
-            placeholder="image Url"
-            v-if="!player.playerImg"
-        />
-        <div class="player-img-container" v-if="player.playerImg">
-            <img :src="player.playerImg" class="player-img" />
-            <v-btn @click="player.playerImg = ''">X</v-btn>
-        </div>
-        <div class="form">
-            <div>
-                <input type="text" name="name" placeholder="Player Name" v-model="player.name" />
+        <div v-if="isLoading" class="loading-msg">Loading...</div>
+        <div v-else class="form">
+            <div v-if="player.imageUrl" class="player-img-container">
+                <img :src="player.imageUrl" class="player-img" />
+                <v-btn small @click="player.imageUrl = ''">Remove</v-btn>
             </div>
-            <div>
-                <input type="text" name="region" placeholder="Region" v-model="player.region" />
-            </div>
-            <!--- game --->
-            <game-search v-model="game" :taggable="true" @update:game="setGame($event)" />
-            <ul class="list-of-games">
-                <li v-for="game in player.selectedGames" class="player-games" :key="game._id">
-                    {{ game.GameTitle }}
-                </li>
-            </ul>
-            <div>
-                <button class="app_post_btn" @click="updatePlayer">Update</button>
-            </div>
+            <v-text-field dark v-model="player.imageUrl" type="text" placeholder="Image URL" />
+            <v-text-field dark v-model="player.name" type="text" placeholder="Player Name" />
+            <v-text-field dark v-model="player.twitter" type="text" placeholder="Twitter URL" />
+            <v-text-field dark v-model="player.stream" type="text" placeholder="Twitch URL" />
+            <v-text-field dark v-model="player.youtube" type="text" placeholder="YouTube URL" />
+
+            <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
+            <div v-if="successMessage" class="success-msg">{{ successMessage }}</div>
+
+            <v-btn class="submit-btn" rounded :loading="isSaving" @click="savePlayer()">
+                Save Changes
+            </v-btn>
         </div>
     </div>
 </template>
 
 <script>
 import PlayersService from '@/services/players-service';
-import moment from 'moment';
-import GameSearch from '@/components/games/game-search';
 
 export default {
     name: 'EditPlayer',
 
-    components: {
-        'game-search': GameSearch,
+    props: {
+        playerId: {
+            type: String,
+            default: null,
+        },
     },
 
     data() {
         return {
+            isLoading: true,
+            isSaving: false,
+            errorMessage: null,
+            successMessage: null,
             player: {
-                name: null,
-                region: null,
-                updatedDate: null,
-                selectedGames: [],
-                playerImg: null,
+                name: '',
+                imageUrl: '',
+                twitter: '',
+                stream: '',
+                youtube: '',
             },
-            games: '',
-            game: null,
         };
-    },
-    methods: {
-        async getPlayer() {
-            const response = await PlayersService.getPlayer({
-                id: this.$route.params.id,
-            });
-            this.player.name = response.data.PlayerName;
-            this.player.region = response.data.Region;
-            this.player.createdDate = response.data.CreatedDate;
-            this.player.selectedGames = response.data.GamesPlayed;
-            this.player.playerImg = response.data.PlayerImg;
-        },
-
-        async updatePlayer() {
-            await PlayersService.updatePlayer({
-                id: this.$route.params.id,
-                PlayerName: this.player.name,
-                Region: this.player.region,
-                GamesPlayed: this.player.selectedGames,
-                UpdatedDate: this.player.timestamp,
-                PlayerImg: this.player.playerImg,
-            });
-            this.$router.push({ name: 'Players' });
-        },
-
-        setGame(game) {
-            this.player.selectedGames = game;
-        },
-    },
-
-    computed: {
-        timestamp: function () {
-            return moment().format();
-        },
     },
 
     created() {
-        this.getPlayer();
+        if (this.playerId) this.fetchPlayer();
+    },
+
+    methods: {
+        async fetchPlayer() {
+            this.isLoading = true;
+            try {
+                const res = await PlayersService.getPlayer({ id: this.playerId });
+                const p = res.data;
+                this.player = {
+                    name:     p.Name     || '',
+                    imageUrl: p.ImageUrl || '',
+                    twitter:  p.Twitter  || '',
+                    stream:   p.Stream   || '',
+                    youtube:  p.Youtube  || '',
+                };
+            } catch (e) {
+                this.errorMessage = 'Failed to load player data.';
+            }
+            this.isLoading = false;
+        },
+
+        async savePlayer() {
+            this.errorMessage = null;
+            this.successMessage = null;
+            this.isSaving = true;
+            try {
+                await PlayersService.updatePlayer({
+                    id:       this.playerId,
+                    Name:     this.player.name,
+                    ImageUrl: this.player.imageUrl,
+                    Twitter:  this.player.twitter,
+                    Stream:   this.player.stream,
+                    Youtube:  this.player.youtube,
+                });
+                this.successMessage = 'Player updated successfully!';
+            } catch (e) {
+                this.errorMessage = 'Failed to save changes.';
+            }
+            this.isSaving = false;
+        },
     },
 };
 </script>
-<style type="text/css">
-.edit-players {
-    max-width: 600px;
-    text-align: left;
-    margin: 0 auto;
-    background: #fff;
-    width: 400px;
-    border-radius: 10px;
-    padding: 20px 60px;
-}
 
-.edit-players .form input,
-.edit-players .form textarea,
-.edit-players .multiselect-container .multiselect {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #e0dede;
-    outline: none;
-    font-size: 12px;
-    margin: 0 auto;
-}
-
-.edit-players .game-search {
-    margin: 0;
-}
-
-.edit-players .app_post_btn {
-    width: 100%;
-}
-.edit-players .form div {
-    margin: 20px 0;
-}
-
-.edit-players .form .multiselect__select {
-    margin: 0;
-}
-
-.edit-players .multiselect--active .multiselect__tags-wrap {
-    display: none;
-}
-
-.edit-players .multiselect__tags,
-.edit-players .multiselect__select {
-    margin: 0;
-}
-
-.edit-players .player-games {
-    list-style: none;
-    padding: 5px;
-    border-radius: 5px;
-    margin: 5px;
-    background: green;
+<style scoped>
+.edit-player h1 {
     color: #fff;
-    display: block;
-}
-
-.edit-players .list-of-games {
-    display: flex;
-    flex-direction: row;
-    width: 500px;
-    margin: 0 auto;
-}
-
-.edit-players .player-img-container {
-    display: flex;
-    align-items: center;
     margin-bottom: 20px;
 }
-
-.edit-players .player-img-container .player-img {
-    max-width: 175px;
+.edit-player .form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.edit-player .player-img-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.edit-player .player-img {
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    margin: 0 auto;
-    border: 5px solid #000;
+    object-fit: cover;
+}
+.edit-player .submit-btn {
+    margin-top: 16px;
+}
+.edit-player .error-msg {
+    color: #ff5252;
+    font-size: 13px;
+}
+.edit-player .success-msg {
+    color: #3eb489;
+    font-size: 13px;
+}
+.edit-player .loading-msg {
+    color: #fff;
 }
 </style>

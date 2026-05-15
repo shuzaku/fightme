@@ -5,10 +5,10 @@
             <game-combos :account="account" />
         </div>
         <div v-else-if="selectedVideoType === 'Online Matches'">
-            <game-online-matches :account="account" />
+            <game-online-matches :account="account" :teamChar1="teamChar1" :teamChar2="teamChar2" />
         </div>
         <div v-else-if="selectedVideoType === 'Tournament Matches'">
-            <game-tournament-matches :account="account" />
+            <game-tournament-matches :account="account" :teamChar1="teamChar1" :teamChar2="teamChar2" />
         </div>
     </div>
 </template>
@@ -31,11 +31,12 @@ export default {
             type: Object,
             default: null,
         },
-
         selectedVideoType: {
             type: String,
             default: 'Online Matches',
         },
+        teamChar1: { type: String, default: null },
+        teamChar2: { type: String, default: null },
     },
 
     data() {

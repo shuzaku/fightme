@@ -77,6 +77,9 @@
                         <v-icon> mdi-heart </v-icon>
                     </div>
                 </div>
+                <div v-if="isAdmin" class="admin-edit-btn info-card" @click="openEditModal()">
+                    <v-icon small>mdi-pencil</v-icon> Edit
+                </div>
             </div>
         </div>
         <div v-if="matchupPopupActive" class="popup">
@@ -162,6 +165,9 @@ export default {
                 'background-position': '0% 20%',
             };
         },
+        isAdmin() {
+            return this.account && String(this.account.role || '').toLowerCase() === 'admin';
+        },
     },
 
     created() {
@@ -178,6 +184,10 @@ export default {
     },
 
     methods: {
+        openEditModal() {
+            eventbus.$emit('open:widget', { name: 'edit-character', characterId: this.character.id });
+        },
+
         filter(filterType) {
             this.$emit('character-filter:update', filterType);
         },
@@ -464,5 +474,14 @@ export default {
 
 .mobile .character-image {
     display: flex;
+}
+
+.character-nav .admin-edit-btn {
+    border-color: #3eb489;
+    color: #3eb489;
+    gap: 4px;
+}
+.character-nav .admin-edit-btn:hover {
+    background: #3eb48920;
 }
 </style>

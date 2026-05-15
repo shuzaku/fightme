@@ -75,6 +75,13 @@ export default {
     return Api().get(`matchesFeed?${queryParams.join('&')}`);
   },
 
+  queryMatchesByTeam(params: { skip: number; gameId: string; char1?: string; char2?: string }) {
+    const queryParams = [`skip=${params.skip}`, `gameId=${params.gameId}`];
+    if (params.char1) queryParams.push(`char1=${params.char1}`);
+    if (params.char2) queryParams.push(`char2=${params.char2}`);
+    return Api().get(`/matchesTeam?${queryParams.join('&')}`);
+  },
+
   queryMatchesByGame(params: Params){
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];

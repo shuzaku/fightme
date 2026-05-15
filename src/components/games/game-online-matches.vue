@@ -1,14 +1,16 @@
 <!-- @format -->
 <template>
-    <div v-if="videos.length > 0" class="game-online-matches">
-        <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
-            <match-video-card
-                v-model="video.isPlaying"
-                :favoriteVideos="account ? account.favoriteVideos : null"
-                :isFirst="video.isFirst"
-                :matchId="video.matchId"
-                :account="account"
-            />
+    <div class="game-online-matches">
+        <div v-if="videos.length > 0">
+            <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
+                <match-video-card
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :isFirst="video.isFirst"
+                    :matchId="video.matchId"
+                    :account="account"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -24,15 +26,13 @@ export default {
 
     components: {
         'match-video-card': MatchVideoCard,
-
         loading: Loading,
     },
 
     props: {
-        account: {
-            type: Object,
-            default: null,
-        },
+        account: { type: Object, default: null },
+        teamChar1: { type: String, default: null },
+        teamChar2: { type: String, default: null },
     },
 
     data() {
@@ -56,6 +56,10 @@ export default {
         gameId: function () {
             return this.$route.params.id;
         },
+
+        isTeamGame() {
+            return this.gameId === '68cba126f261500022897969';
+        },
     },
 
     watch: {
@@ -63,6 +67,8 @@ export default {
             this.videos = [];
             this.queryVideos();
         },
+        teamChar1() { this.resetAndQuery(); },
+        teamChar2() { this.resetAndQuery(); },
     },
 
     mounted() {
@@ -99,32 +105,47 @@ export default {
             this.queryVideos();
         },
 
+        resetAndQuery() {
+            this.videos = [];
+            this.isLast = false;
+            this.queryVideos();
+        },
+
         async queryVideos(newQuery) {
             if (!this.isLast && !this.loading) {
                 this.isLoading = true;
-                var queryParameter = {
-                    skip: this.skip,
-                    sort: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'GameId',
-                            queryValue: this.gameId,
-                        },
-                    ],
-                    filter: this.filter,
-                };
+                try {
+                    let response;
+                    const teamFilterActive = this.isTeamGame && (this.teamChar1 || this.teamChar2);
 
-                if (this.gameSlug) {
-                    queryParameter.searchQuery[0].queryName = 'GameSlug';
-                    queryParameter.searchQuery[0].queryValue = this.gameSlug.toUpperCase();
+                    if (teamFilterActive) {
+                        response = await MatchesService.queryMatchesByTeam({
+                            skip: this.skip,
+                            gameId: this.gameId,
+                            char1: this.teamChar1 || undefined,
+                            char2: this.teamChar2 || undefined,
+                        });
+                    } else {
+                        var queryParameter = {
+                            skip: this.skip,
+                            sort: this.sort,
+                            searchQuery: [{ queryName: 'GameId', queryValue: this.gameId }],
+                            filter: this.filter,
+                        };
+                        if (this.gameSlug) {
+                            queryParameter.searchQuery[0].queryName = 'GameSlug';
+                            queryParameter.searchQuery[0].queryValue = this.gameSlug.toUpperCase();
+                        }
+                        response = await MatchesService.queryMatchesByGame(queryParameter);
+                    }
+
+                    if (response.data.matches.length === 0) {
+                        this.isLast = true;
+                    }
+                    this.hydrateVideos(response);
+                } catch (e) {
+                    console.error('queryVideos error:', e);
                 }
-
-                const response = await MatchesService.queryMatchesByGame(queryParameter);
-                if (response.data.matches.length === 0) {
-                    this.isLast = true;
-                }
-
-                this.hydrateVideos(response);
                 this.isLoading = false;
             }
         },

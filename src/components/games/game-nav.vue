@@ -19,6 +19,9 @@
                         <v-icon> mdi-heart </v-icon>
                     </div>
                 </div>
+                <div v-if="isAdmin" class="admin-edit-btn info-card" @click="openEditModal()">
+                    <v-icon small>mdi-pencil</v-icon> Edit
+                </div>
             </div>
         </div>
         <div v-if="showMenu" class="quick-nav">
@@ -101,6 +104,9 @@ export default {
             }
             return {};
         },
+        isAdmin() {
+            return this.account && String(this.account.role || '').toLowerCase() === 'admin';
+        },
     },
 
     watch: {
@@ -120,6 +126,10 @@ export default {
     },
 
     methods: {
+        openEditModal() {
+            eventbus.$emit('open:widget', { name: 'edit-game', gameId: this.gameId });
+        },
+
         async getGame() {
             const response = await GamesService.getGame({
                 id: this.gameId,
@@ -298,5 +308,14 @@ export default {
 .mobile .game-nav .game-header-logo img {
     width: auto;
     max-height: 100px;
+}
+
+.game-nav .admin-edit-btn {
+    border-color: #3eb489;
+    color: #3eb489;
+    gap: 4px;
+}
+.game-nav .admin-edit-btn:hover {
+    background: #3eb48920;
 }
 </style>

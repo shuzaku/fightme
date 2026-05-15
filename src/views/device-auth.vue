@@ -96,6 +96,23 @@
                 <p>Authorized! Returning to <strong>{{ deviceName }}</strong>...</p>
             </div>
 
+            <!-- Done without redirect — copy token (e.g. OBS desktop app) -->
+            <div v-else-if="step === 'done-manual'" class="da-done-manual">
+                <div class="da-check">✓</div>
+                <p class="da-manual-lead">
+                    Copy this token into your app&apos;s settings. It is only shown once.
+                </p>
+                <div class="da-token-box">
+                    <code class="da-token">{{ issuedToken }}</code>
+                    <button type="button" class="da-btn da-btn-primary da-copy-btn" @click="copyToken">
+                        {{ copied ? 'Copied' : 'Copy token' }}
+                    </button>
+                </div>
+                <p class="da-manual-hint">
+                    You can close this tab after saving the token somewhere safe.
+                </p>
+            </div>
+
             <!-- Error (bad redirect_uri etc.) -->
             <div v-else-if="step === 'error'" class="da-fatal">
                 <p>{{ fatalError }}</p>
@@ -115,8 +132,12 @@ export default {
 
     data() {
         return {
-            step: 'loading',   // loading | login | consent | done | error
+            step: 'loading',   // loading | login | consent | done | done-manual | error
             deviceName: 'FightersEdge AutoStream',
+            /** When false, we show the token on this page instead of redirecting to localhost. */
+            useRedirect: true,
+            issuedToken: '',
+            copied: false,
             redirectUri: '',
             email: '',
             password: '',
@@ -143,27 +164,27 @@ export default {
         const redirectUri = params.get('redirect_uri');
         const deviceName = params.get('device_name');
 
-        if (!redirectUri) {
-            this.fatalError = 'Missing redirect_uri parameter.';
-            this.step = 'error';
-            return;
-        }
-
-        // Basic allowlist — only allow loopback redirects for security
-        try {
-            const uri = new URL(redirectUri);
-            if (uri.hostname !== 'localhost' && uri.hostname !== '127.0.0.1') {
-                this.fatalError = 'redirect_uri must be a localhost address.';
+        if (redirectUri) {
+            // Basic allowlist — only allow loopback redirects for security
+            try {
+                const uri = new URL(redirectUri);
+                if (uri.hostname !== 'localhost' && uri.hostname !== '127.0.0.1') {
+                    this.fatalError = 'redirect_uri must be a localhost address.';
+                    this.step = 'error';
+                    return;
+                }
+            } catch {
+                this.fatalError = 'Invalid redirect_uri.';
                 this.step = 'error';
                 return;
             }
-        } catch {
-            this.fatalError = 'Invalid redirect_uri.';
-            this.step = 'error';
-            return;
+            this.redirectUri = redirectUri;
+            this.useRedirect = true;
+        } else {
+            // Desktop apps (e.g. OBS) often open this URL without a loopback server — user copies the token.
+            this.useRedirect = false;
         }
 
-        this.redirectUri = redirectUri;
         if (deviceName) this.deviceName = deviceName;
 
         // Check Firebase auth state
@@ -223,11 +244,17 @@ export default {
                     throw new Error(data.message || `Server error (${res.status})`);
                 }
 
-                this.step = 'done';
-                // Small delay so the user sees the success state before the tab closes
-                setTimeout(() => {
-                    window.location.href = `${this.redirectUri}?token=${encodeURIComponent(data.token)}`;
-                }, 800);
+                if (this.useRedirect) {
+                    this.step = 'done';
+                    // Small delay so the user sees the success state before the tab closes
+                    setTimeout(() => {
+                        window.location.href = `${this.redirectUri}?token=${encodeURIComponent(data.token)}`;
+                    }, 800);
+                } else {
+                    this.issuedToken = data.token;
+                    this.step = 'done-manual';
+                    this.working = false;
+                }
             } catch (err) {
                 this.authError = err.message || 'Authorization failed. Please try again.';
                 this.working = false;
@@ -235,7 +262,29 @@ export default {
         },
 
         deny() {
-            window.location.href = `${this.redirectUri}?error=denied`;
+            if (this.useRedirect) {
+                window.location.href = `${this.redirectUri}?error=denied`;
+                return;
+            }
+            firebase
+                .auth()
+                .signOut()
+                .catch(() => {});
+            this.firebaseUser = null;
+            this.step = 'login';
+            this.loginError = 'Authorization was cancelled.';
+        },
+
+        async copyToken() {
+            try {
+                await navigator.clipboard.writeText(this.issuedToken);
+                this.copied = true;
+                setTimeout(() => {
+                    this.copied = false;
+                }, 2000);
+            } catch {
+                this.copied = false;
+            }
         },
 
         friendlyFirebaseError(err) {
@@ -506,6 +555,54 @@ export default {
 .da-done p {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+/* Manual token (no redirect_uri) */
+.da-done-manual {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    text-align: center;
+}
+
+.da-manual-lead {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.da-token-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    background: #1a1d24;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    text-align: left;
+}
+
+.da-token {
+    display: block;
+    font-size: 12px;
+    word-break: break-all;
+    color: #b8f0d8;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 10px;
+    border-radius: 6px;
+    line-height: 1.45;
+}
+
+.da-copy-btn {
+    flex: none;
+}
+
+.da-manual-hint {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
     margin: 0;
 }
 </style>

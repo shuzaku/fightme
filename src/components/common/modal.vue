@@ -63,6 +63,24 @@
             @closeModal="closeModal()"
         />
         <new-featured-video v-if="options.name === 'featured-video'" @closeModal="closeModal()" />
+        <new-featured-match v-if="options.name === 'featured-match'" @closeModal="closeModal()" />
+
+        <edit-player
+            v-if="options.name === 'edit-player'"
+            :playerId="options.playerId"
+            @closeModal="closeModal()"
+        />
+        <edit-game
+            v-if="options.name === 'edit-game'"
+            :gameId="options.gameId"
+            @closeModal="closeModal()"
+        />
+        <edit-character
+            v-if="options.name === 'edit-character'"
+            :characterId="options.characterId"
+            @closeModal="closeModal()"
+        />
+        <new-update v-if="options.name === 'game-update'" @closeModal="closeModal()" />
     </div>
 </template>
 
@@ -82,6 +100,11 @@ import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
 import noteWidget from '@/components/note/note-widget';
 import newFeaturedVideo from '@/components/videos/new-featured-video';
+import newFeaturedMatch from '@/components/videos/new-featured-match';
+import editPlayer from '@/components/players/edit-player';
+import editGame from '@/components/games/edit-game';
+import editCharacter from '@/components/character/edit-character';
+import newUpdate from '@/components/update/new-update';
 
 export default {
     name: 'Modal',
@@ -102,6 +125,11 @@ export default {
         collections: collections,
         'note-widget': noteWidget,
         'new-featured-video': newFeaturedVideo,
+        'new-featured-match': newFeaturedMatch,
+        'edit-player': editPlayer,
+        'edit-game': editGame,
+        'edit-character': editCharacter,
+        'new-update': newUpdate,
     },
 
     props: {

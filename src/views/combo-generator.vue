@@ -154,102 +154,120 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Preview Section -->
+                <!-- Right Column: Preview Section (combo-video-card layout) -->
                 <div class="preview-column">
-                    <div v-if="showPreview" class="preview-section">
-                        <div class="preview-container">
-                            <!-- Character Background Image -->
-                            <div class="preview-background" :style="characterBackgroundStyle"></div>
-
-                            <!-- Character Name and Game Title -->
-                            <div class="preview-header">
-                                <div v-if="selectedGame && selectedGame.title" class="game-title">
-                                    {{ selectedGame.title }}
-                                </div>
-                                <div
-                                    v-if="selectedCharacter && selectedCharacter.name"
-                                    class="character-name"
-                                >
-                                    {{ selectedCharacter.name }} Combo
-                                </div>
+                    <div v-if="showPreview" class="preview-section combo-generator-preview-card">
+                        <div
+                            class="preview-combo-card combo-card card"
+                            :class="{ 'twitter-card-preview': videoUrl && videoType === 'twitter' }"
+                        >
+                            <div
+                                v-if="videoUrl && videoType === 'twitter' && characterBannerUrl"
+                                class="character-image"
+                            >
+                                <img :src="characterBannerUrl" alt="" />
                             </div>
-
-                            <!-- Video Player -->
-                            <div class="preview-video-container">
+                            <div
+                                class="video-container preview-combo-video-container"
+                                :class="{
+                                    'preview-combo-video-youtube':
+                                        !(videoUrl && videoType === 'twitter'),
+                                }"
+                            >
                                 <div
                                     v-if="videoUrl && videoType === 'youtube'"
-                                    class="preview-video-wrapper"
+                                    class="preview-combo-youtube-inner"
                                 >
-                                    <div class="preview-video">
-                                        <youtube-media
-                                            ref="previewYoutubeRef"
-                                            :video-id="extractedVideoId"
-                                            :player-width="previewVideoWidth"
-                                            :player-height="previewVideoHeight"
-                                            :mute="true"
-                                            :playsinline="1"
-                                        />
-                                    </div>
+                                    <youtube-media
+                                        ref="previewYoutubeRef"
+                                        :video-id="extractedVideoId"
+                                        :player-width="previewYoutubePlayerWidth"
+                                        :player-height="previewYoutubePlayerHeight"
+                                        :mute="true"
+                                        :playsinline="1"
+                                    />
                                 </div>
-                                <div
+                                <tweet
                                     v-else-if="videoUrl && videoType === 'twitter'"
-                                    class="preview-video"
-                                >
-                                    <tweet :id="extractedVideoId" />
-                                </div>
+                                    :id="extractedVideoId"
+                                />
                                 <div v-else class="preview-video-placeholder">
                                     <i class="fas fa-video"></i>
                                     <p>Video preview will appear here</p>
                                 </div>
                             </div>
-
-                            <!-- Input Notation Display -->
-                            <div v-if="comboInputs" class="preview-inputs">
-                                <div
-                                    v-for="(row, rowIndex) in parsedInputRows"
-                                    :key="rowIndex"
-                                    class="input-row"
-                                >
+                            <div class="card-label">Combo</div>
+                            <div class="aside preview-combo-aside">
+                                <div class="combo-info">
+                                    <div v-if="selectedGame && selectedGame.title" class="game">
+                                        <div class="game-title">
+                                            <p>
+                                                <span>
+                                                    <div
+                                                        v-if="gameLogoSrc"
+                                                        class="img-container"
+                                                    >
+                                                        <img :src="gameLogoSrc" alt="" />
+                                                    </div>
+                                                    {{ selectedGame.title }}</span
+                                                >
+                                            </p>
+                                        </div>
+                                    </div>
                                     <div
-                                        v-for="(input, inputIndex) in row"
-                                        :key="inputIndex"
-                                        class="input-item"
-                                        :class="{ 
-                                            bracketed: input.bracketed,
-                                            'input-even': getGlobalInputIndex(rowIndex, inputIndex) % 2 === 0,
-                                            'input-odd': getGlobalInputIndex(rowIndex, inputIndex) % 2 === 1
-                                        }"
+                                        v-if="selectedCharacter && selectedCharacter.name"
+                                        class="character-name"
                                     >
-                                        <img
-                                            v-if="getInputIcon(input.text)"
-                                            :src="getInputIcon(input.text)"
-                                            :alt="input.text"
-                                            class="input-icon"
-                                        />
-                                        <span v-else class="input-text">{{ input.text }}</span>
+                                        <p>
+                                            <span>
+                                                <div
+                                                    v-if="characterAvatarSrc"
+                                                    class="img-container"
+                                                >
+                                                    <img :src="characterAvatarSrc" alt="" />
+                                                </div>
+                                                {{ selectedCharacter.name }}</span
+                                            >
+                                        </p>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Bottom Section: Stats and Branding -->
-                            <div class="preview-bottom">
-                                <!-- Branding -->
-                                <div class="preview-branding">
-                                    <div class="brand-icon">
-                                        <i class="fas fa-gamepad"></i>
+                                    <div v-if="comboHits || comboDamage" class="combo-stats">
+                                        <p v-if="comboHits">{{ comboHits }} Hits</p>
+                                        <p v-if="comboDamage">{{ comboDamage }} Damage</p>
                                     </div>
-                                    <span class="brand-text">Fighters-Edge.com</span>
-                                </div>
-
-                                <!-- Combo Stats Display -->
-                                <div v-if="comboHits || comboDamage" class="preview-stats">
-                                    <div v-if="comboHits" class="stat-item">
-                                        <span class="stat-value">{{ comboHits }}</span>
-                                        <span class="stat-label">Hits</span>
-                                    </div>
-                                    <div v-if="comboDamage" class="stat-item">
-                                        <span class="stat-value">{{ comboDamage }}</span>
-                                        <span class="stat-label">Dmg</span>
+                                    <div v-if="comboInputs" class="combo-input">
+                                        <div class="inputs preview-combo-inputs-icons">
+                                            <div
+                                                v-for="(row, rowIndex) in parsedInputRows"
+                                                :key="rowIndex"
+                                                class="input-row"
+                                            >
+                                                <div
+                                                    v-for="(input, inputIndex) in row"
+                                                    :key="inputIndex"
+                                                    class="input-item"
+                                                    :style="{ zIndex: row.length - inputIndex }"
+                                                    :class="{
+                                                        bracketed: input.bracketed,
+                                                        'input-even':
+                                                            getGlobalInputIndex(rowIndex, inputIndex) %
+                                                                2 ===
+                                                            0,
+                                                        'input-odd':
+                                                            getGlobalInputIndex(rowIndex, inputIndex) %
+                                                                2 ===
+                                                            1,
+                                                    }"
+                                                >
+                                                    <img
+                                                        v-if="getInputIcon(input.text)"
+                                                        :src="getInputIcon(input.text)"
+                                                        :alt="input.text"
+                                                        class="input-icon"
+                                                    />
+                                                    <span v-else class="input-text">{{ input.text }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -490,16 +508,29 @@ export default {
             return this.selectedCharacter && (this.videoUrl || this.comboInputs);
         },
 
-        characterBackgroundStyle() {
-            if (!this.selectedCharacter || !this.selectedCharacter.imageUrl) {
-                return { background: '#000' };
-            }
-            return {
-                backgroundImage: `url(${this.selectedCharacter.imageUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center top',
-                backgroundRepeat: 'no-repeat',
-            };
+        gameLogoSrc() {
+            return (this.selectedGame && this.selectedGame.logoUrl) || '';
+        },
+
+        characterAvatarSrc() {
+            if (!this.selectedCharacter) return '';
+            return (
+                this.selectedCharacter.avatarUrl ||
+                this.selectedCharacter.imageUrl ||
+                ''
+            );
+        },
+
+        characterBannerUrl() {
+            return (this.selectedCharacter && this.selectedCharacter.imageUrl) || '';
+        },
+
+        previewYoutubePlayerWidth() {
+            return 556;
+        },
+
+        previewYoutubePlayerHeight() {
+            return Math.round((this.previewYoutubePlayerWidth * 9) / 16);
         },
 
         attackIcons() {
@@ -523,18 +554,6 @@ export default {
             }
 
             return rows;
-        },
-
-        previewVideoWidth() {
-            // Calculate width to fit the right column (accounting for padding)
-            // Column is roughly 50% of container (max 1400px), minus gap (30px) and padding (30px total)
-            // Available width: ~655px, use 600px for video
-            return 600;
-        },
-
-        previewVideoHeight() {
-            // 16:9 aspect ratio
-            return Math.round(this.previewVideoWidth * (9 / 16));
         },
     },
 
@@ -579,6 +598,7 @@ export default {
                             id: game._id,
                             title: game.Title,
                             abbreviation: game.Abbreviation,
+                            logoUrl: game.LogoUrl || '',
                         };
                     }
                 } catch (error) {
@@ -644,6 +664,7 @@ export default {
                                 id: game._id || null,
                                 title: game.Title || '',
                                 abbreviation: game.Abbreviation || '',
+                                logoUrl: game.LogoUrl || '',
                             };
                             this.selectedGameId = game._id;
 
@@ -868,7 +889,7 @@ export default {
 
         addParsedInputs(text, bracketed, inputs) {
             // Split by common separators if they exist within the text
-            const parts = text.split(/([><+\-])/).filter((p) => p && p.trim());
+            const parts = text.split(/([><+-])/).filter((p) => p && p.trim());
 
             for (const part of parts) {
                 const trimmed = part.trim();
@@ -1220,336 +1241,283 @@ export default {
     margin-right: 8px;
 }
 
-/* Preview Section */
-.preview-section {
+/* Preview mirrors combo-video-card layout */
+.combo-generator-preview-card {
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    padding-top: 20px;
 }
 
-.preview-container {
-    position: relative;
-    background: #000;
-    border-radius: 16px;
-    overflow: hidden;
-    min-height: 600px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 100%;
-    padding-top: 200px;
-}
-
-.preview-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 0;
-    opacity: 0.6;
-    background-size: cover;
-    background-position: center top;
-}
-
-.preview-background::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.2) 0%,
-        rgba(0, 0, 0, 0.5) 40%,
-        rgba(0, 0, 0, 0.8) 70%,
-        rgba(0, 0, 0, 0.95) 100%
-    );
-}
-
-.preview-header {
-    position: relative;
-    z-index: 2;
-    padding: 25px 35px 15px;
-    text-align: right;
-}
-
-.game-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffd700;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-}
-
-.character-name {
-    font-size: 36px;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
-    letter-spacing: 0.5px;
-}
-
-.preview-video-container {
-    position: relative;
-    z-index: 2;
-    padding: 0 25px 25px;
+.combo-generator-preview-card .preview-combo-card.combo-card {
+    margin: 0 0 30px;
     display: flex;
-    justify-content: center;
-    width: 100%;
-    overflow: hidden;
-}
-
-.preview-video-wrapper {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
+    background: #242832;
+    border: 5px solid #242832;
+    border-radius: 15px;
     position: relative;
-    overflow: hidden;
-}
-
-.preview-video {
+    cursor: default;
     width: 100%;
-    max-width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), inset 0 0 0 2px rgba(0, 0, 0, 0.5);
-    background: #000;
-    position: relative;
-    contain: layout style paint;
-    border: 2px solid rgba(0, 0, 0, 0.6);
+    box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.preview-video-wrapper >>> iframe,
-.preview-video-wrapper >>> object,
-.preview-video-wrapper >>> embed,
-.preview-video >>> iframe,
-.preview-video >>> object,
-.preview-video >>> embed {
-    width: 100% !important;
-    height: 100% !important;
-    border: none !important;
-    position: relative !important;
-    display: block !important;
+.combo-generator-preview-card .preview-combo-card.combo-card.twitter-card-preview {
+    flex-wrap: nowrap;
 }
 
-.preview-video-wrapper >>> div,
-.preview-video >>> div {
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-    position: relative !important;
-}
-
-.preview-video-wrapper >>> div iframe,
-.preview-video >>> div iframe {
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-}
-
-.preview-video-placeholder {
-    width: 100%;
-    max-width: 100%;
-    aspect-ratio: 16 / 9;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
+.combo-generator-preview-card .preview-combo-card.combo-card.twitter-card-preview .character-image {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.5);
-    margin: 0 auto;
 }
 
-.preview-video-placeholder i {
-    font-size: 48px;
-    margin-bottom: 16px;
+.combo-generator-preview-card .preview-combo-card.combo-card.twitter-card-preview .character-image img {
+    max-width: 300px;
+    width: 100%;
 }
 
-.preview-video-placeholder p {
-    font-size: 14px;
-    margin: 0;
-}
-
-.preview-inputs {
-    position: relative;
-    z-index: 2;
-    padding: 15px 30px 10px;
+.combo-generator-preview-card .preview-combo-aside.aside {
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    justify-content: space-between;
+    max-width: 25%;
+    width: 100%;
 }
 
-.input-row {
+.combo-generator-preview-card .preview-combo-card .card-label {
+    position: absolute;
+    width: 70px;
+    border-radius: 30px;
+    top: -15px;
+    left: 50%;
+    margin-left: -35px;
+    background: #3c73a8;
+    text-align: center;
+    padding: 5px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .game-title span,
+.combo-generator-preview-card .preview-combo-card .combo-info .character-name span {
+    padding: 6px 20px;
+    padding-left: 40px;
+    color: #242832;
+    font-size: 14px;
+    background: #3eb489;
+    border-radius: 15px;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .character-name {
+    padding-top: 0;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .character-name p {
+    font-size: 14px;
+    color: #242832;
+    font-weight: 300;
+    margin-top: 3px;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .game .img-container img,
+.combo-generator-preview-card .preview-combo-card .combo-info .character-name .img-container img {
+    width: 30px;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .game .img-container,
+.combo-generator-preview-card .preview-combo-card .combo-info .character-name .img-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    height: 30px;
+    width: 30px;
     display: flex;
-    gap: 6px;
+    align-items: center;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .inputs {
+    border-radius: 3px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #4a5689;
+    min-height: auto;
+    color: #fff;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-stats p {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+}
+
+.combo-generator-preview-card .preview-combo-card .combo-info .game {
+    margin-bottom: 20px;
+}
+
+.combo-generator-preview-card .preview-combo-video-container.video-container.preview-combo-video-youtube {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    position: relative;
+    padding-bottom: 42.25%;
+    height: 0;
+    overflow: hidden;
+    min-width: 75%;
+    flex-shrink: 0;
+}
+
+.combo-generator-preview-card .preview-combo-youtube-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.combo-generator-preview-card .preview-combo-video-container.video-container iframe,
+.combo-generator-preview-card .preview-combo-video-container.video-container object,
+.combo-generator-preview-card .preview-combo-video-container.video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.combo-generator-preview-card
+    .preview-combo-card.combo-card.twitter-card-preview
+    .preview-combo-video-container.video-container {
+    padding-bottom: 0;
+    height: auto;
+    min-height: 400px;
+    max-height: 610px;
+    min-width: initial;
+    width: auto;
+    max-width: 52%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.combo-generator-preview-card .preview-combo-video-container .preview-video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: unset;
+    border-radius: 0;
+}
+
+.combo-generator-preview-card .preview-combo-inputs-icons .input-row {
+    display: flex;
+    gap: 0;
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
+    margin-bottom: 3px;
 }
 
-.input-item {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-row:last-child {
+    margin-bottom: 0;
+}
+
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item {
     position: relative;
+    box-sizing: border-box;
     background: rgba(128, 128, 128, 0.3);
     border: 1px solid rgba(128, 128, 128, 0.4);
-    border-radius: 6px;
-    padding: 6px 30px 6px 20px;
-    min-width: 45px;
-    height: 45px;
-    display: flex;
+    border-radius: 4px;
+    padding: 2px 8px 2px 5px;
+    min-width: 0;
+    min-height: 20px;
+    height: auto;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    clip-path: polygon(0% 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 0% 100%);
-    margin-left: -15px;
+    clip-path: polygon(0% 0%, calc(100% - 5px) 0%, 100% 50%, calc(100% - 5px) 100%, 0% 100%);
+    margin-left: -12px;
 }
 
-.input-item.input-even {
-    background: rgba(100, 150, 200, 0.3);
-    border-color: rgba(100, 150, 200, 0.5);
-}
-
-.input-item.input-odd {
-    background: rgba(200, 120, 150, 0.3);
-    border-color: rgba(200, 120, 150, 0.5);
-}
-
-.input-item:first {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item:first-child {
     margin-left: 0;
 }
 
-.input-item.bracketed {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.input-even {
+    background: rgba(100, 150, 200, 0.35);
+    border-color: rgba(100, 150, 200, 0.5);
+}
+
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.input-odd {
+    background: rgba(200, 120, 150, 0.35);
+    border-color: rgba(200, 120, 150, 0.5);
+}
+
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.bracketed {
     border: 2px solid rgba(255, 255, 255, 0.8) !important;
     background: rgba(128, 128, 128, 0.5) !important;
-    position: relative;
 }
 
-.input-item.bracketed.input-even {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.bracketed.input-even {
     background: rgba(100, 150, 200, 0.5) !important;
-    border-color: rgba(255, 255, 255, 0.8) !important;
 }
 
-.input-item.bracketed.input-odd {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.bracketed.input-odd {
     background: rgba(200, 120, 150, 0.5) !important;
-    border-color: rgba(255, 255, 255, 0.8) !important;
 }
 
-.input-item.bracketed::before {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.bracketed::before {
     content: '[';
     position: absolute;
-    left: -8px;
+    left: -5px;
     color: #fff;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 12px;
 }
 
-.input-item.bracketed::after {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-item.bracketed::after {
     content: ']';
     position: absolute;
-    right: -8px;
+    right: -5px;
     color: #fff;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 12px;
 }
 
-.input-icon {
-    width: 28px;
-    height: 28px;
+.combo-generator-preview-card .preview-combo-inputs-icons .input-icon {
+    width: 22px;
+    height: 22px;
     object-fit: contain;
     display: block;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
-.input-text {
+.combo-generator-preview-card .preview-combo-inputs-icons .input-text {
     color: #fff;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.preview-bottom {
-    position: relative;
-    z-index: 2;
-    padding: 15px 30px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
-.preview-stats {
-    display: flex;
-    gap: 20px;
-    align-items: flex-end;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-    margin-bottom: 2px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-}
-
-.stat-label {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.8);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.preview-branding {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 11px;
-}
-
-.brand-icon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    position: relative;
-}
-
-.brand-icon::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-}
-
-.brand-icon i {
-    font-size: 12px;
-    position: relative;
-    z-index: 1;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.brand-text {
-    font-weight: 500;
+    line-height: 1.2;
 }
 
 /* Mobile responsive */
@@ -1592,60 +1560,42 @@ export default {
         grid-template-columns: 1fr;
     }
 
-    .preview-container {
-        min-height: 500px;
+    .combo-generator-preview-card .preview-combo-card.combo-card {
+        flex-direction: column;
     }
 
-    .preview-header {
-        padding: 20px 20px 15px;
+    .combo-generator-preview-card .preview-combo-aside.aside {
+        max-width: 100%;
     }
 
-    .game-title {
-        font-size: 14px;
+    .combo-generator-preview-card .preview-combo-video-container.video-container.preview-combo-video-youtube {
+        min-width: 100%;
+        width: 100%;
+        padding-bottom: 56.25%;
+        border-radius: 15px;
     }
 
-    .character-name {
-        font-size: 24px;
+    .combo-generator-preview-card
+        .preview-combo-card.combo-card.twitter-card-preview
+        .preview-combo-video-container.video-container {
+        max-width: 100%;
+        width: 100%;
+        min-height: 320px;
     }
 
-    .preview-video-container {
-        padding: 0 20px 20px;
+    .combo-generator-preview-card .preview-combo-inputs-icons .input-item {
+        min-height: 18px;
+        padding: 1px 6px 1px 4px;
+        margin-left: -10px;
     }
 
-    .preview-inputs {
-        padding: 0 20px 15px;
+    .combo-generator-preview-card .preview-combo-inputs-icons .input-icon {
+        width: 20px;
+        height: 20px;
     }
 
-    .input-row {
-        gap: 6px;
-    }
-
-    .input-item {
-        min-width: 40px;
-        height: 40px;
-        padding: 6px 10px;
-    }
-
-    .input-icon {
-        width: 24px;
-        height: 24px;
-    }
-
-    .input-text {
-        font-size: 12px;
-    }
-
-    .preview-stats {
-        padding: 0 20px 15px;
-        gap: 16px;
-    }
-
-    .stat-value {
-        font-size: 20px;
-    }
-
-    .preview-branding {
-        padding: 15px 20px;
+    .combo-generator-preview-card .preview-combo-inputs-icons .input-text {
+        font-size: 10px;
     }
 }
 </style>

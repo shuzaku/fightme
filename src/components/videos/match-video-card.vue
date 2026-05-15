@@ -132,9 +132,16 @@
                     <v-btn v-if="isAdmin" @click="editVideo()">
                         <v-icon dark> mdi-wrench </v-icon>
                     </v-btn>
-                    <v-btn v-if="isAdmin" @click="deleteVideo(video.match)">
+                    <v-btn v-if="isAdmin" @click="showDeleteConfirm = true">
                         <v-icon dark> mdi-delete </v-icon>
                     </v-btn>
+                    <div v-if="showDeleteConfirm" class="delete-confirm-popout">
+                        <p>Delete this match?</p>
+                        <div class="delete-confirm-actions">
+                            <button class="dc-cancel" @click="showDeleteConfirm = false">Cancel</button>
+                            <button class="dc-confirm" @click="confirmDelete()">Delete</button>
+                        </div>
+                    </div>
                     <v-btn
                         v-if="account && !video.isFavorited"
                         class="favorite-button"
@@ -216,6 +223,7 @@ export default {
             player: null,
             collections: null,
             showCollections: false,
+            showDeleteConfirm: false,
         };
     },
 
@@ -285,7 +293,11 @@ export default {
         async getMatch() {
             this.isLoading = true;
             const response = await MatchesService.getMatch(this.matchId);
-            var matchResponse = response.data.matches[0];
+            var matchResponse = response.data && response.data.matches && response.data.matches[0];
+            if (!matchResponse) {
+                this.isLoading = false;
+                return;
+            }
             this.video.match = {
                 team1Players: matchResponse.Team1Players.map((player) => {
                     const team1 = matchResponse.Team1Player.find(
@@ -441,10 +453,16 @@ export default {
             }
         },
 
+        async confirmDelete() {
+            this.showDeleteConfirm = false;
+            await VideosService.deleteVideo(this.video.id);
+            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
+            this.$emit('video:delete', matchResponse);
+        },
+
         async deleteVideo() {
             await VideosService.deleteVideo(this.video.id);
             var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
-
             this.$emit('video:delete', matchResponse);
         },
 
@@ -469,7 +487,9 @@ export default {
         },
 
         getTimeStamp() {
-            this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
+            if (this.$refs.youtubeRef && this.$refs.youtubeRef.player) {
+                this.videoCurrentTime = this.$refs.youtubeRef.player.getCurrentTime();
+            }
         },
 
         getVideoPlayer() {
@@ -838,6 +858,65 @@ export default {
 #app .match-card .admin-controls button i::before {
     color: #3eb489;
     opacity: 0.9;
+}
+
+.match-card .admin-controls {
+    position: relative;
+}
+
+.match-card .delete-confirm-popout {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: #1c1c28;
+    border: 1px solid #ff525280;
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 180px;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.match-card .delete-confirm-popout p {
+    color: #fff;
+    font-size: 13px;
+    margin: 0 0 10px;
+    text-align: center;
+}
+
+.match-card .delete-confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.match-card .delete-confirm-actions button {
+    padding: 5px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.match-card .dc-cancel {
+    background: #ffffff20;
+    color: #fff;
+}
+
+.match-card .dc-cancel:hover {
+    background: #ffffff30;
+}
+
+.match-card .dc-confirm {
+    background: #ff5252;
+    color: #fff;
+}
+
+.match-card .dc-confirm:hover {
+    opacity: 0.85;
 }
 
 .match-card .admin-controls button.share-button,

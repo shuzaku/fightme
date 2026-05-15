@@ -25,6 +25,9 @@
                         </a>
                     </div>
                 </div>
+                <div v-if="isAdmin" class="admin-edit-btn info-card" @click="openEditModal()">
+                    <v-icon small>mdi-pencil</v-icon> Edit
+                </div>
             </div>
 
             <div class="match-types">
@@ -286,6 +289,10 @@ export default {
     },
 
     methods: {
+        openEditModal() {
+            eventbus.$emit('open:widget', { name: 'edit-player', playerId: this.player.id });
+        },
+
         onAccountUpdate() {
             this.loadRequestStatus();
         },
@@ -652,5 +659,14 @@ export default {
 .player-nav .player-account-link .link-action-text-btn:hover {
     color: #fff !important;
     opacity: 1;
+}
+
+.player-nav .admin-edit-btn {
+    border-color: #3eb489;
+    color: #3eb489;
+    gap: 4px;
+}
+.player-nav .admin-edit-btn:hover {
+    background: #3eb48920;
 }
 </style>

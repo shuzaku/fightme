@@ -1,21 +1,34 @@
 <!-- @format -->
 <template>
-    <div v-if="videos.length > 0" class="game-tournament-matches">
-        <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
-            <tournament-match-video-card
-                :video="video"
-                v-model="video.isPlaying"
-                :favoriteVideos="account ? account.favoriteVideos : null"
-                :account="account"
-                :matchId="video.matchId"
-            />
+    <div class="game-tournament-matches">
+        <div v-if="videos.length > 0">
+            <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
+                <!-- team filter active: show lean card -->
+                <match-video-card
+                    v-if="teamFilterActive"
+                    v-model="video.isPlaying"
+                    :matchId="video.matchId"
+                    :account="account"
+                />
+                <!-- normal: show full tournament card -->
+                <tournament-match-video-card
+                    v-else
+                    :video="video"
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :account="account"
+                    :matchId="video.matchId"
+                />
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import TournamentMatchService from '@/services/tournament-match-service';
+import MatchesService from '@/services/matches-service';
 import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
+import MatchVideoCard from '@/components/videos/match-video-card';
 import Loading from '@/components/common/loading';
 
 export default {
@@ -23,15 +36,14 @@ export default {
 
     components: {
         'tournament-match-video-card': TournamentMatchVideoCard,
-
+        'match-video-card': MatchVideoCard,
         loading: Loading,
     },
 
     props: {
-        account: {
-            type: Object,
-            default: null,
-        },
+        account: { type: Object, default: null },
+        teamChar1: { type: String, default: null },
+        teamChar2: { type: String, default: null },
     },
 
     data() {
@@ -55,13 +67,23 @@ export default {
         gameId: function () {
             return this.$route.params.id;
         },
+
+        isTeamGame() {
+            return this.gameId === '68cba126f261500022897969';
+        },
+
+        teamFilterActive() {
+            return this.isTeamGame && (this.teamChar1 || this.teamChar2);
+        },
     },
 
     watch: {
-        gameId: function () {
+        gameId() {
             this.videos = [];
             this.queryVideos();
         },
+        teamChar1() { this.videos = []; this.isLast = false; this.queryVideos(); },
+        teamChar2() { this.videos = []; this.isLast = false; this.queryVideos(); },
     },
 
     mounted() {
@@ -101,29 +123,32 @@ export default {
         async queryVideos() {
             if (!this.isLast && !this.loading) {
                 this.loading = true;
-
-                var queryParameter = {
-                    skip: this.skip,
-                    sort: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'GameId',
-                            queryValue: this.gameId,
-                        },
-                    ],
-                    filter: this.filter,
-                };
-
-                const response = await TournamentMatchService.queryTournamentMatches({
-                    skip: this.skip, // Add this line
-                    searchQuery: queryParameter ? queryParameter.searchQuery : null,
-                });
-
-                this.hydrateVideos(response);
-                if (this.videos.length > 0 && this.videos.length < 6) {
-                    this.playFirstVideo();
+                try {
+                    if (this.teamFilterActive) {
+                        const response = await MatchesService.queryMatchesByTeam({
+                            skip: this.skip,
+                            gameId: this.gameId,
+                            char1: this.teamChar1 || undefined,
+                            char2: this.teamChar2 || undefined,
+                        });
+                        if (response.data.matches.length === 0) this.isLast = true;
+                        response.data.matches.forEach((m) => {
+                            this.videos.push({ matchId: m._id, isPlaying: false, contentType: 'Match' });
+                        });
+                    } else {
+                        const response = await TournamentMatchService.queryTournamentMatches({
+                            skip: this.skip,
+                            searchQuery: [{ queryName: 'GameId', queryValue: this.gameId }],
+                        });
+                        this.hydrateVideos(response);
+                        if (this.videos.length > 0 && this.videos.length < 6) {
+                            this.playFirstVideo();
+                        }
+                        this.isLast = true;
+                    }
+                } catch (e) {
+                    console.error('queryVideos error:', e);
                 }
-                this.isLast = true;
                 this.loading = false;
             }
         },

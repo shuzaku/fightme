@@ -1,74 +1,22 @@
 <!-- @format -->
 <template>
-    <div class="edit-games">
+    <div class="edit-game">
         <h1>Edit Game</h1>
-        <div class="form">
-            <div>
-                <input type="text" name="title" placeholder="TITLE" v-model="title" />
+        <div v-if="isLoading" class="loading-msg">Loading...</div>
+        <div v-else class="form">
+            <div v-if="game.logoUrl" class="logo-preview">
+                <img :src="game.logoUrl" class="logo-img" />
+                <v-btn small @click="game.logoUrl = ''">Remove</v-btn>
             </div>
-            <v-btn
-                @click="showCharacterList = !showCharacterList"
-                v-if="!isAddingPlayers"
-                class="character-btn"
-                tile
-                color="indigo"
-            >
-                {{ showCharacterList ? 'Minimize Character List' : 'Show Character List' }}
+            <v-text-field dark v-model="game.title"   type="text" placeholder="Game Title" />
+            <v-text-field dark v-model="game.logoUrl" type="text" placeholder="Logo URL" />
+
+            <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
+            <div v-if="successMessage" class="success-msg">{{ successMessage }}</div>
+
+            <v-btn class="submit-btn" rounded :loading="isSaving" @click="saveGame()">
+                Save Changes
             </v-btn>
-            <div class="table-container" v-if="showCharacterList">
-                <table>
-                    <tr v-for="character in characters" :key="character" class="character-row">
-                        <td>
-                            <div
-                                class="image-container"
-                                :style="{
-                                    background:
-                                        'url(' + character.ImageUrl + ') no-repeat top center/cover'
-                                }"
-                            ></div>
-                            {{ character.Name }}
-                            <button @click="removeCharacter(character)" class="deleteBtn">X</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <textarea
-                            type="textarea"
-                            name="title"
-                            placeholder="Add Characters (separate by commas)"
-                            v-model="newCharacters"
-                        />
-                    </tr>
-                </table>
-            </div>
-
-            <div
-                v-if="title !== oldTitle || removedCharacters.length >= 1 || newCharactersList"
-                class="changes-container"
-            >
-                <h3>Changes</h3>
-                <div v-if="title !== oldTitle">
-                    <p>Title:</p>
-                    {{ oldTitle }} -> {{ title }}
-                </div>
-                <div v-if="removedCharacters.length >= 1">
-                    <p>Removed Characters</p>
-                    <ul>
-                        <li v-for="character in removedCharacters" :key="character">
-                            {{ character }}
-                        </li>
-                    </ul>
-                </div>
-                <div v-if="newCharactersList">
-                    <p>Added Characters</p>
-                    <ul>
-                        <li v-for="character in newCharactersList" :key="character">
-                            {{ character }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <button class="app_post_btn" @click="updateGame">Update</button>
         </div>
     </div>
 </template>
@@ -76,153 +24,101 @@
 <script>
 import GamesService from '@/services/games-service';
 
-import moment from 'moment';
-
 export default {
     name: 'EditGame',
 
-    components: {},
+    props: {
+        gameId: {
+            type: String,
+            default: null,
+        },
+    },
 
     data() {
         return {
-            oldTitle: '',
-            title: '',
-            description: '',
-            createdDate: '',
-            updatedDate: '',
-            characters: '',
-            removedCharacters: [],
-            gameId: this.$route.params.id,
-            newCharacters: '',
-            showCharacterList: false
+            isLoading: true,
+            isSaving: false,
+            errorMessage: null,
+            successMessage: null,
+            game: {
+                title: '',
+                logoUrl: '',
+            },
         };
     },
 
-    mounted() {
-        this.getGame();
+    created() {
+        if (this.gameId) this.fetchGame();
     },
 
     methods: {
-        async getGame() {
-            const response = await GamesService.getGame({
-                id: this.$route.params.id
-            });
-            this.oldTitle = response.data.GameTitle;
-            this.title = response.data.GameTitle;
-            this.characters = response.data.Characters;
-            this.createdDate = response.data.CreatedDate;
-        },
-
-        async updateGame() {
-            if (this.newCharactersList) {
-                this.newCharactersList.forEach(newCharacter => this.characters.push(newCharacter));
+        async fetchGame() {
+            this.isLoading = true;
+            try {
+                const res = await GamesService.getGame({ id: this.gameId });
+                const g = res.data.game || res.data;
+                this.game = {
+                    title:   g.Title   || '',
+                    logoUrl: g.LogoUrl || '',
+                };
+            } catch (e) {
+                this.errorMessage = 'Failed to load game data.';
             }
-
-            await GamesService.updateGame({
-                id: this.gameId,
-                GameTitle: this.title,
-                Characters: this.characters,
-                CreatedDate: this.createdDate,
-                UpdatedDate: this.timestamp
-            });
-            this.$router.push({ name: 'Games' });
+            this.isLoading = false;
         },
 
-        removeCharacter(character) {
-            this.removedCharacters.push(character);
-            this.characters.splice(this.characters.indexOf(character), 1);
-        }
+        async saveGame() {
+            this.errorMessage = null;
+            this.successMessage = null;
+            this.isSaving = true;
+            try {
+                await GamesService.updateGame({
+                    id:      this.gameId,
+                    Title:   this.game.title,
+                    LogoUrl: this.game.logoUrl,
+                });
+                this.successMessage = 'Game updated successfully!';
+            } catch (e) {
+                this.errorMessage = 'Failed to save changes.';
+            }
+            this.isSaving = false;
+        },
     },
-
-    computed: {
-        timestamp: function() {
-            return moment().format();
-        },
-
-        newCharactersList: function() {
-            if (this.newCharacters != '') {
-                let list = this.newCharacters.split(',');
-                list.map(character => character.trim());
-                return list;
-            } else {
-                return null;
-            }
-        }
-    }
 };
 </script>
 
-<style type="text/css">
-.form input,
-.form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #e0dede;
-    outline: none;
-    font-size: 12px;
-}
-
-.app_post_btn {
-    background: #4d7ef7;
+<style scoped>
+.edit-game h1 {
     color: #fff;
-    padding: 10px 80px;
-    text-transform: uppercase;
-    font-size: 12px;
-    font-weight: bold;
-    width: 100%;
-    border: none;
-    cursor: pointer;
+    margin-bottom: 20px;
 }
-
-.edit-games {
-    max-width: 600px;
-    text-align: left;
-    margin: 0 auto;
-    background: #fff;
-    width: 400px;
-    border-radius: 10px;
-    padding: 20px 60px;
+.edit-game .form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
-
-.edit-games .players-container button,
-.edit-games .players-container input,
-.edit-games label,
-.edit-games .or {
-    display: block;
-}
-
-.edit-games table {
-    width: 100%;
-}
-
-.edit-games .character-row td {
-    position: relative;
+.edit-game .logo-preview {
     display: flex;
     align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
 }
-
-.edit-games .character-row:hover .deleteBtn {
-    display: block;
+.edit-game .logo-img {
+    max-width: 120px;
+    height: auto;
 }
-
-.edit-games .deleteBtn {
-    color: red;
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    margin-top: -10px;
-    display: none;
+.edit-game .submit-btn {
+    margin-top: 16px;
 }
-
-.edit-games .character-btn {
-    margin: 20px 0 40px 0;
+.edit-game .error-msg {
+    color: #ff5252;
+    font-size: 13px;
 }
-
-.edit-games .image-container {
-    width: 40px;
-    height: 40px;
-    overflow: hidden;
-    margin-right: 20px;
-    border: 1px solid #eee;
+.edit-game .success-msg {
+    color: #3eb489;
+    font-size: 13px;
+}
+.edit-game .loading-msg {
+    color: #fff;
 }
 </style>

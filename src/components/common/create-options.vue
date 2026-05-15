@@ -63,6 +63,16 @@ export default {
                     value: 'featured-video',
                     adminOnly: true,
                 },
+                {
+                    name: 'featured-match',
+                    value: 'featured-match',
+                    adminOnly: true,
+                },
+                {
+                    name: 'game-update',
+                    value: 'game-update',
+                    adminOnly: true,
+                },
             ],
         };
     },

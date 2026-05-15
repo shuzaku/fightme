@@ -65,7 +65,13 @@
                 </div>
             </div>
 
-            <explore-characters :gameId="gameId" :key="gameId" />
+            <game-team-filter
+                v-if="isTeamGame"
+                :gameId="gameId"
+                :key="gameId"
+                @change="onTeamFilterChange"
+            />
+            <explore-characters v-else :gameId="gameId" :key="gameId" />
             <div v-if="featuredVideos && featuredVideos.length > 0" class="featured-videos">
                 <h2>🎥 Featured Videos</h2>
                 <div class="videos">
@@ -108,6 +114,8 @@
                     <game-videos
                         id="game-videos"
                         :selectedVideoType="selectedVideoType"
+                        :teamChar1="teamChar1"
+                        :teamChar2="teamChar2"
                         :account="account"
                     />
                 </div>
@@ -171,6 +179,7 @@ import GameNav from '@/components/games/game-nav';
 import Loading from '@/components/common/loading';
 import ExploreCharacters from '@/components/explore/explore-characters';
 import GameVideos from '@/components/games/game-videos';
+import GameTeamFilter from '@/components/games/game-team-filter';
 import GamesService from '@/services/games-service';
 import FeaturedVideosService from '@/services/featured-videos-service';
 import TierListsService from '@/services/tier-lists-service';
@@ -188,6 +197,7 @@ export default {
         loading: Loading,
         'explore-characters': ExploreCharacters,
         'game-videos': GameVideos,
+        'game-team-filter': GameTeamFilter,
         'update-card': UpdateCard,
     },
 
@@ -229,6 +239,10 @@ export default {
                 this.activeContentTab === 'tournament'
             );
         },
+
+        isTeamGame() {
+            return this.gameId === '68cba126f261500022897969';
+        },
         selectedVideoType() {
             return this.mapTabIdToGameVideosLabel(this.activeContentTab);
         },
@@ -246,10 +260,9 @@ export default {
                 name: null,
                 logo: null,
             },
-            /**
-             * Unified tab: combos | online (default) | tournament | tiers | updates
-             */
             activeContentTab: 'online',
+            teamChar1: null,
+            teamChar2: null,
             stats: {
                 characters: 0,
                 matches: 0,
@@ -334,6 +347,11 @@ export default {
             } finally {
                 this.statsLoading = false;
             }
+        },
+
+        onTeamFilterChange({ char1, char2 }) {
+            this.teamChar1 = char1;
+            this.teamChar2 = char2;
         },
 
         mapTabIdToGameVideosLabel(id) {
