@@ -13,7 +13,7 @@
             @tag="addTag"
         >
             <template slot="selection" slot-scope="{ values, isOpen }">
-                <span class="multiselect__single" v-if="values.length && !isOpen">
+                <span v-if="values.length && !isOpen" class="multiselect__single">
                     {{ values.length }} tags selected
                 </span>
             </template>
@@ -25,7 +25,7 @@
 import TagsService from '@/services/tags-service';
 
 export default {
-    name: 'tags-search',
+    name: 'TagsSearch',
     props: {
         taggable: {
             type: Boolean,

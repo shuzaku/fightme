@@ -3,9 +3,9 @@
     <div class="character-slideshow">
         <div class="slideshow-container">
             <div
-                class="slide"
                 v-for="(character, index) in characters"
                 :key="character.id"
+                class="slide"
                 :class="{ active: index === currentIndex }"
             >
                 <img
@@ -14,7 +14,7 @@
                     class="character-image"
                 />
                 <div class="character-info">
-                    <v-btn class="character-name" @click="routeToCharacter(character.id)">
+                    <v-btn class="character-name" @click="routeToCharacter(character)">
                         Check Out {{ character.name }}
                     </v-btn>
                 </div>
@@ -22,7 +22,7 @@
         </div>
 
         <!-- Navigation dots -->
-        <div class="dots" v-if="characters && characters.length > 1">
+        <div v-if="characters && characters.length > 1" class="dots">
             <span
                 v-for="(character, index) in characters"
                 :key="index"
@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import { characterPagePath } from '@/utils/game-character-routes';
+
 export default {
     name: 'CharacterSlideshow',
 
@@ -64,16 +66,6 @@ export default {
         };
     },
 
-    mounted() {
-        if (this.autoPlay && this.characters && this.characters.length > 1) {
-            this.startAutoPlay();
-        }
-    },
-
-    beforeDestroy() {
-        this.stopAutoPlay();
-    },
-
     watch: {
         characters: {
             handler(newCharacters) {
@@ -86,6 +78,16 @@ export default {
             },
             immediate: true,
         },
+    },
+
+    mounted() {
+        if (this.autoPlay && this.characters && this.characters.length > 1) {
+            this.startAutoPlay();
+        }
+    },
+
+    beforeDestroy() {
+        this.stopAutoPlay();
     },
 
     methods: {
@@ -113,8 +115,15 @@ export default {
             }
         },
 
-        routeToCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        routeToCharacter(character) {
+            var gameLike =
+                character && character.gameAbbrev
+                    ? { Abbreviation: character.gameAbbrev }
+                    : null;
+            var path = characterPagePath(gameLike, character);
+            if (path) {
+                this.$router.push(path);
+            }
         },
     },
 };

@@ -18,7 +18,7 @@
 import CollectionsService from '@/services/collections-service';
 
 export default {
-    name: 'collection-select',
+    name: 'CollectionSelect',
     props: {
         initialOpen: {
             type: Boolean,

@@ -7,7 +7,7 @@
             </div>
             <div class="actions">
                 <span class="stat"><i class="fas fa-eye"></i> {{ tierList.views }}</span>
-                <button @click="toggleLike" :class="{ liked: isLiked }">
+                <button :class="{ liked: isLiked }" @click="toggleLike">
                     <i class="fas fa-thumbs-up"></i> {{ tierList.likes.length }}
                 </button>
             </div>

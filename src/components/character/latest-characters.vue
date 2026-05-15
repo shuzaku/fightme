@@ -2,7 +2,7 @@
 <template>
     <div class="latest-characters">
         <div class="character-list">
-            <div class="character-container" v-for="character in characters" :key="character.id">
+            <div v-for="character in characters" :key="character.id" class="character-container">
                 <character-box :character="character" />
             </div>
         </div>
@@ -24,11 +24,11 @@ export default {
         };
     },
 
+    computed: {},
+
     created() {
         this.getCharacters();
     },
-
-    computed: {},
 
     methods: {
         async getCharacters() {

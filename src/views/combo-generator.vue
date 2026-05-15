@@ -75,8 +75,8 @@
                             <div class="input-wrapper">
                                 <i class="fas fa-link input-icon"></i>
                                 <v-text-field
-                                    dark
                                     v-model="videoUrl"
+                                    dark
                                     type="text"
                                     placeholder="YouTube or Twitter Video URL"
                                     outlined
@@ -115,8 +115,8 @@
                         <div class="stats-container">
                             <div class="stat-input">
                                 <v-text-field
-                                    dark
                                     v-model="comboDamage"
+                                    dark
                                     type="number"
                                     placeholder="Damage"
                                     outlined
@@ -124,8 +124,8 @@
                             </div>
                             <div class="stat-input">
                                 <v-text-field
-                                    dark
                                     v-model="comboHits"
+                                    dark
                                     type="number"
                                     placeholder="Hits"
                                     outlined
@@ -141,9 +141,9 @@
                             rounded
                             large
                             block
-                            @click="submitCombo()"
                             :disabled="!isValidated"
                             :loading="isSubmitting"
+                            @click="submitCombo()"
                         >
                             <span v-if="!isSubmitting">
                                 <i class="fas fa-check"></i>
@@ -183,6 +183,7 @@
                                         :video-id="extractedVideoId"
                                         :player-width="previewYoutubePlayerWidth"
                                         :player-height="previewYoutubePlayerHeight"
+                                        :player-vars="{ autoplay: 0 }"
                                         :mute="true"
                                         :playsinline="1"
                                     />

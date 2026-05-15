@@ -27,6 +27,7 @@
                             :video-id="video.url"
                             :player-width="417"
                             :player-height="234"
+                            :player-vars="{ autoplay: 0 }"
                             :mute="true"
                             :playsinline="1"
                         />
@@ -36,9 +37,9 @@
                             <div class="input-wrapper">
                                 <i class="fas fa-link input-icon"></i>
                                 <v-text-field
-                                    dark
                                     id="import-video"
                                     v-model="importVideoUrl"
+                                    dark
                                     type="text"
                                     placeholder="YouTube Video URL"
                                     outlined
@@ -93,9 +94,9 @@
                     rounded
                     large
                     block
-                    @click="submitVideo()"
                     :disabled="!isValidated"
                     :loading="isSubmitting"
+                    @click="submitVideo()"
                 >
                     <span v-if="!isSubmitting">
                         <i class="fas fa-check"></i>
@@ -490,16 +491,22 @@ export default {
 
         async patchVideo() {
             if (this.isValidated) {
+                var combosPayload =
+                    this.video.contentType === 'Combo' && this.video.combos
+                        ? this.video.combos.map((combo) => {
+                              return {
+                                  Id: combo.id,
+                                  StartTime: combo.startTime,
+                                  EndTime: combo.endTime,
+                              };
+                          })
+                        : [];
+
                 var videoRequest = {
                     id: this.video.id,
                     Tags: this.video.tags,
-                    GameId: this.video.gameid,
-                    Combos:
-                        this.video.ContentType === 'Combo'
-                            ? this.video.combos.map((combo) => {
-                                  return combo.id;
-                              })
-                            : null,
+                    GameId: this.video.gameId,
+                    Combos: combosPayload,
                 };
 
                 await VideosService.patchVideo(videoRequest);

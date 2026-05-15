@@ -7,15 +7,19 @@
 
 <script>
 export default {
-    components: {},
 
     name: 'EventCard',
+    components: {},
 
     props: {
         event: {
             type: Object,
             default: null,
         },
+    },
+
+    data() {
+        return {};
     },
 
     computed: {
@@ -26,10 +30,6 @@ export default {
                 'background-repeat': 'no-repeat',
             };
         },
-    },
-
-    data() {
-        return {};
     },
 
     mounted() {},

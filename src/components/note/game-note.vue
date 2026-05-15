@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="game-note">
-        <div class="note-container" v-if="!isLoading">
+        <div v-if="!isLoading" class="note-container">
             <div class="title-row" @click="toggleContent()">
                 <div class="game-bubble" :style="{ backgroundImage: `url('${game.logo}')` }" />
                 <h3>{{ note.heading }}</h3>
@@ -24,9 +24,9 @@
 import GamesService from '@/services/games-service';
 
 export default {
-    components: {},
 
     name: 'GameNotes',
+    components: {},
 
     props: {
         note: {

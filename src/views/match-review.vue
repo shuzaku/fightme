@@ -4,8 +4,8 @@
         <loading v-if="loading"></loading>
         <tournament-match-video-analysis-card-test
             v-if="!loading && video.contentType === 'Tournament Match'"
-            :video="video"
             v-model="video.isPlaying"
+            :video="video"
             :favoriteVideos="account ? account.favoriteVideos : null"
             :account="account"
             :matchId="video.matchId"
@@ -90,7 +90,6 @@ export default {
             const response = await TournamentMatchService.queryTournamentMatches(queryParameter);
 
             this.hydrateVideos(response);
-            this.playFirstVideo();
             this.loading = false;
         },
 
@@ -181,11 +180,6 @@ export default {
             }
             seconds === 0 ? seconds++ : seconds;
             return seconds;
-        },
-
-        playFirstVideo() {
-            this.video.isPlaying = true;
-            this.loading = false;
         },
 
         async queryAnalysis() {

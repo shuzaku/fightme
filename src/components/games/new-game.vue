@@ -9,23 +9,23 @@
                     <v-btn class="remove-image-btn" @click="game.logoUrl = ''">X</v-btn>
                 </div>
                 <v-text-field
-                    dark
                     v-model="game.title"
+                    dark
                     type="text"
                     name="title"
                     placeholder="Title"
                 />
                 <v-text-field
-                    dark
                     v-if="!game.logoUrl"
                     v-model="game.logoUrl"
+                    dark
                     type="text"
                     placeholder="Logo Url"
                 />
                 <div class="bulk-add-characters">
                     <v-text-field
-                        dark
                         v-model="unfilteredCharacters"
+                        dark
                         name="character"
                         placeholder="Character Names (separated by commas)"
                         type="text"
@@ -74,9 +74,9 @@
                         </div>
                         <p class="character-name">{{ character.name }}</p>
                         <v-text-field
-                            dark
                             v-if="!character.imageUrl"
                             v-model="character.imageUrl"
+                            dark
                             type="text"
                             placeholder="image Url"
                         />

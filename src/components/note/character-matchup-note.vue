@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="character-matchup-note">
-        <div class="note-container" v-if="!isLoading">
+        <div v-if="!isLoading" class="note-container">
             <div class="title-row" @click="toggleContent()">
                 <div
                     class="character-bubble"
@@ -31,9 +31,9 @@
 import CharactersService from '@/services/characters-service';
 
 export default {
-    components: {},
 
     name: 'CharacterMatchupNotes',
+    components: {},
 
     props: {
         note: {

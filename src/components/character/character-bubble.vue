@@ -12,6 +12,7 @@
 
 <script>
 import CharactersService from '@/services/characters-service';
+import { characterPagePath } from '@/utils/game-character-routes';
 
 export default {
     name: 'CharacterBubble',
@@ -26,7 +27,8 @@ export default {
 
     data() {
         return {
-            character: null
+            character: null,
+            characterGameLike: null,
         };
     },
     computed: {
@@ -48,14 +50,25 @@ export default {
             const response = await CharactersService.getCharacter({
                 id: this.characterId
             });
+            var row = response.data.characters && response.data.characters[0];
+            if (!row) {
+                return;
+            }
             this.character = {
-                name: response.data.Name,
-                imageUrl: response.data.AvatarUrl
+                id: row._id,
+                name: row.Name,
+                imageUrl: row.AvatarUrl,
+                slug: row.Slug || null,
             };
+            this.characterGameLike =
+                row.Game && row.Game[0] ? { Abbreviation: row.Game[0].Abbreviation } : null;
         },
 
         navigateToCharacter() {
-            this.$router.push(`/character/${this.characterId}`);
+            var path = characterPagePath(this.characterGameLike, this.character);
+            if (path) {
+                this.$router.push(path);
+            }
         }
     }
 };

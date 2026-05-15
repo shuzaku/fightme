@@ -28,7 +28,7 @@
                             >
                         </p>
                     </div>
-                    <div class="stats" v-if="counts">
+                    <div v-if="counts" class="stats">
                         <div class="stat-card">
                             <div class="stat-icon">
                                 <i class="fas fa-video"></i>
@@ -217,12 +217,6 @@ export default {
         },
     },
 
-    computed: {
-        isMobile() {
-            return this.$attrs.isMobile;
-        },
-    },
-
     data() {
         return {
             notes: null,
@@ -237,6 +231,12 @@ export default {
                 games: null,
             },
         };
+    },
+
+    computed: {
+        isMobile() {
+            return this.$attrs.isMobile;
+        },
     },
 
     watch: {},
@@ -300,11 +300,14 @@ export default {
 
         mapCharacters(characters) {
             return characters.map((character) => {
+                var game = character.Game && character.Game[0];
                 return {
                     id: character._id,
                     name: character.Name,
                     imageUrl: character.ImageUrl,
                     avatarUrl: character.AvatarUrl,
+                    slug: character.Slug || null,
+                    gameAbbrev: game && game.Abbreviation ? game.Abbreviation : null,
                 };
             });
         },

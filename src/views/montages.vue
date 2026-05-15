@@ -123,9 +123,6 @@ export default {
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
             // this.checkFavorites();
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
         },
 
         hydrateVideos(response) {
@@ -137,11 +134,6 @@ export default {
                     isPlaying: false,
                 });
             });
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
         },
 
         onWaypoint({ el, going, direction }) {

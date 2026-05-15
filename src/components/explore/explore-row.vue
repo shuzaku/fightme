@@ -27,7 +27,7 @@ import CharacterSpotlight from '@/components/character/character-spotlight';
 import PlayerSpotlight from '@/components/players/player-spotlight';
 
 export default {
-    name: 'explore-row',
+    name: 'ExploreRow',
     components: {
         'character-spotlight': CharacterSpotlight,
         'player-spotlight': PlayerSpotlight,

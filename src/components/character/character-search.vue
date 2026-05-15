@@ -13,8 +13,8 @@
             :custom-label="customLabel"
             label="name"
             :placeholder="placeHolder"
-            @input="setCharacter($event)"
             track-by="id"
+            @input="setCharacter($event)"
         >
             <template slot="singleLabel" slot-scope="props">
                 <img class="option__image" :src="props.option.avatarUrl" />

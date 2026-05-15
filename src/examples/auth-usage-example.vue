@@ -7,12 +7,12 @@
         <div v-if="isAuthenticated" class="section">
             <h3>Welcome, {{ user && (user.displayName || user.email) }}!</h3>
             <p>Role: {{ user && user.role }}</p>
-            <v-btn @click="logout" color="error">Logout</v-btn>
+            <v-btn color="error" @click="logout">Logout</v-btn>
         </div>
 
         <div v-else class="section">
             <h3>Please log in to continue</h3>
-            <v-btn @click="showLogin = true" color="primary">Login</v-btn>
+            <v-btn color="primary" @click="showLogin = true">Login</v-btn>
         </div>
 
         <!-- Permission-based content -->
@@ -35,25 +35,25 @@
             <!-- Using computed properties -->
             <div v-if="canCreateContent" class="permission-section">
                 <h4>You can create content!</h4>
-                <v-btn @click="createContent" color="primary">Create New Content</v-btn>
+                <v-btn color="primary" @click="createContent">Create New Content</v-btn>
             </div>
 
             <div v-if="isAdmin" class="permission-section">
                 <h4>Admin Panel</h4>
-                <v-btn @click="openAdminPanel" color="purple">Open Admin Panel</v-btn>
+                <v-btn color="purple" @click="openAdminPanel">Open Admin Panel</v-btn>
             </div>
 
             <div v-if="canModerate" class="permission-section">
                 <h4>Moderation Tools</h4>
-                <v-btn @click="openModeration" color="orange">Moderate Content</v-btn>
+                <v-btn color="orange" @click="openModeration">Moderate Content</v-btn>
             </div>
         </div>
 
         <!-- API Usage Examples -->
         <div class="section">
             <h3>API Usage Examples</h3>
-            <v-btn @click="fetchUserData" :loading="loading" color="info"> Fetch User Data </v-btn>
-            <v-btn @click="fetchProtectedData" :loading="loading" color="info">
+            <v-btn :loading="loading" color="info" @click="fetchUserData"> Fetch User Data </v-btn>
+            <v-btn :loading="loading" color="info" @click="fetchProtectedData">
                 Fetch Protected Data
             </v-btn>
         </div>

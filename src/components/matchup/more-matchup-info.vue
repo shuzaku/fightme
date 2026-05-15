@@ -48,9 +48,11 @@ import CharactersService from '@/services/characters-service';
 import MatchupBox from '@/components/matchup/matchup-box';
 
 import GameNav from '@/components/games/game-nav';
+import GamesService from '@/services/games-service';
 import Loading from '@/components/common/loading';
 import CharacterMoveList from '@/components/character/character-move-list';
 import CharacterMatchupPercentage from '@/components/matchup/character-matchup-percentage';
+import { gameHrefFromLike } from '@/utils/game-character-routes';
 
 export default {
     name: 'MoreMatchupInfo',
@@ -69,6 +71,7 @@ export default {
             character2Id: this.$route.params ? this.$route.params.id2 : null,
             characters: [],
             gameId: null,
+            gameAbbrev: null,
             isLoading: false,
         };
     },
@@ -108,6 +111,14 @@ export default {
             this.characters = [];
             this.gameId = response.data.characters[0].GameId;
 
+            try {
+                const gameResp = await GamesService.getGame({ id: this.gameId });
+                this.gameAbbrev =
+                    gameResp.data && gameResp.data.Abbreviation ? gameResp.data.Abbreviation : null;
+            } catch (e) {
+                this.gameAbbrev = null;
+            }
+
             this.hydrateCharacters(response);
             this.isLoading = false;
         },
@@ -145,7 +156,10 @@ export default {
         },
 
         goToGame() {
-            this.$router.push(`/game/${this.gameId}`);
+            var href = gameHrefFromLike({ id: this.gameId, Abbreviation: this.gameAbbrev });
+            if (href) {
+                this.$router.push(href);
+            }
         },
 
         updateMatchup(character, index) {

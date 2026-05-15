@@ -1,9 +1,11 @@
 <!-- @format -->
 <template>
-    <div @click="navigate()" class="character-box"><img :src="character.imageUrl" /></div>
+    <div class="character-box" @click="navigate()"><img :src="character.imageUrl" /></div>
 </template>
 
 <script>
+import { characterPagePath } from '@/utils/game-character-routes';
+
 export default {
     name: 'CharacterBox',
 
@@ -14,17 +16,24 @@ export default {
         },
     },
 
-    computed: {},
-
     data() {
         return {};
     },
+
+    computed: {},
 
     created() {},
 
     methods: {
         navigate() {
-            this.$router.push(`character/${this.character.id}`);
+            var gameLike =
+                this.character && this.character.gameAbbrev
+                    ? { Abbreviation: this.character.gameAbbrev }
+                    : null;
+            var path = characterPagePath(gameLike, this.character);
+            if (path) {
+                this.$router.push(path);
+            }
         },
     },
 };

@@ -32,7 +32,7 @@
 import PlayersService from '@/services/players-service';
 
 export default {
-    name: 'player-select',
+    name: 'PlayerSelect',
     props: {
         initialOpen: {
             type: Boolean,

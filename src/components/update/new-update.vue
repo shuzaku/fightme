@@ -13,8 +13,8 @@
 
             <!-- Type -->
             <v-select
-                dark
                 v-model="update.type"
+                dark
                 :items="typeOptions"
                 label="Update Type"
                 placeholder="Select Type"
@@ -32,10 +32,10 @@
 
             <!-- Note / description -->
             <v-textarea
+                v-model="update.note"
                 dark
                 outlined
                 dense
-                v-model="update.note"
                 label="Note / Description"
                 placeholder="e.g. Season 3 balance patch — buffs to Ryu, nerfs to Akuma…"
                 rows="3"
@@ -45,10 +45,10 @@
 
             <!-- Patch image URL -->
             <v-text-field
+                v-model="update.image"
                 dark
                 outlined
                 dense
-                v-model="update.image"
                 type="text"
                 label="Image URL"
                 placeholder="Patch notes banner image URL"
@@ -56,10 +56,10 @@
 
             <!-- Link -->
             <v-text-field
+                v-model="update.link"
                 dark
                 outlined
                 dense
-                v-model="update.link"
                 type="text"
                 label="Link"
                 placeholder="Official patch notes URL"
@@ -67,10 +67,10 @@
 
             <!-- Date -->
             <v-text-field
+                v-model="update.date"
                 dark
                 outlined
                 dense
-                v-model="update.date"
                 type="date"
                 label="Date"
             />

@@ -3,20 +3,20 @@
     <div ref="videoViewRef" class="combo-view">
         <div v-if="videos.length > 0" class="videos-container">
             <div
-                class="combos-container"
                 v-for="(video, index) in videos"
-                :key="index"
+                :key="video.comboClipId || video.id || index"
+                class="combos-container"
                 :class="{ selected: video.selected }"
             >
                 <combo-video-card
-                    :id="video.id"
                     v-model="video.isPlaying"
                     v-waypoint="{
                         active: true,
                         callback: onComboWaypoint,
                         options: intersectionOptions,
                     }"
-                    :video="video"
+                    :comboClipId="video.comboClipId"
+                    :backingVideoId="video.id"
                     :account="account"
                     @video:delete="queryVideos()"
                 />
@@ -134,16 +134,11 @@ export default {
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
             if (this.videos.length < 6) {
-                this.playFirstVideo();
+                var count = this.videos.length < 4 ? this.videos.length - 1 : 3;
+                for (var i = 0; i <= count && i < this.videos.length; i++) {
+                    this.videos[i].inview = true;
+                }
             }
-        },
-
-        playFirstVideo() {
-            var count = this.videos.length < 4 ? this.videos.length - 1 : 3;
-            for (var i = 0; i <= count; i++) {
-                this.videos[i].inview = true;
-            }
-            this.videos[0].isPlaying = true;
             this.isLoading = false;
         },
 
@@ -151,6 +146,7 @@ export default {
             response.data.videos.forEach((video) => {
                 this.videos.push({
                     id: video._id,
+                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
                     contentType: video.ContentType,
                     contentCreatorId: video.ContentCreatorId,
                     videoType: video.VideoType,
@@ -187,9 +183,17 @@ export default {
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             var featuredVideo = this.videos.find((video) => video.id == objectId);
+            if (!featuredVideo) {
+                return;
+            }
+            const isYoutube =
+                featuredVideo.videoType &&
+                String(featuredVideo.videoType).toLowerCase() === 'youtube';
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
+                if (!isYoutube) {
+                    featuredVideo.isPlaying = true;
+                }
             }
 
             if (going === this.$waypointMap.GOING_OUT && direction) {
@@ -199,10 +203,20 @@ export default {
 
         onComboWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            var featuredVideo = this.videos.find((video) => video.combo.id === objectId);
+            var featuredVideo = this.videos.find(function (video) {
+                return String(video.comboClipId || '') === String(objectId || '');
+            });
+            if (!featuredVideo) {
+                return;
+            }
+            const isYoutube =
+                featuredVideo.videoType &&
+                String(featuredVideo.videoType).toLowerCase() === 'youtube';
             if (going === this.$waypointMap.GOING_IN && direction) {
                 featuredVideo.inview = true;
-                featuredVideo.isPlaying = true;
+                if (!isYoutube) {
+                    featuredVideo.isPlaying = true;
+                }
             }
             if (going === this.$waypointMap.GOING_OUT && direction) {
                 featuredVideo.isPlaying = false;

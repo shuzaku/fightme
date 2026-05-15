@@ -1,8 +1,8 @@
 <!-- @format -->
 <template>
     <div class="top-nav">
-        <div class="notations" v-for="notation in notations" :key="notation.name">
-            <div class="notation" v-if="notation.name === selectedNotationType">
+        <div v-for="notation in notations" :key="notation.name" class="notations">
+            <div v-if="notation.name === selectedNotationType" class="notation">
                 <div class="movement">
                     <div class="up-back">{{ notation.upBack }}</div>
                     <div class="up">{{ notation.up }}</div>
@@ -55,13 +55,13 @@ export default {
 
     computed: {},
 
-    methods: {},
-
     mounted() {},
 
     created() {},
 
-    beforeDestroy() {}
+    beforeDestroy() {},
+
+    methods: {}
 };
 </script>
 

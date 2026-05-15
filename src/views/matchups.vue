@@ -35,9 +35,9 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import CharacterMatchupService from '@/services/character-matchup-service';
 import CharactersService from '@/services/characters-service';
+import { characterPagePath } from '@/utils/game-character-routes';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import CharacterNav from '@/components/character/character-nav';
 import Loading from '@/components/common/loading';
@@ -174,9 +174,6 @@ export default {
 
             this.hydrateVideos(response);
             // this.checkFavorites();
-            if (this.videos.length > 1) {
-                this.playFirstVideo();
-            }
 
             this.isLoading = false;
         },
@@ -216,12 +213,6 @@ export default {
             this.character2Id = characters.filter(
                 (c) => c.Slug === this.character2Slug.toUpperCase()
             )[0]._id;
-        },
-
-        playFirstVideo() {
-            if (this.videos) {
-                this.videos[0].isPlaying = true;
-            }
         },
 
         onWaypoint({ el, going, direction }) {
@@ -283,8 +274,26 @@ export default {
             }
         },
 
-        navigateToCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        async navigateToCharacter(characterId) {
+            try {
+                const r = await CharactersService.getCharacter({ id: characterId });
+                var row = r.data.characters && r.data.characters[0];
+                if (!row) {
+                    this.$router.push(`/character/${characterId}`);
+                    return;
+                }
+                var gameLike = row.Game && row.Game[0] ? { Abbreviation: row.Game[0].Abbreviation } : null;
+                var path = characterPagePath(gameLike, {
+                    id: row._id,
+                    slug: row.Slug,
+                    name: row.Name,
+                });
+                if (path) {
+                    this.$router.push(path);
+                }
+            } catch (e) {
+                this.$router.push(`/character/${characterId}`);
+            }
         },
     },
 };

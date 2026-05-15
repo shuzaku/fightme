@@ -2,7 +2,7 @@
 <template>
     <div class="register-overlay" @click.self="closeModal">
         <div class="register-modal">
-            <button class="close-button" @click="closeModal" aria-label="Close">
+            <button class="close-button" aria-label="Close" @click="closeModal">
                 <span class="close-icon">×</span>
             </button>
             <div class="register-content">
@@ -85,9 +85,9 @@
                             rounded
                             large
                             block
-                            @click="submit()"
                             :disabled="!form.name || !form.email || !form.password || isLoading"
                             :loading="isLoading"
+                            @click="submit()"
                         >
                             <span v-if="!isLoading">
                                 <i class="fas fa-user-plus"></i> Create Account

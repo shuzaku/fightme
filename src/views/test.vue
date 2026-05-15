@@ -7,7 +7,7 @@
 import MatchesService from '@/services/matches-service';
 
 export default {
-    name: 'test',
+    name: 'Test',
 
     components: {},
 

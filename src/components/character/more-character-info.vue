@@ -15,6 +15,7 @@
 import CharactersService from '@/services/characters-service';
 import CharacterMoves from '@/components/character/character-moves';
 import Loading from '@/components/common/loading';
+import { gameHrefFromLike } from '@/utils/game-character-routes';
 
 export default {
     name: 'MorecharacterInfo',
@@ -26,7 +27,6 @@ export default {
 
     data() {
         return {
-            gameId: null,
             isLoading: false,
             character: null,
         };
@@ -64,7 +64,13 @@ export default {
         },
 
         goToGame() {
-            this.$router.push(`/game/${this.gameId}`);
+            if (!this.character || !this.character.gameId) {
+                return;
+            }
+            var href = gameHrefFromLike({ id: this.character.gameId });
+            if (href) {
+                this.$router.push(href);
+            }
         },
     },
 };

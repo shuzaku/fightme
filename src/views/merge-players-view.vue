@@ -4,7 +4,7 @@
         <div class="merge-container">
             <div class="player1 player-card">
                 <player-search v-model="player1.id" @update:player="setPlayer1($event)" />
-                <div class="player-info" v-if="player1">
+                <div v-if="player1" class="player-info">
                     <h3>{{ player1.playerName }}</h3>
                     <p>Id: {{ player1.id }}</p>
                     <p></p>
@@ -15,7 +15,7 @@
             <v-btn @click="swapPlayers()"><- Swap Position -></v-btn>
             <div class="player2 player-card">
                 <player-search v-model="player2.id" @update:player="setPlayer2($event)" />
-                <div class="player-info" v-if="player2">
+                <div v-if="player2" class="player-info">
                     <h3>{{ player2.playerName }}</h3>
                     <p>Id: {{ player2.id }}</p>
                     <p></p>

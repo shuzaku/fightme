@@ -33,19 +33,21 @@
                         :favoriteVideos="account ? account.favoriteVideos : null"
                         :isFirst="video.isFirst"
                         :comboClipId="video.comboClipId"
+                        :backingVideoId="video.backingVideoId"
                         :account="account"
+                        @video:delete="removeVideoAt(index)"
                     />
                     <montage-video-card
                         v-if="video.contentType === 'Montage'"
                         v-model="video.isPlaying"
                         :montageId="video.montageId"
                         :account="account"
-                        @video:delete="refreshDelete()"
+                        @video:delete="removeVideoAt(index)"
                     />
                     <tournament-match-video-card
                         v-if="video.contentType === 'Tournament Match'"
-                        :video="video"
                         v-model="video.isPlaying"
+                        :video="video"
                         :favoriteVideos="account ? account.favoriteVideos : null"
                         :account="account"
                         :matchId="video.matchId"
@@ -152,6 +154,10 @@ export default {
     },
 
     methods: {
+        removeVideoAt(index) {
+            this.videos.splice(index, 1);
+        },
+
         applySort(sort) {
             this.videos = [];
             this.sort = sort;
@@ -247,9 +253,6 @@ export default {
                 });
 
                 this.hydrateTournamentVideos(response);
-                if (this.videos.length > 0 && this.videos.length < 6) {
-                    this.playFirstVideo();
-                }
                 this.isLast = true;
                 this.loading = false;
             }
@@ -355,11 +358,6 @@ export default {
             }
             seconds === 0 ? seconds++ : seconds;
             return seconds;
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
         },
 
         onWaypoint({ el, going, direction }) {

@@ -15,6 +15,7 @@
 
 <script>
 import MatchesService from '@/services/matches-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 
 import MatchVideoCard from '@/components/videos/match-video-card';
 import Loading from '@/components/common/loading';
@@ -62,6 +63,7 @@ export default {
     watch: {
         characterId: function () {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },
@@ -78,18 +80,21 @@ export default {
     methods: {
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
             this.queryVideos();
         },
 
         filterbyTag(filter) {
             this.videos = [];
+            this.isLast = false;
             this.tagFilter = filter;
             this.queryVideos();
         },
 
         refreshQuery(newQuery) {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos(newQuery);
         },
 
@@ -102,31 +107,38 @@ export default {
 
         async queryVideos(newQuery) {
             if (!this.isLast && !this.loading) {
+                this.loading = true;
                 this.isLoading = true;
-                var queryParameter = {
-                    skip: this.skip,
-                    sort: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'CharacterId',
-                            queryValue: this.characterId,
-                        },
-                    ],
-                    filter: this.filter,
-                };
+                try {
+                    var queryParameter = {
+                        skip: this.skip,
+                        sort: this.sort,
+                        searchQuery: [
+                            {
+                                queryName: 'CharacterId',
+                                queryValue: this.characterId,
+                            },
+                        ],
+                        filter: this.filter,
+                    };
 
-                if (this.characterSlug) {
-                    queryParameter.searchQuery[0].queryName = 'CharacterSlug';
-                    queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
+                    if (this.characterSlug) {
+                        queryParameter.searchQuery[0].queryName = 'CharacterSlug';
+                        queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
+                    }
+
+                    const response = await MatchesService.queryMatchesByCharacter(queryParameter);
+                    if (response.data.matches.length === 0) {
+                        this.isLast = true;
+                    }
+
+                    this.hydrateVideos(response);
+                } catch (e) {
+                    console.error('queryVideos error:', e);
+                } finally {
+                    this.loading = false;
+                    this.isLoading = false;
                 }
-
-                const response = await MatchesService.queryMatchesByCharacter(queryParameter);
-                if (response.data.matches.length === 0) {
-                    this.isLast = true;
-                }
-
-                this.hydrateVideos(response);
-                this.isLoading = false;
             }
         },
 
@@ -178,11 +190,6 @@ export default {
             return seconds;
         },
 
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
-        },
-
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             var featuredVideo = this.videos.find((video) => video.matchId === objectId);
@@ -196,20 +203,14 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
-                if (this.isTournament) {
-                    this.queryTournamentMatches();
-                } else {
-                    this.queryVideos();
-                }
+            if (isNearDocumentBottom() && !this.isLoading) {
+                this.queryVideos();
             }
         },
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },

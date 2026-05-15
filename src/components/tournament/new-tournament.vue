@@ -2,34 +2,34 @@
 <template>
     <div class="add-tournament">
         <h1>Add Tournament</h1>
-        <div class="form tournament-info" v-if="step === 'tournament'">
-            <div class="tournament-img-container" v-if="tournament.logoUrl">
+        <div v-if="step === 'tournament'" class="form tournament-info">
+            <div v-if="tournament.logoUrl" class="tournament-img-container">
                 <img :src="tournament.logoUrl" class="tournament-img" />
                 <v-btn @click="tournament.logoUrl = ''">X</v-btn>
             </div>
             <input
                 id="import-image"
-                type="text"
                 v-model="tournament.image"
+                type="text"
                 placeholder="Image Url"
             />
             <input
+                v-model="tournament.name"
                 type="text"
                 name="name"
                 placeholder="Tournament Name"
-                v-model="tournament.name"
             />
             <input
+                v-model="tournament.location"
                 type="text"
                 name="location"
                 placeholder="Location"
-                v-model="tournament.location"
             />
-            <input type="text" name="date" placeholder="Date" v-model="tournament.eventDate" />
-            <input type="text" name="tournament series" placeholder="Tournament Series" v-model="tournament.tournamentSeries">
+            <input v-model="tournament.eventDate" type="text" name="date" placeholder="Date" />
+            <input v-model="tournament.tournamentSeries" type="text" name="tournament series" placeholder="Tournament Series">
             <v-btn class="submit-btn" rounded @click="goToGameStep()">Set Games</v-btn>
         </div>
-        <div class="form" v-if="step === 'games'">
+        <div v-if="step === 'games'" class="form">
             <game-search
                 v-model="games"
                 :taggable="true"
@@ -37,7 +37,7 @@
                 @update:game="setGame($event)"
             />
             <ul class="list-of-games">
-                <li v-for="game in games" class="tournament-games" :key="game._id">
+                <li v-for="game in games" :key="game._id" class="tournament-games">
                     {{ game.title }}
                 </li>
             </ul>
@@ -52,11 +52,11 @@ import TournamentsService from '@/services/tournaments-service';
 import GameSearch from '@/components/games/game-search';
 
 export default {
+
+    name: 'NewTournament',
     components: {
         'game-search': GameSearch
     },
-
-    name: 'NewTournament',
 
     data() {
         return {

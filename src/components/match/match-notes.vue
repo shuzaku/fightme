@@ -40,8 +40,8 @@
                         <v-btn
                             icon
                             small
-                            @click="toggleLike(note)"
                             :class="{ liked: isNoteLiked(note) }"
+                            @click="toggleLike(note)"
                         >
                             <i class="fas fa-heart"></i>
                         </v-btn>
@@ -76,7 +76,7 @@
             @click.self="closeModal"
         >
             <div class="note-modal">
-                <button class="close-button" @click="closeModal" aria-label="Close">
+                <button class="close-button" aria-label="Close" @click="closeModal">
                     <span class="close-icon">×</span>
                 </button>
                 <div class="note-modal-content">
@@ -97,9 +97,9 @@
                         <div class="input-wrapper">
                             <i class="fas fa-align-left input-icon"></i>
                             <quill-editor
-                                dark
                                 ref="noteEditor"
                                 v-model="noteForm.content"
+                                dark
                                 :options="editorOptions"
                             />
                         </div>
@@ -137,9 +137,9 @@
                             class="submit-btn"
                             rounded
                             large
-                            @click="saveNote"
                             :disabled="!noteForm.content || isSaving"
                             :loading="isSaving"
+                            @click="saveNote"
                         >
                             <i class="fas fa-save"></i>
                             {{ editingNote ? 'Update Note' : 'Save Note' }}
@@ -148,8 +148,8 @@
                             class="cancel-btn"
                             rounded
                             text
-                            @click="closeModal"
                             :disabled="isSaving"
+                            @click="closeModal"
                         >
                             Cancel
                         </v-btn>

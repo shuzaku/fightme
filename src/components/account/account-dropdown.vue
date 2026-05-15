@@ -33,7 +33,7 @@
 import { eventbus } from '@/main';
 
 export default {
-    name: 'account-dropdown',
+    name: 'AccountDropdown',
     props: {
         account: {
             type: Object,

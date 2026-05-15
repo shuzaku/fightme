@@ -2,7 +2,7 @@
 <template>
     <div class="character-overlay" @click.self="closeModal">
         <div class="character-modal">
-            <button class="close-button" @click="closeModal" aria-label="Close">
+            <button class="close-button" aria-label="Close" @click="closeModal">
                 <span class="close-icon">×</span>
             </button>
             <div class="character-content">
@@ -175,11 +175,11 @@
                                     <i class="fas fa-calendar"></i>
                                 </div>
                                 <v-text-field
+                                    id="character-release-date"
                                     v-model="releaseDate"
                                     class="stacked-input-with-icon__input"
                                     type="date"
                                     name="releaseDate"
-                                    id="character-release-date"
                                     dark
                                     outlined
                                     hide-details
@@ -224,8 +224,8 @@
                             rounded
                             large
                             block
-                            @click="addCharacter()"
                             :disabled="!canSubmit"
+                            @click="addCharacter()"
                         >
                             <i class="fas fa-plus"></i> Submit Character
                         </v-btn>

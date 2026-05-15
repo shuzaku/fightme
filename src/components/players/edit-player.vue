@@ -8,11 +8,11 @@
                 <img :src="player.imageUrl" class="player-img" />
                 <v-btn small @click="player.imageUrl = ''">Remove</v-btn>
             </div>
-            <v-text-field dark v-model="player.imageUrl" type="text" placeholder="Image URL" />
-            <v-text-field dark v-model="player.name" type="text" placeholder="Player Name" />
-            <v-text-field dark v-model="player.twitter" type="text" placeholder="Twitter URL" />
-            <v-text-field dark v-model="player.stream" type="text" placeholder="Twitch URL" />
-            <v-text-field dark v-model="player.youtube" type="text" placeholder="YouTube URL" />
+            <v-text-field v-model="player.imageUrl" dark type="text" placeholder="Image URL" />
+            <v-text-field v-model="player.name" dark type="text" placeholder="Player Name" />
+            <v-text-field v-model="player.twitter" dark type="text" placeholder="Twitter URL" />
+            <v-text-field v-model="player.stream" dark type="text" placeholder="Twitch URL" />
+            <v-text-field v-model="player.youtube" dark type="text" placeholder="YouTube URL" />
 
             <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
             <div v-if="successMessage" class="success-msg">{{ successMessage }}</div>

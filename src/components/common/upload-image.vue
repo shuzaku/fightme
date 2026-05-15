@@ -4,7 +4,7 @@
         <div v-show="showProgress">
             <progress-bar :options="options" :value="progress" />
         </div>
-        <form v-on:submit.prevent="upload">
+        <form @submit.prevent="upload">
             <v-file-input
                 id="file-input"
                 type="file"

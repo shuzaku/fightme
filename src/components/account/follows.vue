@@ -31,9 +31,10 @@
 
 <script>
 import { eventbus } from '@/main';
+import { gameHrefFromLike, characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
-    name: 'follows',
+    name: 'Follows',
     props: {
         initialOpen: {
             type: Boolean,
@@ -152,12 +153,36 @@ export default {
             this.isOpen = false;
         },
 
-        routeToGame(gameId) {
-            this.$router.push(`/game/${gameId}`);
-        },
-
         navigate(follow) {
-            this.$router.push(`/${follow.type}/${follow.id}`);
+            var t = (follow.type || '').toLowerCase();
+            if (t === 'game') {
+                var gh = gameHrefFromLike(follow);
+                if (gh) {
+                    this.$router.push(gh);
+                }
+                return;
+            }
+            if (t === 'character') {
+                var gameLike =
+                    follow.gameAbbrev != null && follow.gameAbbrev !== ''
+                        ? { Abbreviation: follow.gameAbbrev }
+                        : null;
+                var path = characterPagePath(gameLike, {
+                    id: follow.id,
+                    name: follow.name,
+                    slug: follow.slug,
+                });
+                if (path) {
+                    this.$router.push(path);
+                }
+                return;
+            }
+            if (t === 'player') {
+                var playerPath = playerPagePath({ id: follow.id, slug: follow.slug, name: follow.name });
+                this.$router.push(playerPath || `/player/${follow.id}`);
+                return;
+            }
+            this.$router.push(`/${t}/${follow.id}`);
         },
 
         onFollowHover(event, follow) {

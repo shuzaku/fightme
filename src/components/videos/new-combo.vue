@@ -27,6 +27,7 @@
                             :video-id="video.url"
                             :player-width="417"
                             :player-height="234"
+                            :player-vars="{ autoplay: 0 }"
                             :mute="true"
                             :playsinline="1"
                         />
@@ -41,9 +42,9 @@
                             <div class="input-wrapper">
                                 <i class="fas fa-link input-icon"></i>
                                 <v-text-field
-                                    dark
                                     id="import-video"
                                     v-model="importVideoUrl"
+                                    dark
                                     type="text"
                                     placeholder="YouTube or Twitter Video URL"
                                     outlined
@@ -103,9 +104,9 @@
                     rounded
                     large
                     block
-                    @click="submitVideo()"
                     :disabled="!isValidated"
                     :loading="isSubmitting"
+                    @click="submitVideo()"
                 >
                     <span v-if="!isSubmitting">
                         <i class="fas fa-check"></i>

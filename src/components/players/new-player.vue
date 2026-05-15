@@ -28,8 +28,8 @@
 import PlayersService from '@/services/players-service';
 
 export default {
-    components: {},
     name: 'NewPlayer',
+    components: {},
     data() {
         return {
             player: {

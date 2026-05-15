@@ -34,13 +34,13 @@ import ArticlesService from '@/services/articles-service';
 
 export default {
     name: 'NewArticle',
+    components: {},
     props: {
         accountId: {
             type: String,
             default: null,
         },
     },
-    components: {},
 
     data() {
         return {

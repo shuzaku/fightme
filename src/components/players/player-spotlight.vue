@@ -11,9 +11,10 @@
 
 <script>
 import PlayersService from '@/services/players-service';
+import { playerPagePath } from '@/utils/game-character-routes';
 
 export default {
-    name: 'player-spotlight',
+    name: 'PlayerSpotlight',
     components: {},
 
     props: {
@@ -62,12 +63,14 @@ export default {
             this.player = {
                 id: responsePlayer._id,
                 name: responsePlayer.Name,
+                slug: responsePlayer.Slug || null,
                 imageUrl: responsePlayer.PlayerImg,
             };
         },
 
         navigateToPlayer() {
-            this.$router.push(`/player/${this.playerId}`);
+            var path = playerPagePath(this.player);
+            if (path) { this.$router.push(path); }
         },
     },
 };

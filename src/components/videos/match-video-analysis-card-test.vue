@@ -20,6 +20,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: video.match.startTime,
                         end: video.match.endTime,
                     }"
@@ -398,6 +399,7 @@ import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
 import moment from 'moment';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
 
 export default {
     name: 'VideoCard',
@@ -881,9 +883,9 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying || this.isFirst) {
+            if (this.video.isPlaying) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.startTime) {
                     this.setTimer();
                 }
             }
@@ -946,13 +948,27 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.video.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.video.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const vt = this.video && this.video.videoType;
+            const isYoutube = typeof vt === 'string' && vt.toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.video.isPlaying = false;
+                this.$emit('input', false);
+                pauseWaypointMedia({
+                    videoType: this.video.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.video.isPlaying = true;
             }
         },
 

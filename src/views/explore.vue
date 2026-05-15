@@ -24,7 +24,7 @@ import ExploreFeaturedPlayers from '@/components/explore/explore-featured-player
 import ExploreGames from '@/components/explore/explore-games.vue';
 import appTwitterPlayer from '@/components/media-player/app-twitter-player.vue';
 export default {
-    name: 'explore',
+    name: 'Explore',
 
     components: {
         'completed-tournaments': CompletedTournaments,

@@ -5,11 +5,11 @@
         <div class="form">
             <div>
                 <v-text-field
+                    v-model="featuredVideo.videoUrl"
                     dark
                     type="text"
                     name="videoUrl"
                     placeholder="YouTube URL or Video ID"
-                    v-model="featuredVideo.videoUrl"
                 />
 
                 <creator-search v-model="featuredVideo.creatorId" @update:creator="setCreator" />
@@ -22,8 +22,8 @@
                 />
 
                 <v-select
-                    dark
                     v-model="featuredVideo.type"
+                    dark
                     :items="typeOptions"
                     label="Type"
                     placeholder="Select Type"

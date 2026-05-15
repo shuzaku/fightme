@@ -16,7 +16,7 @@ import updateCard from '@/components/update/update-card';
 import moment from 'moment';
 
 export default {
-    name: 'explore-update',
+    name: 'ExploreUpdate',
     components: {
         'update-card': updateCard,
     },

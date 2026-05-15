@@ -31,29 +31,10 @@ export default {
         },
     },
 
-    watch: {
-        isPlaying() {
-            if (this.isPlaying) {
-                this.playVideo();
-            } else {
-                this.pauseVideo();
-            }
-        },
-    },
-
     data() {
         return {
             player: null,
         };
-    },
-
-    mounted() {
-        this.player = new Twitch.Player(this.video.matchId, this.videoOptions);
-        if (this.isPlaying) {
-            this.playVideo();
-        } else {
-            this.pauseVideo();
-        }
     },
 
     computed: {
@@ -76,6 +57,25 @@ export default {
                 autoplay: false,
             };
         },
+    },
+
+    watch: {
+        isPlaying() {
+            if (this.isPlaying) {
+                this.playVideo();
+            } else {
+                this.pauseVideo();
+            }
+        },
+    },
+
+    mounted() {
+        this.player = new Twitch.Player(this.video.matchId, this.videoOptions);
+        if (this.isPlaying) {
+            this.playVideo();
+        } else {
+            this.pauseVideo();
+        }
     },
 
     methods: {

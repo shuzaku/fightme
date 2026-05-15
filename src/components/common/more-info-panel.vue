@@ -23,14 +23,14 @@ export default {
         },
     },
 
+    data() {
+        return {};
+    },
+
     computed: {
         routeName: function () {
             return this.$route.name;
         },
-    },
-
-    data() {
-        return {};
     },
 
     created() {},

@@ -24,8 +24,8 @@
         <!-- Text Input Mode -->
         <div v-if="inputMode === 'text'" class="text-input-container">
             <v-textarea
-                dark
                 v-model="notationText"
+                dark
                 placeholder="Enter combo notation (e.g., 2M > 5H > 236S)"
                 rows="3"
                 @input="updateNotation"
@@ -52,7 +52,7 @@
                             class="notation-icon"
                         />
                         <span class="notation-text">{{ item }}</span>
-                        <v-icon small @click="removeNotationItem(index)" class="remove-btn"
+                        <v-icon small class="remove-btn" @click="removeNotationItem(index)"
                             >mdi-close</v-icon
                         >
                     </div>
@@ -63,8 +63,8 @@
             <div class="quick-link-button-container">
                 <button
                     class="quick-link-btn"
-                    @click="addNotation('>')"
                     title="Add Link (New Input)"
+                    @click="addNotation('>')"
                 >
                     <i class="fas fa-arrow-right"></i>
                     <span>Add Link</span>
@@ -78,71 +78,71 @@
                     <div class="movement-grid">
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('7')"
                             title="Up-Back"
+                            @click="addNotation('7')"
                         >
                             <img v-if="arrowIcons['7']" :src="arrowIcons['7']" alt="7" />
                             <span v-else>7</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('8')"
                             title="Up"
+                            @click="addNotation('8')"
                         >
                             <img v-if="arrowIcons['8']" :src="arrowIcons['8']" alt="8" />
                             <span v-else>8</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('9')"
                             title="Up-Forward"
+                            @click="addNotation('9')"
                         >
                             <img v-if="arrowIcons['9']" :src="arrowIcons['9']" alt="9" />
                             <span v-else>9</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('4')"
                             title="Back"
+                            @click="addNotation('4')"
                         >
                             <img v-if="arrowIcons['4']" :src="arrowIcons['4']" alt="4" />
                             <span v-else>4</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('5')"
                             title="Neutral"
+                            @click="addNotation('5')"
                         >
                             <span class="neutral-dot">•</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('6')"
                             title="Forward"
+                            @click="addNotation('6')"
                         >
                             <img v-if="arrowIcons['6']" :src="arrowIcons['6']" alt="6" />
                             <span v-else>6</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('1')"
                             title="Down-Back"
+                            @click="addNotation('1')"
                         >
                             <img v-if="arrowIcons['1']" :src="arrowIcons['1']" alt="1" />
                             <span v-else>1</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('2')"
                             title="Down"
+                            @click="addNotation('2')"
                         >
                             <img v-if="arrowIcons['2']" :src="arrowIcons['2']" alt="2" />
                             <span v-else>2</span>
                         </button>
                         <button
                             class="notation-btn icon-btn"
-                            @click="addNotation('3')"
                             title="Down-Forward"
+                            @click="addNotation('3')"
                         >
                             <img v-if="arrowIcons['3']" :src="arrowIcons['3']" alt="3" />
                             <span v-else>3</span>
@@ -161,8 +161,8 @@
                             v-for="attack in availableAttacks"
                             :key="attack.key"
                             class="notation-btn attack icon-btn"
-                            @click="addNotation(attack.notation)"
                             :title="attack.label"
+                            @click="addNotation(attack.notation)"
                         >
                             <img
                                 v-if="attackIcons[attack.key]"
@@ -180,8 +180,8 @@
                     <div class="motion-buttons">
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('qcf')"
                             title="Quarter Circle Forward"
+                            @click="addNotation('qcf')"
                         >
                             <img
                                 v-if="motionIcons.qcf"
@@ -192,8 +192,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('qcb')"
                             title="Quarter Circle Back"
+                            @click="addNotation('qcb')"
                         >
                             <img
                                 v-if="motionIcons.qcb"
@@ -204,8 +204,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('dp')"
                             title="Dragon Punch"
+                            @click="addNotation('dp')"
                         >
                             <img
                                 v-if="motionIcons.dp"
@@ -216,8 +216,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('421')"
                             title="Half Circle"
+                            @click="addNotation('421')"
                         >
                             <img
                                 v-if="motionIcons['421']"
@@ -228,8 +228,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('360')"
                             title="360"
+                            @click="addNotation('360')"
                         >
                             <img
                                 v-if="motionIcons['360']"
@@ -240,8 +240,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('r360')"
                             title="Reverse 360"
+                            @click="addNotation('r360')"
                         >
                             <img
                                 v-if="motionIcons.r360"
@@ -252,8 +252,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('180f')"
                             title="180 Forward"
+                            @click="addNotation('180f')"
                         >
                             <img
                                 v-if="motionIcons['180f']"
@@ -264,8 +264,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('180b')"
                             title="180 Back"
+                            @click="addNotation('180b')"
                         >
                             <img
                                 v-if="motionIcons['180b']"
@@ -276,8 +276,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('hold back')"
                             title="Hold Back"
+                            @click="addNotation('hold back')"
                         >
                             <img
                                 v-if="motionIcons['hold back']"
@@ -288,8 +288,8 @@
                         </button>
                         <button
                             class="notation-btn motion icon-btn"
-                            @click="addNotation('hold down')"
                             title="Hold Down"
+                            @click="addNotation('hold down')"
                         >
                             <img
                                 v-if="motionIcons['hold down']"
@@ -307,50 +307,50 @@
                     <div class="special-buttons">
                         <button
                             class="notation-btn special"
-                            @click="addNotation('CH')"
                             title="Counter Hit"
+                            @click="addNotation('CH')"
                         >
                             CH
                         </button>
                         <button
                             class="notation-btn special"
-                            @click="addNotation('c.')"
                             title="Crouching"
+                            @click="addNotation('c.')"
                         >
                             c.
                         </button>
                         <button
                             class="notation-btn special"
-                            @click="addNotation('j.')"
                             title="Jumping"
+                            @click="addNotation('j.')"
                         >
                             j.
                         </button>
                         <button
                             class="notation-btn special"
-                            @click="addNotation('+')"
                             title="Plus"
+                            @click="addNotation('+')"
                         >
                             +
                         </button>
                         <button
                             class="notation-btn special"
-                            @click="addNotation('>')"
                             title="Link"
+                            @click="addNotation('>')"
                         >
                             &gt;
                         </button>
                         <button
                             class="notation-btn special"
-                            @click="addNotation('j.c')"
                             title="Jump Cancel"
+                            @click="addNotation('j.c')"
                         >
                             j.c
                         </button>
                         <button
                             class="notation-btn special icon-btn"
-                            @click="addNotation('dash')"
                             title="Dash"
+                            @click="addNotation('dash')"
                         >
                             <img
                                 v-if="specialIcons.dash"

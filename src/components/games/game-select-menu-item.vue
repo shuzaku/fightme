@@ -39,7 +39,7 @@
 import GamesService from '@/services/games-service';
 
 export default {
-    name: 'game-select',
+    name: 'GameSelect',
     props: {
         initialOpen: {
             type: Boolean,

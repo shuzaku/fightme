@@ -26,4 +26,9 @@ export default {
   deleteCombo(id: string) {
     return Api().delete('combo/' + id)
   },
+
+  /** Removes a ComboClip document (distinct from Combo definition delete). */
+  deleteComboClip(id: string) {
+    return Api().delete('comboClip/' + id)
+  },
 } 

@@ -5,6 +5,7 @@
 
 <script>
 import GamesService from '@/services/games-service';
+import { gameHrefFromLike } from '@/utils/game-character-routes';
 
 export default {
     name: 'GameBubble',
@@ -42,13 +43,18 @@ export default {
                 id: this.gameId
             });
             this.game = {
+                id: this.gameId,
                 title: response.data.Title,
-                logoUrl: response.data.LogoUrl
+                logoUrl: response.data.LogoUrl,
+                abbreviation: response.data.Abbreviation || null,
             };
         },
 
         navigateToGame() {
-            this.$router.push(`/game/${this.gameId}`);
+            var href = gameHrefFromLike(this.game);
+            if (href) {
+                this.$router.push(href);
+            }
         }
     }
 };

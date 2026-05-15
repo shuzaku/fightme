@@ -10,10 +10,10 @@
             <div v-for="(video, index) in pendingVideos" :key="index" class="video-approval-item">
                 <div class="video-card-wrapper">
                     <admin-video-card
+                        v-model="video.isPlaying"
                         :video="video"
                         :rawVideoData="video.rawVideoData"
                         :videoId="video.id"
-                        v-model="video.isPlaying"
                         :account="account"
                         :favoriteVideos="account ? account.favoriteVideos : null"
                         :isFirst="video.isFirst"
@@ -42,9 +42,9 @@
                             color="success"
                             dark
                             large
-                            @click="approveVideo(video)"
                             :loading="video.approving"
                             :disabled="video.approving || video.rejecting"
+                            @click="approveVideo(video)"
                         >
                             <v-icon left>mdi-check</v-icon>
                             Approve
@@ -54,9 +54,9 @@
                             color="error"
                             dark
                             large
-                            @click="rejectVideo(video)"
                             :loading="video.rejecting"
                             :disabled="video.approving || video.rejecting"
+                            @click="rejectVideo(video)"
                         >
                             <v-icon left>mdi-close</v-icon>
                             Reject
@@ -95,8 +95,8 @@
                     <v-btn color="grey" text @click="rejectDialog = false"> Cancel </v-btn>
                     <v-btn
                         color="error"
-                        @click="rejectVideo(currentVideo)"
                         :loading="currentVideo && currentVideo.rejecting"
+                        @click="rejectVideo(currentVideo)"
                     >
                         Reject
                     </v-btn>

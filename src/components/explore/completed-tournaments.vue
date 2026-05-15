@@ -4,7 +4,7 @@
         <h2>🏆 Recent Tournaments</h2>
         <div class="tournaments tournaments--grid">
             <div v-for="(tournament, index) in tournaments" :key="tournament.id" class="tournament">
-                <tournament-card :tournament="tournament" v-if="index < 7" />
+                <tournament-card v-if="index < 7" :tournament="tournament" />
             </div>
         </div>
     </div>
@@ -17,7 +17,7 @@ import moment from 'moment';
 import { event } from 'vue-gtag';
 
 export default {
-    name: 'completed-character',
+    name: 'CompletedCharacter',
     components: {
         'tournament-card': TournamentCard,
     },

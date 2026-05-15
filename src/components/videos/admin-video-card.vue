@@ -20,6 +20,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: comboData ? comboData.startTime : video.match.startTime,
                         end: comboData ? comboData.endTime : video.match.endTime,
                     }"
@@ -33,7 +34,7 @@
                 <!-- Combo Video Display -->
                 <div v-if="comboData" class="combo-info">
                     <div class="game">
-                        <div class="game-title" @click="queryGame(video.game.id)">
+                        <div class="game-title" @click="queryGame()">
                             <p>
                                 <span>
                                     <div class="img-container">
@@ -45,7 +46,7 @@
                         </div>
                     </div>
 
-                    <div class="character-name" @click="queryCharacter(comboData.character.id)">
+                    <div class="character-name" @click="queryCharacter(comboData.character)">
                         <p>
                             <span>
                                 <div class="img-container">
@@ -67,7 +68,7 @@
                 <!-- Match Video Display -->
                 <div v-else class="info">
                     <div class="game">
-                        <div class="game-title" @click="queryGame(video.game.id)">
+                        <div class="game-title" @click="queryGame()">
                             <p>
                                 <span>
                                     <div class="img-container">
@@ -87,7 +88,7 @@
                             >
                                 <div
                                     class="heavy-weight player-name"
-                                    @click="queryPlayer(team1Player.id)"
+                                    @click="queryPlayer(team1Player)"
                                 >
                                     <p>{{ team1Player.name }}</p>
                                 </div>
@@ -99,7 +100,7 @@
                                     >
                                         <div
                                             class="character-name"
-                                            @click="queryCharacter(character.id)"
+                                            @click="queryCharacter(character)"
                                         >
                                             <p>
                                                 <span>
@@ -122,7 +123,7 @@
                             >
                                 <div
                                     class="heavy-weight player-name"
-                                    @click="queryPlayer(team2Player.id)"
+                                    @click="queryPlayer(team2Player)"
                                 >
                                     <p>{{ team2Player.name }}</p>
                                 </div>
@@ -134,7 +135,7 @@
                                     >
                                         <div
                                             class="character-name"
-                                            @click="queryCharacter(character.id)"
+                                            @click="queryCharacter(character)"
                                         >
                                             <p>
                                                 <span>
@@ -195,13 +196,15 @@
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
+import { gameHrefFromLike, characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
-    inheritAttrs: false,
     name: 'AdminVideoCard',
     components: {
         'collection-search': CollectionSearch,
     },
+    inheritAttrs: false,
 
     props: {
         video: {
@@ -263,6 +266,7 @@ export default {
                         name: combo.CharacterId[0].Name,
                         avatarUrl: combo.CharacterId[0].AvatarUrl,
                         imageUrl: combo.CharacterId[0].ImageUrl,
+                        slug: combo.CharacterId[0].Slug || null,
                     },
                     damage: combo.Damage,
                     hits: combo.Hits,
@@ -343,9 +347,9 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying || this.isFirst) {
+            if (this.video.isPlaying) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.startTime) {
                     this.setTimer();
                 }
             }
@@ -355,16 +359,44 @@ export default {
             this.$emit('video:delete', this.video);
         },
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+        queryPlayer(player) {
+            var path = playerPagePath(player);
+            if (path) { this.$router.push(path); }
         },
 
-        queryCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        gameLikeForNav() {
+            var g = this.video && this.video.game;
+            if (!g) {
+                return null;
+            }
+            var abbr = null;
+            if (this.rawVideoData && this.rawVideoData.Game && this.rawVideoData.Game[0]) {
+                abbr = this.rawVideoData.Game[0].Abbreviation || null;
+            }
+            return {
+                title: g.title,
+                logoUrl: g.logoUrl,
+                id: g.id,
+                abbreviation: abbr,
+            };
         },
 
-        queryGame(gameId) {
-            this.$router.push(`/game/${gameId}`);
+        queryGame() {
+            var path = gameHrefFromLike(this.gameLikeForNav());
+            if (path) {
+                this.$router.push(path);
+            }
+        },
+
+        queryCharacter(characterOrId) {
+            var ch =
+                typeof characterOrId === 'object' && characterOrId != null
+                    ? characterOrId
+                    : { id: characterOrId };
+            var path = characterPagePath(this.gameLikeForNav(), ch);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         setTimer() {
@@ -405,13 +437,27 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.video.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.video.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const vt = this.video && this.video.videoType;
+            const isYoutube = typeof vt === 'string' && vt.toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.video.isPlaying = false;
+                this.$emit('input', false);
+                pauseWaypointMedia({
+                    videoType: this.video.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.video.isPlaying = true;
             }
         },
 

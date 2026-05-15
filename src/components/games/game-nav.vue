@@ -50,6 +50,7 @@
 <script>
 import GamesService from '@/services/games-service';
 import CharacterSearch from '@/components/character/character-search';
+import { characterPagePath } from '@/utils/game-character-routes';
 import { eventbus } from '@/main';
 
 export default {
@@ -138,6 +139,7 @@ export default {
                 title: response.data.Title,
                 logoUrl: response.data.LogoUrl,
                 banner: response.data.Banner,
+                abbreviation: response.data.Abbreviation || null,
             };
         },
 
@@ -157,7 +159,13 @@ export default {
         },
 
         goToCharacter(character) {
-            this.$router.push(`/character/${character.id}`);
+            var path = characterPagePath(
+                this.game && this.game.abbreviation ? { Abbreviation: this.game.abbreviation } : null,
+                character
+            );
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         onSelectContentTab(id) {

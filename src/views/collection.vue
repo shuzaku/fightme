@@ -21,7 +21,9 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :comboClipId="video.comboClipId"
+                    :backingVideoId="video.backingVideoId"
                     :account="account"
+                    @video:delete="removeComboAt(index)"
                 />
             </div>
         </div>
@@ -112,6 +114,10 @@ export default {
             response.data.collection[0].Videos.forEach((video) => {
                 this.videos.push({
                     comboClipId: video.ContentType === 'Combo' ? video.Id : null,
+                    backingVideoId:
+                        video.VideoId ||
+                        (video.Video && (video.Video._id || video.Video.Id)) ||
+                        null,
                     matchId: video.ContentType === 'Match' ? video.Id : null,
                     montageId: video.Montage ? video.Montage._id : null,
                     contentType: video.ContentType,
@@ -135,6 +141,10 @@ export default {
 
         spliceVideo(video) {
             this.videos.splice(this.videos.indexOf(video), 1);
+        },
+
+        removeComboAt(index) {
+            this.videos.splice(index, 1);
         },
 
         addedNewVideo() {

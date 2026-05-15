@@ -16,7 +16,7 @@ import TournamentCard from '@/components/tournament/tournament-card';
 import moment from 'moment';
 
 export default {
-    name: 'explore-tournament',
+    name: 'ExploreTournament',
     components: {
         'tournament-card': TournamentCard,
     },

@@ -4,7 +4,7 @@
         <!--- players --->
         <div class="players-container">
             <div class="team1">
-                <div class="player1" v-for="(player, index) in match.team1Players" :key="index">
+                <div v-for="(player, index) in match.team1Players" :key="index" class="player1">
                     <div class="player-header">
                         <h3>Team 1 Player {{ index + 1 }}</h3>
                         <v-btn
@@ -33,13 +33,13 @@
                         />
                     </div>
                 </div>
-                <v-btn @click="addToTeam1()" v-if="match.team1Players.length < 2"
+                <v-btn v-if="match.team1Players.length < 2" @click="addToTeam1()"
                     >Add player to team 1</v-btn
                 >
             </div>
             <div class="versus">Vs.</div>
             <div class="team2">
-                <div class="player2" v-for="(player, index) in match.team2Players" :key="index">
+                <div v-for="(player, index) in match.team2Players" :key="index" class="player2">
                     <div class="player-header">
                         <h3>Team 2 Player {{ index + 1 }}</h3>
                         <v-btn
@@ -69,7 +69,7 @@
                         />
                     </div>
                 </div>
-                <v-btn @click="addToTeam2()" v-if="match.team2Players.length < 2"
+                <v-btn v-if="match.team2Players.length < 2" @click="addToTeam2()"
                     >Add player to team 2</v-btn
                 >
             </div>

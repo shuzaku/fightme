@@ -5,7 +5,7 @@
 
 <script>
 export default {
-    name: 'login-verification',
+    name: 'LoginVerification',
 
     components: {},
 

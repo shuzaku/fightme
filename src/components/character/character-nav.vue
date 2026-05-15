@@ -7,19 +7,19 @@
                     <div class="character-image">
                         <img class="character-img" :src="character.imageUrl" />
                         <img
-                            @click="routeToGame()"
                             v-if="game"
                             class="game-logo game-logo-mobile"
                             :src="game.logoUrl"
+                            @click="routeToGame()"
                         />
                     </div>
                     <div class="options">
                         <h2>{{ character.name }}</h2>
                         <img
-                            @click="routeToGame()"
                             v-if="game"
                             class="game-logo game-logo-desktop"
                             :src="game.logoUrl"
+                            @click="routeToGame()"
                         />
                     </div>
                 </div>
@@ -55,6 +55,7 @@
                     :video-id="character.overViewUrl"
                     :player-width="350"
                     :player-height="200"
+                    :player-vars="{ autoplay: 0 }"
                     :mute="true"
                     :playsinline="1"
                 />
@@ -111,6 +112,7 @@
 <script>
 import CharacterSearch from '@/components/character/character-search';
 import GamesService from '@/services/games-service';
+import { gamePathFromAbbreviation, playerPagePath } from '@/utils/game-character-routes';
 
 import { eventbus } from '@/main';
 
@@ -224,7 +226,8 @@ export default {
         },
 
         goToPlayer(input) {
-            this.$router.push(`/player/${input.id}`);
+            var path = playerPagePath(input);
+            if (path) { this.$router.push(path); }
         },
 
         routeToCharacterCombos() {
@@ -240,6 +243,9 @@ export default {
         },
 
         getGame() {
+            if (!this.character || !this.character.gameId) {
+                return;
+            }
             GamesService.getGame({
                 id: this.character.gameId,
             }).then((response) => {
@@ -247,12 +253,18 @@ export default {
                     id: response.data._id,
                     title: response.data.Title,
                     logoUrl: response.data.LogoUrl,
+                    abbreviation: response.data.Abbreviation || null,
                 };
             });
         },
 
         routeToGame() {
-            this.$router.push(`/game/${this.game.id}`);
+            var seg =
+                gamePathFromAbbreviation(this.game && this.game.abbreviation) ||
+                (this.game && this.game.id != null ? String(this.game.id) : '');
+            if (seg) {
+                this.$router.push(`/game/${encodeURIComponent(seg)}`);
+            }
         },
 
         shareCharacter() {

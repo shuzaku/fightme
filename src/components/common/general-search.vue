@@ -12,9 +12,9 @@
             group-values="values"
             label="value"
             track-by="value"
+            :showNoOptions="false"
             @input="setSearch()"
             @search-change="asyncFind"
-            :showNoOptions="false"
         >
         </multiselect>
     </div>
@@ -23,6 +23,7 @@
 <script>
 import { eventbus } from '@/main';
 import GeneralService from '@/services/general-service';
+import { gameHrefFromLike, characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
     name: 'TopNav',
@@ -94,12 +95,46 @@ export default {
         },
 
         setSearch() {
-            var query = {
-                name: this.searchValue.valueType,
-                value: this.searchValue.id,
-            };
-
-            this.$router.push(`/${query.name}/${query.value}`);
+            if (!this.searchValue) {
+                return;
+            }
+            var v = this.searchValue;
+            var t = v.valueType;
+            if (t === 'Game' && v.raw) {
+                var gh = gameHrefFromLike({
+                    _id: v.id,
+                    Abbreviation: v.raw.Abbreviation,
+                });
+                if (gh) {
+                    this.$router.push(gh);
+                }
+                return;
+            }
+            if (t === 'Character' && v.raw) {
+                var g = v.raw.Game && v.raw.Game[0];
+                var gameLike = g && g.Abbreviation ? { Abbreviation: g.Abbreviation } : null;
+                var ch = v.raw;
+                var path = characterPagePath(gameLike, {
+                    id: v.id,
+                    slug: ch.Slug,
+                    name: ch.Name,
+                });
+                if (path) {
+                    this.$router.push(path);
+                }
+                return;
+            }
+            if (t === 'Player') {
+                var pPath = playerPagePath({ id: v.id, slug: v.slug });
+                this.$router.push(pPath || `/player/${v.id}`);
+                return;
+            }
+            if (t === 'ContentCreator') {
+                var ccPath = playerPagePath({ id: v.id, slug: v.slug });
+                this.$router.push(ccPath || `/player/${v.id}`);
+                return;
+            }
+            this.$router.push(`/${String(t).toLowerCase()}/${v.id}`);
         },
 
         openRegisterModal() {
@@ -145,9 +180,11 @@ export default {
                     id: value._id,
                     value: '',
                     valueType: '',
+                    raw: value,
                 };
                 if (value.GamesPlayed) {
                     (searchValue.value = value.Name), (searchValue.valueType = 'Player');
+                    searchValue.slug = value.Slug || null;
                 } else if (value.Game && value.Game.length > 0) {
                     (searchValue.value = `${value.Name} ${
                         value.Game ? `- ${value.Game[0].Abbreviation}` : ''
@@ -159,6 +196,7 @@ export default {
                     (searchValue.value = value.Title), (searchValue.valueType = 'Game');
                 } else {
                     (searchValue.value = value.Name), (searchValue.valueType = 'Player');
+                    searchValue.slug = value.Slug || null;
                 }
 
                 return searchValue;

@@ -12,13 +12,17 @@
 import CreatorsService from '@/services/creators-service';
 
 export default {
-    name: 'creators',
+    name: 'Creators',
     props: {},
 
     data() {
         return {
             creators: []
         };
+    },
+
+    mounted() {
+        this.getCreators();
     },
 
     methods: {
@@ -32,10 +36,6 @@ export default {
                 };
             });
         }
-    },
-
-    mounted() {
-        this.getCreators();
     }
 };
 </script>

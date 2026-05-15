@@ -12,7 +12,7 @@
                 :video-id="videoUrl"
                 :player-width="400"
                 :player-height="225"
-                :player-vars="{ rel: 0 }"
+                :player-vars="{ rel: 0, autoplay: 0 }"
             />
             <div v-for="(match, index) in tournament.matches" :key="index" class="match">
                 <div class="match-title">

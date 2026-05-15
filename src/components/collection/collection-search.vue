@@ -17,7 +17,7 @@
             @remove="remove()"
         >
             <template slot="selection" slot-scope="{ values, search, isOpen }"
-                ><span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen"
+                ><span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single"
                     >{{ values.length }} options selected</span
                 ></template
             >

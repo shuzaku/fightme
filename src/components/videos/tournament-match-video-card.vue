@@ -24,6 +24,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: video.match.startTime,
                         end: video.match.endTime,
                     }"
@@ -46,7 +47,7 @@
                         <div class="game">
                             <div
                                 class="game-title"
-                                @click="video.game.id && queryGame(video.game.id)"
+                                @click="video.game && queryGame(video.game)"
                             >
                                 <img :src="video.game.logoUrl" />
                             </div>
@@ -60,7 +61,7 @@
                                 >
                                     <div
                                         class="heavy-weight player-name"
-                                        @click="queryPlayer(team1Player.id)"
+                                        @click="queryPlayer(team1Player)"
                                     >
                                         <p>{{ team1Player.name }}</p>
                                     </div>
@@ -72,7 +73,7 @@
                                         >
                                             <div
                                                 class="character-name"
-                                                @click="queryCharacter(character.id)"
+                                                @click="queryCharacter(character)"
                                             >
                                                 <p>
                                                     <span>
@@ -95,7 +96,7 @@
                                 >
                                     <div
                                         class="heavy-weight player-name"
-                                        @click="queryPlayer(team2Player.id)"
+                                        @click="queryPlayer(team2Player)"
                                     >
                                         <p>{{ team2Player.name }}</p>
                                     </div>
@@ -107,7 +108,7 @@
                                         >
                                             <div
                                                 class="character-name"
-                                                @click="queryCharacter(character.id)"
+                                                @click="queryCharacter(character)"
                                             >
                                                 <p>
                                                     <span>
@@ -418,12 +419,13 @@
 </template>
 
 <script>
-import { eventbus } from '@/main';
 import AppTwitchPlayer from '@/components/media-player/app-twitch-player.vue';
 import TournamentMatchService from '@/services/tournament-match-service';
 import GameSearch from '@/components/games/game-search';
 import TournamentSearch from '@/components/tournament/tournament-search.vue';
 import AddMatch from '@/components/videos/add-match';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
+import { gameHrefFromLike, characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 const GAME_CATEGORIES = {
     '606d42021ddff92064798667': [
@@ -471,7 +473,6 @@ function extractVideoId(raw) {
 }
 
 export default {
-    inheritAttrs: false,
     name: 'TournamentMatchVideoCard',
     components: {
         'app-twitch-player': AppTwitchPlayer,
@@ -479,6 +480,7 @@ export default {
         'tournament-search': TournamentSearch,
         'add-match': AddMatch,
     },
+    inheritAttrs: false,
 
     props: {
         video: {
@@ -859,7 +861,7 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.isPlaying || this.isFirst) {
+            if (this.isPlaying) {
                 this.player.playVideo();
             }
             // Auto-seek to ?t= timestamp if present in the URL
@@ -944,16 +946,27 @@ export default {
 
         /* ── navigation ────────────────────────────────────── */
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+        queryPlayer(player) {
+            var path = playerPagePath(player);
+            if (path) { this.$router.push(path); }
         },
 
-        queryCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        queryCharacter(characterOrId) {
+            var ch =
+                typeof characterOrId === 'object' && characterOrId != null
+                    ? characterOrId
+                    : { id: characterOrId };
+            var path = characterPagePath(this.video.game, ch);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
-        queryGame(gameId) {
-            this.$router.push(`/game/${gameId}`);
+        queryGame(gameLike) {
+            var path = gameHrefFromLike(gameLike);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         goToMatchPage() {
@@ -984,13 +997,26 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const vt = this.video && this.video.videoType;
+            const isYoutube = typeof vt === 'string' && vt.toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.isPlaying = false;
+                pauseWaypointMedia({
+                    videoType: this.video.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.isPlaying = true;
             }
         },
     },

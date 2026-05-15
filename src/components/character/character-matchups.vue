@@ -15,6 +15,8 @@
 
 <script>
 import CharacterMatchupService from '@/services/character-matchup-service';
+import CharactersService from '@/services/characters-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 
 import MatchVideoCard from '@/components/videos/match-video-card';
 import Loading from '@/components/common/loading';
@@ -66,6 +68,7 @@ export default {
     watch: {
         character2Id: function () {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },
@@ -81,18 +84,21 @@ export default {
     methods: {
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
             this.queryVideos();
         },
 
         filterbyTag(filter) {
             this.videos = [];
+            this.isLast = false;
             this.tagFilter = filter;
             this.queryVideos();
         },
 
         refreshQuery(newQuery) {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos(newQuery);
         },
 
@@ -104,40 +110,54 @@ export default {
         },
 
         async queryVideos() {
-            var searchQuery = [
-                {
-                    characters: { character1: this.characterId, character2: this.character2Id[0] },
-                },
-            ];
-
-            if (this.character1Slug && this.character2Slug) {
-                searchQuery[0].characters.character1 = this.character1Slug.toUpperCase();
-                searchQuery[0].characters.character2 = this.character2Slug.toUpperCase();
+            if (!this.character2Id || !this.character2Id.length) {
+                return;
+            }
+            if (this.isLast || this.loading) {
+                return;
             }
 
-            var queryParameter = {
-                skip: this.skip,
-                sort: this.sort,
-                filter: this.filter,
-                searchQuery: searchQuery,
-            };
+            this.loading = true;
+            this.isLoading = true;
+            try {
+                var searchQuery = [
+                    {
+                        characters: { character1: this.characterId, character2: this.character2Id[0] },
+                    },
+                ];
 
-            var response = null;
+                if (this.character1Slug && this.character2Slug) {
+                    searchQuery[0].characters.character1 = this.character1Slug.toUpperCase();
+                    searchQuery[0].characters.character2 = this.character2Slug.toUpperCase();
+                }
 
-            if (this.character1Slug && this.character2Slug) {
-                response = await CharacterMatchupService.querySlugMatchup(queryParameter);
-                this.getCharacterId();
-            } else {
-                response = await CharacterMatchupService.queryMatchup(queryParameter);
+                var queryParameter = {
+                    skip: this.skip,
+                    sort: this.sort,
+                    filter: this.filter,
+                    searchQuery: searchQuery,
+                };
+
+                var response = null;
+
+                if (this.character1Slug && this.character2Slug) {
+                    response = await CharacterMatchupService.querySlugMatchup(queryParameter);
+                    this.getCharacterId();
+                } else {
+                    response = await CharacterMatchupService.queryMatchup(queryParameter);
+                }
+
+                if (!response.data.matches || response.data.matches.length === 0) {
+                    this.isLast = true;
+                } else {
+                    this.hydrateVideos(response);
+                }
+            } catch (e) {
+                console.error('queryVideos error:', e);
+            } finally {
+                this.loading = false;
+                this.isLoading = false;
             }
-
-            this.hydrateVideos(response);
-            // this.checkFavorites();
-            if (this.videos.length > 1) {
-                this.playFirstVideo();
-            }
-
-            this.isLoading = false;
         },
 
         hydrateVideos(response) {
@@ -147,8 +167,12 @@ export default {
                     contentType: 'Match',
                     isEditing: false,
                     isPlaying: false,
+                    isFirst: false,
                 });
             });
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         async getCharacterId() {
@@ -177,11 +201,6 @@ export default {
             )[0]._id;
         },
 
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
-        },
-
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             var featuredVideo = this.videos.find((video) => video.matchId === objectId);
@@ -195,20 +214,14 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
-                if (this.isTournament) {
-                    this.queryTournamentMatches();
-                } else {
-                    this.queryVideos();
-                }
+            if (isNearDocumentBottom() && !this.loading) {
+                this.queryVideos();
             }
         },
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },

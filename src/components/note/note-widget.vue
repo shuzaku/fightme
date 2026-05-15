@@ -6,8 +6,8 @@
         <div v-else class="note-widget-container">
             <label>Type:</label>
             <multiselect
-                dark
                 v-model="note.selectedType"
+                dark
                 :options="types"
                 :searchable="false"
                 :show-labels="false"
@@ -60,8 +60,8 @@
             <div class="note-content">
                 <label>Heading:</label>
                 <v-text-field
-                    dark
                     v-model="note.heading"
+                    dark
                     placeholder="Heading"
                     value
                     required
@@ -69,7 +69,7 @@
                 />
 
                 <label>Content:</label>
-                <quill-editor dark ref="myQuillEditor" v-model="note.noteContent" />
+                <quill-editor ref="myQuillEditor" v-model="note.noteContent" dark />
             </div>
 
             <v-btn v-if="!noteId" class="submit-btn" rounded @click="addNote()">Add Note</v-btn>
@@ -87,14 +87,14 @@ import Loading from '@/components/common/loading';
 import { eventbus } from '@/main';
 
 export default {
+
+    name: 'NewNote',
     components: {
         'game-search': GameSearch,
         'character-search': CharacterSearch,
         'player-search': PlayerSearch,
         loading: Loading,
     },
-
-    name: 'NewNote',
 
     props: {
         account: {

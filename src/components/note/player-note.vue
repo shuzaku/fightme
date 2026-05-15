@@ -1,7 +1,7 @@
 <!-- @format -->
 <template>
     <div class="player-note">
-        <div class="note-container" v-if="!isLoading">
+        <div v-if="!isLoading" class="note-container">
             <div class="title-row" @click="toggleContent()">
                 <div
                     class="character-bubble"
@@ -29,9 +29,9 @@ import PlayersService from '@/services/players-service';
 import GamesService from '@/services/games-service';
 
 export default {
-    components: {},
 
     name: 'PlayerNotes',
+    components: {},
 
     props: {
         note: {

@@ -8,17 +8,17 @@
                 <img :src="character.imageUrl" class="char-img" />
             </div>
 
-            <v-text-field dark v-model="character.name"        type="text" placeholder="Character Name" />
-            <v-text-field dark v-model="character.slug"        type="text" placeholder="URL Slug (optional)" />
-            <v-text-field dark v-model="character.imageUrl"    type="text" placeholder="Image URL (full art)" />
-            <v-text-field dark v-model="character.avatarUrl"   type="text" placeholder="Avatar URL (portrait)" />
-            <v-text-field dark v-model="character.archetype"   type="text" placeholder="Archetype (e.g. Zoner)" />
-            <v-textarea   dark v-model="character.gameplan"    placeholder="Gameplan" rows="2" auto-grow />
-            <v-textarea   dark v-model="character.strengths"   placeholder="Strengths" rows="2" auto-grow />
-            <v-textarea   dark v-model="character.weakness"    placeholder="Weakness" rows="2" auto-grow />
-            <v-text-field dark v-model="character.overviewUrl" type="text" placeholder="Overview YouTube Video ID" />
-            <v-text-field dark v-model="character.wiki"        type="text" placeholder="Wiki URL" />
-            <v-text-field dark v-model="character.releaseDate" type="date" placeholder="Release Date" />
+            <v-text-field v-model="character.name" dark        type="text" placeholder="Character Name" />
+            <v-text-field v-model="character.slug" dark        type="text" placeholder="URL Slug (optional)" />
+            <v-text-field v-model="character.imageUrl" dark    type="text" placeholder="Image URL (full art)" />
+            <v-text-field v-model="character.avatarUrl" dark   type="text" placeholder="Avatar URL (portrait)" />
+            <v-text-field v-model="character.archetype" dark   type="text" placeholder="Archetype (e.g. Zoner)" />
+            <v-textarea   v-model="character.gameplan" dark    placeholder="Gameplan" rows="2" auto-grow />
+            <v-textarea   v-model="character.strengths" dark   placeholder="Strengths" rows="2" auto-grow />
+            <v-textarea   v-model="character.weakness" dark    placeholder="Weakness" rows="2" auto-grow />
+            <v-text-field v-model="character.overviewUrl" dark type="text" placeholder="Overview YouTube Video ID" />
+            <v-text-field v-model="character.wiki" dark        type="text" placeholder="Wiki URL" />
+            <v-text-field v-model="character.releaseDate" dark type="date" placeholder="Release Date" />
 
             <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
             <div v-if="successMessage" class="success-msg">{{ successMessage }}</div>

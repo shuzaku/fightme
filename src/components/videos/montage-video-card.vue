@@ -18,7 +18,7 @@
                     :video-id="video.url"
                     :player-width="556"
                     :player-height="313"
-                    :player-vars="{ rel: 0, start: video.startTime, end: video.endTime }"
+                    :player-vars="{ rel: 0, autoplay: 0, start: video.startTime, end: video.endTime }"
                     :mute="true"
                     :playsinline="1"
                     @ready="ready"
@@ -41,12 +41,12 @@
                         v-for="player in video.montage.players"
                         :key="player.id"
                         class="heavy-weight player-name"
-                        @click="queryPlayer(player.id)"
+                        @click="queryPlayer(player)"
                     >
                         <p>{{ player.name }}</p>
                     </div>
                     <div v-for="(character, index) in video.montage.characters" :key="index">
-                        <div class="character-name" @click="queryCharacter(character.id)">
+                        <div class="character-name" @click="queryCharacter(character)">
                             <p>
                                 <span>{{ character.name }}</span>
                             </p>
@@ -95,6 +95,8 @@ import MontagesService from '@/services/montages-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
+import { characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
     name: 'VideoCard',
@@ -200,6 +202,7 @@ export default {
                     return {
                         id: player._id,
                         name: player.Name,
+                        slug: player.Slug || null,
                     };
                 }),
                 characters: montageResponse.Characters.map((character) => {
@@ -207,6 +210,7 @@ export default {
                         id: character._id,
                         imageUrl: character.AvatarUrl,
                         name: character.Name,
+                        slug: character.Slug || null,
                     };
                 }),
                 collections: this.assignCollection(this.montageId),
@@ -224,6 +228,7 @@ export default {
                 title: videoResponse.Game.Title,
                 logoUrl: videoResponse.Game.LogoUrl,
                 id: videoResponse.Game._id,
+                abbreviation: videoResponse.Game.Abbreviation || null,
             };
             this.video.isPlaying = false;
             this.video.id = videoResponse._id;
@@ -249,9 +254,9 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying || this.isFirst) {
+            if (this.video.isPlaying) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.startTime) {
                     this.setTimer();
                 }
             }
@@ -264,12 +269,20 @@ export default {
             this.$emit('video:delete', montageResponse);
         },
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+        queryPlayer(player) {
+            var path = playerPagePath(player);
+            if (path) { this.$router.push(path); }
         },
 
-        queryCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        queryCharacter(characterOrId) {
+            var ch =
+                typeof characterOrId === 'object' && characterOrId != null
+                    ? characterOrId
+                    : { id: characterOrId };
+            var path = characterPagePath(this.video.game, ch);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         setTimer() {
@@ -310,13 +323,27 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.video.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.video.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const vt = this.video && this.video.videoType;
+            const isYoutube = typeof vt === 'string' && vt.toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.video.isPlaying = false;
+                this.$emit('input', false);
+                pauseWaypointMedia({
+                    videoType: this.video.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.video.isPlaying = true;
             }
         },
 

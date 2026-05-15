@@ -11,13 +11,17 @@
 import GamesService from '@/services/games-service';
 
 export default {
-    name: 'games',
+    name: 'Games',
     props: {},
 
     data() {
         return {
             games: [],
         };
+    },
+
+    mounted() {
+        this.getGames();
     },
 
     methods: {
@@ -31,10 +35,6 @@ export default {
                 };
             });
         },
-    },
-
-    mounted() {
-        this.getGames();
     },
 };
 </script>

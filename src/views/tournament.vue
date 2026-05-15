@@ -32,8 +32,8 @@
             >
                 <tournament-match-video-card
                     v-if="video.contentType === 'Tournament Match'"
-                    :video="video"
                     v-model="video.isPlaying"
+                    :video="video"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :account="account"
                     :matchId="video.matchId"
@@ -185,9 +185,6 @@ export default {
             const response = await TournamentMatchService.getTournamentMatches(queryParameter);
 
             this.hydrateVideos(response);
-            if (this.videos.length > 0 && this.videos.length < 6) {
-                this.playFirstVideo();
-            }
             this.loading = false;
         },
 
@@ -300,11 +297,6 @@ export default {
             }
             seconds === 0 ? seconds++ : seconds;
             return seconds;
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
         },
 
         onWaypoint({ el, going, direction }) {

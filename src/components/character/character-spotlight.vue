@@ -14,9 +14,10 @@
 
 <script>
 import CharactersService from '@/services/characters-service';
+import { characterPagePath } from '@/utils/game-character-routes';
 
 export default {
-    name: 'character-spotlight',
+    name: 'CharacterSpotlight',
     components: {},
 
     props: {
@@ -34,6 +35,7 @@ export default {
     data() {
         return {
             character: null,
+            characterGameLike: null,
         };
     },
 
@@ -66,11 +68,19 @@ export default {
                 id: responseCharacter._id,
                 name: responseCharacter.Name,
                 imageUrl: responseCharacter.ImageUrl,
+                slug: responseCharacter.Slug || null,
             };
+            this.characterGameLike =
+                responseCharacter.Game && responseCharacter.Game[0]
+                    ? { Abbreviation: responseCharacter.Game[0].Abbreviation }
+                    : null;
         },
 
         navigateToCharacter() {
-            this.$router.push(`/character/${this.characterId}`);
+            var path = characterPagePath(this.characterGameLike, this.character);
+            if (path) {
+                this.$router.push(path);
+            }
         },
     },
 };

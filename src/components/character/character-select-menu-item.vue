@@ -38,7 +38,7 @@
 import CharactersService from '@/services/characters-service';
 
 export default {
-    name: 'character-menu-select-item',
+    name: 'CharacterMenuSelectItem',
     props: {
         initialOpen: {
             type: Boolean,

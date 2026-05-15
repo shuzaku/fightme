@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div class="game-card" @click="navigate(game.id)">
+    <div class="game-card" @click="navigate()">
         <div class="game-card-inner">
             <div class="shine-effect"></div>
             <div class="cover-art-container">
@@ -21,7 +21,7 @@
                 </div>
                 <div class="corner-accent"></div>
             </div>
-            <div class="game-info" v-if="game.title">
+            <div v-if="game.title" class="game-info">
                 <div class="title-wrapper">
                     <h3 class="game-title">{{ game.title }}</h3>
                     <div class="title-underline"></div>
@@ -33,8 +33,10 @@
 </template>
 
 <script>
+import { gamePathFromAbbreviation } from '@/utils/game-character-routes';
+
 export default {
-    name: 'game-card',
+    name: 'GameCard',
     components: {},
 
     props: {
@@ -52,8 +54,14 @@ export default {
     mounted() {},
 
     methods: {
-        navigate(id) {
-            this.$router.push(`/game/${id}`);
+        navigate() {
+            var seg =
+                gamePathFromAbbreviation(this.game.abbreviation) ||
+                (this.game.id != null ? String(this.game.id) : '');
+            if (!seg) {
+                return;
+            }
+            this.$router.push(`/game/${encodeURIComponent(seg)}`);
         },
     },
 };

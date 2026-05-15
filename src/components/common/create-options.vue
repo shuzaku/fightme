@@ -4,8 +4,8 @@
         <div
             v-for="option in createOptions"
             :key="option.value"
-            @click="openAddModal(option)"
             class="create-option"
+            @click="openAddModal(option)"
         >
             {{ option.name }}
         </div>

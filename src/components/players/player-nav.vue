@@ -1,143 +1,194 @@
 <!-- @format -->
 <template>
     <div class="player-nav">
-        <div class="player-header" :style="playerbubbleStyle">
-            <div class="options">
-                <h2>{{ player.name }}</h2>
-                <div v-if="account" class="followed-container">
-                    <div v-if="!isFollowed" class="follow-btn info-card" @click="followPlayer()">
-                        <v-icon> mdi-heart-outline </v-icon>
-                    </div>
-                    <div v-else class="unfollow-btn info-card" @click="unfollowPlayer()">
-                        <v-icon> mdi-heart </v-icon>
-                    </div>
-                </div>
-                <div class="social-media">
-                    <div class="svg-container">
-                        <a v-if="player.youtube" :href="player.youtube" target="_blank">
-                            <font-awesome-icon :icon="['fab', 'youtube']" />
-                        </a>
-                        <a v-if="player.twitter" :href="player.twitter" target="_blank">
+        <!-- Identity card -->
+        <div class="player-identity">
+            <div v-if="player.imageUrl" class="player-avatar">
+                <img :src="player.imageUrl" :alt="player.name" />
+            </div>
+            <div v-else class="player-avatar player-avatar--initials">
+                <span>{{ playerInitials }}</span>
+            </div>
+
+            <div class="player-info">
+                <h1 class="player-name">{{ player.name }}</h1>
+
+                <div class="player-meta">
+                    <div class="social-links">
+                        <a v-if="player.twitter" :href="player.twitter" target="_blank" class="social-link" title="Twitter">
                             <font-awesome-icon :icon="['fab', 'twitter']" />
                         </a>
-                        <a v-if="player.stream" :href="player.stream" target="_blank">
+                        <a v-if="player.youtube" :href="player.youtube" target="_blank" class="social-link" title="YouTube">
+                            <font-awesome-icon :icon="['fab', 'youtube']" />
+                        </a>
+                        <a v-if="player.stream" :href="player.stream" target="_blank" class="social-link" title="Twitch">
                             <font-awesome-icon :icon="['fab', 'twitch']" />
                         </a>
                     </div>
-                </div>
-                <div v-if="isAdmin" class="admin-edit-btn info-card" @click="openEditModal()">
-                    <v-icon small>mdi-pencil</v-icon> Edit
-                </div>
-            </div>
 
-            <div class="match-types">
-                <div class="info-card matches" @click="queryOnlineMatches()">Online Matches</div>
-                <div class="info-card matches" @click="queryTournamentMatches()">
-                    Tournament Matches
+                    <div class="player-actions">
+                        <div v-if="account && !isFollowed" class="action-btn follow-btn" @click="followPlayer()">
+                            <v-icon small>mdi-heart-outline</v-icon>
+                            <span>Follow</span>
+                        </div>
+                        <div v-if="account && isFollowed" class="action-btn unfollow-btn" @click="unfollowPlayer()">
+                            <v-icon small>mdi-heart</v-icon>
+                            <span>Following</span>
+                        </div>
+                        <div v-if="isAdmin" class="action-btn edit-btn" @click="openEditModal()">
+                            <v-icon small>mdi-pencil</v-icon>
+                            <span>Edit</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div
-                v-if="account"
-                class="player-account-link"
-            >
-                <div v-if="isOwnPlayerProfile" class="link-pill is-linked">
-                    This is your player profile
-                    <v-btn
-                        v-if="canUnlink"
-                        x-small
-                        text
-                        dark
-                        class="ml-1 link-action-text-btn"
-                        :disabled="linkLoading"
-                        @click="unlinkFromAccount"
+        </div>
+
+        <!-- Match type filters -->
+        <div class="filter-section">
+            <div class="section-label">View</div>
+            <div class="filter-row">
+                <div class="filter-pill" :class="{ active: !activeFilter }" @click="clearFilter()">
+                    All
+                </div>
+                <div class="filter-pill" @click="queryOnlineMatches()">
+                    Online
+                </div>
+                <div class="filter-pill" @click="queryTournamentMatches()">
+                    Tournaments
+                </div>
+            </div>
+        </div>
+
+        <!-- Games & characters the player plays -->
+        <div v-if="player.gamesPlayed && player.gamesPlayed.length > 0" class="filter-section">
+            <div class="section-label">Filter by game or character</div>
+            <div class="games-played">
+                <div
+                    v-for="entry in player.gamesPlayed"
+                    :key="entry.game.id"
+                    class="game-entry"
+                >
+                    <button
+                        class="game-chip"
+                        :class="{ active: activeFilter && activeFilter.queryName === 'GameId' && activeFilter.queryValue === entry.game.id }"
+                        @click="filterByGame(entry.game)"
                     >
-                        Unlink
-                    </v-btn>
-                </div>
-                <div
-                    v-else-if="claimedByOther"
-                    class="link-pill linked-other"
-                >
-                    This player is linked to another account
-                </div>
-                <div
-                    v-else-if="canUseInstantLink"
-                    class="link-claim"
-                >
-                    <p class="link-pill subtext">As an admin, you can link this profile directly.</p>
-                    <v-btn
-                        small
-                        color="primary"
-                        dark
-                        depressed
-                        class="link-claim-primary"
-                        :loading="linkLoading"
-                        :disabled="!resolvedPlayerId"
-                        @click="linkToMyAccount"
-                    >
-                        This is me — link my account
-                    </v-btn>
-                </div>
-                <div
-                    v-else-if="hasPendingLinkRequest"
-                    class="link-claim"
-                >
-                    <div class="link-pill is-linked">
-                        Link request sent — an admin will review it.
+                        <img
+                            v-if="entry.game.logoUrl"
+                            :src="entry.game.logoUrl"
+                            class="game-logo-sm"
+                        />
+                        <span>{{ entry.game.abbreviation || entry.game.title }}</span>
+                    </button>
+                    <div v-if="entry.characters && entry.characters.length" class="character-chips">
+                        <button
+                            v-for="char in entry.characters"
+                            :key="char.id"
+                            class="character-chip"
+                            :class="{ active: activeFilter && activeFilter.queryName === 'CharacterId' && activeFilter.queryValue === char.id }"
+                            :title="char.name"
+                            @click="filterByCharacter(char)"
+                        >
+                            <img
+                                v-if="char.avatarUrl || char.imageUrl"
+                                :src="char.avatarUrl || char.imageUrl"
+                                class="char-avatar"
+                            />
+                            <span v-else class="char-initials">{{ char.name.charAt(0) }}</span>
+                        </button>
                     </div>
-                    <v-btn
-                        v-if="linkRequest && linkRequest._id"
-                        x-small
-                        text
-                        dark
-                        class="mt-1 link-action-text-btn"
-                        :disabled="requestLoading"
-                        @click="cancelLinkRequest"
-                    >
-                        Cancel request
-                    </v-btn>
                 </div>
-                <div
-                    v-else-if="hasRejectedLinkRequest"
-                    class="link-claim"
+            </div>
+        </div>
+
+        <!-- Account link section -->
+        <div v-if="account" class="player-account-link">
+            <div v-if="isOwnPlayerProfile" class="link-pill is-linked">
+                This is your player profile
+                <v-btn
+                    v-if="canUnlink"
+                    x-small
+                    text
+                    dark
+                    class="ml-1 link-action-text-btn"
+                    :disabled="linkLoading"
+                    @click="unlinkFromAccount"
                 >
-                    <div class="link-pill linked-other">
-                        Your request to link this player was not approved
-                        <span v-if="linkRequest && linkRequest.RejectionNote"
-                            >: {{ linkRequest.RejectionNote }}</span
-                        >.
-                    </div>
-                    <v-btn
-                        small
-                        color="primary"
-                        dark
-                        depressed
-                        class="link-claim-primary mt-1"
-                        :loading="linkLoading"
-                        :disabled="!resolvedPlayerId"
-                        @click="requestLink"
-                    >
-                        Request again
-                    </v-btn>
+                    Unlink
+                </v-btn>
+            </div>
+            <div v-else-if="claimedByOther" class="link-pill linked-other">
+                This player is linked to another account
+            </div>
+            <div v-else-if="canUseInstantLink" class="link-claim">
+                <p class="link-pill subtext">As an admin, you can link this profile directly.</p>
+                <v-btn
+                    small
+                    color="primary"
+                    dark
+                    depressed
+                    class="link-claim-primary"
+                    :loading="linkLoading"
+                    :disabled="!resolvedPlayerId"
+                    @click="linkToMyAccount"
+                >
+                    This is me — link my account
+                </v-btn>
+            </div>
+            <div v-else-if="hasPendingLinkRequest" class="link-claim">
+                <div class="link-pill is-linked">
+                    Link request sent — an admin will review it.
                 </div>
-                <div v-else-if="canRequestLink" class="link-claim">
-                    <p class="link-pill subtext">
-                        Request a link to this player profile. An admin must approve it before the link
-                        is created.
-                    </p>
-                    <v-btn
-                        small
-                        color="primary"
-                        dark
-                        depressed
-                        class="link-claim-primary"
-                        :loading="linkLoading"
-                        :disabled="!resolvedPlayerId"
-                        @click="requestLink"
-                    >
-                        Request to link this player
-                    </v-btn>
+                <v-btn
+                    v-if="linkRequest && linkRequest._id"
+                    x-small
+                    text
+                    dark
+                    class="mt-1 link-action-text-btn"
+                    :disabled="requestLoading"
+                    @click="cancelLinkRequest"
+                >
+                    Cancel request
+                </v-btn>
+            </div>
+            <div v-else-if="hasRejectedLinkRequest" class="link-claim">
+                <div class="link-pill linked-other">
+                    Your request to link this player was not approved
+                    <span v-if="linkRequest && linkRequest.RejectionNote"
+                        >: {{ linkRequest.RejectionNote }}</span
+                    >.
                 </div>
+                <v-btn
+                    small
+                    color="primary"
+                    dark
+                    depressed
+                    class="link-claim-primary mt-1"
+                    :loading="linkLoading"
+                    :disabled="!resolvedPlayerId"
+                    @click="requestLink"
+                >
+                    Request again
+                </v-btn>
+            </div>
+            <div v-else-if="canRequestLink" class="link-claim">
+                <p class="link-pill subtext">
+                    Request a link to this player profile. An admin must approve it before the link
+                    is created.
+                </p>
+                <v-btn
+                    small
+                    color="primary"
+                    dark
+                    depressed
+                    class="link-claim-primary"
+                    :loading="linkLoading"
+                    :disabled="!resolvedPlayerId"
+                    @click="requestLink"
+                >
+                    Request to link this player
+                </v-btn>
             </div>
         </div>
     </div>
@@ -175,11 +226,13 @@ export default {
             linkLoading: false,
             requestLoading: false,
             linkRequest: null,
+            activeFilter: null,
             player: {
                 id: this.playerId,
                 name: null,
                 imageUrl: null,
                 accountId: null,
+                gamesPlayed: [],
             },
         };
     },
@@ -210,13 +263,14 @@ export default {
                 this.player.accountId !== this.account.id
             );
         },
-        playerbubbleStyle() {
-            return {
-                'background-image': `url(${this.player.imageUrl})`,
-                'background-size': '30%',
-                'background-repeat': 'no-repeat',
-                'background-position': '0% 20%',
-            };
+        playerInitials() {
+            var name = this.player && this.player.name;
+            if (!name) return '?';
+            return name
+                .split(' ')
+                .slice(0, 2)
+                .map((w) => w.charAt(0).toUpperCase())
+                .join('');
         },
         isAdmin() {
             return (
@@ -345,6 +399,27 @@ export default {
                 stream: response.Stream ? response.Stream : null,
                 youtube: response.Youtube ? response.Youtube : null,
                 accountId: response.AccountId || null,
+                gamesPlayed: (response.GamesPlayed || []).map((gp) => {
+                    // Backend returns either { Game, Characters } (manual) or { game, characters } (derived)
+                    var gameDoc = gp.Game || gp.game;
+                    var charList = gp.Characters || gp.characters || [];
+                    if (!gameDoc) return null;
+                    return {
+                        game: {
+                            id: String(gameDoc._id || gameDoc.id || gameDoc),
+                            title: gameDoc.Title || gameDoc.title || '',
+                            logoUrl: gameDoc.LogoUrl || gameDoc.logoUrl || null,
+                            abbreviation: gameDoc.Abbreviation || gameDoc.abbreviation || null,
+                        },
+                        characters: charList.map((c) => ({
+                            id: String(c._id || c.id || c),
+                            name: c.Name || c.name || '',
+                            avatarUrl: c.AvatarUrl || c.avatarUrl || null,
+                            imageUrl: c.ImageUrl || c.imageUrl || null,
+                            slug: c.Slug || c.slug || null,
+                        })),
+                    };
+                }).filter(Boolean),
             };
         },
 
@@ -451,6 +526,31 @@ export default {
             this.$emit('player-filter:update', filterType);
         },
 
+        filterByGame(game) {
+            var f = { queryName: 'GameId', queryValue: game.id };
+            if (this.activeFilter && this.activeFilter.queryName === 'GameId' && this.activeFilter.queryValue === game.id) {
+                this.clearFilter();
+                return;
+            }
+            this.activeFilter = f;
+            this.$emit('player-filter:update', f);
+        },
+
+        filterByCharacter(character) {
+            var f = { queryName: 'CharacterId', queryValue: character.id };
+            if (this.activeFilter && this.activeFilter.queryName === 'CharacterId' && this.activeFilter.queryValue === character.id) {
+                this.clearFilter();
+                return;
+            }
+            this.activeFilter = f;
+            this.$emit('player-filter:update', f);
+        },
+
+        clearFilter() {
+            this.activeFilter = null;
+            this.$emit('player-filter:update', null);
+        },
+
         unfollowPlayer() {
             eventbus.$emit('player:unfollow', this.playerId);
             var player = this.account.followedPlayers.filter((p) => p.id === this.playerId);
@@ -489,120 +589,317 @@ export default {
 };
 </script>
 <style type="text/css">
+/* ── Container ─────────────────────────────────────── */
 .player-nav {
     width: 100%;
-    z-index: 99;
     max-width: 600px;
     margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.player-nav .player-header {
-    color: #4447e2;
-    width: 100%;
-    padding: 0 20px;
-}
-
-.player-nav .player-header h2 {
-    font-size: 4em;
-}
-
-.player-nav .info-card {
-    height: 40px;
-    border-radius: 24px;
+/* ── Identity card ──────────────────────────────────── */
+.player-nav .player-identity {
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    border: 1px solid #ffffff30;
-    color: #ffffff;
-    background: #242832;
-    cursor: pointer;
-    margin-right: 5px;
-    position: relative;
-    padding: 0 16px;
+    gap: 18px;
+    background: linear-gradient(135deg, #1a1d26 0%, #20232e 100%);
+    border: 1px solid #ffffff12;
+    border-radius: 16px;
+    padding: 20px;
 }
 
-.player-nav .quick-nav {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-}
-
-.player-nav .popup {
-    background: #4447e2;
-    width: 100%;
-    margin-top: 20px;
-    padding: 2px 2px;
-    border-radius: 5px;
-}
-
-.player-nav .mdi-chevron-down::before {
-    content: '\F0140';
-    color: #4447e2;
-}
-
-.player-nav .follow-btn,
-.player-nav .unfollow-btn {
-    width: 50px;
-    padding: 0px;
-}
-
-.player-nav .v-icon.v-icon {
-    color: #4447e2;
-}
-
-.player-nav .svg-container a {
-    border: 2px solid #4447e2;
+.player-nav .player-avatar {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    overflow: hidden;
+    border: 2px solid #4447e240;
+    background: #1c1f27;
+}
+
+.player-nav .player-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-nav .player-avatar--initials {
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    margin-right: 5px;
+    justify-content: center;
+    background: linear-gradient(135deg, #4447e2, #6a6ef5);
 }
 
-.player-nav .svg-container svg {
-    width: 15px;
-    height: 15px;
+.player-nav .player-avatar--initials span {
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
-.player-nav .svg-container a:hover {
+.player-nav .player-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-nav .player-name {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 8px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-nav .player-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Social links */
+.player-nav .social-links {
+    display: flex;
+    gap: 6px;
+}
+
+.player-nav .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #4447e240;
+    color: #8e92c0;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.player-nav .social-link svg {
+    width: 13px;
+    height: 13px;
+}
+
+.player-nav .social-link:hover {
     background: #3eb489;
     border-color: #3eb489;
+    color: #fff;
 }
 
-.player-nav .svg-container path {
-    color: #4447e2;
-}
-
-.player-nav .svg-container {
+/* Action buttons (follow / edit) */
+.player-nav .player-actions {
     display: flex;
+    gap: 6px;
 }
 
-.player-nav .options {
-    display: flex;
+.player-nav .action-btn {
+    display: inline-flex;
     align-items: center;
+    gap: 5px;
+    padding: 0 12px;
+    height: 28px;
+    border-radius: 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #ffffff20;
+    color: #c0c4e0;
+    background: #ffffff08;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
 }
 
-.player-nav .followed-container {
-    margin-left: 20px;
+.player-nav .action-btn .v-icon {
+    font-size: 14px !important;
+    color: inherit !important;
 }
 
-.player-nav .match-types {
+.player-nav .follow-btn:hover,
+.player-nav .edit-btn:hover {
+    background: #3eb48920;
+    border-color: #3eb489;
+    color: #3eb489;
+}
+
+.player-nav .unfollow-btn {
+    background: #3eb48920;
+    border-color: #3eb489;
+    color: #3eb489;
+}
+
+.player-nav .unfollow-btn:hover {
+    background: #e25e5e20;
+    border-color: #e25e5e;
+    color: #e25e5e;
+}
+
+/* ── Section blocks (filters + games) ──────────────── */
+.player-nav .filter-section {
+    background: #1a1d26;
+    border: 1px solid #ffffff10;
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.player-nav .section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #555870;
+    margin-bottom: 10px;
+}
+
+/* Match type filter pills */
+.player-nav .filter-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
+.player-nav .filter-pill {
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 16px;
+    border: 1px solid #ffffff18;
+    background: #242832;
+    color: #9095b0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.player-nav .filter-pill:hover {
+    background: #2c3040;
+    color: #c0c4e0;
+    border-color: #ffffff28;
+}
+
+.player-nav .filter-pill.active {
+    background: #3eb48930;
+    border-color: #3eb489;
+    color: #3eb489;
+    font-weight: 600;
+}
+
+/* ── Games played ───────────────────────────────────── */
+.player-nav .games-played {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.player-nav .game-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.player-nav .game-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 12px;
+    height: 30px;
+    border-radius: 15px;
+    border: 1px solid #ffffff18;
+    background: #242832;
+    color: #9095b0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+    align-self: flex-start;
+}
+
+.player-nav .game-chip:hover {
+    background: #2c3040;
+    color: #c0c4e0;
+    border-color: #ffffff28;
+}
+
+.player-nav .game-chip.active {
+    background: #4447e225;
+    border-color: #4447e2;
+    color: #9a9eff;
+}
+
+.player-nav .game-logo-sm {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* Character avatar chips */
+.player-nav .character-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-left: 2px;
+}
+
+.player-nav .character-chip {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #ffffff15;
+    background: #1c1f27;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+    flex-shrink: 0;
+}
+
+.player-nav .character-chip:hover {
+    border-color: #4447e2;
+    transform: scale(1.08);
+}
+
+.player-nav .character-chip.active {
+    border-color: #3eb489;
+    box-shadow: 0 0 0 2px #3eb48950;
+}
+
+.player-nav .char-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-nav .char-initials {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #6a6ef5;
+}
+
+/* ── Account link section ───────────────────────────── */
 .player-nav .player-account-link {
-    margin-top: 16px;
-    max-width: 600px;
+    padding: 0 4px;
 }
 
 .player-nav .link-claim,
 .player-nav .link-pill {
-    font-size: 0.9rem;
-    color: #b0b3c4;
+    font-size: 0.87rem;
+    color: #7a7f9a;
     line-height: 1.4;
 }
 
@@ -616,12 +913,10 @@ export default {
 
 .player-nav .link-pill.subtext {
     margin-bottom: 8px;
-    line-height: 1.4;
-    font-size: 0.85rem;
-    color: #8e92a0;
+    font-size: 0.82rem;
+    color: #555870;
 }
 
-/* Filled CTA: same green as .game-title pills on match cards (#3eb489) */
 .player-nav .link-claim .v-btn.link-claim-primary {
     background: #3eb489 !important;
     border-color: #3eb489 !important;
@@ -640,15 +935,9 @@ export default {
     border-color: #2d8a6a !important;
 }
 
-/* Other non-text in link-claim (if any) */
 .player-nav .link-claim .v-btn:not(.v-btn--text):not(.link-claim-primary) {
     color: #f5f5ff !important;
     font-weight: 600;
-    letter-spacing: 0.02em;
-}
-
-.player-nav .link-claim .v-btn:not(.v-btn--text):not(.link-claim-primary) .v-btn__content {
-    color: inherit;
 }
 
 .player-nav .player-account-link .link-action-text-btn {
@@ -659,14 +948,5 @@ export default {
 .player-nav .player-account-link .link-action-text-btn:hover {
     color: #fff !important;
     opacity: 1;
-}
-
-.player-nav .admin-edit-btn {
-    border-color: #3eb489;
-    color: #3eb489;
-    gap: 4px;
-}
-.player-nav .admin-edit-btn:hover {
-    background: #3eb48920;
 }
 </style>

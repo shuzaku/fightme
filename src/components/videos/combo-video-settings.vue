@@ -17,19 +17,19 @@
                     />
                 </div>
                 <div class="inputs-container">
-                    <v-textarea dark v-model="combo.inputs" placeholder="Combo Inputs" />
+                    <v-textarea v-model="combo.inputs" dark placeholder="Combo Inputs" />
                 </div>
                 <div class="combo-stats">
                     <div class="startTime input-container">
-                        <v-text-field dark v-model="combo.startTime" placeholder="Start Time" />
+                        <v-text-field v-model="combo.startTime" dark placeholder="Start Time" />
                     </div>
                     <div class="endTime input-container">
-                        <v-text-field dark v-model="combo.endTime" placeholder="End Time" />
+                        <v-text-field v-model="combo.endTime" dark placeholder="End Time" />
                     </div>
                     <div class="damage input-container">
                         <v-text-field
-                            dark
                             v-model="combo.damage"
+                            dark
                             class="damage"
                             type="Number"
                             placeholder="Damage"
@@ -37,8 +37,8 @@
                     </div>
                     <div class="hits input-container">
                         <v-text-field
-                            dark
                             v-model="combo.hits"
+                            dark
                             class="hits"
                             placeholder="Hits"
                             type="Number"

@@ -29,7 +29,7 @@ import TournamentsService from '@/services/tournaments-service';
 import { eventbus } from '@/main';
 
 export default {
-    name: 'tournaments-search',
+    name: 'TournamentsSearch',
     props: {
         tournament: {
             type: Number,

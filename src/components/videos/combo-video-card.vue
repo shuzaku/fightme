@@ -7,17 +7,17 @@
     >
         <div v-if="isLoading" />
         <div v-else class="combo-card card">
-            <div class="character-image" v-if="video.combo.videoType === 'twitter'">
+            <div v-if="video.combo.videoType === 'twitter'" class="character-image">
                 <img :src="video.combo.character.imageUrl" />
             </div>
             <div
-                :id="comboClipId"
-                class="video-container"
+                :id="waypointDomId"
                 v-waypoint="{
                     active: true,
                     callback: onComboWaypoint,
                     options: intersectionOptions,
                 }"
+                class="video-container"
             >
                 <youtube-media
                     v-if="video.combo.videoType === 'youtube'"
@@ -27,6 +27,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: video.combo.startTime,
                         end: video.combo.endTime,
                     }"
@@ -47,7 +48,7 @@
             <div v-if="!video.isEditing" class="aside">
                 <div class="combo-info">
                     <div class="game">
-                        <div class="game-title" @click="queryGame(video.game.id)">
+                        <div class="game-title" @click="queryGame(video.game)">
                             <p>
                                 <span>
                                     <div class="img-container">
@@ -58,7 +59,7 @@
                             </p>
                         </div>
                     </div>
-                    <div class="character-name" @click="queryCharacter(video.combo.character.id)">
+                    <div class="character-name" @click="queryCharacter(video.combo.character)">
                         <p>
                             <span>
                                 <div class="img-container">
@@ -97,7 +98,7 @@
                     <v-btn v-if="isAdmin" @click="editVideo()">
                         <v-icon dark> mdi-wrench </v-icon>
                     </v-btn>
-                    <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
+                    <v-btn v-if="isAdmin" @click="deleteVideo">
                         <v-icon dark> mdi-delete </v-icon>
                     </v-btn>
                     <v-btn
@@ -128,6 +129,26 @@ import { Tweet, Moment, Timeline } from 'vue-tweet-embed';
 import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
+import { gameHrefFromLike, characterPagePath } from '@/utils/game-character-routes';
+
+function mongoIdToString(val) {
+    if (val == null || val === '') {
+        return '';
+    }
+    if (typeof val === 'string' || typeof val === 'number') {
+        return String(val);
+    }
+    if (typeof val === 'object') {
+        if (val.$oid != null) {
+            return String(val.$oid);
+        }
+        if (val._id != null) {
+            return mongoIdToString(val._id);
+        }
+    }
+    return String(val);
+}
 
 export default {
     name: 'ComboCard',
@@ -139,7 +160,12 @@ export default {
 
     props: {
         comboClipId: {
-            type: String,
+            type: [String, Number, Object],
+            default: null,
+        },
+        /** Parent list row often has Video _id before comboClip GET returns (faster delete/patch). */
+        backingVideoId: {
+            type: [String, Number, Object],
             default: null,
         },
         value: {
@@ -189,12 +215,18 @@ export default {
             collections: null,
             showCollections: false,
             isPlaying: false,
+            /** Video.Combos[].Id — distinct from ComboClip _id (comboClipId). */
+            comboDefinitionId: null,
         };
     },
 
     computed: {
         isAdmin() {
             return this.account && this.account.role === 'admin';
+        },
+
+        waypointDomId() {
+            return mongoIdToString(this.comboClipId);
         },
     },
 
@@ -227,11 +259,14 @@ export default {
     },
 
     async created() {
+        var initialVid = mongoIdToString(this.backingVideoId);
+        if (initialVid) {
+            this.video.id = initialVid;
+        }
         if (this.account && this.account.id) {
             this.getCollections();
         }
         await this.getCombo();
-        this.playVideo();
         eventbus.$on('newVideoPosted', this.resetEditing);
     },
 
@@ -241,8 +276,17 @@ export default {
 
     methods: {
         async getCombo() {
-            const response = await CombosService.getComboClip(this.comboClipId);
+            var clipParam = mongoIdToString(this.comboClipId);
+            if (!clipParam) {
+                this.isLoading = false;
+                return;
+            }
+            const response = await CombosService.getComboClip(clipParam);
             var comboResponse = response.data.comboClip[0];
+            if (!comboResponse) {
+                this.isLoading = false;
+                return;
+            }
 
             this.video.combo = {
                 id: comboResponse._id,
@@ -251,6 +295,7 @@ export default {
                     name: comboResponse.Character.Name,
                     avatarUrl: comboResponse.Character.AvatarUrl,
                     imageUrl: comboResponse.Character.ImageUrl,
+                    slug: comboResponse.Character.Slug || null,
                 },
                 damage: comboResponse.Combo.Damage,
                 hits: comboResponse.Combo.Hits,
@@ -268,18 +313,27 @@ export default {
                     title: comboResponse.Game.Title,
                     logoUrl: comboResponse.Game.LogoUrl,
                     id: comboResponse.Game._id,
+                    abbreviation: comboResponse.Game.Abbreviation || null,
                 };
             }
 
-            // Extract video data if available
-            if (comboResponse.Video && comboResponse.Video._id) {
-                this.video.id = comboResponse.Video._id;
-            } else if (comboResponse.VideoId) {
-                this.video.id = comboResponse.VideoId;
-            }
+            var fromClip =
+                (comboResponse.Video &&
+                    (comboResponse.Video._id || comboResponse.Video.Id)) ||
+                comboResponse.VideoId ||
+                comboResponse.videoId;
+
+            this.video.id =
+                mongoIdToString(this.backingVideoId) || mongoIdToString(fromClip) || this.video.id;
 
             this.isPlaying = false;
-            this.video.combo.id = this.comboClipId;
+            this.video.combo.id = clipParam;
+            var rawComboDefId =
+                comboResponse.ComboId ||
+                (comboResponse.Combo && comboResponse.Combo._id) ||
+                null;
+            this.comboDefinitionId =
+                rawComboDefId != null ? mongoIdToString(rawComboDefId) : null;
             this.video.contentType = 'Combo';
             this.video.isFavorited = this.favoriteVideos
                 ? this.favoriteVideos.some((video) => video.id === this.video.id)
@@ -337,47 +391,292 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.isPlaying || this.isFirst) {
+            if (this.isPlaying) {
                 this.player.playVideo();
-                if (this.isPlaying && this.video.combo.startTime) {
+                if (this.video.combo.startTime) {
                     this.setTimer();
                 }
             }
         },
 
         async deleteVideo() {
-            const response = await VideosService.getVideo(this.video.id);
-
-            var comboCount = response.data.video.length;
-            if (comboCount < 1) {
-                await VideosService.deleteVideo(this.video.id);
-            } else {
-                var videos = response.data.video;
-                var filteredCombos = videos.filter((video) => {
-                    return video.Combo._id != this.comboClipId;
-                });
-
-                filteredCombos = filteredCombos.map((combo) => {
-                    return {
-                        Id: combo.ComboId,
-                        StartTime: combo.Combo.StartTime,
-                        EndTime: combo.Combo.EndTime,
-                    };
-                });
-
-                var request = {
-                    id: this.video.id,
-                    Combos: filteredCombos,
-                    GameId: this.video.game.id,
-                };
-                await VideosService.patchVideo(request);
+            if (
+                !window.confirm(
+                    'Delete this combo clip? This cannot be undone.'
+                )
+            ) {
+                return;
             }
-            var comboResponse = await CombosService.deleteCombo(this.comboClipId);
-            this.$emit('video:delete', comboResponse);
+            var clipId = mongoIdToString(this.comboClipId);
+            var vid = mongoIdToString(this.video.id);
+            if (!clipId || !vid) {
+                console.error('deleteVideo: missing comboClipId or video id', {
+                    clipId: clipId,
+                    videoId: vid,
+                });
+                return;
+            }
+            var defId = this.comboDefinitionId;
+            if (!defId) {
+                console.error('deleteVideo: missing combo definition id');
+                return;
+            }
+
+            var defS = mongoIdToString(defId);
+
+            function slotComboDefId(slot) {
+                if (!slot || typeof slot !== 'object') {
+                    return '';
+                }
+                var raw =
+                    slot.Id != null
+                        ? slot.Id
+                        : slot.id != null
+                          ? slot.id
+                          : slot.ComboId != null
+                            ? slot.ComboId
+                            : slot._id != null
+                              ? slot._id
+                              : slot.Combo && slot.Combo._id;
+                return mongoIdToString(raw);
+            }
+
+            function comboDefIdFromRow(row) {
+                var sub = row.Combos || row.combos;
+                if (Array.isArray(sub)) {
+                    if (sub.length === 1) {
+                        sub = sub[0];
+                    } else if (sub.length > 1 && defS) {
+                        var subPick = null;
+                        for (var si = 0; si < sub.length; si++) {
+                            if (slotComboDefId(sub[si]) === defS) {
+                                subPick = sub[si];
+                                break;
+                            }
+                        }
+                        sub = subPick;
+                    } else {
+                        sub = null;
+                    }
+                }
+                var raw =
+                    row.ComboId != null
+                        ? row.ComboId
+                        : row.comboId != null
+                          ? row.comboId
+                          : row.Combo && row.Combo._id
+                            ? row.Combo._id
+                            : sub &&
+                                (sub.Id != null
+                                    ? sub.Id
+                                    : sub.id != null
+                                      ? sub.id
+                                      : sub.ComboId != null
+                                        ? sub.ComboId
+                                        : sub._id);
+                return mongoIdToString(raw);
+            }
+
+            function comboTimesFromRow(row) {
+                var sub = row.Combos || row.combos;
+                if (Array.isArray(sub)) {
+                    if (sub.length === 1) {
+                        sub = sub[0];
+                    } else if (sub.length > 1 && defS) {
+                        var tPick = null;
+                        for (var ti = 0; ti < sub.length; ti++) {
+                            if (slotComboDefId(sub[ti]) === defS) {
+                                tPick = sub[ti];
+                                break;
+                            }
+                        }
+                        sub = tPick;
+                    } else {
+                        sub = null;
+                    }
+                }
+                var startVal =
+                    row.Combo && row.Combo.StartTime != null
+                        ? row.Combo.StartTime
+                        : sub && sub.StartTime != null
+                          ? sub.StartTime
+                          : null;
+                var endVal =
+                    row.Combo && row.Combo.EndTime != null
+                        ? row.Combo.EndTime
+                        : sub &&
+                            (sub.EndTime != null
+                                ? sub.EndTime
+                                : sub.Endtime);
+                return { StartTime: startVal, EndTime: endVal != null ? endVal : null };
+            }
+
+            try {
+                const response = await VideosService.getVideo(vid);
+                var rawVideo = response.data.video;
+                var rows = Array.isArray(rawVideo)
+                    ? rawVideo
+                    : rawVideo != null
+                      ? [rawVideo]
+                      : [];
+
+                var base = rows[0];
+                var slotsRaw = base && (base.Combos || base.combos);
+                var slotsList = null;
+                if (Array.isArray(slotsRaw) && slotsRaw.length > 0) {
+                    slotsList = slotsRaw;
+                } else if (
+                    slotsRaw &&
+                    typeof slotsRaw === 'object' &&
+                    !Array.isArray(slotsRaw)
+                ) {
+                    slotsList = [slotsRaw];
+                } else if (base && base.Combo) {
+                    if (Array.isArray(base.Combo) && base.Combo.length > 0) {
+                        slotsList = base.Combo.map(function (c) {
+                            return {
+                                Id: c._id,
+                                StartTime: c.StartTime,
+                                EndTime: c.EndTime,
+                            };
+                        });
+                    } else if (typeof base.Combo === 'object' && base.Combo._id) {
+                        slotsList = [
+                            {
+                                Id: base.Combo._id,
+                                StartTime:
+                                    base.StartTime != null
+                                        ? base.StartTime
+                                        : base.Combo.StartTime,
+                                EndTime:
+                                    base.EndTime != null ? base.EndTime : base.Combo.EndTime,
+                            },
+                        ];
+                    }
+                }
+                var combosPayload = [];
+                var shouldDeleteVideo = false;
+
+                // API shape A: one document per video with Combos as array or single subdoc
+                if (rows.length === 1 && base && slotsList && slotsList.length > 0) {
+                    var remainingSlots = slotsList.filter(function (slot) {
+                        return slotComboDefId(slot) !== defS;
+                    });
+                    if (remainingSlots.length === 0) {
+                        shouldDeleteVideo = true;
+                    } else {
+                        for (var si = 0; si < remainingSlots.length; si++) {
+                            var slot = remainingSlots[si];
+                            var slotIdStr = slotComboDefId(slot);
+                            if (!slotIdStr || !/^[0-9a-fA-F]{24}$/.test(slotIdStr)) {
+                                console.error(
+                                    'deleteVideo: invalid combo Id in Combos[] slot',
+                                    slot
+                                );
+                                return;
+                            }
+                            combosPayload.push({
+                                Id: slotIdStr,
+                                StartTime: slot.StartTime,
+                                EndTime:
+                                    slot.EndTime != null
+                                        ? slot.EndTime
+                                        : slot.Endtime,
+                            });
+                        }
+                    }
+                } else if (
+                    rows.length === 1 &&
+                    base &&
+                    (!slotsList || slotsList.length === 0) &&
+                    defS &&
+                    /^[0-9a-fA-F]{24}$/.test(defS)
+                ) {
+                    // GET video/:id often omits Combos[] but populates Combo; if still missing, removing
+                    // this clip implies dropping the root video when we cannot PATCH remaining slots.
+                    shouldDeleteVideo = true;
+                } else {
+                    // API shape B: unwound — one row per combo slot (Combos is a single subdoc or ComboId set)
+                    var filteredRows = rows.filter(function (row) {
+                        return comboDefIdFromRow(row) !== defS;
+                    });
+
+                    if (filteredRows.length === 0 || rows.length === 0) {
+                        shouldDeleteVideo = true;
+                    } else {
+                        for (var ri = 0; ri < filteredRows.length; ri++) {
+                            var row = filteredRows[ri];
+                            var idStr = comboDefIdFromRow(row);
+                            if (!idStr || !/^[0-9a-fA-F]{24}$/.test(idStr)) {
+                                console.error(
+                                    'deleteVideo: invalid combo Id on row (need 24-char hex)',
+                                    row
+                                );
+                                return;
+                            }
+                            var times = comboTimesFromRow(row);
+                            combosPayload.push({
+                                Id: idStr,
+                                StartTime: times.StartTime,
+                                EndTime: times.EndTime,
+                            });
+                        }
+                    }
+                }
+
+                if (shouldDeleteVideo || rows.length === 0) {
+                    await VideosService.deleteVideo(vid);
+                } else {
+                    var gameIdRaw =
+                        (base && base.GameId != null ? base.GameId : null) ||
+                        (base && base.Game && base.Game._id) ||
+                        (this.video.game && this.video.game.id) ||
+                        null;
+                    var gameIdStr = mongoIdToString(gameIdRaw);
+                    if (!gameIdStr || !/^[0-9a-fA-F]{24}$/.test(gameIdStr)) {
+                        console.error('deleteVideo: invalid game id for patch', gameIdRaw);
+                        return;
+                    }
+                    await VideosService.patchVideo({
+                        id: vid,
+                        GameId: gameIdStr,
+                        ContentCreatorId: base.ContentCreatorId,
+                        Player1Id: base.Player1Id,
+                        Player2Id: base.Player2Id,
+                        Player1CharacterId: base.Player1CharacterId,
+                        Player1Character2Id: base.Player1Character2Id,
+                        Player1Character3Id: base.Player1Character3Id,
+                        Player2CharacterId: base.Player2CharacterId,
+                        Player2Character2Id: base.Player2Character2Id,
+                        Player2Character3Id: base.Player2Character3Id,
+                        WinnerId: base.WinnerId,
+                        Tags: base.Tags,
+                        Combos: combosPayload,
+                    });
+                }
+                var comboDel = await CombosService.deleteComboClip(clipId);
+                this.$emit('video:delete', comboDel);
+            } catch (e) {
+                console.error('deleteVideo failed', e);
+            }
         },
 
-        queryCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        queryCharacter(characterOrId) {
+            var ch =
+                typeof characterOrId === 'object' && characterOrId != null
+                    ? characterOrId
+                    : { id: characterOrId };
+            var path = characterPagePath(this.video.game, ch);
+            if (path) {
+                this.$router.push(path);
+            }
+        },
+
+        queryGame(gameLike) {
+            var path = gameHrefFromLike(gameLike);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         setTimer() {
@@ -399,15 +698,16 @@ export default {
         },
 
         editVideo() {
-            if (!this.comboClipId) {
+            var cid = mongoIdToString(this.comboClipId);
+            if (!cid) {
                 console.error('Combo clip ID is not available for editing');
                 return;
             }
             this.video.isEditing = true;
             eventbus.$emit('open:widget', {
                 name: 'combo',
-                comboClipId: this.comboClipId,
-                videoId: this.video.id,
+                comboClipId: cid,
+                videoId: mongoIdToString(this.video.id),
             });
         },
 
@@ -429,13 +729,28 @@ export default {
 
         onComboWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const isYoutube =
+                this.video.combo.videoType &&
+                String(this.video.combo.videoType).toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.isPlaying = false;
+                this.$emit('input', false);
+                pauseWaypointMedia({
+                    videoType: this.video.combo.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.isPlaying = true;
             }
         },
 

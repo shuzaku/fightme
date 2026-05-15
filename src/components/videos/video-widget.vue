@@ -32,15 +32,15 @@
                 </div>
                 <!--- video --->
                 <div v-if="!videoId" class="video-container">
-                    <v-radio-group dark v-model="video.origin" :mandatory="false">
+                    <v-radio-group v-model="video.origin" dark :mandatory="false">
                         <v-radio label="From the web" value="web"></v-radio>
                         <v-radio label="From my computer" value="computer"></v-radio>
                     </v-radio-group>
                     <div v-if="video.origin == 'web'" class="import-video-container">
                         <v-text-field
-                            dark
                             id="import-video"
                             v-model="importVideoUrl"
+                            dark
                             type="text"
                             placeholder="Video Url"
                         />
@@ -614,16 +614,22 @@ export default {
         },
         async patchVideo() {
             if (this.isValidated) {
+                var combosPayload =
+                    this.video.contentType === 'Combo' && this.video.combos
+                        ? this.video.combos.map((combo) => {
+                              return {
+                                  Id: combo.id,
+                                  StartTime: combo.startTime,
+                                  EndTime: combo.endTime,
+                              };
+                          })
+                        : [];
+
                 var videoRequest = {
                     id: this.video.id,
                     Tags: this.video.tags,
-                    GameId: this.video.gameid,
-                    Combos:
-                        this.video.ContentType === 'Combo'
-                            ? this.video.combos.map((combo) => {
-                                  return combo.id;
-                              })
-                            : null,
+                    GameId: this.video.gameId,
+                    Combos: combosPayload,
                 };
 
                 await VideosService.patchVideo(videoRequest);

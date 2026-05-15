@@ -10,7 +10,7 @@
 
         <div v-if="isOpen" class="games">
             <div v-for="game in games" :key="game.id">
-                <div class="followed-game" @click="routeToGame(game.id)">
+                <div class="followed-game" @click="routeToGame(game)">
                     <div class="avatar">
                         <img v-if="game.imageUrl" :src="game.imageUrl" />
                         <div v-else class="blank-avatar"></div>
@@ -23,8 +23,10 @@
 </template>
 
 <script>
+import { gameHrefFromLike } from '@/utils/game-character-routes';
+
 export default {
-    name: 'followed-games',
+    name: 'FollowedGames',
     props: {
         initialOpen: {
             type: Boolean,
@@ -74,8 +76,11 @@ export default {
             this.isOpen = false;
         },
 
-        routeToGame(gameId) {
-            this.$router.push(`/game/${gameId}`);
+        routeToGame(game) {
+            var href = gameHrefFromLike(game);
+            if (href) {
+                this.$router.push(href);
+            }
         }
     }
 };

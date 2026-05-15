@@ -3,35 +3,35 @@
     <div class="edit-tournaments">
         <h1>Edit Tournament</h1>
         <v-text-field
-            id="import-image"
-            type="text"
-            v-model="tournament.tournamentImg"
-            placeholder="image Url"
             v-if="!tournament.tournamentImg"
+            id="import-image"
+            v-model="tournament.tournamentImg"
+            type="text"
+            placeholder="image Url"
         />
-        <div class="tournament-img-container" v-if="tournament.tournamentImg">
+        <div v-if="tournament.tournamentImg" class="tournament-img-container">
             <img :src="tournament.tournamentImg" class="tournament-img" />
             <v-btn @click="tournament.tournamentImg = ''">X</v-btn>
         </div>
         <div class="form">
             <div>
                 <input
+                    v-model="tournament.name"
                     type="text"
                     name="name"
                     placeholder="Tournament Name"
-                    v-model="tournament.name"
                 />
             </div>
             <div>
-                <input type="text" name="region" placeholder="Region" v-model="tournament.region" />
+                <input v-model="tournament.region" type="text" name="region" placeholder="Region" />
             </div>
             <!--- game --->
             <game-search v-model="game" :taggable="true" @update:game="setGame($event)" />
             <ul class="list-of-games">
                 <li
                     v-for="game in tournament.selectedGames"
-                    class="tournament-games"
                     :key="game._id"
+                    class="tournament-games"
                 >
                     {{ game.GameTitle }}
                 </li>
@@ -68,6 +68,16 @@ export default {
             game: null,
         };
     },
+
+    computed: {
+        timestamp: function () {
+            return moment().format();
+        },
+    },
+
+    created() {
+        this.getTournament();
+    },
     methods: {
         async getTournament() {
             const response = await TournamentsService.getTournament({
@@ -95,16 +105,6 @@ export default {
         setGame(game) {
             this.tournament.selectedGames = game;
         },
-    },
-
-    computed: {
-        timestamp: function () {
-            return moment().format();
-        },
-    },
-
-    created() {
-        this.getTournament();
     },
 };
 </script>

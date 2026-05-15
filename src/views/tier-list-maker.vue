@@ -21,7 +21,7 @@
                 placeholder="Source (optional)"
                 class="name-input"
             />
-            <button v-if="selectedGameId" @click="openSaveDialog" class="save-btn">
+            <button v-if="selectedGameId" class="save-btn" @click="openSaveDialog">
                 Save Tier List
             </button>
         </div>

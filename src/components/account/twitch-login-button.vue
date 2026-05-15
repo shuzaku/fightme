@@ -20,7 +20,7 @@
 import TwitchLogoSvg from '@/components/svg/twitch-logo-svg';
 
 export default {
-    name: 'twitch-login-button',
+    name: 'TwitchLoginButton',
     components: {
         'twitch-logo-svg': TwitchLogoSvg,
     },

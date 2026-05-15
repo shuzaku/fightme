@@ -3,26 +3,26 @@
     <div class="edit-creators">
         <h1>Edit Creator</h1>
         <v-text-field
-            id="import-image"
-            type="text"
-            v-model="creator.logo"
-            placeholder="image Url"
             v-if="!creator.logo"
+            id="import-image"
+            v-model="creator.logo"
+            type="text"
+            placeholder="image Url"
         />
-        <div class="creator-img-container" v-if="creator.logo">
+        <div v-if="creator.logo" class="creator-img-container">
             <img :src="creator.logo" class="creator-img" />
             <v-btn @click="creator.logo = ''">X</v-btn>
         </div>
         <div class="form">
             <div>
-                <input type="text" name="name" placeholder="Creator Name" v-model="creator.name" />
+                <input v-model="creator.name" type="text" name="name" placeholder="Creator Name" />
             </div>
             <div>
                 <input
+                    v-model="creator.youtubeChannel"
                     type="text"
                     name="youtubeChannel"
                     placeholder="Youtube Channel"
-                    v-model="creator.youtubeChannel"
                 />
             </div>
             <div>
@@ -54,6 +54,16 @@ export default {
             selectedCharacter: null,
         };
     },
+
+    computed: {
+        timestamp: function () {
+            return moment().format();
+        },
+    },
+
+    created() {
+        this.getCreator();
+    },
     methods: {
         async getCreator() {
             const response = await CreatorsService.getCreator({
@@ -83,16 +93,6 @@ export default {
         setCreator(creator) {
             this.creator = creator;
         },
-    },
-
-    computed: {
-        timestamp: function () {
-            return moment().format();
-        },
-    },
-
-    created() {
-        this.getCreator();
     },
 };
 </script>

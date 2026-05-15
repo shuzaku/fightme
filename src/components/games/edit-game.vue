@@ -8,8 +8,8 @@
                 <img :src="game.logoUrl" class="logo-img" />
                 <v-btn small @click="game.logoUrl = ''">Remove</v-btn>
             </div>
-            <v-text-field dark v-model="game.title"   type="text" placeholder="Game Title" />
-            <v-text-field dark v-model="game.logoUrl" type="text" placeholder="Logo URL" />
+            <v-text-field v-model="game.title" dark   type="text" placeholder="Game Title" />
+            <v-text-field v-model="game.logoUrl" dark type="text" placeholder="Logo URL" />
 
             <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
             <div v-if="successMessage" class="success-msg">{{ successMessage }}</div>

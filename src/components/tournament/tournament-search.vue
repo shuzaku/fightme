@@ -47,7 +47,7 @@ function mapTournamentGameEntry(game) {
 }
 
 export default {
-    name: 'tournaments-search',
+    name: 'TournamentsSearch',
     props: {
         tournament: {
             type: Number,

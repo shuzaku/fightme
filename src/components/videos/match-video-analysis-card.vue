@@ -26,6 +26,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: video.match.startTime,
                         end: video.match.endTime,
                     }"
@@ -39,7 +40,7 @@
                 <div class="general">
                     <div class="info">
                         <div class="game">
-                            <div class="game-title" @click="queryGame(video.game.id)">
+                            <div class="game-title" @click="video.game && queryGame(video.game)">
                                 <p>
                                     <span>
                                         <div class="img-container">
@@ -59,7 +60,7 @@
                                 >
                                     <div
                                         class="heavy-weight player-name"
-                                        @click="queryPlayer(team1Player.id)"
+                                        @click="queryPlayer(team1Player)"
                                     >
                                         <p>{{ team1Player.name }}</p>
                                     </div>
@@ -71,7 +72,7 @@
                                         >
                                             <div
                                                 class="character-name"
-                                                @click="queryCharacter(character.id)"
+                                                @click="queryCharacter(character)"
                                             >
                                                 <p>
                                                     <span>
@@ -94,7 +95,7 @@
                                 >
                                     <div
                                         class="heavy-weight player-name"
-                                        @click="queryPlayer(team2Player.id)"
+                                        @click="queryPlayer(team2Player)"
                                     >
                                         <p>{{ team2Player.name }}</p>
                                     </div>
@@ -106,7 +107,7 @@
                                         >
                                             <div
                                                 class="character-name"
-                                                @click="queryCharacter(character.id)"
+                                                @click="queryCharacter(character)"
                                             >
                                                 <p>
                                                     <span>
@@ -222,7 +223,7 @@
                         :key="team2Player.id"
                         class="player"
                     >
-                        <div class="heavy-weight player-name" @click="queryPlayer(team2Player.id)">
+                        <div class="heavy-weight player-name" @click="queryPlayer(team2Player)">
                             <p>{{ team2Player.name }}</p>
                         </div>
                         <div class="characters">
@@ -231,7 +232,7 @@
                                 :key="index"
                                 class="character"
                             >
-                                <div class="character-name" @click="queryCharacter(character.id)">
+                                <div class="character-name" @click="queryCharacter(character)">
                                     <p>
                                         <span>
                                             <div class="img-container">
@@ -327,7 +328,7 @@
                         :key="team1Player.id"
                         class="player"
                     >
-                        <div class="heavy-weight player-name" @click="queryPlayer(team1Player.id)">
+                        <div class="heavy-weight player-name" @click="queryPlayer(team1Player)">
                             <p>{{ team1Player.name }}</p>
                         </div>
                         <div class="characters">
@@ -336,7 +337,7 @@
                                 :key="index"
                                 class="character"
                             >
-                                <div class="character-name" @click="queryCharacter(character.id)">
+                                <div class="character-name" @click="queryCharacter(character)">
                                     <p>
                                         <span>
                                             <div class="img-container">
@@ -490,6 +491,8 @@ import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
 import moment from 'moment';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
+import { gameHrefFromLike, characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
     name: 'VideoCard',
@@ -665,12 +668,14 @@ export default {
             var matchResponse = response.data.matches[0];
             this.video.match = {
                 team1Players: matchResponse.Team1Players.map((player) => {
+                    const t1 = matchResponse.Team1Player.find(
+                        (searchPlayer) => searchPlayer._id === player.Id
+                    );
                     return {
                         id: player.Id,
                         slot: player.Slot,
-                        name: matchResponse.Team1Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
+                        name: t1 ? t1.Name : '',
+                        slug: t1 ? t1.Slug || null : null,
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team1PlayerCharacters
@@ -678,12 +683,14 @@ export default {
                     };
                 }),
                 team2Players: matchResponse.Team2Players.map((player) => {
+                    const t2 = matchResponse.Team2Player.find(
+                        (searchPlayer) => searchPlayer._id === player.Id
+                    );
                     return {
                         id: player.Id,
                         slot: player.Slot,
-                        name: matchResponse.Team2Player.filter(
-                            (searchPlayer) => searchPlayer._id === player.Id
-                        )[0].Name,
+                        name: t2 ? t2.Name : '',
+                        slug: t2 ? t2.Slug || null : null,
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team2PlayerCharacters
@@ -722,14 +729,21 @@ export default {
 
         hydrateCharacters(characterIds, characters) {
             var playerCharacters = [];
+            if (!characterIds || !characters) {
+                return playerCharacters;
+            }
 
             characterIds.forEach((id) => {
                 var filteredCharacter = characters.filter((character) => character._id === id);
-                playerCharacters.push({
-                    name: filteredCharacter[0].Name ? filteredCharacter[0].Name : null,
-                    id: filteredCharacter[0]._id,
-                    imageUrl: filteredCharacter[0].AvatarUrl,
-                });
+                var fc = filteredCharacter[0];
+                if (fc) {
+                    playerCharacters.push({
+                        name: fc.Name ? fc.Name : null,
+                        id: fc._id,
+                        slug: fc.Slug || null,
+                        imageUrl: fc.AvatarUrl,
+                    });
+                }
             });
             return playerCharacters;
         },
@@ -745,6 +759,7 @@ export default {
                 title: videoResponse.Game.Title,
                 logoUrl: videoResponse.Game.LogoUrl,
                 id: videoResponse.Game._id,
+                abbreviation: videoResponse.Game.Abbreviation || null,
             };
             this.video.isPlaying = false;
             this.video.id = videoResponse._id;
@@ -778,9 +793,9 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying || this.isFirst) {
+            if (this.video.isPlaying) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.startTime) {
                     this.setTimer();
                 }
             }
@@ -799,16 +814,27 @@ export default {
             this.$emit('video:delete', matchResponse);
         },
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+        queryPlayer(player) {
+            var path = playerPagePath(player);
+            if (path) { this.$router.push(path); }
         },
 
-        queryCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        queryCharacter(characterOrId) {
+            var ch =
+                typeof characterOrId === 'object' && characterOrId != null
+                    ? characterOrId
+                    : { id: characterOrId };
+            var path = characterPagePath(this.video.game, ch);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
-        queryGame(gameId) {
-            this.$router.push(`/game/${gameId}`);
+        queryGame(gameLike) {
+            var path = gameHrefFromLike(gameLike);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         setTimer() {
@@ -906,13 +932,27 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.video.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.video.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const vt = this.video && this.video.videoType;
+            const isYoutube = typeof vt === 'string' && vt.toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.video.isPlaying = false;
+                this.$emit('input', false);
+                pauseWaypointMedia({
+                    videoType: this.video.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.video.isPlaying = true;
             }
         },
 

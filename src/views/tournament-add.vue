@@ -31,7 +31,7 @@
                     :video-id="video.url"
                     :player-width="600"
                     :player-height="338"
-                    :player-vars="{ rel: 0 }"
+                    :player-vars="{ rel: 0, autoplay: 0 }"
                 />
                 <div
                     v-for="(match, index) in tournament.matches"

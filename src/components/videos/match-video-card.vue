@@ -25,6 +25,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: video.match.startTime,
                         end: video.match.endTime,
                     }"
@@ -37,7 +38,7 @@
             <div v-if="!video.isEditing" class="aside">
                 <div class="info">
                     <div class="game">
-                        <div class="game-title" @click="video.game.id && queryGame(video.game.id)">
+                        <div class="game-title" @click="video.game && queryGame(video.game)">
                             <img :src="video.game.logoUrl" />
                         </div>
                     </div>
@@ -50,7 +51,7 @@
                             >
                                 <div
                                     class="heavy-weight player-name"
-                                    @click="queryPlayer(team1Player.id)"
+                                    @click="queryPlayer(team1Player)"
                                 >
                                     <p>{{ team1Player.name }}</p>
                                 </div>
@@ -62,7 +63,7 @@
                                     >
                                         <div
                                             class="character-name"
-                                            @click="queryCharacter(character.id)"
+                                            @click="queryCharacter(character)"
                                         >
                                             <p>
                                                 <span>
@@ -85,7 +86,7 @@
                             >
                                 <div
                                     class="heavy-weight player-name"
-                                    @click="queryPlayer(team2Player.id)"
+                                    @click="queryPlayer(team2Player)"
                                 >
                                     <p>{{ team2Player.name }}</p>
                                 </div>
@@ -97,7 +98,7 @@
                                     >
                                         <div
                                             class="character-name"
-                                            @click="queryCharacter(character.id)"
+                                            @click="queryCharacter(character)"
                                         >
                                             <p>
                                                 <span>
@@ -171,13 +172,15 @@ import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 
 import { eventbus } from '@/main';
+import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
+import { gameHrefFromLike, characterPagePath, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
-    inheritAttrs: false,
     name: 'VideoCard',
     components: {
         'collection-search': CollectionSearch,
     },
+    inheritAttrs: false,
 
     props: {
         matchId: {
@@ -213,7 +216,7 @@ export default {
                 isPlaying: false,
                 url: null,
                 isFavorited: false,
-                game: { title: '', logoUrl: '', id: null },
+                game: { title: '', logoUrl: '', id: null, abbreviation: null },
             },
             intersectionOptions: {
                 root: null,
@@ -270,7 +273,6 @@ export default {
             this.getCollections();
         }
         this.getMatch();
-        this.playVideo();
     },
 
     methods: {
@@ -307,6 +309,7 @@ export default {
                         id: player.Id,
                         slot: player.Slot,
                         name: team1 ? team1.Name : '',
+                        slug: team1 ? team1.Slug || null : null,
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team1PlayerCharacters
@@ -321,6 +324,7 @@ export default {
                         id: player.Id,
                         slot: player.Slot,
                         name: team2 ? team2.Name : '',
+                        slug: team2 ? team2.Slug || null : null,
                         characters: this.hydrateCharacters(
                             player.CharacterIds,
                             matchResponse.Team2PlayerCharacters
@@ -341,6 +345,7 @@ export default {
                     title: gFromMatch.Title || '',
                     logoUrl: gFromMatch.LogoUrl || '',
                     id: gFromMatch._id,
+                    abbreviation: gFromMatch.Abbreviation || null,
                 };
             }
             this.getVideo();
@@ -384,6 +389,7 @@ export default {
                     playerCharacters.push({
                         name: filteredCharacter.Name ? filteredCharacter.Name : null,
                         id: filteredCharacter._id,
+                        slug: filteredCharacter.Slug || null,
                         imageUrl: filteredCharacter.AvatarUrl,
                     });
                 }
@@ -445,9 +451,9 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.video.isPlaying || this.isFirst) {
+            if (this.video.isPlaying) {
                 this.player.playVideo();
-                if (this.video.isPlaying && this.video.startTime) {
+                if (this.video.startTime) {
                     this.setTimer();
                 }
             }
@@ -466,16 +472,27 @@ export default {
             this.$emit('video:delete', matchResponse);
         },
 
-        queryPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+        queryPlayer(player) {
+            var path = playerPagePath(player);
+            if (path) { this.$router.push(path); }
         },
 
-        queryCharacter(characterId) {
-            this.$router.push(`/character/${characterId}`);
+        queryCharacter(characterOrId) {
+            var ch =
+                typeof characterOrId === 'object' && characterOrId != null
+                    ? characterOrId
+                    : { id: characterOrId };
+            var path = characterPagePath(this.video.game, ch);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
-        queryGame(gameId) {
-            this.$router.push(`/game/${gameId}`);
+        queryGame(gameLike) {
+            var path = gameHrefFromLike(gameLike);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         setTimer() {
@@ -552,13 +569,27 @@ export default {
 
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
-            if (objectId) {
-                if (going === this.$waypointMap.GOING_IN && direction) {
-                    this.video.isPlaying = true;
-                }
-                if (going === this.$waypointMap.GOING_OUT && direction) {
-                    this.video.isPlaying = false;
-                }
+            if (!objectId) {
+                return;
+            }
+            const vt = this.video && this.video.videoType;
+            const isYoutube = typeof vt === 'string' && vt.toLowerCase() === 'youtube';
+
+            if (going === this.$waypointMap.GOING_OUT) {
+                this.video.isPlaying = false;
+                this.$emit('input', false);
+                pauseWaypointMedia({
+                    videoType: this.video.videoType,
+                    videoRef: this.$refs.videoRef,
+                    youtubePlayer:
+                        this.player ||
+                        (this.$refs.youtubeRef && this.$refs.youtubeRef.player) ||
+                        null,
+                });
+                return;
+            }
+            if (going === this.$waypointMap.GOING_IN && direction && !isYoutube) {
+                this.video.isPlaying = true;
             }
         },
 

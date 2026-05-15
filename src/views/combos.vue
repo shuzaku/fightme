@@ -11,6 +11,7 @@
                     v-if="video.contentType === 'Combo'"
                     v-model="video.isPlaying"
                     :comboClipId="video.comboClipId"
+                    :backingVideoId="video.backingVideoId"
                     :account="account"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     @video:delete="refreshDelete()"
@@ -139,27 +140,18 @@ export default {
 
             const response = await VideosService.queryVideos(queryParameter);
             this.hydrateVideos(response);
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
-            }
         },
 
         hydrateVideos(response) {
             response.data.videos.forEach((video) => {
                 this.videos.push({
                     comboClipId: video.ComboClip ? video.ComboClip._id : null,
+                    backingVideoId: video._id || video.Id || null,
                     contentType: video.ContentType,
                     isEditing: false,
                     isPlaying: false,
                 });
             });
-        },
-
-        playFirstVideo() {
-            if (this.videos.length) {
-                this.videos[0].isPlaying = true;
-                this.isLoading = false;
-            }
         },
 
         handleScroll() {

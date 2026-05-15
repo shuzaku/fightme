@@ -43,7 +43,7 @@
 
 <script>
 export default {
-    name: 'tournament-card',
+    name: 'TournamentCard',
     components: {},
 
     props: {

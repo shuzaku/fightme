@@ -2,13 +2,23 @@
 <template>
     <div class="game-videos">
         <div v-if="selectedVideoType === 'Combos'">
-            <game-combos :account="account" />
+            <game-combos :account="account" :gameId="gameId" />
         </div>
         <div v-else-if="selectedVideoType === 'Online Matches'">
-            <game-online-matches :account="account" :teamChar1="teamChar1" :teamChar2="teamChar2" />
+            <game-online-matches
+                :account="account"
+                :teamChar1="teamChar1"
+                :teamChar2="teamChar2"
+                :gameId="gameId"
+            />
         </div>
         <div v-else-if="selectedVideoType === 'Tournament Matches'">
-            <game-tournament-matches :account="account" :teamChar1="teamChar1" :teamChar2="teamChar2" />
+            <game-tournament-matches
+                :account="account"
+                :teamChar1="teamChar1"
+                :teamChar2="teamChar2"
+                :gameId="gameId"
+            />
         </div>
     </div>
 </template>
@@ -37,6 +47,11 @@ export default {
         },
         teamChar1: { type: String, default: null },
         teamChar2: { type: String, default: null },
+        /** Resolved Mongo game _id (required when route uses /game/:abbrev). */
+        gameId: {
+            type: String,
+            default: null,
+        },
     },
 
     data() {

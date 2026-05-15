@@ -5,32 +5,32 @@
         <div class="form">
             <div>
                 <v-text-field
+                    v-model="contentCreator.name"
                     dark
                     type="text"
                     name="name"
                     placeholder="Creator Name"
-                    v-model="contentCreator.name"
                 />
 
                 <v-text-field
-                    dark
-                    id="import-image"
-                    type="text"
-                    v-model="contentCreator.logoUrl"
-                    placeholder="Logo Url"
                     v-if="!contentCreator.logoUrl"
+                    id="import-image"
+                    v-model="contentCreator.logoUrl"
+                    dark
+                    type="text"
+                    placeholder="Logo Url"
                 />
-                <div class="creator-img-container" v-if="contentCreator.logoUrl">
+                <div v-if="contentCreator.logoUrl" class="creator-img-container">
                     <img :src="contentCreator.logoUrl" class="creator-img" />
                     <v-btn @click="contentCreator.logoUrl = ''">X</v-btn>
                 </div>
 
                 <v-text-field
+                    v-model="contentCreator.youtubeUrl"
                     dark
                     type="text"
                     name="youtubeChannel"
                     placeholder="Youtube Channel"
-                    v-model="contentCreator.youtubeUrl"
                 />
             </div>
             <div>
@@ -45,8 +45,8 @@ import CreatorsService from '@/services/creators-service';
 import moment from 'moment';
 
 export default {
-    components: {},
     name: 'NewCreator',
+    components: {},
     data() {
         return {
             contentCreator: {
@@ -55,6 +55,14 @@ export default {
                 youtubeUrl: null,
             },
         };
+    },
+    computed: {
+        timestamp: function () {
+            return moment().format();
+        },
+    },
+    mounted() {
+        this.getCreators();
     },
     methods: {
         async addCreator() {
@@ -74,14 +82,6 @@ export default {
         collectCreatorIds() {
             this.creatorIds = this.selectedCreators.map((x) => x._id);
         },
-    },
-    computed: {
-        timestamp: function () {
-            return moment().format();
-        },
-    },
-    mounted() {
-        this.getCreators();
     },
 };
 </script>

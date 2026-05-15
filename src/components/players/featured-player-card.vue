@@ -11,7 +11,7 @@
 
 <script>
 export default {
-    name: 'featured-player-card',
+    name: 'FeaturedPlayerCard',
     components: {},
 
     props: {

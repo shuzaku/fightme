@@ -1,7 +1,11 @@
 <!-- @format -->
 <template>
     <div ref="videoViewRef" class="game-view">
-        <loading v-if="loading"></loading>
+        <loading v-if="!gameResolveFailed && (resolvingGame || !resolvedGameId || loading)"></loading>
+        <div v-else-if="gameResolveFailed" class="game-not-found">
+            <p>We could not find that game. Check the link or browse all games.</p>
+            <v-btn text color="primary" :to="{ name: 'Games' }">Games</v-btn>
+        </div>
         <div v-else class="character-container">
             <game-nav
                 v-if="!loading"
@@ -67,21 +71,26 @@
 
             <game-team-filter
                 v-if="isTeamGame"
-                :gameId="gameId"
                 :key="gameId"
+                :gameId="gameId"
                 @change="onTeamFilterChange"
             />
-            <explore-characters v-else :gameId="gameId" :key="gameId" />
+            <explore-characters
+                v-else
+                :key="gameId"
+                :gameId="gameId"
+            />
             <div v-if="featuredVideos && featuredVideos.length > 0" class="featured-videos">
                 <h2>🎥 Featured Videos</h2>
                 <div class="videos">
                     <youtube-media
                         v-for="video in featuredVideos"
                         :key="video.id"
-                        :video-id="video.url"
                         ref="youtubeRef"
+                        :video-id="video.url"
                         :player-width="350"
                         :player-height="200"
+                        :player-vars="{ autoplay: 0 }"
                         :mute="true"
                         :playsinline="1"
                     />
@@ -113,6 +122,7 @@
                 >
                     <game-videos
                         id="game-videos"
+                        :gameId="gameId"
                         :selectedVideoType="selectedVideoType"
                         :teamChar1="teamChar1"
                         :teamChar2="teamChar2"
@@ -189,6 +199,8 @@ import moment from 'moment';
 import { eventbus } from '@/main';
 import { setPageTitle } from '@/services/og-meta-service';
 
+import { resolveGameIdFromRouteParam } from '@/utils/game-character-routes';
+
 export default {
     name: 'Game',
 
@@ -208,9 +220,40 @@ export default {
         },
     },
 
+    data() {
+        return {
+            resolvingGame: false,
+            resolvedGameId: null,
+            gameResolveFailed: false,
+            loading: false,
+            game: {
+                id: null,
+                name: null,
+                logo: null,
+                abbreviation: null,
+            },
+            activeContentTab: 'online',
+            teamChar1: null,
+            teamChar2: null,
+            stats: {
+                characters: 0,
+                matches: 0,
+                tournaments: 0,
+                combos: 0,
+            },
+            featuredVideos: null,
+            tierLists: [],
+            statsLoading: false,
+            gameUpdates: [],
+        };
+    },
+
     computed: {
+        gameRouteParam() {
+            return this.$route.params.gameKey;
+        },
         gameId: function () {
-            return this.$route.params.id;
+            return this.resolvedGameId || '';
         },
         isNewGame: function () {
             if (this.statsLoading) return false;
@@ -252,32 +295,17 @@ export default {
         },
     },
 
-    data() {
-        return {
-            loading: false,
-            game: {
-                id: this.gameId,
-                name: null,
-                logo: null,
-            },
-            activeContentTab: 'online',
-            teamChar1: null,
-            teamChar2: null,
-            stats: {
-                characters: 0,
-                matches: 0,
-                tournaments: 0,
-                combos: 0,
-            },
-            featuredVideos: null,
-            tierLists: [],
-            statsLoading: false,
-            gameUpdates: [],
-        };
-    },
-
     watch: {
-        gameId: function () {
+        gameRouteParam: {
+            immediate: true,
+            handler() {
+                this.resolveGameFromRoute();
+            },
+        },
+        resolvedGameId: function (id) {
+            if (!id) {
+                return;
+            }
             this.getGame();
             this.getGameStats();
             this.getFeaturedVideos();
@@ -294,11 +322,6 @@ export default {
     },
 
     mounted() {
-        this.getGame();
-        this.getGameStats();
-        this.getFeaturedVideos();
-        this.getTierLists();
-        this.getGameUpdates();
         this.$nextTick(() => {
             this.ensureActiveContentTab();
         });
@@ -307,7 +330,28 @@ export default {
     beforeDestroy() {},
 
     methods: {
+        async resolveGameFromRoute() {
+            this.gameResolveFailed = false;
+            var param = this.gameRouteParam;
+            if (!param) {
+                this.resolvedGameId = null;
+                return;
+            }
+            this.resolvingGame = true;
+            try {
+                var id = await resolveGameIdFromRouteParam(param);
+                this.resolvedGameId = id || null;
+                this.gameResolveFailed = !this.resolvedGameId;
+            } finally {
+                this.resolvingGame = false;
+            }
+        },
+
         async getGame() {
+            if (!this.gameId) {
+                this.loading = false;
+                return;
+            }
             this.loading = true;
 
             const response = await GamesService.getGame({
@@ -319,6 +363,7 @@ export default {
                 id: game._id,
                 name: game.Title,
                 logo: game.LogoUrl || null,
+                abbreviation: game.Abbreviation || null,
             };
             setPageTitle(
                 `${game.Title} matches & combos`,
@@ -329,6 +374,9 @@ export default {
         },
 
         async getGameStats() {
+            if (!this.gameId) {
+                return;
+            }
             this.statsLoading = true;
             try {
                 const response = await GamesService.getGameStats({
@@ -419,6 +467,10 @@ export default {
         },
 
         getFeaturedVideos() {
+            if (!this.gameId) {
+                this.featuredVideos = [];
+                return;
+            }
             var queryParameter = {
                 limit: 3,
                 sort: '_id',
@@ -781,6 +833,17 @@ export default {
 .game-view .game-content-panel {
     background: transparent;
     padding-top: 0;
+}
+
+.game-view .game-not-found {
+    text-align: center;
+    padding: 120px 24px;
+    color: #fff;
+}
+
+.game-view .game-not-found p {
+    margin-bottom: 16px;
+    opacity: 0.9;
 }
 
 .game-view .tier-lists-grid {

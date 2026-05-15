@@ -5,12 +5,12 @@
         <div class="form">
             <div>
                 <v-text-field
+                    v-model="videoUrl"
                     dark
                     type="text"
                     name="videoUrl"
                     label="YouTube URL or Video ID"
                     placeholder="YouTube URL or Video ID"
-                    v-model="videoUrl"
                 />
 
                 <creator-search

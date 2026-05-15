@@ -247,10 +247,6 @@ export default {
 
             this.isLoading = false;
             this.isLoadingMore = false;
-
-            if (this.videos.length > 0 && this.videos.length < 6) {
-                this.videos[0].isPlaying = true;
-            }
         },
 
         hydrateVideos(response) {

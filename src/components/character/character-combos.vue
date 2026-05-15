@@ -12,7 +12,9 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :comboClipId="video.comboClipId"
+                    :backingVideoId="video.backingVideoId"
                     :account="account"
+                    @video:delete="removeComboAt(index)"
                 />
             </div>
         </div>
@@ -22,6 +24,7 @@
 <script>
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import VideosService from '@/services/videos-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 
 export default {
     name: 'CharacterCombos',
@@ -46,6 +49,7 @@ export default {
             filter: null,
             sort: null,
             isLast: false,
+            loading: false,
         };
     },
 
@@ -62,6 +66,7 @@ export default {
     watch: {
         characterId: function () {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },
@@ -78,18 +83,21 @@ export default {
     methods: {
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
             this.queryVideos();
         },
 
         filterbyTag(filter) {
             this.videos = [];
+            this.isLast = false;
             this.tagFilter = filter;
             this.queryVideos();
         },
 
         refreshQuery(newQuery) {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos(newQuery);
         },
 
@@ -101,41 +109,59 @@ export default {
         },
 
         async queryVideos(newQuery) {
-            var queryParameter = {
-                skip: this.skip,
-                sort: this.sort,
-                filter: 'Combo',
-                searchQuery: [
-                    {
-                        queryName: 'CharacterId',
-                        queryValue: this.characterId,
-                    },
-                ],
-                sort: null,
-            };
+            if (this.isLast || this.loading) {
+                return;
+            }
+            this.loading = true;
+            this.isLoading = true;
+            try {
+                var queryParameter = {
+                    skip: this.skip,
+                    sort: this.sort,
+                    filter: 'Combo',
+                    searchQuery: [
+                        {
+                            queryName: 'CharacterId',
+                            queryValue: this.characterId,
+                        },
+                    ],
+                    sort: null,
+                };
 
-            const response = await VideosService.queryComboClips(queryParameter);
-            this.hydrateVideos(response);
-            this.isLoading = false;
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
+                const response = await VideosService.queryComboClips(queryParameter);
+                const batch = response.data.videos || [];
+                if (batch.length === 0) {
+                    this.isLast = true;
+                } else {
+                    this.hydrateVideos(response);
+                }
+            } catch (e) {
+                console.error('queryVideos error:', e);
+            } finally {
+                this.loading = false;
+                this.isLoading = false;
             }
         },
 
         hydrateVideos(response) {
             response.data.videos.forEach((video) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
+                    comboClipId: video.ComboClip
+                        ? video.ComboClip._id
+                        : video._id || null,
+                    backingVideoId:
+                        video.VideoId ||
+                        (video.Video && (video.Video._id || video.Video.Id)) ||
+                        null,
                     contentType: video.ContentType,
                     isEditing: false,
                     isPlaying: false,
+                    isFirst: false,
                 });
             });
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         onWaypoint({ el, going, direction }) {
@@ -151,17 +177,19 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
+            if (isNearDocumentBottom() && !this.isLoading) {
                 this.queryVideos();
             }
         },
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
+        },
+
+        removeComboAt(index) {
+            this.videos.splice(index, 1);
         },
     },
 };

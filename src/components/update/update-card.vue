@@ -32,7 +32,7 @@
 
 <script>
 export default {
-    name: 'update-card',
+    name: 'UpdateCard',
     components: {},
 
     props: {

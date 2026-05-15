@@ -11,6 +11,7 @@
                     :player-height="313"
                     :player-vars="{
                         rel: 0,
+                        autoplay: 0,
                         start: video.match.startTime,
                         end: video.match.endTime,
                     }"
@@ -481,9 +482,9 @@ export default {
 
         ready(event) {
             this.player = event.target;
-            if (this.isPlaying || this.isFirst) {
+            if (this.isPlaying) {
                 this.player.playVideo();
-                if (this.isPlaying && this.video.startTime) {
+                if (this.video.startTime) {
                     this.setTimer();
                 }
             }

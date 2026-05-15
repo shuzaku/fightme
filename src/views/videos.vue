@@ -20,8 +20,10 @@
                     v-model="video.isPlaying"
                     :isFirst="video.isFirst"
                     :comboClipId="video.comboClipId"
+                    :backingVideoId="video.backingVideoId"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :account="account"
+                    @video:delete="removeVideoAt(index)"
                 />
             </div>
         </div>
@@ -108,6 +110,7 @@ export default {
             response.data.videos.forEach((video) => {
                 this.videos.push({
                     comboClipId: video.ComboClip ? video.ComboClip._id : null,
+                    backingVideoId: video._id || video.Id || null,
                     matchId: video.Match ? video.Match._id : null,
                     contentType: video.ContentType,
                     isEditing: false,
@@ -117,11 +120,6 @@ export default {
             if (this.videos.length > 0) {
                 this.videos[0].isFirst = true;
             }
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
         },
 
         onWaypoint({ el, going, direction }) {
@@ -148,6 +146,10 @@ export default {
         addedNewVideo() {
             this.videos = [];
             this.fetchVideos();
+        },
+
+        removeVideoAt(index) {
+            this.videos.splice(index, 1);
         },
 
         checkFavorites() {

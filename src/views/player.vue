@@ -25,15 +25,15 @@
 
                 <tournament-match-video-card
                     v-if="video.contentType === 'Tournament Match'"
-                    :video="video"
                     v-model="video.isPlaying"
+                    :video="video"
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :account="account"
                     :matchId="video.matchId"
                 />
             </div>
         </div>
-        <div v-else-if="(videos.length = 0 && !loading)" class="no-videos">
+        <div v-else-if="videos.length === 0 && !isLoading" class="no-videos">
             <h2>Unable to find any videos</h2>
         </div>
         <loading v-show="isLoading"></loading>
@@ -51,6 +51,8 @@ import TournamentMatchService from '@/services/tournament-match-service';
 import { setOgMeta, playerOgUrl } from '@/services/og-meta-service';
 import PlayersService from '@/services/players-service';
 import { injectJsonLd, removeJsonLd, buildPerson } from '@/services/json-ld-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
+import { MONGO_OBJECT_ID_RE } from '@/utils/game-character-routes';
 
 export default {
     name: 'Player',
@@ -80,6 +82,7 @@ export default {
             sort: null,
             isTournament: false,
             isLast: false,
+            loading: false,
         };
     },
 
@@ -88,22 +91,32 @@ export default {
             return this.videos.length;
         },
 
-        playerId: function () {
+        /** Raw route param — may be a Mongo ID or a slug. */
+        routeParam: function () {
             return this.$route.params.id;
         },
 
+        /** Populated only when the route param is a 24-char hex Mongo ID. */
+        playerId: function () {
+            var p = this.routeParam;
+            return p && MONGO_OBJECT_ID_RE.test(p) ? p : null;
+        },
+
+        /** Populated when the route param is a human-readable slug. */
         playerSlug: function () {
-            return this.$route.params.slug;
+            var p = this.routeParam;
+            return p && !MONGO_OBJECT_ID_RE.test(p) ? p : null;
         },
     },
 
     watch: {
-        playerId: function () {
+        routeParam: function () {
             this.isLoading = true;
             this.videos = [];
+            this.isLast = false;
+            this.filter = null;
             window.scrollTo(0, 0);
             this.queryVideos();
-            this.isLoading = false;
         },
     },
 
@@ -168,12 +181,22 @@ export default {
 
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
+            this.queryVideos();
+        },
+
+        filterQuery(filter) {
+            this.videos = [];
+            this.filter = filter;
+            this.isLast = false;
+            this.isTournament = false;
             this.queryVideos();
         },
 
         refreshQuery(newQuery) {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos(newQuery);
         },
 
@@ -184,38 +207,47 @@ export default {
                 this.isLast = false;
             }
             if (!this.isLast && !this.loading) {
+                this.loading = true;
                 this.isLoading = true;
-                var queryParameter = {
-                    skip: this.skip,
-                    sort: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'PlayerId',
-                            queryValue: this.playerId,
-                        },
-                    ],
-                };
+                try {
+                    var queryParameter = {
+                        skip: this.skip,
+                        sort: this.sort,
+                        searchQuery: [
+                            {
+                                queryName: 'PlayerId',
+                                queryValue: this.playerId,
+                            },
+                        ],
+                    };
 
-                if (this.playerSlug) {
-                    queryParameter.searchQuery[0].queryName = 'PlayerSlug';
-                    queryParameter.searchQuery[0].queryValue = this.playerSlug;
+                    if (this.playerSlug) {
+                        queryParameter.searchQuery[0].queryName = 'PlayerSlug';
+                        queryParameter.searchQuery[0].queryValue = this.playerSlug;
+                    }
+
+                    // Apply persistent game/character filter from player-nav
+                    if (this.filter) {
+                        queryParameter.searchQuery.push(this.filter);
+                    }
+
+                    if (newQuery) {
+                        queryParameter.searchQuery.push(newQuery);
+                    }
+
+                    const response = await MatchesService.queryMatchesByPlayer(queryParameter);
+
+                    if (response.data.matches.length === 0) {
+                        this.isLast = true;
+                    } else {
+                        this.hydrateVideos(response);
+                    }
+                } catch (e) {
+                    console.error('queryVideos error:', e);
+                } finally {
+                    this.loading = false;
+                    this.isLoading = false;
                 }
-
-                if (newQuery) {
-                    queryParameter.searchQuery.push(newQuery);
-                }
-
-                const response = await MatchesService.queryMatchesByPlayer(queryParameter);
-
-                if (response.data.matches.length === 0) {
-                    this.isLast = true;
-                }
-
-                this.hydrateVideos(response);
-                if (this.videos.length < 6 && this.videos.length > 0) {
-                    this.playFirstVideo();
-                }
-                this.isLoading = false;
             }
         },
 
@@ -228,11 +260,9 @@ export default {
                     contentType: 'Match',
                 });
             });
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         onWaypoint({ el, going, direction }) {
@@ -248,10 +278,7 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
+            if (isNearDocumentBottom() && !this.isLoading) {
                 if (this.isTournament) {
                     this.queryTournamentMatches();
                 } else {
@@ -262,6 +289,7 @@ export default {
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
 
@@ -289,32 +317,45 @@ export default {
                 this.isLast = false;
             }
             if (!this.isLast && !this.loading) {
+                this.loading = true;
                 this.isLoading = true;
+                try {
+                    var queryParameter = {
+                        skip: this.skip,
+                        sort: this.sort,
+                        searchQuery: [
+                            {
+                                queryName: 'PlayerId',
+                                queryValue: this.playerId,
+                            },
+                        ],
+                    };
 
-                var queryParameter = {
-                    skip: this.skip,
-                    sort: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'PlayerId',
-                            queryValue: this.playerId,
-                        },
-                    ],
-                };
+                    if (this.playerSlug) {
+                        queryParameter.searchQuery[0].queryName = 'PlayerSlug';
+                        queryParameter.searchQuery[0].queryValue = this.playerSlug;
+                    }
 
-                const response = await TournamentMatchService.queryTournamentMatches(
-                    queryParameter
-                );
+                    // Apply persistent game/character filter from player-nav
+                    if (this.filter) {
+                        queryParameter.searchQuery.push(this.filter);
+                    }
 
-                if (response.data.matches.length === 0) {
-                    this.isLast = true;
+                    const response = await TournamentMatchService.queryTournamentMatches(
+                        queryParameter
+                    );
+
+                    if (response.data.matches.length === 0) {
+                        this.isLast = true;
+                    } else {
+                        this.hydrateTournamentVideos(response);
+                    }
+                } catch (e) {
+                    console.error('queryTournamentMatches error:', e);
+                } finally {
+                    this.loading = false;
+                    this.isLoading = false;
                 }
-
-                this.hydrateTournamentVideos(response);
-                if (this.videos.length > 0 && this.videos.length < 6) {
-                    this.playFirstVideo();
-                }
-                this.isLoading = false;
             }
         },
 
@@ -334,12 +375,14 @@ export default {
                     },
                     match: {
                         team1Players: video.Team1Players.map((player) => {
+                            var p1 = video.Team1Player.find(
+                                (searchPlayer) => searchPlayer._id === player.Id
+                            );
                             return {
                                 id: player.Id,
                                 slot: player.Slot,
-                                name: video.Team1Player.filter(
-                                    (searchPlayer) => searchPlayer._id === player.Id
-                                )[0].Name,
+                                name: p1 ? p1.Name : '',
+                                slug: p1 ? p1.Slug || null : null,
                                 characters: this.hydrateCharacters(
                                     player.CharacterIds,
                                     video.Team1PlayerCharacters
@@ -347,12 +390,14 @@ export default {
                             };
                         }),
                         team2Players: video.Team2Players.map((player) => {
+                            var p2 = video.Team2Player.find(
+                                (searchPlayer) => searchPlayer._id === player.Id
+                            );
                             return {
                                 id: player.Id,
                                 slot: player.Slot,
-                                name: video.Team2Player.filter(
-                                    (searchPlayer) => searchPlayer._id === player.Id
-                                )[0].Name,
+                                name: p2 ? p2.Name : '',
+                                slug: p2 ? p2.Slug || null : null,
                                 characters: this.hydrateCharacters(
                                     player.CharacterIds,
                                     video.Team2PlayerCharacters

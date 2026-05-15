@@ -77,7 +77,6 @@
                             rounded
                             large
                             block
-                            @click="submit"
                             :disabled="
                                 !game.id ||
                                 !player1.id ||
@@ -85,6 +84,7 @@
                                 !player1.character ||
                                 !player2.character
                             "
+                            @click="submit"
                         >
                             <i class="fas fa-magic"></i> Generate Content
                         </v-btn>
@@ -165,7 +165,7 @@ import PlayerSearch from '@/components/players/player-search';
 import CharacterSearch from '@/components/character/character-search';
 
 export default {
-    name: 'Tag Generator',
+    name: 'TagGenerator',
 
     components: {
         'game-search': GameSearch,

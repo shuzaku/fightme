@@ -3,8 +3,8 @@
     <div v-if="videos.length > 0" class="character-tournament-matches">
         <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
             <tournament-match-video-card
-                :video="video"
                 v-model="video.isPlaying"
+                :video="video"
                 :favoriteVideos="account ? account.favoriteVideos : null"
                 :account="account"
                 :matchId="video.matchId"
@@ -15,6 +15,7 @@
 
 <script>
 import TournamentMatchService from '@/services/tournament-match-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
 import Loading from '@/components/common/loading';
 
@@ -60,6 +61,7 @@ export default {
     watch: {
         characterId: function () {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },
@@ -76,18 +78,21 @@ export default {
     methods: {
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
             this.queryVideos();
         },
 
         filterbyTag(filter) {
             this.videos = [];
+            this.isLast = false;
             this.tagFilter = filter;
             this.queryVideos();
         },
 
         refreshQuery(newQuery) {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos(newQuery);
         },
 
@@ -101,29 +106,35 @@ export default {
         async queryVideos() {
             if (!this.isLast && !this.loading) {
                 this.loading = true;
+                try {
+                    var queryParameter = {
+                        skip: this.skip,
+                        sort: this.sort,
+                        searchQuery: [
+                            {
+                                queryName: 'CharacterId',
+                                queryValue: this.characterId,
+                            },
+                        ],
+                        filter: this.filter,
+                    };
 
-                var queryParameter = {
-                    skip: this.skip,
-                    sort: this.sort,
-                    searchQuery: [
-                        {
-                            queryName: 'CharacterId',
-                            queryValue: this.characterId,
-                        },
-                    ],
-                    filter: this.filter,
-                };
+                    const response = await TournamentMatchService.queryTournamentMatches(
+                        queryParameter
+                    );
 
-                const response = await TournamentMatchService.queryTournamentMatches({
-                    searchQuery: queryParameter ? queryParameter.searchQuery : null,
-                });
-
-                this.hydrateVideos(response);
-                if (this.videos.length > 0 && this.videos.length < 6) {
-                    this.playFirstVideo();
+                    const batch = response.data.matches || [];
+                    if (batch.length === 0) {
+                        this.isLast = true;
+                    } else {
+                        this.hydrateVideos(response);
+                    }
+                } catch (e) {
+                    console.error('queryVideos error:', e);
+                } finally {
+                    this.loading = false;
+                    this.isLoading = false;
                 }
-                this.isLast = true;
-                this.loading = false;
             }
         },
 
@@ -215,11 +226,6 @@ export default {
             return seconds;
         },
 
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
-        },
-
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             var featuredVideo = this.videos.find((video) => video.matchId === objectId);
@@ -233,20 +239,14 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
-                if (this.isTournament) {
-                    this.queryTournamentMatches();
-                } else {
-                    this.queryVideos();
-                }
+            if (isNearDocumentBottom() && !this.loading) {
+                this.queryVideos();
             }
         },
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },

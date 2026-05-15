@@ -10,7 +10,7 @@
 
         <div v-if="isOpen" class="players">
             <div v-for="player in players" :key="player.id">
-                <div class="followed-player" @click="routeToPlayer(player.id)">
+                <div class="followed-player" @click="routeToPlayer(player)">
                     <div class="avatar">
                         <img v-if="player.imageUrl" :src="player.imageUrl" />
                         <div v-else class="blank-avatar"></div>
@@ -23,8 +23,10 @@
 </template>
 
 <script>
+import { playerPagePath } from '@/utils/game-character-routes';
+
 export default {
-    name: 'followed-players',
+    name: 'FollowedPlayers',
     props: {
         initialOpen: {
             type: Boolean,
@@ -74,8 +76,9 @@ export default {
             this.isOpen = false;
         },
 
-        routeToPlayer(playerId) {
-            this.$router.push(`/player/${playerId}`);
+        routeToPlayer(player) {
+            var path = playerPagePath(player);
+            if (path) { this.$router.push(path); }
         }
     }
 };

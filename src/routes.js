@@ -1,5 +1,4 @@
 
-import Videos from './views/videos.vue';
 import Player from './views/player.vue';
 import Character from './views/character.vue';
 import Combos from './views/combos.vue';
@@ -16,7 +15,6 @@ import FavoriteCombos from './views/favorite-combos.vue';
 import Montages from './views/montages.vue';
 import MatchUps from './views/matchups.vue';
 import Test from './views/test.vue';
-import Explore from './views/explore.vue';
 import Favorites from './views/favorites.vue';
 import Collections from './views/collections.vue';
 import Collection from './views/collection.vue';
@@ -114,7 +112,12 @@ const routes = [
             description: 'Every major fighting game with indexed matches, characters, combos, and tournament data.',
         },
     },
-    { path: '/game/:id', name: 'Game', component: Game },
+    {
+        path: '/game/:gameKey/character/:characterKey',
+        name: 'Game Character',
+        component: Character,
+    },
+    { path: '/game/:gameKey', name: 'Game', component: Game },
     { path: '/home', name: 'HomeLegacy', component: Home },
     {
         path: '/montages/',

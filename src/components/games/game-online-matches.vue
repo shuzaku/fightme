@@ -17,22 +17,25 @@
 
 <script>
 import MatchesService from '@/services/matches-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 
 import MatchVideoCard from '@/components/videos/match-video-card';
-import Loading from '@/components/common/loading';
 
 export default {
     name: 'GameOnlineMatches',
 
     components: {
         'match-video-card': MatchVideoCard,
-        loading: Loading,
     },
 
     props: {
         account: { type: Object, default: null },
         teamChar1: { type: String, default: null },
         teamChar2: { type: String, default: null },
+        gameId: {
+            type: String,
+            default: null,
+        },
     },
 
     data() {
@@ -53,17 +56,24 @@ export default {
             return this.videos.length;
         },
 
-        gameId: function () {
-            return this.$route.params.id;
+        effectiveGameId: function () {
+            if (this.gameId != null && this.gameId !== '') {
+                return this.gameId;
+            }
+            var legacyId = this.$route.params.id;
+            if (legacyId && /^[0-9a-fA-F]{24}$/.test(String(legacyId))) {
+                return String(legacyId);
+            }
+            return '';
         },
 
         isTeamGame() {
-            return this.gameId === '68cba126f261500022897969';
+            return this.effectiveGameId === '68cba126f261500022897969';
         },
     },
 
     watch: {
-        gameId: function () {
+        effectiveGameId: function () {
             this.videos = [];
             this.queryVideos();
         },
@@ -93,9 +103,9 @@ export default {
             this.queryVideos();
         },
 
-        refreshQuery(newQuery) {
+        refreshQuery() {
             this.videos = [];
-            this.queryVideos(newQuery);
+            this.queryVideos();
         },
 
         filterQuery(filter) {
@@ -111,8 +121,14 @@ export default {
             this.queryVideos();
         },
 
-        async queryVideos(newQuery) {
+        async queryVideos() {
+            if (!this.effectiveGameId) {
+                this.loading = false;
+                this.isLoading = false;
+                return;
+            }
             if (!this.isLast && !this.loading) {
+                this.loading = true;
                 this.isLoading = true;
                 try {
                     let response;
@@ -121,7 +137,7 @@ export default {
                     if (teamFilterActive) {
                         response = await MatchesService.queryMatchesByTeam({
                             skip: this.skip,
-                            gameId: this.gameId,
+                            gameId: this.effectiveGameId,
                             char1: this.teamChar1 || undefined,
                             char2: this.teamChar2 || undefined,
                         });
@@ -129,7 +145,7 @@ export default {
                         var queryParameter = {
                             skip: this.skip,
                             sort: this.sort,
-                            searchQuery: [{ queryName: 'GameId', queryValue: this.gameId }],
+                            searchQuery: [{ queryName: 'GameId', queryValue: this.effectiveGameId }],
                             filter: this.filter,
                         };
                         if (this.gameSlug) {
@@ -145,8 +161,10 @@ export default {
                     this.hydrateVideos(response);
                 } catch (e) {
                     console.error('queryVideos error:', e);
+                } finally {
+                    this.loading = false;
+                    this.isLoading = false;
                 }
-                this.isLoading = false;
             }
         },
 
@@ -198,11 +216,6 @@ export default {
             return seconds;
         },
 
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
-        },
-
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             var featuredVideo = this.videos.find((video) => video.matchId === objectId);
@@ -216,15 +229,8 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
-                if (this.isTournament) {
-                    this.queryTournamentMatches();
-                } else {
-                    this.queryVideos();
-                }
+            if (isNearDocumentBottom() && !this.isLoading) {
+                this.queryVideos();
             }
         },
 

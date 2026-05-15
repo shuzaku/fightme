@@ -12,7 +12,9 @@
                     :favoriteVideos="account ? account.favoriteVideos : null"
                     :isFirst="video.isFirst"
                     :comboClipId="video.comboClipId"
+                    :backingVideoId="video.backingVideoId"
                     :account="account"
+                    @video:delete="removeComboAt(index)"
                 />
             </div>
         </div>
@@ -22,21 +24,22 @@
 <script>
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import VideosService from '@/services/videos-service';
-
-import Loading from '@/components/common/loading';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 
 export default {
     name: 'GameCombos',
 
     components: {
         'combo-video-card': ComboVideoCard,
-
-        loading: Loading,
     },
 
     props: {
         account: {
             type: Object,
+            default: null,
+        },
+        gameId: {
+            type: String,
             default: null,
         },
     },
@@ -59,14 +62,22 @@ export default {
             return this.videos.length;
         },
 
-        gameId: function () {
-            return this.$route.params.id;
+        effectiveGameId: function () {
+            if (this.gameId != null && this.gameId !== '') {
+                return this.gameId;
+            }
+            var legacyId = this.$route.params.id;
+            if (legacyId && /^[0-9a-fA-F]{24}$/.test(String(legacyId))) {
+                return String(legacyId);
+            }
+            return '';
         },
     },
 
     watch: {
-        gameId: function () {
+        effectiveGameId: function () {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
     },
@@ -83,19 +94,22 @@ export default {
     methods: {
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
             this.queryVideos();
         },
 
         filterbyTag(filter) {
             this.videos = [];
+            this.isLast = false;
             this.tagFilter = filter;
             this.queryVideos();
         },
 
-        refreshQuery(newQuery) {
+        refreshQuery() {
             this.videos = [];
-            this.queryVideos(newQuery);
+            this.isLast = false;
+            this.queryVideos();
         },
 
         filterQuery(filter) {
@@ -105,25 +119,42 @@ export default {
             this.queryVideos();
         },
 
-        async queryVideos(newQuery) {
-            this.videos = [];
-            var queryParameter = {
-                skip: this.skip,
-                sort: this.sort,
-                filter: 'Combo',
-                searchQuery: [
-                    {
-                        queryName: 'GameId',
-                        queryValue: this.gameId,
-                    },
-                ],
-                sort: null,
-            };
+        async queryVideos() {
+            if (this.isLast || this.loading) {
+                return;
+            }
+            if (!this.effectiveGameId) {
+                this.loading = false;
+                this.isLoading = false;
+                return;
+            }
+            this.loading = true;
+            this.isLoading = true;
+            try {
+                var queryParameter = {
+                    skip: this.skip,
+                    sort: this.sort,
+                    filter: 'Combo',
+                    searchQuery: [
+                        {
+                            queryName: 'GameId',
+                            queryValue: this.effectiveGameId,
+                        },
+                    ],
+                };
 
-            const response = await VideosService.queryVideos(queryParameter);
-            this.hydrateVideos(response);
-            if (this.videos.length < 6) {
-                this.playFirstVideo();
+                const response = await VideosService.queryVideos(queryParameter);
+                const batch = response.data.videos || [];
+                if (batch.length === 0) {
+                    this.isLast = true;
+                } else {
+                    this.hydrateVideos(response);
+                }
+            } catch (e) {
+                console.error('queryVideos error:', e);
+            } finally {
+                this.loading = false;
+                this.isLoading = false;
             }
         },
 
@@ -131,16 +162,16 @@ export default {
             response.data.videos.forEach((video) => {
                 this.videos.push({
                     comboClipId: video.ComboClip ? video.ComboClip._id : null,
+                    backingVideoId: video._id || video.Id || null,
                     contentType: video.ContentType,
                     isEditing: false,
                     isPlaying: false,
+                    isFirst: false,
                 });
             });
-        },
-
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.loading = false;
+            if (this.videos.length > 0) {
+                this.videos[0].isFirst = true;
+            }
         },
 
         onWaypoint({ el, going, direction }) {
@@ -156,17 +187,19 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
+            if (isNearDocumentBottom() && !this.isLoading) {
                 this.queryVideos();
             }
         },
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
+        },
+
+        removeComboAt(index) {
+            this.videos.splice(index, 1);
         },
     },
 };

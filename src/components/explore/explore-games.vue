@@ -14,7 +14,7 @@ import GamesService from '@/services/games-service';
 import GameCard from '@/components/games/game-card';
 
 export default {
-    name: 'explore-games',
+    name: 'ExploreGames',
     components: {
         'game-card': GameCard,
     },
@@ -51,13 +51,10 @@ export default {
                     featuredCharacter: game.FeaturedCharacter,
                     newCharacter: game.NewCharacter,
                     featuredPlayer: game.FeaturedPlayer,
+                    abbreviation: game.Abbreviation || null,
                 };
             });
             this.games = this.games.reverse();
-        },
-
-        navigate(id) {
-            this.$router.push(`/game/${id}`);
         },
     },
 };

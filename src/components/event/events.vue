@@ -15,11 +15,11 @@ import EventCard from '@/components/event/event-card';
 import moment from 'moment';
 
 export default {
+
+    name: 'Events',
     components: {
         'event-card': EventCard,
     },
-
-    name: 'events',
 
     props: {},
 

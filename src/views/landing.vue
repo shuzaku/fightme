@@ -285,12 +285,17 @@ export default {
         getRecentCharacters() {
             CharactersService.fetchRecentCharacters({ limit: 6, sort: 'releaseDate', sortDirection: 'desc' })
                 .then((response) => {
-                    this.recentCharacters = response.data.characters.map((c) => ({
-                        id: c._id,
-                        name: c.Name,
-                        imageUrl: c.ImageUrl,
-                        avatarUrl: c.AvatarUrl,
-                    }));
+                    this.recentCharacters = response.data.characters.map((c) => {
+                        var game = c.Game && c.Game[0];
+                        return {
+                            id: c._id,
+                            name: c.Name,
+                            imageUrl: c.ImageUrl,
+                            avatarUrl: c.AvatarUrl,
+                            slug: c.Slug || null,
+                            gameAbbrev: game && game.Abbreviation ? game.Abbreviation : null,
+                        };
+                    });
                 })
                 .catch(() => {});
         },

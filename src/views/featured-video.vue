@@ -111,11 +111,6 @@ export default {
             }
         },
 
-        playFirstVideo() {
-            this.videos[0].isPlaying = true;
-            this.isLoading = false;
-        },
-
         onWaypoint({ el, going, direction }) {
             var objectId = el.id;
             var featuredVideo = this.videos.find((video) => video.matchId === objectId);

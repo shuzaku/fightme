@@ -15,7 +15,7 @@ import FeaturedPlayersService from '@/services/featured-players-service';
 import FeaturedPlayerCard from '@/components/players/featured-player-card';
 
 export default {
-    name: 'explore-featured-players',
+    name: 'ExploreFeaturedPlayers',
     components: {
         'featured-player-card': FeaturedPlayerCard,
     },

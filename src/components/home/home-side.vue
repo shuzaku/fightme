@@ -51,17 +51,17 @@ export default {
 
     computed: {},
 
-    methods: {
-        navigate(route) {
-            this.$router.push(route);
-        },
-    },
-
     mounted() {},
 
     created() {},
 
     beforeDestroy() {},
+
+    methods: {
+        navigate(route) {
+            this.$router.push(route);
+        },
+    },
 };
 </script>
 

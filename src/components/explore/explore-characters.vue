@@ -5,10 +5,10 @@
             <div
                 v-for="character in characters"
                 :key="character.id"
-                class="character"
                 v-tooltip="character.name"
+                class="character"
             >
-                <img :src="character.imageUrl" @click="navigate(character.id)" />
+                <img :src="character.imageUrl" @click="navigate(character)" />
             </div>
         </div>
     </div>
@@ -16,9 +16,10 @@
 
 <script>
 import CharactersService from '@/services/characters-service';
+import { characterPathSegment } from '@/utils/game-character-routes';
 
 export default {
-    name: 'explore-character',
+    name: 'ExploreCharacter',
     components: {},
 
     props: {
@@ -62,8 +63,11 @@ export default {
             });
         },
 
-        navigate(id) {
-            this.$router.push(`/character/${id}`);
+        navigate(character) {
+            var seg = characterPathSegment(character);
+            if (seg) {
+                this.$router.push(`/character/${encodeURIComponent(seg)}`);
+            }
         },
     },
 };
