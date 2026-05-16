@@ -52,6 +52,24 @@
                 </a>
             </div>
 
+            <div v-if="character.players && character.players.length" class="top-players overview-card">
+                <h3>Top Players</h3>
+                <div class="top-players-list">
+                    <router-link
+                        v-for="player in character.players"
+                        :key="player.id"
+                        :to="player.slug ? '/player/' + player.slug : '/player/' + player.id"
+                        class="top-player-row"
+                    >
+                        <div class="top-player-avatar">
+                            <img v-if="player.imageUrl" :src="player.imageUrl" :alt="player.name" />
+                            <span v-else class="top-player-initials">{{ playerInitials(player.name) }}</span>
+                        </div>
+                        <span class="top-player-name">{{ player.name }}</span>
+                    </router-link>
+                </div>
+            </div>
+
             <div v-if="selectedVideoType === 'Matchups'" class="overview-card">
                 <h3>Matchup Vs.</h3>
                 <character-search
@@ -155,6 +173,10 @@ export default {
     methods: {
         setCharacter2Id(character) {
             this.$emit('character2Id:update', character.id);
+        },
+        playerInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('');
         },
     },
 };
@@ -331,6 +353,67 @@ export default {
 
 .character-overview .strengths-weaknesses p {
     margin-bottom: 8px;
+}
+
+/* ── Top Players ──────────────────────────────── */
+.character-overview .top-players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.character-overview .top-player-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: #ffffff08;
+    border: 1px solid #ffffff10;
+    text-decoration: none;
+    color: #c0c4e0;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.character-overview .top-player-row:hover {
+    background: #3eb48918;
+    border-color: #3eb48960;
+    color: #3eb489;
+}
+
+.character-overview .top-player-avatar {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid #ffffff20;
+    background: #1c1f27;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-overview .top-player-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.character-overview .top-player-initials {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #6a6ef5;
+}
+
+.character-overview .top-player-name {
+    font-size: 0.88rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mobile .character-overview {

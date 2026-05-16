@@ -318,8 +318,15 @@ export default {
     },
 
     watch: {
-        playerId() {
-            this.getPlayer();
+        playerId(val) {
+            if (val) this.getPlayer();
+        },
+        playerSlug(val) {
+            if (val) {
+                this.player = { id: null, name: null, imageUrl: null, accountId: null, gamesPlayed: [] };
+                this.activeFilter = null;
+                this.getPlayerBySlug();
+            }
         },
     },
 
@@ -592,7 +599,6 @@ export default {
 /* ── Container ─────────────────────────────────────── */
 .player-nav {
     width: 100%;
-    max-width: 600px;
     margin-bottom: 40px;
     display: flex;
     flex-direction: column;
@@ -865,6 +871,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
+    box-sizing: border-box;
     transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
     flex-shrink: 0;
 }
@@ -883,6 +891,7 @@ export default {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .player-nav .char-initials {

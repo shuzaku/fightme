@@ -265,6 +265,8 @@ export default {
                 return {
                     name: player.Name,
                     id: player._id,
+                    slug: player.Slug || null,
+                    imageUrl: player.ImageUrl || null,
                 };
             });
         },
