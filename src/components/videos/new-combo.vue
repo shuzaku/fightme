@@ -40,7 +40,6 @@
                     <div v-if="!comboClipId" class="video-container">
                         <div class="import-video-container">
                             <div class="input-wrapper">
-                                <i class="fas fa-link input-icon"></i>
                                 <v-text-field
                                     id="import-video"
                                     v-model="importVideoUrl"
@@ -122,7 +121,6 @@
 <script>
 import moment from 'moment';
 import UploadVideo from '@/components/videos/upload-video';
-import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
 
 import GameSearch from '@/components/games/game-search';
@@ -211,11 +209,11 @@ export default {
         },
 
         isValidated: function () {
-            if (this.video.url && this.video.gameId && this.video.combos[0].id) {
-                return true;
-            } else {
-                return false;
-            }
+            const combo = this.video.combos[0];
+            const hasCharacter = Array.isArray(combo.characterId)
+                ? combo.characterId.length > 0
+                : !!combo.characterId;
+            return !!(this.video.url && hasCharacter);
         },
     },
 
@@ -253,29 +251,9 @@ export default {
             this.isSubmitting = true;
             try {
                 if (!this.comboClipId) {
-                    await this.validateVideo();
+                    await this.addClips();
                 } else {
-                    // Update combo
-                    if (this.video.combos && this.video.combos.length > 0) {
-                        const combo = this.video.combos[0];
-                        await CombosService.patchCombo({
-                            id: combo.id,
-                            CharacterId: Array.isArray(combo.characterId)
-                                ? combo.characterId[0]
-                                : combo.characterId,
-                            Inputs: combo.inputs,
-                            Damage: combo.damage,
-                            Hits: combo.hits,
-                            Tags: combo.tags || [],
-                        });
-                    }
-                    // Update combo clip times if needed
-                    if (this.video.combos && this.video.combos.length > 0) {
-                        const combo = this.video.combos[0];
-                        // Note: You may need to add a patchComboClip method if start/end times need updating
-                    }
-                    this.$emit('closeModal');
-                    eventbus.$emit('newVideoPosted');
+                    await this.patchClip();
                 }
             } catch (error) {
                 console.error('Error submitting combo:', error);
@@ -285,35 +263,43 @@ export default {
             }
         },
 
-        async validateVideo() {
-            await VideosService.validateVideo({
+        async addClips() {
+            const combo = this.video.combos[0];
+            await CombosService.addComboClip({
+                CharacterId: Array.isArray(combo.characterId) ? combo.characterId[0] : combo.characterId,
+                Inputs: combo.inputs ? [combo.inputs] : [],
+                Damage: combo.damage,
+                Hits: combo.hits,
+                Tags: combo.tags || [],
                 Url: this.video.url,
-                GameId: this.video.gameId,
-                Combos: this.video.combos.map((combo) => {
-                    return {
-                        CharacterId: Array.isArray(combo.characterId)
-                            ? combo.characterId
-                            : [combo.characterId],
-                        Inputs: combo.inputs,
-                        Damage: combo.damage,
-                        Hits: combo.hits,
-                        StartTime: combo.startTime,
-                        EndTime: combo.endTime,
-                        Note: combo.note,
-                    };
-                }),
-                VideoUrl: this.video.url,
-                SubmittedBy: this.account.id,
-                UpdatedBy: this.account.id,
-                ContentType: 'Combo',
-                ContentCreatorId: this.video.contentCreatorId || null,
                 VideoType: this.video.type,
-                Tags: this.video.tags,
-                StartTime: this.video.startTime,
-                EndTime: this.video.endTime,
+                StartTime: combo.startTime,
+                EndTime: combo.endTime,
+                SubmittedBy: this.account ? this.account.id : null,
             });
 
             this.$emit('closeModal');
+            eventbus.$emit('newVideoPosted');
+        },
+
+        async patchClip() {
+            const combo = this.video.combos[0];
+            await CombosService.patchComboClip({
+                id: this.comboClipId,
+                CharacterId: Array.isArray(combo.characterId) ? combo.characterId[0] : combo.characterId,
+                Inputs: combo.inputs ? [combo.inputs] : [],
+                Damage: combo.damage,
+                Hits: combo.hits,
+                Tags: combo.tags || [],
+                Url: this.video.url,
+                VideoType: this.video.type,
+                StartTime: combo.startTime,
+                EndTime: combo.endTime,
+                UpdatedBy: this.account ? this.account.id : null,
+            });
+
+            this.$emit('closeModal');
+            eventbus.$emit('newVideoPosted');
         },
 
         importYoutube() {
@@ -389,18 +375,12 @@ export default {
                 var comboResponse = response.data.comboClip[0];
 
                 if (comboResponse) {
-                    // Set video data
-                    this.video.id = comboResponse.Video ? comboResponse.Video._id : null;
                     this.video.url = comboResponse.Url;
                     this.video.type = comboResponse.VideoType
                         ? comboResponse.VideoType.toLowerCase()
                         : 'youtube';
                     this.video.gameId = comboResponse.Game ? comboResponse.Game._id : null;
-                    this.video.contentCreatorId = comboResponse.Video
-                        ? comboResponse.Video.ContentCreatorId
-                        : null;
 
-                    // Set import video URL for display
                     if (this.video.type === 'youtube') {
                         this.importVideoUrl = `https://www.youtube.com/watch?v=${this.video.url}`;
                     } else if (this.video.type === 'twitter') {
@@ -409,43 +389,30 @@ export default {
                         this.importVideoUrl = this.video.url;
                     }
 
-                    // Set combo data
-                    if (comboResponse.Combo) {
-                        // Ensure characterId is an array
-                        let characterIdArray = [];
-                        if (comboResponse.Combo.CharacterId) {
-                            characterIdArray = Array.isArray(comboResponse.Combo.CharacterId)
-                                ? comboResponse.Combo.CharacterId
-                                : [comboResponse.Combo.CharacterId];
-                        }
+                    const characterId = comboResponse.CharacterId
+                        ? [comboResponse.CharacterId]
+                        : [];
 
-                        // Get inputs - could be array or string
-                        let inputsValue = '';
-                        if (comboResponse.Combo.Inputs) {
-                            if (
-                                Array.isArray(comboResponse.Combo.Inputs) &&
-                                comboResponse.Combo.Inputs.length > 0
-                            ) {
-                                inputsValue = comboResponse.Combo.Inputs[0];
-                            } else if (typeof comboResponse.Combo.Inputs === 'string') {
-                                inputsValue = comboResponse.Combo.Inputs;
-                            }
-                        }
-
-                        this.video.combos = [
-                            {
-                                id: comboResponse.Combo._id,
-                                characterId: characterIdArray,
-                                damage: comboResponse.Combo.Damage || '',
-                                hits: comboResponse.Combo.Hits || '',
-                                inputs: inputsValue,
-                                startTime: comboResponse.StartTime || '',
-                                endTime: comboResponse.EndTime || '',
-                                note: comboResponse.Combo.Note || '',
-                                isExpanded: true,
-                            },
-                        ];
+                    let inputsValue = '';
+                    if (Array.isArray(comboResponse.Inputs) && comboResponse.Inputs.length > 0) {
+                        inputsValue = comboResponse.Inputs[0];
+                    } else if (typeof comboResponse.Inputs === 'string') {
+                        inputsValue = comboResponse.Inputs;
                     }
+
+                    this.video.combos = [
+                        {
+                            id: comboResponse._id,
+                            characterId: characterId,
+                            damage: comboResponse.Damage || '',
+                            hits: comboResponse.Hits || '',
+                            inputs: inputsValue,
+                            startTime: comboResponse.StartTime || '',
+                            endTime: comboResponse.EndTime || '',
+                            note: '',
+                            isExpanded: true,
+                        },
+                    ];
                 }
             } catch (error) {
                 console.error('Error loading combo clip:', error);
@@ -569,17 +536,6 @@ export default {
 .new-combo .import-video-container .input-wrapper {
     position: relative;
     margin-bottom: 12px;
-}
-
-.new-combo .import-video-container .input-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ffffff60;
-    z-index: 2;
-    font-size: 18px;
-    pointer-events: none;
 }
 
 .new-combo .import-video-container .v-text-field--outlined >>> .v-input__slot {

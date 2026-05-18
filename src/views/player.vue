@@ -32,6 +32,39 @@
                     :matchId="video.matchId"
                 />
             </div>
+
+            <div v-if="isLast" class="feed-end">
+                <v-icon class="feed-end-icon">mdi-check-circle-outline</v-icon>
+                <p class="feed-end-title">You're all caught up</p>
+                <p v-if="!isTournament" class="feed-end-subtitle">
+                    No more online matches for this player. Check out their tournament footage or explore related content.
+                </p>
+                <p v-else class="feed-end-subtitle">
+                    No more tournament matches for this player. Check out their online matches or explore related content.
+                </p>
+                <div class="feed-end-actions">
+                    <v-btn v-if="!isTournament" small outlined class="feed-end-btn" @click="queryTournamentMatches()">
+                        Tournament Matches
+                    </v-btn>
+                    <v-btn v-else small outlined class="feed-end-btn" @click="queryVideos()">
+                        Online Matches
+                    </v-btn>
+                    <v-btn
+                        v-if="suggestedCharacterId"
+                        small outlined class="feed-end-btn"
+                        @click="$router.push(`/character/${suggestedCharacterSlug || suggestedCharacterId}`)"
+                    >
+                        Browse Character
+                    </v-btn>
+                    <v-btn
+                        v-if="suggestedGameId"
+                        small outlined class="feed-end-btn"
+                        @click="$router.push(`/game/${suggestedGameId}`)"
+                    >
+                        Browse Game
+                    </v-btn>
+                </div>
+            </div>
         </div>
         <div v-else-if="videos.length === 0 && !isLoading" class="no-videos">
             <h2>Unable to find any videos</h2>
@@ -83,6 +116,9 @@ export default {
             isTournament: false,
             isLast: false,
             loading: false,
+            suggestedGameId: null,
+            suggestedCharacterId: null,
+            suggestedCharacterSlug: null,
         };
     },
 
@@ -115,6 +151,9 @@ export default {
             this.videos = [];
             this.isLast = false;
             this.filter = null;
+            this.suggestedGameId = null;
+            this.suggestedCharacterId = null;
+            this.suggestedCharacterSlug = null;
             window.scrollTo(0, 0);
             this.queryVideos();
         },
@@ -262,6 +301,9 @@ export default {
             });
             if (this.videos.length > 0) {
                 this.videos[0].isFirst = true;
+            }
+            if (!this.suggestedGameId && response.data.matches.length > 0) {
+                this.captureSuggestions(response.data.matches[0]);
             }
         },
 
@@ -415,6 +457,52 @@ export default {
                     },
                 });
             });
+            if (!this.suggestedGameId && response.data.matches.length > 0) {
+                this.captureSuggestions(response.data.matches[0]);
+            }
+        },
+
+        captureSuggestions(match) {
+            // Capture game
+            if (match.GameId) {
+                this.suggestedGameId = String(match.GameId);
+            } else if (match.Game && match.Game[0]) {
+                this.suggestedGameId = String(match.Game[0]._id);
+            }
+
+            // Find the current player in the match to get their character
+            const currentId = this.playerId;
+            const currentSlug = this.playerSlug;
+            let matchedEntry = null;
+            let teamChars = null;
+
+            const findInTeam = (players, joinedPlayers, characters) => {
+                if (!players) return null;
+                let entry = null;
+                if (currentId) {
+                    entry = players.find((p) => String(p.Id) === String(currentId));
+                } else if (currentSlug && joinedPlayers) {
+                    const joined = joinedPlayers.find(
+                        (p) => p.Slug && p.Slug.toLowerCase() === currentSlug.toLowerCase()
+                    );
+                    if (joined) {
+                        entry = players.find((p) => String(p.Id) === String(joined._id));
+                    }
+                }
+                if (entry) teamChars = characters;
+                return entry;
+            };
+
+            matchedEntry =
+                findInTeam(match.Team1Players, match.Team1Player, match.Team1PlayerCharacters) ||
+                findInTeam(match.Team2Players, match.Team2Player, match.Team2PlayerCharacters);
+
+            if (matchedEntry && matchedEntry.CharacterIds && matchedEntry.CharacterIds.length > 0) {
+                const charId = matchedEntry.CharacterIds[0];
+                const charObj = teamChars && teamChars.find((c) => String(c._id) === String(charId));
+                this.suggestedCharacterId = charObj ? String(charObj._id) : String(charId);
+                this.suggestedCharacterSlug = charObj && charObj.Slug ? charObj.Slug : null;
+            }
         },
 
         hydrateCharacters(characterIds, characters) {

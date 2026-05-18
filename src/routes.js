@@ -117,6 +117,26 @@ const routes = [
         name: 'Game Character',
         component: Character,
     },
+    {
+        path: '/game/:gameKey/character/:characterKey/combos',
+        name: 'Game Character Combos Tab',
+        component: Character,
+    },
+    {
+        path: '/game/:gameKey/character/:characterKey/online-matches',
+        name: 'Game Character Online Matches Tab',
+        component: Character,
+    },
+    {
+        path: '/game/:gameKey/character/:characterKey/tournament-matches',
+        name: 'Game Character Tournament Matches Tab',
+        component: Character,
+    },
+    {
+        path: '/game/:gameKey/character/:characterKey/matchups',
+        name: 'Game Character Matchups Tab',
+        component: Character,
+    },
     { path: '/game/:gameKey', name: 'Game', component: Game },
     { path: '/home', name: 'HomeLegacy', component: Home },
     {
@@ -142,8 +162,15 @@ const routes = [
     { path: '/player/:id', name: 'Player', component: Player },
     { path: '/p/:slug', name: 'PlayerSlug', component: Player },
     { path: '/character/:id', name: 'Character', component: Character },
+    { path: '/character/:id/combos', name: 'Character Combos Tab', component: Character },
+    { path: '/character/:id/online-matches', name: 'Character Online Matches Tab', component: Character },
+    { path: '/character/:id/tournament-matches', name: 'Character Tournament Matches Tab', component: Character },
+    { path: '/character/:id/matchups', name: 'Character Matchups Tab', component: Character },
     { path: '/c/:slug', name: 'CharacterSlug', component: Character },
-    { path: '/character/:id/combos', name: 'Character Combo', component: Character },
+    { path: '/c/:slug/combos', name: 'Character Slug Combos Tab', component: Character },
+    { path: '/c/:slug/online-matches', name: 'Character Slug Online Matches Tab', component: Character },
+    { path: '/c/:slug/tournament-matches', name: 'Character Slug Tournament Matches Tab', component: Character },
+    { path: '/c/:slug/matchups', name: 'Character Slug Matchups Tab', component: Character },
     { path: '/collection/:id', name: 'Collection', component: Collection },
     { path: '/channel-scrapper', name: 'ChannelScrapper', component: ChannelScrapper },
     {

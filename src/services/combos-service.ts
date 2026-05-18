@@ -2,33 +2,23 @@ import Api from '@/services/Api'
 import Params from '@/types/params'
 
 export default {
-  //Combos
-  fetchCombos() {
-    return Api().get('combos')
+  addComboClip(params: Params) {
+    return Api().post('comboClip', params)
   },
 
-  addCombo(params: Params) {
-    return Api().post('combos', params)
-  },
-
-  addBulkCombos (params: Params) {
-    return Api().post('combos?bulk=true', params)
-  },
-
-  patchCombo(params: Params) {
-    return Api().put('combo/' + params.id, params)
+  patchComboClip(params: Params) {
+    return Api().put('comboClip/' + params.id, params)
   },
 
   getComboClip(params: Params) {
-    return Api().get('comboClip/' + params) 
+    return Api().get('comboClip/' + params)
   },
 
-  deleteCombo(id: string) {
-    return Api().delete('combo/' + id)
-  },
-
-  /** Removes a ComboClip document (distinct from Combo definition delete). */
   deleteComboClip(id: string) {
     return Api().delete('comboClip/' + id)
   },
-} 
+
+  getTwitterVideo(tweetId: string) {
+    return Api().get('twitter-video', { params: { tweetId } })
+  },
+}

@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
 import NewComboVideoCard from '@/components/videos/combo-video-card';
 
@@ -100,21 +100,20 @@ export default {
             this.isLoading = true;
             var queryParameter = {
                 skip: this.skip,
+                searchQuery: [],
             };
-            const response = await VideosService.fetchVideos(queryParameter);
+            const response = await MatchesService.queryMatches(queryParameter);
             this.hydrateVideos(response);
             this.isLoading = false;
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            (response.data.matches || []).forEach((match, i) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
-                    backingVideoId: video._id || video.Id || null,
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
+                    matchId: match._id,
+                    contentType: 'Match',
                     isEditing: false,
-                    isFirst: false,
+                    isFirst: i === 0 && this.videos.length === 0,
                 });
             });
             if (this.videos.length > 0) {

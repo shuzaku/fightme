@@ -74,7 +74,7 @@ export default {
             this.isLoading = true;
             try {
                 const res = await CharactersService.getCharacter({ id: this.characterId });
-                const c = res.data.character || res.data;
+                const c = (res.data.characters && res.data.characters[0]) || {};
                 this.character = {
                     name:        c.Name        || '',
                     slug:        c.Slug        || '',

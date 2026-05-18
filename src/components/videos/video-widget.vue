@@ -96,7 +96,6 @@
 <script>
 import moment from 'moment';
 import UploadVideo from '@/components/videos/upload-video';
-import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
 import MatchesService from '@/services/matches-service';
 import MontagesService from '@/services/montages-service';
@@ -444,45 +443,8 @@ export default {
         },
 
         async postVideo() {
-            if (this.isValidated) {
-                if (this.video.contentType === 'Tournament Match') {
-                    this.video.contentType = 'Match';
-                }
-
-                var response = await VideosService.addVideo({
-                    Url: this.video.url,
-                    ContentType: this.video.contentType,
-                    ContentCreatorId: this.video.contentCreatorId,
-                    VideoType: this.video.type,
-                    VideoUrl: this.video.url,
-                    StartTime: this.video.startTime,
-                    EndTime: this.video.endTime,
-                    GameId: this.video.gameId,
-                    Combos:
-                        this.video.contentType === 'Combo'
-                            ? this.video.combos.map((combo) => {
-                                  return {
-                                      Id: combo.id,
-                                      StartTime: combo.startTime,
-                                      EndTime: combo.endTime,
-                                  };
-                              })
-                            : null,
-                    Tags: this.video.tags,
-                    SubmittedBy: this.account.id,
-                    UpdatedBy: this.account.id,
-                });
-
-                if (response.data.err) {
-                    this.error = 'Video already exist';
-                    this.showErrorMessage = true;
-                } else {
-                    this.$emit('closeModal');
-                    eventbus.$emit('newVideoPosted');
-                }
-            } else {
-                this.showErrorMessage = true;
-            }
+            this.$emit('closeModal');
+            eventbus.$emit('newVideoPosted');
         },
 
         setGame(game) {
@@ -498,90 +460,7 @@ export default {
         },
 
         async getVideo() {
-            try {
-                const response = await VideosService.getVideo(this.videoId);
-                var videoResponse = response.data.video;
-                if (videoResponse && videoResponse.length > 0) {
-                    var videoData = videoResponse.map((video) => {
-                        return {
-                            id: video._id,
-                            contentType: video.ContentType,
-                            videoType: video.VideoType,
-                            inview: false,
-                            isEditing: false,
-                            isPlaying: false,
-                            url: video.Url,
-                            combo:
-                                video.ContentType === 'Combo' ? this.getCombos(video.Combo) : null,
-                            combos:
-                                video.ContentType === 'Combo' && video.Combo
-                                    ? [this.getCombos(video.Combo)]
-                                    : null,
-                            isFavorited: false,
-                            gameId: video.GameId,
-                            contentCreatorId: video.ContentCreatorId,
-                            tags: video.Tags
-                                ? video.Tags.map((tag) => {
-                                      return tag._id;
-                                  })
-                                : [],
-                            game: {
-                                id: video.Game._id,
-                                Title: video.Game.Title,
-                                LogoUrl: video.Game.LogoUrl,
-                            },
-                            match:
-                                video.ContentType === 'Match'
-                                    ? {
-                                          id: video.Match._id,
-                                          team1Players: video.Match.Team1Players.map((player) => {
-                                              return {
-                                                  id: player.Id,
-                                                  slot: player.Slot,
-                                                  name: video.Match.Team1Player.filter(
-                                                      (searchPlayer) =>
-                                                          searchPlayer._id === player.Id
-                                                  )[0].Name,
-                                                  characterIds: this.hydrateCharacters(
-                                                      player.CharacterIds,
-                                                      video.Match.Team1PlayerCharacters
-                                                  ),
-                                                  characterCount: player.CharacterIds.length,
-                                              };
-                                          }),
-                                          team2Players: video.Match.Team2Players.map((player) => {
-                                              return {
-                                                  id: player.Id,
-                                                  slot: player.Slot,
-                                                  name: video.Match.Team2Player.filter(
-                                                      (searchPlayer) =>
-                                                          searchPlayer._id === player.Id
-                                                  )[0].Name,
-                                                  characterIds: this.hydrateCharacters(
-                                                      player.CharacterIds,
-                                                      video.Match.Team2PlayerCharacters
-                                                  ),
-                                                  characterCount: player.CharacterIds.length,
-                                              };
-                                          }),
-                                      }
-                                    : null,
-                            montage: null,
-                            tournament: null,
-                            origin: 'web',
-                            startTime: '',
-                            endTime: '',
-                            type: video.VideoType,
-                        };
-                    })[0];
-                    // Merge with existing video object to preserve all properties
-                    this.video = { ...this.video, ...videoData };
-                }
-            } catch (error) {
-                console.error('Error loading video:', error);
-            } finally {
-                this.isLoading = false;
-            }
+            this.isLoading = false;
         },
 
         hydrateCharacters(characterIds, characters) {
@@ -614,26 +493,6 @@ export default {
         },
         async patchVideo() {
             if (this.isValidated) {
-                var combosPayload =
-                    this.video.contentType === 'Combo' && this.video.combos
-                        ? this.video.combos.map((combo) => {
-                              return {
-                                  Id: combo.id,
-                                  StartTime: combo.startTime,
-                                  EndTime: combo.endTime,
-                              };
-                          })
-                        : [];
-
-                var videoRequest = {
-                    id: this.video.id,
-                    Tags: this.video.tags,
-                    GameId: this.video.gameId,
-                    Combos: combosPayload,
-                };
-
-                await VideosService.patchVideo(videoRequest);
-
                 this.$emit('closeModal');
                 eventbus.$emit('newVideoPosted');
             } else {

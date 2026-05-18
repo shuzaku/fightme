@@ -11,6 +11,14 @@
                     :account="account"
                 />
             </div>
+            <div v-if="isLast" class="feed-end">
+                <v-icon class="feed-end-icon">mdi-check-circle-outline</v-icon>
+                <p class="feed-end-title">You're all caught up</p>
+                <p class="feed-end-subtitle">No more online matches for this game. Try filtering by a specific character or head back home.</p>
+                <div class="feed-end-actions">
+                    <v-btn small outlined class="feed-end-btn" @click="$router.push('/')">Home</v-btn>
+                </div>
+            </div>
         </div>
     </div>
 </template>

@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
 import MatchVideoCard from '@/components/videos/match-video-card';
 import { eventbus } from '@/main';
 
@@ -74,37 +74,19 @@ export default {
 
     methods: {
         async queryVideos() {
-            var searchQuery = null;
+            var filteredMatches = this.account.favoriteVideos
+                ? this.account.favoriteVideos.filter((v) => v.contentType === 'Match')
+                : [];
 
-            var filteredMatches = this.account.favoriteVideos.filter(
-                (video) => video.contentType === 'Match'
-            );
-
-            searchQuery = filteredMatches.map((match) => {
-                return {
-                    queryName: 'VideoId',
-                    queryValue: match.id,
-                };
-            });
-
-            var queryParameter = {
-                skip: this.skip,
-                searchQuery: searchQuery,
-            };
-
-            const response = await VideosService.queryVideos(queryParameter);
-
-            this.hydrateVideos(response);
-        },
-
-        hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
-                this.videos.push({
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
-                    isEditing: false,
-                    isPlaying: false,
-                });
+            filteredMatches.forEach((match) => {
+                if (!this.videos.some((v) => v.matchId === match.id)) {
+                    this.videos.push({
+                        matchId: match.id,
+                        contentType: 'Match',
+                        isEditing: false,
+                        isPlaying: false,
+                    });
+                }
             });
         },
 

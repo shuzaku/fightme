@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MontagesService from '@/services/montages-service';
 import NewMontageVideoCard from '@/components/videos/montage-video-card';
 
 import { eventbus } from '@/main';
@@ -111,25 +111,21 @@ export default {
         async queryVideos(query) {
             var queryParameter = {
                 skip: this.skip,
-                sort: this.sort,
-                filter: this.filter,
-                searchQuery: [],
             };
 
-            if (query) {
-                queryParameter.searchQuery.push(query);
+            if (query && query.queryName === 'PlayerId') {
+                queryParameter.playerId = query.queryValue;
             }
 
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await MontagesService.queryMontages(queryParameter);
             this.hydrateVideos(response);
-            // this.checkFavorites();
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            (response.data.montages || []).forEach((montage) => {
                 this.videos.push({
-                    montageId: video.Montage ? video.Montage._id : null,
-                    contentType: video.ContentType,
+                    montageId: montage._id,
+                    contentType: 'Montage',
                     isEditing: false,
                     isPlaying: false,
                 });

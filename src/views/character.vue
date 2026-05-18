@@ -41,6 +41,20 @@ import Loading from '@/components/common/loading';
 import CharacterOverview from '@/components/character/character-overview';
 import CharacterVideos from '@/components/character/character-videos';
 
+const TAB_ROUTE_MAP = {
+    'Combos': 'combos',
+    'Online Matches': 'online-matches',
+    'Tournament Matches': 'tournament-matches',
+    'Matchups': 'matchups',
+};
+
+const ROUTE_TAB_MAP = {
+    'combos': 'Combos',
+    'online-matches': 'Online Matches',
+    'tournament-matches': 'Tournament Matches',
+    'matchups': 'Matchups',
+};
+
 export default {
     name: 'Character',
 
@@ -60,6 +74,7 @@ export default {
     },
 
     data() {
+        const tabMatch = this.$route.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
         return {
             loading: true,
             character: {
@@ -69,7 +84,7 @@ export default {
                 gameId: null,
                 featuredPlayers: null,
             },
-            selectedVideoType: 'Online Matches',
+            selectedVideoType: (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches',
             character2Id: [],
         };
     },
@@ -90,9 +105,24 @@ export default {
         characterSlug: function () {
             return this.$route.params.slug;
         },
+
+        basePath: function () {
+            return this.$route.path.replace(
+                /\/(combos|online-matches|tournament-matches|matchups)$/,
+                ''
+            );
+        },
     },
 
     watch: {
+        $route(to) {
+            const tabMatch = to.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+            const tab = (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches';
+            if (tab !== this.selectedVideoType) {
+                this.selectedVideoType = tab;
+            }
+        },
+
         characterId() {
             if (this.characterGameKey) {
                 return;
@@ -136,7 +166,8 @@ export default {
     methods: {
         async getCharacterByGameAndKey() {
             this.loading = true;
-            this.selectedVideoType = 'Online Matches';
+            const tabMatch = this.$route.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+            this.selectedVideoType = (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches';
             var gameId = await resolveGameIdFromRouteParam(this.$route.params.gameKey);
             if (!gameId) {
                 this.loading = false;
@@ -169,7 +200,8 @@ export default {
 
         async getCharacter() {
             this.loading = true;
-            this.selectedVideoType = 'Online Matches';
+            const tabMatch = this.$route.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+            this.selectedVideoType = (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches';
             const response = await CharactersService.getCharacter({
                 id: this.characterId,
             });
@@ -273,6 +305,13 @@ export default {
 
         selectVideoType(selectedVideo) {
             this.selectedVideoType = selectedVideo;
+            const tabSlug = TAB_ROUTE_MAP[selectedVideo];
+            if (tabSlug) {
+                const newPath = `${this.basePath}/${tabSlug}`;
+                if (this.$route.path !== newPath) {
+                    this.$router.push(newPath);
+                }
+            }
             this.$nextTick(() => {
                 const element = document.getElementById('character-videos');
                 if (element) {

@@ -484,7 +484,6 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
 import AnalysesService from '@/services/analyses-service';
 import CollectionSearch from '@/components/collection/collection-search';
@@ -655,6 +654,22 @@ export default {
     },
 
     methods: {
+        extractYoutubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            var s = url.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
+            var m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return m ? m[1] : null;
+        },
+
+        inferVideoType(url) {
+            if (!url) return null;
+            var u = url.trim().toLowerCase();
+            if (u.includes('youtube') || u.includes('youtu.be') || /^[a-zA-Z0-9_-]{11}$/.test(url.trim())) return 'youtube';
+            if (u.includes('twitter') || u.includes('x.com')) return 'twitter';
+            return 'uploaded';
+        },
+
         seekToTimeStamp(seconds) {
             this.$refs.youtubeRef.player.seekTo(seconds);
             this.$el.querySelector('.video-container').scrollIntoView({
@@ -703,8 +718,30 @@ export default {
                     : null,
                 endTime: matchResponse.StartTime ? this.convertTime(matchResponse.EndTime) : null,
             };
-            this.video.url = matchResponse.VideoUrl;
-            this.getVideo();
+            this.video.url = this.extractYoutubeId(matchResponse.VideoUrl) || matchResponse.VideoUrl;
+            this.video.videoType = this.inferVideoType(matchResponse.VideoUrl);
+            var gFromMatch = matchResponse.Game && matchResponse.Game.length ? matchResponse.Game[0] : null;
+            if (gFromMatch) {
+                this.video.game = {
+                    title: gFromMatch.Title || '',
+                    logoUrl: gFromMatch.LogoUrl || '',
+                    id: gFromMatch._id,
+                    abbreviation: gFromMatch.Abbreviation || null,
+                };
+            }
+            this.video.match.id = this.matchId;
+            this.video.contentType = 'Match';
+            this.video.isFavorited = this.favoriteVideos
+                ? this.favoriteVideos.some((v) => v.id === this.matchId)
+                : null;
+            this.$emit('match:loaded', {
+                videoId: this.video.url,
+                gameTitle: this.video.game ? this.video.game.title : '',
+                team1Players: this.video.match ? this.video.match.team1Players : [],
+                team2Players: this.video.match ? this.video.match.team2Players : [],
+                uploadDate: matchResponse.createdAt || null,
+            });
+            this.isLoading = false;
         },
 
         convertTime(time) {
@@ -748,35 +785,9 @@ export default {
             return playerCharacters;
         },
 
-        async getVideo() {
-            this.isLoading = true;
-
-            const response = await VideosService.getMatchVideo(this.video.url);
-
-            var videoResponse = response.data.videos[0];
-            this.video.videoType = videoResponse.VideoType;
-            this.video.game = {
-                title: videoResponse.Game.Title,
-                logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id,
-                abbreviation: videoResponse.Game.Abbreviation || null,
-            };
-            this.video.isPlaying = false;
-            this.video.id = videoResponse._id;
-            this.isLoading = false;
-            this.video.match.id = this.matchId;
-            this.video.contentType = 'Match';
-            this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                : null;
-
-            this.$emit('match:loaded', {
-                videoId: this.video.url,
-                gameTitle: this.video.game ? this.video.game.title : '',
-                team1Players: this.video.match ? this.video.match.team1Players : [],
-                team2Players: this.video.match ? this.video.match.team2Players : [],
-                uploadDate: videoResponse.createdAt || null,
-            });
+        async deleteVideo() {
+            var matchResponse = await MatchesService.deleteMatch(this.matchId);
+            this.$emit('video:delete', matchResponse);
         },
 
         playVideo() {
@@ -799,19 +810,11 @@ export default {
                     this.setTimer();
                 }
             }
-            // Auto-seek to ?t= timestamp if present in the URL
             const t = this.$route && this.$route.query && parseInt(this.$route.query.t);
             if (t && t > 0) {
                 setTimeout(() => this.player.seekTo(t, true), 500);
             }
             this.setTimer();
-        },
-
-        async deleteVideo() {
-            await VideosService.deleteVideo(this.video.id);
-            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
-
-            this.$emit('video:delete', matchResponse);
         },
 
         queryPlayer(player) {
@@ -1099,7 +1102,7 @@ export default {
     cursor: pointer;
     width: 100%;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
-    justify-content: start;
+    justify-content: flex-start;
 }
 
 .match-analysis-details {

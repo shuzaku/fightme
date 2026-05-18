@@ -17,6 +17,14 @@
                     @video:delete="removeComboAt(index)"
                 />
             </div>
+            <div v-if="isLast" class="feed-end">
+                <v-icon class="feed-end-icon">mdi-check-circle-outline</v-icon>
+                <p class="feed-end-title">You're all caught up</p>
+                <p class="feed-end-subtitle">No more combos for this character. Have a clip to share? Submit one, or explore combos for a different character.</p>
+                <div class="feed-end-actions">
+                    <v-btn small outlined class="feed-end-btn" @click="$router.push('/explore')">Explore Characters</v-btn>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -129,7 +137,7 @@ export default {
                 };
 
                 const response = await VideosService.queryComboClips(queryParameter);
-                const batch = response.data.videos || [];
+                const batch = response.data.comboClips || [];
                 if (batch.length === 0) {
                     this.isLast = true;
                 } else {
@@ -144,16 +152,11 @@ export default {
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            (response.data.comboClips || []).forEach((clip) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip
-                        ? video.ComboClip._id
-                        : video._id || null,
-                    backingVideoId:
-                        video.VideoId ||
-                        (video.Video && (video.Video._id || video.Video.Id)) ||
-                        null,
-                    contentType: video.ContentType,
+                    comboClipId: clip._id,
+                    backingVideoId: null,
+                    contentType: 'Combo',
                     isEditing: false,
                     isPlaying: false,
                     isFirst: false,

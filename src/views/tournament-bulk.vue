@@ -70,7 +70,6 @@ import PlayerSearch from '@/components/players/player-search';
 // import TournamentSearch from '@/components/players/tournament-search';
 import CharacterSearch from '@/components/character/character-search';
 import MatchesService from '@/services/matches-service';
-import VideosService from '@/services/videos-service';
 import CreatorsService from '@/services/creators-service';
 
 import moment from 'moment';
@@ -213,7 +212,6 @@ export default {
                     TournamentId: video.tournamentId,
                 };
             });
-            await VideosService.addVideos(videoRequest);
         },
 
         addPlayer1(player, video) {

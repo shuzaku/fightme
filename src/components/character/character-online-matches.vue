@@ -1,14 +1,24 @@
 <!-- @format -->
 <template>
-    <div v-if="videos.length > 0" class="character-online-matches">
-        <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
-            <match-video-card
-                v-model="video.isPlaying"
-                :favoriteVideos="account ? account.favoriteVideos : null"
-                :isFirst="video.isFirst"
-                :matchId="video.matchId"
-                :account="account"
-            />
+    <div class="character-online-matches">
+        <div v-if="videos.length > 0">
+            <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
+                <match-video-card
+                    v-model="video.isPlaying"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :isFirst="video.isFirst"
+                    :matchId="video.matchId"
+                    :account="account"
+                />
+            </div>
+            <div v-if="isLast" class="feed-end">
+                <v-icon class="feed-end-icon">mdi-check-circle-outline</v-icon>
+                <p class="feed-end-title">You're all caught up</p>
+                <p class="feed-end-subtitle">No more online matches for this character. Try a different character or check out tournament footage.</p>
+                <div class="feed-end-actions">
+                    <v-btn small outlined class="feed-end-btn" @click="$router.push('/explore')">Explore Characters</v-btn>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -229,4 +239,45 @@ export default {
     margin: 0 auto;
     display: block;
 }
-</style>
+
+.feed-end {
+    text-align: center;
+    padding: 50px 20px 80px;
+    color: #ffffff70;
+}
+
+.feed-end .feed-end-icon {
+    font-size: 40px !important;
+    color: #3eb489;
+    display: block;
+    margin-bottom: 14px;
+}
+
+.feed-end .feed-end-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.feed-end .feed-end-subtitle {
+    font-size: 14px;
+    color: #ffffff70;
+    max-width: 420px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+}
+
+.feed-end .feed-end-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.feed-end .feed-end-btn {
+    color: #3eb489 !important;
+    border-color: #3eb489 !important;
+    text-transform: none;
+    font-weight: 500;
+}</style>

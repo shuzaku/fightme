@@ -292,7 +292,6 @@ import CharacterSearch from '@/components/character/character-search';
 import GameSearch from '@/components/games/game-search';
 import ComboNotationInput from '@/components/notation/combo-notation-input';
 import CombosService from '@/services/combos-service';
-import VideosService from '@/services/videos-service';
 import CharactersService from '@/services/characters-service';
 import GamesService from '@/services/games-service';
 import { Tweet } from 'vue-tweet-embed';
@@ -792,42 +791,20 @@ export default {
             try {
                 const comboData = {
                     CharacterId: Array.isArray(this.characterId)
-                        ? this.characterId
-                        : [this.characterId],
+                        ? this.characterId[0]
+                        : this.characterId,
                     Inputs: this.comboInputs,
                     Damage: this.comboDamage || null,
                     Hits: this.comboHits || null,
+                    Tags: [],
+                    Url: this.extractedVideoId || null,
+                    VideoType: this.videoType || null,
+                    StartTime: '',
+                    EndTime: '',
+                    SubmittedBy: this.account ? this.account.id : null,
                 };
 
-                // If video URL is provided, create a video with the combo
-                if (this.videoUrl && this.extractedVideoId) {
-                    await VideosService.validateVideo({
-                        Url: this.extractedVideoId,
-                        GameId: this.selectedGameId,
-                        Combos: [
-                            {
-                                CharacterId: comboData.CharacterId,
-                                Inputs: comboData.Inputs,
-                                Damage: comboData.Damage,
-                                Hits: comboData.Hits,
-                                StartTime: '',
-                                EndTime: '',
-                                Note: '',
-                            },
-                        ],
-                        VideoUrl: this.extractedVideoId,
-                        SubmittedBy: this.account ? this.account.id : null,
-                        UpdatedBy: this.account ? this.account.id : null,
-                        ContentType: 'Combo',
-                        VideoType: this.videoType,
-                        Tags: [],
-                        StartTime: '',
-                        EndTime: '',
-                    });
-                } else {
-                    // Just create the combo without video
-                    await CombosService.addCombo(comboData);
-                }
+                await CombosService.addComboClip(comboData);
 
                 // Success - redirect or show message
                 this.$router.push({

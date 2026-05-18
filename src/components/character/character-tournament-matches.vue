@@ -1,14 +1,24 @@
 <!-- @format -->
 <template>
-    <div v-if="videos.length > 0" class="character-tournament-matches">
-        <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
-            <tournament-match-video-card
-                v-model="video.isPlaying"
-                :video="video"
-                :favoriteVideos="account ? account.favoriteVideos : null"
-                :account="account"
-                :matchId="video.matchId"
-            />
+    <div class="character-tournament-matches">
+        <div v-if="videos.length > 0">
+            <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
+                <tournament-match-video-card
+                    v-model="video.isPlaying"
+                    :video="video"
+                    :favoriteVideos="account ? account.favoriteVideos : null"
+                    :account="account"
+                    :matchId="video.matchId"
+                />
+            </div>
+            <div v-if="isLast" class="feed-end">
+                <v-icon class="feed-end-icon">mdi-check-circle-outline</v-icon>
+                <p class="feed-end-title">You're all caught up</p>
+                <p class="feed-end-subtitle">No more tournament matches for this character. Try a different character or check out their online matches.</p>
+                <div class="feed-end-actions">
+                    <v-btn small outlined class="feed-end-btn" @click="$router.push('/explore')">Explore Characters</v-btn>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -33,6 +43,11 @@ export default {
             type: Object,
             default: null,
         },
+
+        characterId: {
+            type: String,
+            default: null,
+        },
     },
 
     data() {
@@ -51,10 +66,6 @@ export default {
     computed: {
         skip: function () {
             return this.videos.length;
-        },
-
-        characterId: function () {
-            return this.$route.params.id;
         },
     },
 

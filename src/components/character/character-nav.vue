@@ -63,7 +63,13 @@
         </div>
         <div v-if="showMenu" class="quick-nav">
             <div class="left-section">
-                <div v-for="tab in tabs" :key="tab" class="info-card" @click="selectedTab(tab)">
+                <div
+                    v-for="tab in tabs"
+                    :key="tab"
+                    class="info-card"
+                    :class="{ active: tab === selectedVideoType }"
+                    @click="selectedTab(tab)"
+                >
                     {{ tab }}
                 </div>
             </div>
@@ -140,6 +146,11 @@ export default {
         showMenu: {
             type: Boolean,
             default: true,
+        },
+
+        selectedVideoType: {
+            type: String,
+            default: '',
         },
 
         character: {
@@ -284,7 +295,7 @@ export default {
     height: 60px;
     width: 100%;
     display: flex;
-    align-items: end;
+    align-items: flex-end;
     padding: 0 20px 0 0;
     margin-bottom: 10px;
 }
@@ -330,6 +341,11 @@ export default {
 
 .character-nav .info-card:hover {
     background: #4447e270;
+}
+
+.character-nav .info-card.active {
+    background: #4447e2;
+    border-color: #4447e2;
 }
 
 .character-nav .quick-nav {

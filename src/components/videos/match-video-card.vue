@@ -166,7 +166,6 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
@@ -252,10 +251,6 @@ export default {
                 }
             }
 
-            if (this.video.isPlaying === true) {
-                this.recordView();
-            }
-
             if (this.value === true && this.video.match.startTime) {
                 this.setTimer();
             }
@@ -276,16 +271,20 @@ export default {
     },
 
     methods: {
-        recordView() {
-            if (!this.video.id) return;
-            var storageKey = `fe_viewed_${this.video.id}`;
-            try {
-                if (sessionStorage.getItem(storageKey)) return;
-                sessionStorage.setItem(storageKey, '1');
-            } catch (e) {
-                // sessionStorage unavailable — count anyway
-            }
-            VideosService.incrementViews(this.video.id).catch(() => {});
+        extractYoutubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            var s = url.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
+            var m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return m ? m[1] : null;
+        },
+
+        inferVideoType(url) {
+            if (!url) return null;
+            var u = url.trim().toLowerCase();
+            if (u.includes('youtube') || u.includes('youtu.be') || /^[a-zA-Z0-9_-]{11}$/.test(url.trim())) return 'youtube';
+            if (u.includes('twitter') || u.includes('x.com')) return 'twitter';
+            return 'uploaded';
         },
 
         seekToTimestamp(seconds) {
@@ -337,7 +336,11 @@ export default {
                     : null,
                 endTime: matchResponse.StartTime ? this.convertTime(matchResponse.EndTime) : null,
             };
-            this.video.url = matchResponse.VideoUrl;
+            this.video.url = this.extractYoutubeId(matchResponse.VideoUrl) || matchResponse.VideoUrl;
+            this.video.videoType = this.inferVideoType(matchResponse.VideoUrl);
+            this.video.isFavorited = this.favoriteVideos
+                ? this.favoriteVideos.some((v) => v.id === this.matchId)
+                : null;
             var gFromMatch =
                 matchResponse.Game && matchResponse.Game.length ? matchResponse.Game[0] : null;
             if (gFromMatch) {
@@ -348,13 +351,7 @@ export default {
                     abbreviation: gFromMatch.Abbreviation || null,
                 };
             }
-            this.getVideo();
-        },
-
-        looksLikeYoutubeVideoId(url) {
-            if (!url || typeof url !== 'string') return false;
-            var s = url.trim();
-            return /^[a-zA-Z0-9_-]{11}$/.test(s);
+            this.isLoading = false;
         },
 
         convertTime(time) {
@@ -397,46 +394,6 @@ export default {
             return playerCharacters;
         },
 
-        async getVideo() {
-            this.isLoading = true;
-
-            try {
-                const response = await VideosService.getMatchVideo(this.video.url);
-                const list = response.data.videos || [];
-                var videoResponse = list[0];
-
-                if (!videoResponse) {
-                    if (this.looksLikeYoutubeVideoId(this.video.url)) {
-                        this.video.videoType = 'youtube';
-                    }
-                    this.isLoading = false;
-                    return;
-                }
-
-                const vt = videoResponse.VideoType;
-                this.video.videoType = typeof vt === 'string' ? vt.toLowerCase() : vt;
-                const g = videoResponse.Game;
-                this.video.game = g
-                    ? {
-                          title: g.Title,
-                          logoUrl: g.LogoUrl,
-                          id: g._id,
-                      }
-                    : { title: '', logoUrl: '', id: null };
-                this.video.isPlaying = false;
-                this.video.id = videoResponse._id;
-                this.video.match.id = this.matchId;
-                this.video.contentType = 'Match';
-                this.video.isFavorited = this.favoriteVideos
-                    ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                    : null;
-            } catch (e) {
-                console.error('getMatchVideo failed', e);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
         playVideo() {
             if (this.video.videoType === 'uploaded') {
                 if (this.video.isPlaying) {
@@ -461,14 +418,12 @@ export default {
 
         async confirmDelete() {
             this.showDeleteConfirm = false;
-            await VideosService.deleteVideo(this.video.id);
-            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
+            var matchResponse = await MatchesService.deleteMatch(this.matchId);
             this.$emit('video:delete', matchResponse);
         },
 
         async deleteVideo() {
-            await VideosService.deleteVideo(this.video.id);
-            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
+            var matchResponse = await MatchesService.deleteMatch(this.matchId);
             this.$emit('video:delete', matchResponse);
         },
 

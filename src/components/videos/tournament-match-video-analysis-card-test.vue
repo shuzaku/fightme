@@ -339,12 +339,9 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
-import MatchesService from '@/services/matches-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
-import moment from 'moment';
 
 export default {
     name: 'TournamentMatchAnalysisCard',
@@ -394,7 +391,6 @@ export default {
             showCollections: false,
             isPlaying: false,
             currentNav: 'general',
-            isPlaying: true,
         };
     },
 
@@ -619,18 +615,6 @@ export default {
             this.currentNav = item;
         },
 
-        playVideo() {
-            if (this.video.videoType === 'uploaded') {
-                if (this.isPlaying) {
-                    this.$refs.videoRef.play();
-                }
-            } else if (this.video.videoType === 'youtube') {
-                if (this.isPlaying) {
-                    this.player.playVideo();
-                }
-            }
-        },
-
         seekToTimeStamp(seconds) {
             this.$refs.youtubeRef.player.seekTo(seconds);
         },
@@ -651,7 +635,7 @@ export default {
     cursor: pointer;
     width: 100%;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
-    justify-content: start;
+    justify-content: flex-start;
 }
 
 .notes {
@@ -668,7 +652,7 @@ export default {
     cursor: pointer;
     width: 100%;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
-    justify-content: start;
+    justify-content: flex-start;
     color: #fff;
     padding: 20px;
 }

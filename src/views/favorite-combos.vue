@@ -22,7 +22,6 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import ComboVideoCard from '@/components/videos/combo-video-card';
 import { eventbus } from '@/main';
 
@@ -75,44 +74,21 @@ export default {
     },
 
     methods: {
-        async queryVideos(query) {
-            var searchQuery = null;
-            var searchParameter = query || this.savedQuery;
+        async queryVideos() {
+            var filteredCombos = this.account.favoriteVideos
+                ? this.account.favoriteVideos.filter((v) => v.contentType === 'Combo')
+                : [];
 
-            if (this.savedQuery !== searchParameter) {
-                this.videos = [];
-                this.savedQuery = query;
-            }
-
-            var filteredCombos = this.account.favoriteVideos.filter(
-                (video) => video.contentType === 'Combo'
-            );
-
-            searchQuery = filteredCombos.map((combo) => {
-                return {
-                    queryName: 'ComboId',
-                    queryValue: combo.id,
-                };
-            });
-
-            var queryParameter = {
-                skip: this.skip,
-                searchQuery: searchQuery,
-            };
-
-            const response = await VideosService.queryVideos(queryParameter);
-            this.hydrateVideos(response);
-        },
-
-        hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
-                this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
-                    backingVideoId: video._id || video.Id || null,
-                    contentType: video.ContentType,
-                    isEditing: false,
-                    isPlaying: false,
-                });
+            filteredCombos.forEach((combo) => {
+                if (!this.videos.some((v) => v.comboClipId === combo.id)) {
+                    this.videos.push({
+                        comboClipId: combo.id,
+                        backingVideoId: null,
+                        contentType: 'Combo',
+                        isEditing: false,
+                        isPlaying: false,
+                    });
+                }
             });
         },
 

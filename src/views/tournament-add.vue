@@ -76,7 +76,6 @@
 
 <script>
 import moment from 'moment';
-import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
 import GameSearch from '@/components/games/game-search';
 import CreatorSearch from '@/components/content-creator/creator-search';
@@ -265,49 +264,7 @@ export default {
             });
 
             await MatchesService.addMatches(matches);
-
-            this.postVideo();
-        },
-
-        async postVideo() {
-            if (this.isValidated) {
-                if (this.video.contentType === 'Tournament Match') {
-                    this.video.contentType = 'Match';
-                }
-
-                var response = await VideosService.addVideo({
-                    Url: this.video.url,
-                    ContentType: this.video.contentType,
-                    ContentCreatorId: this.video.contentCreatorId,
-                    VideoType: this.video.type,
-                    VideoUrl: this.video.url,
-                    StartTime: this.video.startTime,
-                    EndTime: this.video.endTime,
-                    GameId: this.video.gameId,
-                    Combos:
-                        this.video.contentType === 'Combo'
-                            ? this.video.combos.map((combo) => {
-                                  return {
-                                      Id: combo.id,
-                                      StartTime: combo.startTime,
-                                      EndTime: combo.endTime,
-                                  };
-                              })
-                            : null,
-                    Tags: this.video.tags,
-                    SubmittedBy: this.account.id,
-                    UpdatedBy: this.account.id,
-                });
-
-                if (response.data.err) {
-                    this.error = 'Video already exist';
-                    this.showErrorMessage = true;
-                } else {
-                    eventbus.$emit('newVideoPosted');
-                }
-            } else {
-                this.showErrorMessage = true;
-            }
+            eventbus.$emit('newVideoPosted');
         },
 
         setGame(game) {

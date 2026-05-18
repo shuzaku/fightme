@@ -68,7 +68,6 @@ import GameSearch from '@/components/games/game-search';
 import PlayerSearch from '@/components/players/player-search';
 import CharacterSearch from '@/components/character/character-search';
 import MatchesService from '@/services/matches-service';
-import VideosService from '@/services/videos-service';
 import CreatorsService from '@/services/creators-service';
 import moment from 'moment';
 
@@ -220,7 +219,7 @@ export default {
 
         async postVideo() {
             var selected = this.videos.filter((video) => video.selected);
-            var videoRequest = selected.map((video) => {
+            selected.map((video) => {
                 return {
                     Url: video.id,
                     ContentType: 'Match',
@@ -229,7 +228,6 @@ export default {
                     GameId: video.gameId,
                 };
             });
-            await VideosService.addVideos(videoRequest);
         },
 
         addPlayer1(player, video) {

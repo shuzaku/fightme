@@ -3,13 +3,10 @@
     <div
         ref="videoList"
         class="combo-video-card"
-        :class="{ 'twitter-card': video.combo.videoType === 'twitter' }"
     >
         <div v-if="isLoading" />
         <div v-else class="combo-card card">
-            <div v-if="video.combo.videoType === 'twitter'" class="character-image">
-                <img :src="video.combo.character.imageUrl" />
-            </div>
+
             <div
                 :id="waypointDomId"
                 v-waypoint="{
@@ -29,56 +26,110 @@
                         rel: 0,
                         autoplay: 0,
                         start: video.combo.startTime,
-                        end: video.combo.endTime,
                     }"
                     :mute="true"
                     :playsinline="1"
                     @ready="ready"
+                    @playing="onYoutubePlaying"
+                    @paused="onYoutubePaused"
+                    @ended="onYoutubeEnded"
                 />
 
-                <tweet v-else-if="video.combo.videoType === 'twitter'" id="1971339379064152483"
-                    ><loading></loading
-                ></tweet>
+                <video
+                    v-else-if="video.combo.videoType === 'twitter' && twitterVideoUrl"
+                    ref="twitterVideoRef"
+                    controls
+                    muted
+                    class="twitter-video"
+                    :poster="twitterPosterUrl || undefined"
+                    :src="twitterVideoUrl"
+                    @ended="onVideoEnded"
+                    @timeupdate="onVideoTimeUpdate"
+                ></video>
 
-                <video v-else ref="videoRef" loop controls muted>
-                    <source :src="video.combo.url" type="video/mp4" />
+                <div v-else-if="video.combo.videoType === 'twitter' && !twitterVideoUrl" class="twitter-loading">
+                    <loading></loading>
+                </div>
+
+                <video v-else ref="videoRef" controls muted
+                    @ended="onVideoEnded"
+                    @timeupdate="onVideoTimeUpdate"
+                >
+                    <source :src="video.combo.clipUrl" type="video/mp4" />
                 </video>
             </div>
             <div class="card-label">Combo</div>
             <div v-if="!video.isEditing" class="aside">
                 <div class="combo-info">
-                    <div class="game">
-                        <div class="game-title" @click="queryGame(video.game)">
+                    <div class="game-character-row">
+                        <div class="character-name" @click="queryCharacter(video.combo.character)">
                             <p>
                                 <span>
                                     <div class="img-container">
-                                        <img :src="video.game.logoUrl" />
+                                        <img :src="video.combo.character.avatarUrl" />
                                     </div>
-                                    {{ video.game.title }}</span
+                                    {{ video.combo.character.name }}</span
                                 >
                             </p>
                         </div>
-                    </div>
-                    <div class="character-name" @click="queryCharacter(video.combo.character)">
-                        <p>
-                            <span>
-                                <div class="img-container">
-                                    <img :src="video.combo.character.avatarUrl" />
-                                </div>
-                                {{ video.combo.character.name }}</span
-                            >
-                        </p>
+                        <div class="game">
+                            <div class="game-title" @click="queryGame(video.game)">
+                                <img :src="video.game.logoUrl" />
+                            </div>
+                        </div>
                     </div>
                     <div class="combo-stats">
                         <p v-if="video.combo.hits">{{ video.combo.hits }} Hits</p>
                         <p v-if="video.combo.damage">{{ video.combo.damage }} Damage</p>
                     </div>
                     <div class="combo-input">
-                        <p class="inputs">{{ video.combo.inputs }}</p>
+                        <div class="inputs combo-inputs-icons">
+                            <div
+                                v-for="(row, rowIndex) in parsedInputRows"
+                                :key="rowIndex"
+                                class="input-row"
+                            >
+                                <div
+                                    v-for="(input, inputIndex) in row"
+                                    :key="inputIndex"
+                                    class="input-item"
+                                    :style="{ zIndex: row.length - inputIndex }"
+                                    :class="{
+                                        bracketed: input.bracketed,
+                                        'input-even': getGlobalInputIndex(rowIndex, inputIndex) % 2 === 0,
+                                        'input-odd': getGlobalInputIndex(rowIndex, inputIndex) % 2 === 1,
+                                    }"
+                                >
+                                    <template v-for="(part, partIndex) in getInputParts(input.text)">
+                                        <img
+                                            v-if="part.type === 'icon'"
+                                            :key="'icon-' + partIndex"
+                                            :src="part.value"
+                                            :alt="part.label"
+                                            class="input-icon"
+                                        />
+                                        <span v-else :key="'text-' + partIndex" class="input-text">{{ part.value }}</span>
+                                    </template>                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div v-if="video.combo.tags" class="combo-tags">
                     <p v-for="tag in video.combo.tags" :key="tag.id" class="tag">#{{ tag.name }}</p>
+                </div>
+                <div v-if="twitterText" class="tweet-message">
+                    <a
+                        :href="`https://x.com/i/status/${video.combo.clipUrl}`"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="tweet-message-link"
+                    >
+                        <p v-if="twitterAuthor" class="tweet-author">
+                            <span class="tweet-author-name">{{ twitterAuthor }}</span>
+                            <span v-if="twitterAuthorHandle" class="tweet-author-handle">@{{ twitterAuthorHandle }}</span>
+                        </p>
+                        <p class="tweet-text">{{ twitterText }}</p>
+                    </a>
                 </div>
                 <div class="admin-controls">
                     <collection-search
@@ -119,18 +170,74 @@
         </div>
     </div>
 </template>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script>
-import VideosService from '@/services/videos-service';
 import CombosService from '@/services/combos-service';
 import CollectionsService from '@/services/collections-service';
 import CollectionSearch from '@/components/collection/collection-search';
-import { Tweet, Moment, Timeline } from 'vue-tweet-embed';
-import Loading from '@/components/common/loading';
+import { Tweet, Moment, Timeline } from 'vue-tweet-embed';import Loading from '@/components/common/loading';
 
 import { eventbus } from '@/main';
 import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
 import { gameHrefFromLike, characterPagePath } from '@/utils/game-character-routes';
+
+// Input icons
+import arrow1 from '@/assets/icons/inputs/arrows/1.png';
+import arrow2 from '@/assets/icons/inputs/arrows/2.png';
+import arrow3 from '@/assets/icons/inputs/arrows/3.png';
+import arrow4 from '@/assets/icons/inputs/arrows/4.png';
+import arrow6 from '@/assets/icons/inputs/arrows/6.png';
+import arrow7 from '@/assets/icons/inputs/arrows/7.png';
+import arrow8 from '@/assets/icons/inputs/arrows/8.png';
+import arrow9 from '@/assets/icons/inputs/arrows/9.png';
+import sf6Lp from '@/assets/icons/inputs/sf6/lp.png';
+import sf6Mp from '@/assets/icons/inputs/sf6/mp.png';
+import sf6Hp from '@/assets/icons/inputs/sf6/hp.png';
+import sf6Lk from '@/assets/icons/inputs/sf6/lk.png';
+import sf6Mk from '@/assets/icons/inputs/sf6/mk.png';
+import sf6Hk from '@/assets/icons/inputs/sf6/hk.png';
+import ggstP from '@/assets/icons/inputs/ggst/P.png';
+import ggstK from '@/assets/icons/inputs/ggst/K.png';
+import ggstS from '@/assets/icons/inputs/ggst/S.png';
+import ggstHS from '@/assets/icons/inputs/ggst/HS.png';
+import ggstD from '@/assets/icons/inputs/ggst/D.png';
+import xko2H from '@/assets/icons/inputs/2xko/H.png';
+import xko2L from '@/assets/icons/inputs/2xko/L.png';
+import xko2M from '@/assets/icons/inputs/2xko/M.png';
+import xko2S1 from '@/assets/icons/inputs/2xko/S1.png';
+import xko2S2 from '@/assets/icons/inputs/2xko/s2.png';
+import xko2T from '@/assets/icons/inputs/2xko/T.png';
+import cotwA from '@/assets/icons/inputs/cotw/a.png';
+import cotwB from '@/assets/icons/inputs/cotw/b.png';
+import cotwBr from '@/assets/icons/inputs/cotw/br.png';
+import cotwC from '@/assets/icons/inputs/cotw/c.png';
+import cotwD from '@/assets/icons/inputs/cotw/d.png';
+import cotwFe from '@/assets/icons/inputs/cotw/fe.png';
+import cotwRev from '@/assets/icons/inputs/cotw/rev.png';
+import gbvsrH from '@/assets/icons/inputs/gbvsr/H.png';
+import gbvsrL from '@/assets/icons/inputs/gbvsr/L.png';
+import gbvsrM from '@/assets/icons/inputs/gbvsr/M.png';
+import gbvsrU from '@/assets/icons/inputs/gbvsr/U.png';
+import t8_1 from '@/assets/icons/inputs/t8/1.png';
+import t8_2 from '@/assets/icons/inputs/t8/2.png';
+import t8_3 from '@/assets/icons/inputs/t8/3.png';
+import t8_4 from '@/assets/icons/inputs/t8/4.png';
+import t8_12 from '@/assets/icons/inputs/t8/12.png';
+import t8_13 from '@/assets/icons/inputs/t8/13.png';
+import t8_14 from '@/assets/icons/inputs/t8/14.png';
+import t8_23 from '@/assets/icons/inputs/t8/23.png';
+import t8_24 from '@/assets/icons/inputs/t8/24.png';
+import t8_34 from '@/assets/icons/inputs/t8/34.png';
+import qcf from '@/assets/icons/inputs/directional/qcf.png';
+import qcb from '@/assets/icons/inputs/directional/qcb.png';
+import dp from '@/assets/icons/inputs/directional/dp.png';
+import motion421 from '@/assets/icons/inputs/directional/421.png';
+import motion360 from '@/assets/icons/inputs/directional/360.png';
+import r360 from '@/assets/icons/inputs/directional/r360.png';
+import motion180f from '@/assets/icons/inputs/directional/180f.png';
+import motion180b from '@/assets/icons/inputs/directional/180b.png';
+import holdBack from '@/assets/icons/inputs/directional/hold back.png';
+import holdDownIcon from '@/assets/icons/inputs/directional/hold down.png';
+import dashIcon from '@/assets/icons/inputs/ggst/dash.png';
 
 function mongoIdToString(val) {
     if (val == null || val === '') {
@@ -154,7 +261,6 @@ export default {
     name: 'ComboCard',
     components: {
         'collection-search': CollectionSearch,
-        tweet: Tweet,
         loading: Loading,
     },
 
@@ -215,8 +321,30 @@ export default {
             collections: null,
             showCollections: false,
             isPlaying: false,
-            /** Video.Combos[].Id — distinct from ComboClip _id (comboClipId). */
-            comboDefinitionId: null,
+            _timerId: null,
+            twitterVideoUrl: null,
+            twitterPosterUrl: null,
+            twitterText: null,
+            twitterAuthor: null,
+            twitterAuthorHandle: null,
+            arrowIcons: {
+                '1': arrow1, '2': arrow2, '3': arrow3, '4': arrow4,
+                '6': arrow6, '7': arrow7, '8': arrow8, '9': arrow9,
+            },
+            allGameIcons: {
+                sf6: { lp: sf6Lp, mp: sf6Mp, hp: sf6Hp, lk: sf6Lk, mk: sf6Mk, hk: sf6Hk },
+                ggst: { P: ggstP, K: ggstK, S: ggstS, HS: ggstHS, D: ggstD },
+                '2xko': { H: xko2H, L: xko2L, M: xko2M, S1: xko2S1, S2: xko2S2, T: xko2T },
+                cotw: { a: cotwA, b: cotwB, br: cotwBr, c: cotwC, d: cotwD, fe: cotwFe, rev: cotwRev },
+                gbvsr: { H: gbvsrH, L: gbvsrL, M: gbvsrM, U: gbvsrU },
+                t8: { '1': t8_1, '2': t8_2, '3': t8_3, '4': t8_4, '12': t8_12, '13': t8_13, '14': t8_14, '23': t8_23, '24': t8_24, '34': t8_34 },
+            },
+            motionIcons: {
+                qcf, qcb, dp, '421': motion421, '360': motion360, r360,
+                '180f': motion180f, '180b': motion180b,
+                'hold back': holdBack, 'hold down': holdDownIcon,
+            },
+            specialIcons: { dash: dashIcon },
         };
     },
 
@@ -228,41 +356,57 @@ export default {
         waypointDomId() {
             return mongoIdToString(this.comboClipId);
         },
+
+        attackIcons() {
+            var abbrev = this.video.game && this.video.game.abbreviation
+                ? this.video.game.abbreviation.toLowerCase()
+                : null;
+            return (abbrev && this.allGameIcons[abbrev]) || this.allGameIcons.sf6;
+        },
+
+        parsedInputRows() {
+            if (!this.video.combo.inputs) return [];
+            var inputs = this.parseInputs(this.video.combo.inputs);
+            var rows = [];
+            var itemsPerRow = 4;
+            for (var i = 0; i < inputs.length; i += itemsPerRow) {
+                rows.push(inputs.slice(i, i + itemsPerRow));
+            }
+            return rows;
+        },
     },
 
     watch: {
         isPlaying() {
             if (this.video.combo.videoType === 'uploaded') {
                 if (this.isPlaying === true) {
+                    this.$refs.videoRef.currentTime = this.video.combo.startTime || 0;
                     this.$refs.videoRef.play();
+                    this.setTimer();
                 } else {
                     this.$refs.videoRef.pause();
+                    this.clearTimer();
                 }
             } else if (this.video.combo.videoType === 'youtube' && this.player) {
-                if (this.isPlaying === true) {
-                    this.player.playVideo();
-                } else {
+                if (this.isPlaying === false) {
                     this.player.pauseVideo();
+                    this.clearTimer();
                 }
-            }
-
-            if (this.isPlaying && this.video.combo.startTime) {
-                this.setTimer();
+                // play + timer are started via onYoutubePlaying once YouTube confirms it's playing
             }
         },
 
         videoCurrentTime() {
-            if (this.videoCurrentTime > this.video.combo.endTime) {
-                this.$refs.youtubeRef.player.seekTo(this.video.combo.startTime);
+            const endTime = this.video.combo.endTime;
+            if (endTime && this.videoCurrentTime >= endTime) {
+                const startTime = this.video.combo.startTime || 0;
+                this.player.seekTo(startTime, true);
+                this.player.playVideo();
             }
         },
     },
 
     async created() {
-        var initialVid = mongoIdToString(this.backingVideoId);
-        if (initialVid) {
-            this.video.id = initialVid;
-        }
         if (this.account && this.account.id) {
             this.getCollections();
         }
@@ -272,6 +416,7 @@ export default {
 
     beforeDestroy() {
         eventbus.$off('newVideoPosted', this.resetEditing);
+        this.clearTimer();
     },
 
     methods: {
@@ -297,17 +442,32 @@ export default {
                     imageUrl: comboResponse.Character.ImageUrl,
                     slug: comboResponse.Character.Slug || null,
                 },
-                damage: comboResponse.Combo.Damage,
-                hits: comboResponse.Combo.Hits,
-                inputs: comboResponse.Combo.Inputs[0],
-                startTime: this.convertTime(comboResponse.StartTime),
-                endTime: this.convertTime(comboResponse.EndTime),
+                damage: comboResponse.Damage,
+                hits: comboResponse.Hits,
+                inputs: comboResponse.Inputs && comboResponse.Inputs[0],
+                startTime: comboResponse.StartTime ? this.convertTime(comboResponse.StartTime) : null,
+                endTime: comboResponse.EndTime ? this.convertTime(comboResponse.EndTime) : null,
                 clipUrl: comboResponse.Url,
-                videoType: comboResponse.VideoType.toLowerCase(),
+                videoType: comboResponse.VideoType ? comboResponse.VideoType.toLowerCase() : null,
                 isFavorited: false,
             };
 
-            // // Extract game data from combo-clip response if available
+            if (this.video.combo.videoType === 'twitter' && this.video.combo.clipUrl) {
+                try {
+                    const tvResponse = await CombosService.getTwitterVideo(this.video.combo.clipUrl);
+                    console.log('[twitter-video] response:', tvResponse.data);
+                    if (tvResponse.data.videoUrl) {
+                        this.twitterVideoUrl = (process.env.VUE_APP_API_URL || '/api') + '/twitter-video-stream?tweetId=' + this.video.combo.clipUrl;
+                        this.twitterPosterUrl = tvResponse.data.posterUrl || null;
+                        this.twitterText = tvResponse.data.text || null;
+                        this.twitterAuthor = tvResponse.data.author || null;
+                        this.twitterAuthorHandle = tvResponse.data.authorHandle || null;
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch Twitter video URL', e);
+                }
+            }
+
             if (comboResponse.Game) {
                 this.video.game = {
                     title: comboResponse.Game.Title,
@@ -317,23 +477,6 @@ export default {
                 };
             }
 
-            var fromClip =
-                (comboResponse.Video &&
-                    (comboResponse.Video._id || comboResponse.Video.Id)) ||
-                comboResponse.VideoId ||
-                comboResponse.videoId;
-
-            this.video.id =
-                mongoIdToString(this.backingVideoId) || mongoIdToString(fromClip) || this.video.id;
-
-            this.isPlaying = false;
-            this.video.combo.id = clipParam;
-            var rawComboDefId =
-                comboResponse.ComboId ||
-                (comboResponse.Combo && comboResponse.Combo._id) ||
-                null;
-            this.comboDefinitionId =
-                rawComboDefId != null ? mongoIdToString(rawComboDefId) : null;
             this.video.contentType = 'Combo';
             this.video.isFavorited = this.favoriteVideos
                 ? this.favoriteVideos.some((video) => video.id === this.video.id)
@@ -356,25 +499,21 @@ export default {
             return seconds;
         },
 
-        async getVideo() {
-            // This method is now deprecated but kept for backwards compatibility
-            // The getCombo method now handles all data extraction
-            const response = await VideosService.getComboVideo(this.video.combo.clipUrl);
-            var videoResponse = response.data.videos[0];
-            this.video.combo.videoType = videoResponse.VideoType;
-            this.video.game = {
-                title: videoResponse.Game.Title,
-                logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id,
-            };
-            this.isPlaying = false;
-            this.video.id = videoResponse._id;
-            this.isLoading = false;
-            this.video.combo.id = this.comboClipId;
-            this.video.contentType = 'Combo';
-            this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                : null;
+        async deleteVideo() {
+            if (!window.confirm('Delete this combo clip? This cannot be undone.')) {
+                return;
+            }
+            var clipId = mongoIdToString(this.comboClipId);
+            if (!clipId) {
+                console.error('deleteVideo: missing comboClipId');
+                return;
+            }
+            try {
+                var comboDel = await CombosService.deleteComboClip(clipId);
+                this.$emit('video:delete', comboDel);
+            } catch (e) {
+                console.error('deleteVideo failed', e);
+            }
         },
 
         playVideo() {
@@ -393,271 +532,7 @@ export default {
             this.player = event.target;
             if (this.isPlaying) {
                 this.player.playVideo();
-                if (this.video.combo.startTime) {
-                    this.setTimer();
-                }
-            }
-        },
-
-        async deleteVideo() {
-            if (
-                !window.confirm(
-                    'Delete this combo clip? This cannot be undone.'
-                )
-            ) {
-                return;
-            }
-            var clipId = mongoIdToString(this.comboClipId);
-            var vid = mongoIdToString(this.video.id);
-            if (!clipId || !vid) {
-                console.error('deleteVideo: missing comboClipId or video id', {
-                    clipId: clipId,
-                    videoId: vid,
-                });
-                return;
-            }
-            var defId = this.comboDefinitionId;
-            if (!defId) {
-                console.error('deleteVideo: missing combo definition id');
-                return;
-            }
-
-            var defS = mongoIdToString(defId);
-
-            function slotComboDefId(slot) {
-                if (!slot || typeof slot !== 'object') {
-                    return '';
-                }
-                var raw =
-                    slot.Id != null
-                        ? slot.Id
-                        : slot.id != null
-                          ? slot.id
-                          : slot.ComboId != null
-                            ? slot.ComboId
-                            : slot._id != null
-                              ? slot._id
-                              : slot.Combo && slot.Combo._id;
-                return mongoIdToString(raw);
-            }
-
-            function comboDefIdFromRow(row) {
-                var sub = row.Combos || row.combos;
-                if (Array.isArray(sub)) {
-                    if (sub.length === 1) {
-                        sub = sub[0];
-                    } else if (sub.length > 1 && defS) {
-                        var subPick = null;
-                        for (var si = 0; si < sub.length; si++) {
-                            if (slotComboDefId(sub[si]) === defS) {
-                                subPick = sub[si];
-                                break;
-                            }
-                        }
-                        sub = subPick;
-                    } else {
-                        sub = null;
-                    }
-                }
-                var raw =
-                    row.ComboId != null
-                        ? row.ComboId
-                        : row.comboId != null
-                          ? row.comboId
-                          : row.Combo && row.Combo._id
-                            ? row.Combo._id
-                            : sub &&
-                                (sub.Id != null
-                                    ? sub.Id
-                                    : sub.id != null
-                                      ? sub.id
-                                      : sub.ComboId != null
-                                        ? sub.ComboId
-                                        : sub._id);
-                return mongoIdToString(raw);
-            }
-
-            function comboTimesFromRow(row) {
-                var sub = row.Combos || row.combos;
-                if (Array.isArray(sub)) {
-                    if (sub.length === 1) {
-                        sub = sub[0];
-                    } else if (sub.length > 1 && defS) {
-                        var tPick = null;
-                        for (var ti = 0; ti < sub.length; ti++) {
-                            if (slotComboDefId(sub[ti]) === defS) {
-                                tPick = sub[ti];
-                                break;
-                            }
-                        }
-                        sub = tPick;
-                    } else {
-                        sub = null;
-                    }
-                }
-                var startVal =
-                    row.Combo && row.Combo.StartTime != null
-                        ? row.Combo.StartTime
-                        : sub && sub.StartTime != null
-                          ? sub.StartTime
-                          : null;
-                var endVal =
-                    row.Combo && row.Combo.EndTime != null
-                        ? row.Combo.EndTime
-                        : sub &&
-                            (sub.EndTime != null
-                                ? sub.EndTime
-                                : sub.Endtime);
-                return { StartTime: startVal, EndTime: endVal != null ? endVal : null };
-            }
-
-            try {
-                const response = await VideosService.getVideo(vid);
-                var rawVideo = response.data.video;
-                var rows = Array.isArray(rawVideo)
-                    ? rawVideo
-                    : rawVideo != null
-                      ? [rawVideo]
-                      : [];
-
-                var base = rows[0];
-                var slotsRaw = base && (base.Combos || base.combos);
-                var slotsList = null;
-                if (Array.isArray(slotsRaw) && slotsRaw.length > 0) {
-                    slotsList = slotsRaw;
-                } else if (
-                    slotsRaw &&
-                    typeof slotsRaw === 'object' &&
-                    !Array.isArray(slotsRaw)
-                ) {
-                    slotsList = [slotsRaw];
-                } else if (base && base.Combo) {
-                    if (Array.isArray(base.Combo) && base.Combo.length > 0) {
-                        slotsList = base.Combo.map(function (c) {
-                            return {
-                                Id: c._id,
-                                StartTime: c.StartTime,
-                                EndTime: c.EndTime,
-                            };
-                        });
-                    } else if (typeof base.Combo === 'object' && base.Combo._id) {
-                        slotsList = [
-                            {
-                                Id: base.Combo._id,
-                                StartTime:
-                                    base.StartTime != null
-                                        ? base.StartTime
-                                        : base.Combo.StartTime,
-                                EndTime:
-                                    base.EndTime != null ? base.EndTime : base.Combo.EndTime,
-                            },
-                        ];
-                    }
-                }
-                var combosPayload = [];
-                var shouldDeleteVideo = false;
-
-                // API shape A: one document per video with Combos as array or single subdoc
-                if (rows.length === 1 && base && slotsList && slotsList.length > 0) {
-                    var remainingSlots = slotsList.filter(function (slot) {
-                        return slotComboDefId(slot) !== defS;
-                    });
-                    if (remainingSlots.length === 0) {
-                        shouldDeleteVideo = true;
-                    } else {
-                        for (var si = 0; si < remainingSlots.length; si++) {
-                            var slot = remainingSlots[si];
-                            var slotIdStr = slotComboDefId(slot);
-                            if (!slotIdStr || !/^[0-9a-fA-F]{24}$/.test(slotIdStr)) {
-                                console.error(
-                                    'deleteVideo: invalid combo Id in Combos[] slot',
-                                    slot
-                                );
-                                return;
-                            }
-                            combosPayload.push({
-                                Id: slotIdStr,
-                                StartTime: slot.StartTime,
-                                EndTime:
-                                    slot.EndTime != null
-                                        ? slot.EndTime
-                                        : slot.Endtime,
-                            });
-                        }
-                    }
-                } else if (
-                    rows.length === 1 &&
-                    base &&
-                    (!slotsList || slotsList.length === 0) &&
-                    defS &&
-                    /^[0-9a-fA-F]{24}$/.test(defS)
-                ) {
-                    // GET video/:id often omits Combos[] but populates Combo; if still missing, removing
-                    // this clip implies dropping the root video when we cannot PATCH remaining slots.
-                    shouldDeleteVideo = true;
-                } else {
-                    // API shape B: unwound — one row per combo slot (Combos is a single subdoc or ComboId set)
-                    var filteredRows = rows.filter(function (row) {
-                        return comboDefIdFromRow(row) !== defS;
-                    });
-
-                    if (filteredRows.length === 0 || rows.length === 0) {
-                        shouldDeleteVideo = true;
-                    } else {
-                        for (var ri = 0; ri < filteredRows.length; ri++) {
-                            var row = filteredRows[ri];
-                            var idStr = comboDefIdFromRow(row);
-                            if (!idStr || !/^[0-9a-fA-F]{24}$/.test(idStr)) {
-                                console.error(
-                                    'deleteVideo: invalid combo Id on row (need 24-char hex)',
-                                    row
-                                );
-                                return;
-                            }
-                            var times = comboTimesFromRow(row);
-                            combosPayload.push({
-                                Id: idStr,
-                                StartTime: times.StartTime,
-                                EndTime: times.EndTime,
-                            });
-                        }
-                    }
-                }
-
-                if (shouldDeleteVideo || rows.length === 0) {
-                    await VideosService.deleteVideo(vid);
-                } else {
-                    var gameIdRaw =
-                        (base && base.GameId != null ? base.GameId : null) ||
-                        (base && base.Game && base.Game._id) ||
-                        (this.video.game && this.video.game.id) ||
-                        null;
-                    var gameIdStr = mongoIdToString(gameIdRaw);
-                    if (!gameIdStr || !/^[0-9a-fA-F]{24}$/.test(gameIdStr)) {
-                        console.error('deleteVideo: invalid game id for patch', gameIdRaw);
-                        return;
-                    }
-                    await VideosService.patchVideo({
-                        id: vid,
-                        GameId: gameIdStr,
-                        ContentCreatorId: base.ContentCreatorId,
-                        Player1Id: base.Player1Id,
-                        Player2Id: base.Player2Id,
-                        Player1CharacterId: base.Player1CharacterId,
-                        Player1Character2Id: base.Player1Character2Id,
-                        Player1Character3Id: base.Player1Character3Id,
-                        Player2CharacterId: base.Player2CharacterId,
-                        Player2Character2Id: base.Player2Character2Id,
-                        Player2Character3Id: base.Player2Character3Id,
-                        WinnerId: base.WinnerId,
-                        Tags: base.Tags,
-                        Combos: combosPayload,
-                    });
-                }
-                var comboDel = await CombosService.deleteComboClip(clipId);
-                this.$emit('video:delete', comboDel);
-            } catch (e) {
-                console.error('deleteVideo failed', e);
+                this.setTimer();
             }
         },
 
@@ -680,20 +555,52 @@ export default {
         },
 
         setTimer() {
-            this.$nextTick(function () {
-                var setTimer = window.setInterval(() => {
-                    this.getTimeStamp();
-                }, 1000);
-                if (!this.isPlaying) {
-                    clearInterval(setTimer);
-                }
-                setTimer;
-            });
+            this.clearTimer();
+            this._timerId = window.setInterval(() => {
+                this.getTimeStamp();
+            }, 250);
+        },
+
+        clearTimer() {
+            if (this._timerId) {
+                clearInterval(this._timerId);
+                this._timerId = null;
+            }
         },
 
         getTimeStamp() {
             if (this.player) {
                 this.videoCurrentTime = this.player.getCurrentTime();
+            }
+        },
+
+        onYoutubePlaying() {
+            this.isPlaying = true;
+            this.setTimer();
+        },
+
+        onYoutubePaused() {
+            this.clearTimer();
+        },
+
+        onYoutubeEnded() {
+            const startTime = this.video.combo.startTime || 0;
+            this.player.seekTo(startTime, true);
+            this.player.playVideo();
+        },
+
+        onVideoEnded() {
+            const startTime = this.video.combo.startTime || 0;
+            this.$refs.videoRef.currentTime = startTime;
+            this.$refs.videoRef.play();
+        },
+
+        onVideoTimeUpdate() {
+            const endTime = this.video.combo.endTime;
+            if (endTime && this.$refs.videoRef.currentTime >= endTime) {
+                const startTime = this.video.combo.startTime || 0;
+                this.$refs.videoRef.currentTime = startTime;
+                this.$refs.videoRef.play();
             }
         },
 
@@ -847,6 +754,122 @@ export default {
         resetEditing() {
             this.video.isEditing = false;
         },
+
+        parseInputs(inputString) {
+            if (!inputString) return [];
+            return inputString
+                .split('>')
+                .map(function(s) { return s.trim(); })
+                .filter(function(s) { return s.length > 0; })
+                .map(function(s) {
+                    var bracketed = s.startsWith('[') && s.endsWith(']');
+                    var text = bracketed ? s.slice(1, -1).trim() : s;
+                    return { text: text, bracketed: bracketed };
+                });
+        },
+
+        getInputIcon(notation) {
+            if (!notation) return null;
+            if (/^[1-9]$/.test(notation)) return this.arrowIcons[notation] || null;
+            if (this.motionIcons[notation]) return this.motionIcons[notation];
+            var motionMap = { '236': 'qcf', '214': 'qcb', '623': 'dp', '41236': '421', '63214': '421' };
+            if (motionMap[notation] && this.motionIcons[motionMap[notation]]) return this.motionIcons[motionMap[notation]];
+            if (notation === 'dash') return this.specialIcons.dash;
+
+            var lower = notation.toLowerCase();
+            var upper = notation.toUpperCase();
+            var candidates = [notation, upper, lower];
+
+            for (var i = 0; i < candidates.length; i++) {
+                if (this.attackIcons[candidates[i]]) return this.attackIcons[candidates[i]];
+            }
+
+            var sets = Object.values(this.allGameIcons);
+            for (var s = 0; s < sets.length; s++) {
+                for (var c = 0; c < candidates.length; c++) {
+                    if (sets[s][candidates[c]]) return sets[s][candidates[c]];
+                }
+            }
+
+            return null;
+        },
+
+        getInputParts(text) {
+            if (!text) return [{ type: 'text', value: text }];
+
+            var trimmed = text.trim();
+            if (!trimmed) return [];
+
+            // Split simultaneous inputs on '+' first (e.g. MK+HK, MP+HP)
+            if (trimmed.indexOf('+') !== -1) {
+                var combined = [];
+                var plusParts = trimmed.split('+');
+                for (var p = 0; p < plusParts.length; p++) {
+                    if (plusParts[p].trim()) {
+                        var subParts = this.getInputParts(plusParts[p]);
+                        combined = combined.concat(subParts);
+                        if (p < plusParts.length - 1) {
+                            combined.push({ type: 'text', value: '+' });
+                        }
+                    }
+                }
+                return combined;
+            }
+
+            var parts = [];
+            var remaining = trimmed;
+
+            // j. / c. prefix
+            if (/^[jJcC]\./i.test(remaining)) {
+                parts.push({ type: 'text', value: remaining.slice(0, 2) });
+                remaining = remaining.slice(2).trim();
+            } else if (/^CH/i.test(remaining) && remaining.length > 2) {
+                parts.push({ type: 'text', value: 'CH' });
+                remaining = remaining.slice(2).trim();
+            }
+
+            // Motion prefix, longest match first — recursive to handle e.g. "236236K"
+            var motions = ['41236', '63214', 'r360', '360', '180f', '180b', 'qcf', 'qcb', 'dp', '421', '236', '214', '623'];
+            for (var m = 0; m < motions.length; m++) {
+                if (remaining.toLowerCase().startsWith(motions[m].toLowerCase())) {
+                    var mIcon = this.getInputIcon(motions[m]);
+                    parts.push(mIcon
+                        ? { type: 'icon', value: mIcon, label: motions[m] }
+                        : { type: 'text', value: motions[m] });
+                    remaining = remaining.slice(motions[m].length).trim();
+                    if (remaining) {
+                        return parts.concat(this.getInputParts(remaining));
+                    }
+                    return parts;
+                }
+            }
+
+            // Single direction digit prefix (e.g. "2" in "2MP") when followed by non-digit
+            if (remaining.length > 1 && /^[1-9]/.test(remaining) && /^[1-9][^0-9]/.test(remaining)) {
+                var digit = remaining[0];
+                var dIcon = this.getInputIcon(digit);
+                parts.push(dIcon ? { type: 'icon', value: dIcon, label: digit } : { type: 'text', value: digit });
+                remaining = remaining.slice(1).trim();
+            }
+
+            // Remaining is the button
+            if (remaining) {
+                var bIcon = this.getInputIcon(remaining);
+                parts.push(bIcon
+                    ? { type: 'icon', value: bIcon, label: remaining }
+                    : { type: 'text', value: remaining });
+            }
+
+            return parts.length ? parts : [{ type: 'text', value: trimmed }];
+        },
+
+        getGlobalInputIndex(rowIndex, inputIndex) {
+            var globalIndex = 0;
+            for (var i = 0; i < rowIndex; i++) {
+                if (this.parsedInputRows[i]) globalIndex += this.parsedInputRows[i].length;
+            }
+            return globalIndex + inputIndex;
+        },
     },
 };
 </script>
@@ -935,10 +958,17 @@ export default {
     font-size: 18px;
 }
 
+.combo-video-card .combo-card .game-character-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
 .combo-video-card .combo-card .character-name {
     padding-top: 0px;
     font-size: 13px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
 }
 
 .combo-video-card .combo-card .character-name p {
@@ -953,12 +983,17 @@ export default {
 }
 
 .combo-video-card .combo-card .game {
-    margin-bottom: 20px;
+    margin-bottom: 0;
+    text-align: right;
 }
 
 .combo-video-card .combo-card .game .img-container img,
 .combo-video-card .combo-card .character-name .img-container img {
     width: 30px;
+}
+
+.combo-video-card .combo-card .game-title img {
+    max-width: 100px;
 }
 
 .combo-video-card .combo-card .game .img-container,
@@ -979,13 +1014,106 @@ export default {
     width: 556px;
 }
 
-.combo-video-card .combo-card .inputs {
-    border-radius: 3px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid #4a5689;
-    min-height: 12em;
+.combo-video-card .combo-card .combo-inputs-icons .input-row {
+    display: flex;
+    gap: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-row:last-child {
+    margin-bottom: 0;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item {
+    position: relative;
+    box-sizing: border-box;
+    background: rgb(128, 128, 128);
+    border: 1px solid rgb(128, 128, 128);
+    border-radius: 4px;
+    padding: 4px 12px 4px 8px;
+    min-width: 0;
+    min-height: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    clip-path: polygon(0% 0%, calc(100% - 6px) 0%, 100% 50%, calc(100% - 6px) 100%, 0% 100%);
+    margin-left: -7px;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item:first-child {
+    margin-left: 0;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item:not(:first-child) {
+    padding-left: 12px;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.input-even {
+    background: rgb(100, 150, 200);
+    border-color: rgb(100, 150, 200);
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.input-odd {
+    background: rgb(200, 120, 150);
+    border-color: rgb(200, 120, 150);
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.bracketed {
+    border: 2px solid rgb(255, 255, 255) !important;
+    background: rgb(128, 128, 128) !important;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.bracketed.input-even {
+    background: rgb(100, 150, 200) !important;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.bracketed.input-odd {
+    background: rgb(200, 120, 150) !important;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.bracketed::before {
+    content: '[';
+    position: absolute;
+    left: -5px;
     color: #fff;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-item.bracketed::after {
+    content: ']';
+    position: absolute;
+    right: -5px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-text {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
+}
+
+.combo-video-card .combo-card .combo-inputs-icons .input-text:only-child {
+    padding: 0 2px;
 }
 
 .combo-video-card .combo-card.card .edit-btn-container {
@@ -1008,25 +1136,6 @@ export default {
     height: 0;
     overflow: hidden;
     min-width: 75%;
-}
-
-.combo-video-card.twitter-card .character-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.combo-video-card.twitter-card .character-image img {
-    max-width: 300px;
-}
-
-.combo-video-card.twitter-card .combo-card .video-container {
-    padding-bottom: 0;
-    height: 610px;
-    min-width: initial;
-    width: 520px;
-    display: flex;
-    align-items: center;
 }
 
 .video-container iframe,
@@ -1091,6 +1200,60 @@ export default {
     font-size: 14px;
     color: #fff;
     font-weight: 600;
+}
+
+.combo-video-card .combo-card .twitter-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.combo-video-card .combo-card .tweet-message {
+    margin-top: 12px;
+}
+
+.combo-video-card .combo-card .tweet-message-link {
+    display: block;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0 6px 6px 0;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.combo-video-card .combo-card .tweet-message-link:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-left-color: rgba(255, 255, 255, 0.4);
+}
+
+.combo-video-card .combo-card .tweet-author {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.combo-video-card .combo-card .tweet-author-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.combo-video-card .combo-card .tweet-author-handle {
+    font-size: 12px;
+    color: #ffffff60;
+}
+
+.combo-video-card .combo-card .tweet-text {
+    font-size: 13px;
+    color: #ffffffcc;
+    line-height: 1.5;
+    word-break: break-word;
 }
 
 .combo-video-card .combo-card .player {

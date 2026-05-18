@@ -22,9 +22,8 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
+import MatchesService from '@/services/matches-service';
 import NewMatchVideoCard from '@/components/videos/match-video-card';
-import NewComboVideoCard from '@/components/videos/combo-video-card';
 
 import Loading from '@/components/common/loading';
 
@@ -90,18 +89,18 @@ export default {
             this.isLoading = true;
             var queryParameter = {
                 skip: this.skip,
+                searchQuery: [],
             };
-            const response = await VideosService.fetchVideos(queryParameter);
+            const response = await MatchesService.queryMatches(queryParameter);
             this.hydrateVideos(response);
             this.isLoading = false;
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            (response.data.matches || []).forEach((match) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
-                    matchId: video.Match ? video.Match._id : null,
-                    contentType: video.ContentType,
+                    matchId: match._id,
+                    contentType: 'Match',
                     isEditing: false,
                     isFirst: false,
                 });

@@ -90,7 +90,6 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import MontagesService from '@/services/montages-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
@@ -194,6 +193,22 @@ export default {
     },
 
     methods: {
+        extractYoutubeId(url) {
+            if (!url || typeof url !== 'string') return null;
+            var s = url.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
+            var m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return m ? m[1] : null;
+        },
+
+        inferVideoType(url) {
+            if (!url) return null;
+            var u = url.trim().toLowerCase();
+            if (u.includes('youtube') || u.includes('youtu.be') || /^[a-zA-Z0-9_-]{11}$/.test(url.trim())) return 'youtube';
+            if (u.includes('twitter') || u.includes('x.com')) return 'twitter';
+            return 'uploaded';
+        },
+
         async getMontage() {
             const response = await MontagesService.getMontage(this.montageId);
             var montageResponse = response.data.montages[0];
@@ -215,29 +230,12 @@ export default {
                 }),
                 collections: this.assignCollection(this.montageId),
             };
-            this.video.url = montageResponse.VideoUrl;
-            this.getVideo();
-        },
-
-        async getVideo() {
-            const response = await VideosService.getMatchVideo(this.video.url);
-
-            var videoResponse = response.data.videos[0];
-            this.video.videoType = videoResponse.VideoType;
-            this.video.game = {
-                title: videoResponse.Game.Title,
-                logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id,
-                abbreviation: videoResponse.Game.Abbreviation || null,
-            };
+            this.video.url = this.extractYoutubeId(montageResponse.VideoUrl) || montageResponse.VideoUrl;
+            this.video.videoType = this.inferVideoType(montageResponse.VideoUrl);
             this.video.isPlaying = false;
-            this.video.id = videoResponse._id;
-            this.isLoading = false;
             this.video.montage.id = this.montageId;
             this.video.contentType = 'Montage';
-            this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                : null;
+            this.isLoading = false;
         },
 
         playVideo() {
@@ -263,9 +261,8 @@ export default {
         },
 
         async deleteVideo() {
-            await VideosService.deleteVideo(this.video.id);
-            var montageResponse = await MontagesService.deleteMatch(this.video.montageId.id);
-
+            var montageId = this.montageId && this.montageId.id ? this.montageId.id : this.montageId;
+            var montageResponse = await MontagesService.deleteMatch(montageId);
             this.$emit('video:delete', montageResponse);
         },
 
@@ -306,7 +303,8 @@ export default {
         },
 
         copyLink() {
-            this.$copyText(`https://fighters-edge.com/montage/${this.video.id}`).then(() => {
+            var id = this.montageId && this.montageId.id ? this.montageId.id : this.montageId;
+            this.$copyText(`https://fighters-edge.com/montage/${id}`).then(() => {
                 alert('montage copied');
             });
         },

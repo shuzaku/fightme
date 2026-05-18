@@ -132,22 +132,19 @@ export default {
         async queryVideos() {
             var queryParameter = {
                 skip: this.skip,
-                sort: this.sort,
-                filter: 'Combo',
                 searchQuery: this.searchQuery,
-                sort: null,
             };
 
-            const response = await VideosService.queryVideos(queryParameter);
+            const response = await VideosService.queryComboClips(queryParameter);
             this.hydrateVideos(response);
         },
 
         hydrateVideos(response) {
-            response.data.videos.forEach((video) => {
+            (response.data.comboClips || []).forEach((clip) => {
                 this.videos.push({
-                    comboClipId: video.ComboClip ? video.ComboClip._id : null,
-                    backingVideoId: video._id || video.Id || null,
-                    contentType: video.ContentType,
+                    comboClipId: clip._id,
+                    backingVideoId: null,
+                    contentType: 'Combo',
                     isEditing: false,
                     isPlaying: false,
                 });

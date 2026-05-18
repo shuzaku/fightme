@@ -7,6 +7,14 @@ export default {
     return Api().post('montages', params)
   },
   getMontage(params: Params) {
-    return Api().get('montage/' + params) 
+    return Api().get('montage/' + params)
   },
-} 
+  queryMontages(params: any) {
+    var skip = (params && params.skip) || 0;
+    var query = `skip=${skip}`;
+    if (params && params.playerId) {
+      query += `&playerId=${params.playerId}`;
+    }
+    return Api().get(`montages?${query}`)
+  },
+}

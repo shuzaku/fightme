@@ -35,7 +35,6 @@
                     <div v-if="!videoId" class="video-container">
                         <div class="import-video-container">
                             <div class="input-wrapper">
-                                <i class="fas fa-link input-icon"></i>
                                 <v-text-field
                                     id="import-video"
                                     v-model="importVideoUrl"
@@ -221,8 +220,6 @@ export default {
     mounted() {
         if (this.matchId) {
             this.loadMatch();
-        } else if (this.videoId) {
-            this.getVideo();
         } else {
             this.isLoading = false;
         }
@@ -341,86 +338,6 @@ export default {
             }
         },
 
-        async getVideo() {
-            try {
-                const response = await VideosService.getVideo(this.videoId);
-                var videoResponse = response.data.video;
-                if (videoResponse && videoResponse.length > 0) {
-                    this.video = this.mapVideoResponse(videoResponse[0]);
-                }
-            } catch (error) {
-                console.error('Error loading video:', error);
-                this.error = 'Failed to load video';
-            } finally {
-                this.isLoading = false;
-            }
-        },
-
-        mapVideoResponse(video) {
-            var g = video.Game;
-            if (Array.isArray(g) && g.length) {
-                g = g[0];
-            }
-            if (!g || !g._id) {
-                g = null;
-            }
-            return {
-                id: video._id,
-                contentType: video.ContentType,
-                videoType: video.VideoType,
-                url: video.Url,
-                combo: null,
-                gameId: video.GameId,
-                contentCreatorId: video.ContentCreatorId,
-                tags: video.Tags ? video.Tags.map((tag) => tag._id) : null,
-                game: g
-                    ? {
-                          id: g._id,
-                          Title: g.Title,
-                          LogoUrl: g.LogoUrl,
-                      }
-                    : { id: null, Title: '', LogoUrl: '' },
-                match:
-                    video.ContentType === 'Match'
-                        ? {
-                              id: video.Match._id,
-                              team1Players: video.Match.Team1Players.map((player) => {
-                                  const p = video.Match.Team1Player.find(
-                                      (searchPlayer) =>
-                                          String(searchPlayer._id) === String(player.Id)
-                                  );
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: p ? p.Name : '',
-                                      characterIds: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team1PlayerCharacters
-                                      ),
-                                      characterCount: player.CharacterIds.length,
-                                  };
-                              }),
-                              team2Players: video.Match.Team2Players.map((player) => {
-                                  const p = video.Match.Team2Player.find(
-                                      (searchPlayer) =>
-                                          String(searchPlayer._id) === String(player.Id)
-                                  );
-                                  return {
-                                      id: player.Id,
-                                      slot: player.Slot,
-                                      name: p ? p.Name : '',
-                                      characterIds: this.hydrateCharacters(
-                                          player.CharacterIds,
-                                          video.Match.Team2PlayerCharacters
-                                      ),
-                                      characterCount: player.CharacterIds.length,
-                                  };
-                              }),
-                          }
-                        : null,
-            };
-        },
-
         mapMatchResponse(m) {
             const g = m.Game && m.Game.length ? m.Game[0] : null;
             return {
@@ -491,26 +408,6 @@ export default {
 
         async patchVideo() {
             if (this.isValidated) {
-                var combosPayload =
-                    this.video.contentType === 'Combo' && this.video.combos
-                        ? this.video.combos.map((combo) => {
-                              return {
-                                  Id: combo.id,
-                                  StartTime: combo.startTime,
-                                  EndTime: combo.endTime,
-                              };
-                          })
-                        : [];
-
-                var videoRequest = {
-                    id: this.video.id,
-                    Tags: this.video.tags,
-                    GameId: this.video.gameId,
-                    Combos: combosPayload,
-                };
-
-                await VideosService.patchVideo(videoRequest);
-
                 this.$emit('closeModal');
                 eventbus.$emit('newVideoPosted');
             } else {
@@ -622,17 +519,6 @@ export default {
 .new-match .import-video-container .input-wrapper {
     position: relative;
     margin-bottom: 12px;
-}
-
-.new-match .import-video-container .input-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ffffff60;
-    z-index: 2;
-    font-size: 18px;
-    pointer-events: none;
 }
 
 .new-match .import-video-container .v-text-field--outlined >>> .v-input__slot {

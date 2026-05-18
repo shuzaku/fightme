@@ -393,7 +393,6 @@
 </template>
 
 <script>
-import VideosService from '@/services/videos-service';
 import MatchesService from '@/services/matches-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
@@ -810,7 +809,8 @@ export default {
                 endTime: matchResponse.StartTime ? this.convertTime(matchResponse.EndTime) : null,
             };
             this.video.url = matchResponse.VideoUrl;
-            this.getVideo();
+            this.video.videoType = 'youtube';
+            this.isLoading = false;
         },
 
         convertTime(time) {
@@ -847,28 +847,6 @@ export default {
             return playerCharacters;
         },
 
-        async getVideo() {
-            this.isLoading = true;
-
-            const response = await VideosService.getMatchVideo(this.video.url);
-
-            var videoResponse = response.data.videos[0];
-            this.video.videoType = videoResponse.VideoType;
-            this.video.game = {
-                title: videoResponse.Game.Title,
-                logoUrl: videoResponse.Game.LogoUrl,
-                id: videoResponse.Game._id,
-            };
-            this.video.isPlaying = false;
-            this.video.id = videoResponse._id;
-            this.isLoading = false;
-            this.video.match.id = this.matchId;
-            this.video.contentType = 'Match';
-            this.video.isFavorited = this.favoriteVideos
-                ? this.favoriteVideos.some((video) => video.id === this.video.id)
-                : null;
-        },
-
         playVideo() {
             if (this.video.videoType === 'uploaded') {
                 if (this.video.isPlaying) {
@@ -892,9 +870,7 @@ export default {
         },
 
         async deleteVideo() {
-            await VideosService.deleteVideo(this.video.id);
-            var matchResponse = await MatchesService.deleteMatch(this.video.match.id);
-
+            var matchResponse = await MatchesService.deleteMatch(this.matchId);
             this.$emit('video:delete', matchResponse);
         },
 
