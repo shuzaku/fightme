@@ -39,6 +39,8 @@ import ComboGenerator from './views/combo-generator.vue';
 import HowItWorks from './views/how-it-works.vue';
 import UseCases from './views/use-cases.vue';
 import Landing from './views/landing.vue';
+import MultiStream from './views/multi-stream.vue';
+import MatchLogs from './views/match-logs.vue';
 
 const routes = [
     {
@@ -137,6 +139,11 @@ const routes = [
         name: 'Game Character Matchups Tab',
         component: Character,
     },
+    {
+        path: '/game/:gameKey/character/:characterKey/matchups/:character2',
+        name: 'Game Character Matchups Versus Tab',
+        component: Character,
+    },
     { path: '/game/:gameKey', name: 'Game', component: Game },
     { path: '/home', name: 'HomeLegacy', component: Home },
     {
@@ -166,11 +173,13 @@ const routes = [
     { path: '/character/:id/online-matches', name: 'Character Online Matches Tab', component: Character },
     { path: '/character/:id/tournament-matches', name: 'Character Tournament Matches Tab', component: Character },
     { path: '/character/:id/matchups', name: 'Character Matchups Tab', component: Character },
+    { path: '/character/:id/matchups/:character2', name: 'Character Matchups Versus Tab', component: Character },
     { path: '/c/:slug', name: 'CharacterSlug', component: Character },
     { path: '/c/:slug/combos', name: 'Character Slug Combos Tab', component: Character },
     { path: '/c/:slug/online-matches', name: 'Character Slug Online Matches Tab', component: Character },
     { path: '/c/:slug/tournament-matches', name: 'Character Slug Tournament Matches Tab', component: Character },
     { path: '/c/:slug/matchups', name: 'Character Slug Matchups Tab', component: Character },
+    { path: '/c/:slug/matchups/:character2', name: 'Character Slug Matchups Versus Tab', component: Character },
     { path: '/collection/:id', name: 'Collection', component: Collection },
     { path: '/channel-scrapper', name: 'ChannelScrapper', component: ChannelScrapper },
     {
@@ -217,6 +226,34 @@ const routes = [
     { path: '/merge-players', name: 'MergePlayers', component: PlayerMerge },
     { path: '/link-user-to-player', name: 'LinkUserToPlayer', component: LinkUserToPlayer },
     { path: '/device-auth', name: 'DeviceAuth', component: DeviceAuth },
+    {
+        path: '/multistream',
+        name: 'MultiStream',
+        component: MultiStream,
+        meta: {
+            title: 'Multi-Stream | Fighters Edge',
+            description: 'Watch multiple Twitch streams side by side. Feature any stream as your main view.',
+        },
+    },
+    {
+        // Matches /multistream/ch1/ch2/ch3/...
+        path: '/multistream/:channels(.*)',
+        name: 'MultiStreamChannels',
+        component: MultiStream,
+        meta: {
+            title: 'Multi-Stream | Fighters Edge',
+            description: 'Watch multiple Twitch streams side by side. Feature any stream as your main view.',
+        },
+    },
+    {
+        path: '/match-logs',
+        name: 'MatchLogs',
+        component: MatchLogs,
+        meta: {
+            title: 'Match Log | Fighters Edge',
+            description: 'Log every set you play — track game, character, opponent, score, video, and notes for every match.',
+        },
+    },
     { path: '/match/:id/review', name: 'MatchReview', component: MatchReview },
     { path: '/tournament/:id', name: 'Tournament', component: Tournament },
     { path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval },

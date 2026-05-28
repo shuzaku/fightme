@@ -261,6 +261,7 @@ export default {
         },
 
         async deleteVideo() {
+            if (!window.confirm('Delete this montage? This cannot be undone.')) return;
             var montageId = this.montageId && this.montageId.id ? this.montageId.id : this.montageId;
             var montageResponse = await MontagesService.deleteMatch(montageId);
             this.$emit('video:delete', montageResponse);

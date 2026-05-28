@@ -870,6 +870,7 @@ export default {
         },
 
         async deleteVideo() {
+            if (!window.confirm('Delete this match? This cannot be undone.')) return;
             var matchResponse = await MatchesService.deleteMatch(this.matchId);
             this.$emit('video:delete', matchResponse);
         },

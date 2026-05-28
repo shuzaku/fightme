@@ -55,6 +55,11 @@ const ROUTE_TAB_MAP = {
     'matchups': 'Matchups',
 };
 
+// Matches `/<tab>` or `/matchups/<character2>` at the end of the path.
+// Group 1 is the tab slug, group 2 (only present for matchups) is the
+// character2 slug.
+const TAB_PATH_RE = /\/(combos|online-matches|tournament-matches|matchups)(?:\/([^/]+))?$/;
+
 export default {
     name: 'Character',
 
@@ -74,7 +79,7 @@ export default {
     },
 
     data() {
-        const tabMatch = this.$route.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+        const tabMatch = this.$route.path.match(TAB_PATH_RE);
         return {
             loading: true,
             character: {
@@ -85,7 +90,11 @@ export default {
                 featuredPlayers: null,
             },
             selectedVideoType: (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches',
+            // ID(s) of the opponent character for the Matchups tab.
             character2Id: [],
+            // Lowercased slug of the opponent character, used to keep the
+            // URL in sync (e.g. /character/ggst_na/matchups/ggst_ax).
+            character2Slug: (tabMatch && tabMatch[2]) ? tabMatch[2].toLowerCase() : null,
         };
     },
 
@@ -107,19 +116,21 @@ export default {
         },
 
         basePath: function () {
-            return this.$route.path.replace(
-                /\/(combos|online-matches|tournament-matches|matchups)$/,
-                ''
-            );
+            return this.$route.path.replace(TAB_PATH_RE, '');
         },
     },
 
     watch: {
         $route(to) {
-            const tabMatch = to.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+            const tabMatch = to.path.match(TAB_PATH_RE);
             const tab = (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches';
             if (tab !== this.selectedVideoType) {
                 this.selectedVideoType = tab;
+            }
+            const nextSlug = (tabMatch && tabMatch[2]) ? tabMatch[2].toLowerCase() : null;
+            if (nextSlug !== this.character2Slug) {
+                this.character2Slug = nextSlug;
+                this.resolveCharacter2FromSlug();
             }
         },
 
@@ -164,9 +175,19 @@ export default {
     beforeDestroy() {},
 
     methods: {
+        pickCharacterRow(rows, slug) {
+            if (!rows || !rows.length) {
+                return null;
+            }
+            var match = rows.find(function (c) {
+                return characterApiRowMatchesRouteKey(c, slug);
+            });
+            return match || rows[0];
+        },
+
         async getCharacterByGameAndKey() {
             this.loading = true;
-            const tabMatch = this.$route.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+            const tabMatch = this.$route.path.match(TAB_PATH_RE);
             this.selectedVideoType = (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches';
             var gameId = await resolveGameIdFromRouteParam(this.$route.params.gameKey);
             if (!gameId) {
@@ -196,11 +217,12 @@ export default {
                 this.character = this.hydrateCharacter(fullRow);
             }
             this.loading = false;
+            this.resolveCharacter2FromSlug();
         },
 
         async getCharacter() {
             this.loading = true;
-            const tabMatch = this.$route.path.match(/\/(combos|online-matches|tournament-matches|matchups)$/);
+            const tabMatch = this.$route.path.match(TAB_PATH_RE);
             this.selectedVideoType = (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches';
             const response = await CharactersService.getCharacter({
                 id: this.characterId,
@@ -210,6 +232,7 @@ export default {
                 this.character = this.hydrateCharacter(row);
             }
             this.loading = false;
+            this.resolveCharacter2FromSlug();
         },
 
         async getCharacterBySlug() {
@@ -217,11 +240,12 @@ export default {
             const response = await CharactersService.getCharacterBySlug({
                 slug: this.characterSlug.toLowerCase(),
             });
-            var row = response.data.characters && response.data.characters[0];
+            var row = this.pickCharacterRow(response.data.characters, this.characterSlug);
             if (row) {
                 this.character = this.hydrateCharacter(row);
             }
             this.loading = false;
+            this.resolveCharacter2FromSlug();
         },
 
         async getCharacterBySlugValue(slug) {
@@ -234,10 +258,11 @@ export default {
             const response = await CharactersService.getCharacterBySlug({
                 slug: String(slug).toLowerCase(),
             });
-            var found = response.data.characters && response.data.characters[0];
+            var found = this.pickCharacterRow(response.data.characters, slug);
             if (found) {
                 this.character = this.hydrateCharacter(found);
                 this.loading = false;
+                this.resolveCharacter2FromSlug();
                 return;
             }
             // Fallback: query by slug field then name-match client-side
@@ -258,6 +283,7 @@ export default {
                 // leave character in default state
             }
             this.loading = false;
+            this.resolveCharacter2FromSlug();
         },
 
         hydrateCharacter(response) {
@@ -271,6 +297,7 @@ export default {
             return {
                 id: response._id,
                 name: response.Name,
+                slug: response.Slug || null,
                 imageUrl: response.AvatarUrl,
                 gameId: response.GameId,
                 players: this.hydratePlayer(response.Players),
@@ -307,7 +334,13 @@ export default {
             this.selectedVideoType = selectedVideo;
             const tabSlug = TAB_ROUTE_MAP[selectedVideo];
             if (tabSlug) {
-                const newPath = `${this.basePath}/${tabSlug}`;
+                // For the Matchups tab, preserve the currently-selected
+                // opponent slug if we have one — otherwise build a plain
+                // tab URL. All other tabs always use the plain tab URL.
+                let newPath = `${this.basePath}/${tabSlug}`;
+                if (selectedVideo === 'Matchups' && this.character2Slug) {
+                    newPath += `/${this.character2Slug}`;
+                }
                 if (this.$route.path !== newPath) {
                     this.$router.push(newPath);
                 }
@@ -320,8 +353,54 @@ export default {
             });
         },
 
-        setCharacter2Id(character2Id) {
-            this.character2Id = [character2Id];
+        setCharacter2Id(character) {
+            if (!character) {
+                this.character2Id = [];
+                this.character2Slug = null;
+                return;
+            }
+            this.character2Id = [character.id];
+            const slug = character.slug ? String(character.slug).toLowerCase() : null;
+            this.character2Slug = slug;
+
+            // Reflect the new opponent in the URL only while we're on the
+            // Matchups tab. Switching tabs preserves the slug in component
+            // state but not in the URL.
+            if (this.selectedVideoType !== 'Matchups' || !slug) return;
+            const newPath = `${this.basePath}/matchups/${slug}`;
+            if (this.$route.path !== newPath) {
+                this.$router.replace(newPath);
+            }
+        },
+
+        async resolveCharacter2FromSlug() {
+            if (!this.character2Slug) {
+                this.character2Id = [];
+                return;
+            }
+            // If the currently-loaded character2Id was already derived
+            // from this slug, no-op. (Avoids a redundant API call when
+            // setCharacter2Id has just pushed the URL.)
+            if (
+                this._lastResolvedSlug &&
+                this._lastResolvedSlug === this.character2Slug &&
+                this.character2Id.length
+            ) {
+                return;
+            }
+            try {
+                const response = await CharactersService.getCharacterBySlug({
+                    slug: this.character2Slug,
+                });
+                const found = this.pickCharacterRow(response.data.characters, this.character2Slug);
+                if (found) {
+                    this.character2Id = [found._id];
+                    this._lastResolvedSlug = this.character2Slug;
+                }
+            } catch (e) {
+                // Leave character2Id alone — the default-select fallback
+                // in character-search will pick something.
+            }
         },
     },
 };

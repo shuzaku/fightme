@@ -356,6 +356,7 @@ export default {
         },
 
         deleteVideo() {
+            if (!window.confirm('Delete this video? This cannot be undone.')) return;
             this.$emit('video:delete', this.video);
         },
 

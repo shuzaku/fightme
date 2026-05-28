@@ -14,6 +14,7 @@
                     <!-- <a v-if="account" class="menu-item" href="/favorites">Favorites</a> -->
                     <a v-if="account" class="menu-item" href="/collections">Collections</a>
                     <a v-if="account" class="menu-item" href="/notes">Notes</a>
+                    <a v-if="account" class="menu-item" href="/match-logs">Match Logs</a>
                     <a v-if="isAdmin" class="menu-item admin-link" href="/admin/video-approval"
                         >Admin Panel</a
                     >

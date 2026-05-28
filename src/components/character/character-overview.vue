@@ -44,10 +44,29 @@
         <div class="overview-right">
             <div class="top-guides overview-card">
                 <h3>Resources</h3>
-                <a v-if="character.wikiUrl" :href="character.wikiUrl" target="_blank" class="wiki-link">
+                <a v-if="character.wikiUrl" :href="character.wikiUrl" target="_blank" rel="noopener noreferrer" class="wiki-link">
                     <i class="fab fa-wikipedia-w"></i> Character Wiki
                 </a>
-                <a v-if="character.discordLink" :href="character.discordLink" target="_blank" class="discord-link">
+                <a
+                    v-if="twitterSearchUrl"
+                    :href="twitterSearchUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="twitter-link"
+                >
+                    <i class="fab fa-twitter"></i> Twitter (#{{ resourceHashtag }})
+                </a>
+                <a
+                    v-if="blueskySearchUrl"
+                    :href="blueskySearchUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bluesky-link"
+                >
+                    <bluesky-icon width="18" height="18" />
+                    Bluesky (#{{ resourceHashtag }})
+                </a>
+                <a v-if="character.discordLink" :href="character.discordLink" target="_blank" rel="noopener noreferrer" class="discord-link">
                     <i class="fab fa-discord"></i> Discord Server
                 </a>
             </div>
@@ -125,6 +144,7 @@
 <script>
 import Loading from '@/components/common/loading';
 import CharacterSearch from '@/components/character/character-search';
+import BlueskyIcon from '@/components/svg/bluesky-icon';
 
 import { eventbus } from '@/main';
 
@@ -134,6 +154,7 @@ export default {
     components: {
         loading: Loading,
         'character-search': CharacterSearch,
+        'bluesky-icon': BlueskyIcon,
     },
 
     props: {
@@ -162,7 +183,29 @@ export default {
         return {};
     },
 
-    computed: {},
+    computed: {
+        resourceHashtag() {
+            if (!this.character || !this.character.slug) {
+                return null;
+            }
+            var slug = String(this.character.slug).trim().toLowerCase();
+            return slug || null;
+        },
+
+        twitterSearchUrl() {
+            if (!this.resourceHashtag) {
+                return null;
+            }
+            return `https://x.com/search?q=${encodeURIComponent('#' + this.resourceHashtag)}`;
+        },
+
+        blueskySearchUrl() {
+            if (!this.resourceHashtag) {
+                return null;
+            }
+            return `https://bsky.app/search?q=${encodeURIComponent('#' + this.resourceHashtag)}`;
+        },
+    },
 
     watch: {},
 
@@ -172,7 +215,9 @@ export default {
 
     methods: {
         setCharacter2Id(character) {
-            this.$emit('character2Id:update', character.id);
+            // Forward the full character object so the parent has access
+            // to both the id (for API queries) and the slug (for the URL).
+            this.$emit('character2Id:update', character);
         },
         playerInitials(name) {
             if (!name) return '?';
@@ -266,6 +311,32 @@ export default {
 
 .character-overview .top-guides a.wiki-link i {
     font-size: 18px;
+}
+
+.character-overview .top-guides a.twitter-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e7e9ea;
+}
+
+.character-overview .top-guides a.twitter-link:hover {
+    color: #1d9bf0;
+}
+
+.character-overview .top-guides a.twitter-link i {
+    font-size: 18px;
+}
+
+.character-overview .top-guides a.bluesky-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8ec8f6;
+}
+
+.character-overview .top-guides a.bluesky-link:hover {
+    color: #1185fe;
 }
 
 .character-overview .top-guides a.discord-link {

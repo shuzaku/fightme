@@ -78,6 +78,7 @@ export default {
         },
 
         deleteNote() {
+            if (!window.confirm('Delete this note? This cannot be undone.')) return;
             this.$emit('delete:note', this.note.id);
         },
     },
