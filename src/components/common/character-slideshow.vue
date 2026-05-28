@@ -14,9 +14,13 @@
                     class="character-image"
                 />
                 <div class="character-info">
-                    <v-btn class="character-name" @click="routeToCharacter(character)">
+                    <router-link
+                        v-if="characterHref(character)"
+                        :to="characterHref(character)"
+                        class="character-name v-btn"
+                    >
                         Check Out {{ character.name }}
-                    </v-btn>
+                    </router-link>
                 </div>
             </div>
         </div>
@@ -35,7 +39,7 @@
 </template>
 
 <script>
-import { characterPagePath } from '@/utils/game-character-routes';
+import { characterPathSegment } from '@/utils/game-character-routes';
 
 export default {
     name: 'CharacterSlideshow',
@@ -115,15 +119,18 @@ export default {
             }
         },
 
-        routeToCharacter(character) {
-            var gameLike =
-                character && character.gameAbbrev
-                    ? { Abbreviation: character.gameAbbrev }
-                    : null;
-            var path = characterPagePath(gameLike, character);
-            if (path) {
-                this.$router.push(path);
+        characterHref(character) {
+            if (!character) {
+                return null;
             }
+            var seg = characterPathSegment(character);
+            if (seg) {
+                return `/character/${encodeURIComponent(seg)}`;
+            }
+            if (character.id) {
+                return `/character/${encodeURIComponent(String(character.id))}`;
+            }
+            return null;
         },
     },
 };
@@ -197,6 +204,10 @@ export default {
     font-size: 18px;
     font-weight: 600;
     text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dots {
