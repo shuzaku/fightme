@@ -293,14 +293,14 @@ export default {
                     return {
                         Id: player.id,
                         Slot: player.slot,
-                        CharacterIds: player.characterIds.map((character) => character.id),
+                        CharacterIds: player.characterIds,
                     };
                 }),
                 Team2Players: this.video.match.team2Players.map((player) => {
                     return {
                         Id: player.id,
                         Slot: player.slot,
-                        CharacterIds: player.characterIds.map((character) => character.id),
+                        CharacterIds: player.characterIds,
                     };
                 }),
                 VideoUrl: this.video.url,
