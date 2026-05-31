@@ -150,7 +150,6 @@ export default {
             video: {
                 id: '',
                 contentType: '',
-                contentCreatorId: '',
                 type: '',
                 origin: '',
                 url: '',
@@ -288,6 +287,7 @@ export default {
         async validateVideo() {
             await VideosService.validateVideo({
                 Url: this.video.url,
+                ImportVideoUrl: this.importVideoUrl,
                 GameId: this.video.gameId,
                 Team1Players: this.video.match.team1Players.map((player) => {
                     return {
@@ -307,7 +307,6 @@ export default {
                 SubmittedBy: this.account.id,
                 UpdatedBy: this.account.id,
                 ContentType: 'Match',
-                ContentCreatorId: this.video.contentCreatorId || null,
                 VideoType: this.video.type,
                 Tags: this.video.tags,
                 StartTime: this.video.startTime,
@@ -348,7 +347,6 @@ export default {
                 url: m.VideoUrl || '',
                 combo: null,
                 gameId: m.GameId,
-                contentCreatorId: null,
                 tags: [],
                 startTime: m.StartTime || '',
                 endTime: m.EndTime || '',

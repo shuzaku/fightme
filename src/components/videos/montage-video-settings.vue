@@ -1,36 +1,45 @@
 <!-- @format -->
 <template>
     <div class="montage-step">
-        <p class="error-msg">
-            {{ error }}
-        </p>
-        <!--- montage --->
         <div class="players-container">
-            <h2>Players</h2>
-            <player-search
-                v-model="montage.playerIds"
-                @update:player="addPlayerToMontage($event)"
-            />
-            <div class="character-container">
-                <h3>Characters</h3>
-                <character-search
-                    v-model="montage.characterIds"
-                    :gameId="gameId"
-                    @update:character="addCharacterToMontage($event)"
-                />
+            <h3>Players</h3>
+            <player-search @update:player="addPlayerToMontage($event)" />
+            <div v-if="montage.players.length" class="montage-tags">
+                <span
+                    v-for="playerId in montage.players"
+                    :key="playerId"
+                    class="montage-tag"
+                >
+                    {{ playerLabel(playerId) }}
+                    <button type="button" class="montage-tag-remove" @click="removePlayer(playerId)">
+                        ×
+                    </button>
+                </span>
             </div>
+        </div>
+        <div class="character-container">
+            <h3>Characters</h3>
+            <character-search
+                :gameId="gameId"
+                :multiple="true"
+                :value="montageCharacterIds"
+                placeHolder="Search characters in this montage"
+                @update:character="setMontageCharacters($event)"
+            />
         </div>
     </div>
 </template>
 
 <script>
 import CharacterSearch from '@/components/character/character-search';
+import PlayerSearch from '@/components/players/player-search';
 
 export default {
-    name: 'MatchVideoSettings',
+    name: 'MontageVideoSettings',
 
     components: {
         'character-search': CharacterSearch,
+        'player-search': PlayerSearch,
     },
 
     props: {
@@ -38,44 +47,99 @@ export default {
             type: String,
             default: null,
         },
-        videoUrl: {
-            type: String,
-            default: null,
+        montage: {
+            type: Object,
+            default: () => ({
+                type: null,
+                players: [],
+                characters: [],
+            }),
         },
     },
 
     data() {
         return {
-            montage: {
-                type: null,
-                players: [],
-                characters: [],
-            },
+            playerNames: {},
         };
     },
 
-    computed: {},
-
-    watch: {
-        montage() {
-            this.$emit('update:montage', this.match);
+    computed: {
+        montageCharacterIds() {
+            return (this.montage.characters || []).map((c) => c.id).filter(Boolean);
         },
     },
 
-    mounted() {},
-
     methods: {
-        addPlayerToMontage(item) {
-            this.video.montage.players.push(item.id);
-            this.$emit('update:montage', this.match);
+        emitUpdate() {
+            this.$emit('update:montage', {
+                type: this.montage.type,
+                players: [...this.montage.players],
+                characters: [...this.montage.characters],
+            });
         },
 
-        addCharacterToMontage(character) {
-            this.video.montage.characters.push(character);
-            this.$emit('update:montage', this.match);
+        addPlayerToMontage(player) {
+            if (!player || !player.id) return;
+            this.playerNames[player.id] = player.playerName || player.name || 'Player';
+            if (!this.montage.players.includes(player.id)) {
+                this.montage.players.push(player.id);
+            }
+            this.emitUpdate();
+        },
+
+        removePlayer(playerId) {
+            this.montage.players = this.montage.players.filter((id) => id !== playerId);
+            this.emitUpdate();
+        },
+
+        setMontageCharacters(characters) {
+            const list = Array.isArray(characters) ? characters : characters ? [characters] : [];
+            this.montage.characters = list
+                .filter((c) => c && c.id)
+                .map((c) => ({ id: c.id, name: c.name }));
+            this.emitUpdate();
+        },
+
+        playerLabel(playerId) {
+            return this.playerNames[playerId] || 'Player';
         },
     },
 };
 </script>
 
-<style type="text/css"></style>
+<style type="text/css">
+.montage-step h3 {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+.montage-step .montage-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.montage-step .montage-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(62, 180, 137, 0.2);
+    color: #fff;
+    font-size: 12px;
+}
+
+.montage-step .montage-tag-remove {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+}
+</style>

@@ -30,7 +30,17 @@
             v-if="options.name === 'combo'"
             :comboClipId="options.comboClipId"
             :videoId="options.videoId"
+            :initialGameId="options.gameId"
+            :initialCharacterId="options.characterId"
             :account="this.account"
+            @closeModal="closeModal()"
+        />
+
+        <new-montage
+            v-if="options.name === 'montage'"
+            :initialGameId="options.gameId"
+            :initialCharacterId="options.characterId"
+            :account="account"
             @closeModal="closeModal()"
         />
 
@@ -95,6 +105,7 @@ import newArticle from '@/components/article/new-article';
 import newEvent from '@/components/event/new-event';
 import newMatch from '@/components/videos/new-match';
 import newCombo from '@/components/videos/new-combo';
+import newMontage from '@/components/videos/new-montage';
 import register from '@/components/account/register';
 import login from '@/components/account/login';
 import collections from '@/components/collection/collections';
@@ -120,6 +131,7 @@ export default {
         'new-event': newEvent,
         'new-match': newMatch,
         'new-combo': newCombo,
+        'new-montage': newMontage,
         register: register,
         login: login,
         collections: collections,

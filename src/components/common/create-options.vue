@@ -39,6 +39,11 @@ export default {
                     adminOnly: false,
                 },
                 {
+                    name: 'montage',
+                    value: 'montage',
+                    adminOnly: false,
+                },
+                {
                     name: 'game',
                     value: 'game',
                     adminOnly: true,
@@ -112,11 +117,20 @@ export default {
 .create-options {
     color: #fff;
     background: #1c1c24;
-    padding: 10px 20px;
+    padding: 8px 14px;
+    font-size: 11px;
+    line-height: 1.35;
+    border-radius: 8px;
+    min-width: 110px;
 }
 
 .create-options .create-option {
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     cursor: pointer;
+    text-transform: lowercase;
+}
+
+.create-options .create-option:last-child {
+    margin-bottom: 0;
 }
 </style>

@@ -2,13 +2,24 @@
 <template>
     <div class="character-videos">
         <div v-if="selectedVideoType === 'Combos'">
-            <character-combos :account="account" :characterId="characterId" />
+            <character-combos
+                :account="account"
+                :characterId="characterId"
+                :gameId="gameId"
+            />
         </div>
         <div v-else-if="selectedVideoType === 'Online Matches'">
             <character-online-matches :account="account" :characterId="characterId" />
         </div>
         <div v-else-if="selectedVideoType === 'Tournament Matches'">
             <character-tournament-matches :account="account" :characterId="characterId" />
+        </div>
+        <div v-else-if="selectedVideoType === 'Montages'">
+            <character-montages
+                :account="account"
+                :characterId="characterId"
+                :gameId="gameId"
+            />
         </div>
         <div v-else-if="selectedVideoType === 'Matchups'">
             <character-matchups
@@ -24,6 +35,7 @@
 import CharacterOnlineMatches from '@/components/character/character-online-matches';
 import CharacterTournamentMatches from '@/components/character/character-tournament-matches';
 import CharacterCombos from '@/components/character/character-combos';
+import CharacterMontages from '@/components/character/character-montages';
 import CharacterMatchups from '@/components/character/character-matchups';
 export default {
     name: 'CharacterVideos',
@@ -32,6 +44,7 @@ export default {
         'character-online-matches': CharacterOnlineMatches,
         'character-tournament-matches': CharacterTournamentMatches,
         'character-combos': CharacterCombos,
+        'character-montages': CharacterMontages,
         'character-matchups': CharacterMatchups,
     },
 
@@ -52,6 +65,11 @@ export default {
         },
 
         characterId: {
+            type: String,
+            default: null,
+        },
+
+        gameId: {
             type: String,
             default: null,
         },

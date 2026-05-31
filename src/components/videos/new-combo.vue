@@ -52,16 +52,6 @@
                             <p class="input-hint">
                                 <i class="fas fa-info-circle"></i> Paste a YouTube or Twitter video URL
                             </p>
-                            <div class="creator-container">
-                                <div class="section-subheader">
-                                    <i class="fas fa-user-tie"></i>
-                                    <span>Content Creator (Optional)</span>
-                                </div>
-                                <creator-search
-                                    v-model="video.contentCreatorId"
-                                    @update:creator="setCreator($event)"
-                                />
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -124,7 +114,6 @@ import UploadVideo from '@/components/videos/upload-video';
 import CombosService from '@/services/combos-service';
 
 import GameSearch from '@/components/games/game-search';
-import CreatorSearch from '@/components/content-creator/creator-search';
 import MatchVideoSettings from '@/components/videos/match-video-settings';
 import ComboVideoSettings from '@/components/videos/combo-video-settings';
 import MontageVideoSettings from '@/components/videos/montage-video-settings';
@@ -138,7 +127,6 @@ export default {
 
     components: {
         'upload-video': UploadVideo,
-        'creator-search': CreatorSearch,
         'game-search': GameSearch,
         'match-video-settings': MatchVideoSettings,
         'combo-video-settings': ComboVideoSettings,
@@ -160,6 +148,17 @@ export default {
             type: Object,
             default: null,
         },
+        // Pre-fill the form when launching the widget from a context that
+        // already has a known game / character (e.g. the "+ Add Combo"
+        // button on a character page's Combos tab).
+        initialGameId: {
+            type: String,
+            default: null,
+        },
+        initialCharacterId: {
+            type: String,
+            default: null,
+        },
     },
 
     data() {
@@ -173,7 +172,6 @@ export default {
             video: {
                 id: '',
                 contentType: '',
-                contentCreatorId: '',
                 type: '',
                 origin: '',
                 url: '',
@@ -242,6 +240,15 @@ export default {
         if (this.comboClipId) {
             await this.getComboClip();
         } else {
+            // Pre-fill game / character when launched from a context that
+            // already knows them. Doesn't run in edit mode — getComboClip
+            // hydrates from the saved record instead.
+            if (this.initialGameId) {
+                this.video.gameId = this.initialGameId;
+            }
+            if (this.initialCharacterId) {
+                this.video.combos[0].characterId = [this.initialCharacterId];
+            }
             this.isLoading = false;
         }
     },
@@ -273,6 +280,7 @@ export default {
                 Tags: combo.tags || [],
                 Url: this.video.url,
                 VideoType: this.video.type,
+                ImportVideoUrl: this.importVideoUrl,
                 StartTime: combo.startTime,
                 EndTime: combo.endTime,
                 SubmittedBy: this.account ? this.account.id : null,
@@ -328,10 +336,6 @@ export default {
 
         setGame(game) {
             this.video.gameId = game.id;
-        },
-
-        setCreator(creatorId) {
-            this.video.contentCreatorId = creatorId.id;
         },
 
         hydrateCharacters(characterIds, characters) {

@@ -298,6 +298,7 @@ export default {
     position: absolute;
     left: -15px;
     top: 30px;
+    z-index: 20;
 }
 
 .top-bar .social-links {

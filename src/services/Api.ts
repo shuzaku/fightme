@@ -1,7 +1,14 @@
 import axios from 'axios'
 
-/** API root used when env is missing or incorrectly points at localhost on the live site. */
-function resolveApiBaseURL(): string {
+/**
+ * Resolves the API base URL to use for requests.
+ * Exported so non-axios callers (e.g. `<video src>` builders that need an
+ * absolute URL) can pick up the same fallback logic instead of reading
+ * `process.env.VUE_APP_API_URL` directly — that value is baked in at build
+ * time and is `http://localhost:...` in the repo's `.env`, which would
+ * otherwise leak into production bundles.
+ */
+export function resolveApiBaseURL(): string {
     const envUrl = process.env.VUE_APP_API_URL
     const host = typeof window !== 'undefined' ? window.location.hostname : ''
 

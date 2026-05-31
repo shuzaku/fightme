@@ -1,4 +1,10 @@
-const API_URL  = process.env.VUE_APP_API_URL || 'https://fighters-edge.com';
+import { resolveApiBaseURL } from '@/services/Api';
+
+// `process.env.VUE_APP_API_URL` is baked in at build time and the repo's
+// .env points at localhost, which would leak `http://localhost/api/og/...`
+// URLs into production share previews. resolveApiBaseURL() rewrites those
+// to the live origin when running on fighters-edge.com.
+const API_URL  = resolveApiBaseURL();
 const SITE_URL = 'https://fighters-edge.com';
 
 export const FALLBACK_OG_IMAGE        = `${SITE_URL}/img/og-banner.png`;

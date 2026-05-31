@@ -44,12 +44,6 @@
                             type="text"
                             placeholder="Video Url"
                         />
-                        <div class="creator-container">
-                            <creator-search
-                                v-model="video.contentCreatorId"
-                                @update:creator="setCreator($event)"
-                            />
-                        </div>
                     </div>
                     <div v-else class="upload-video-container">
                         <upload-video
@@ -75,7 +69,8 @@
             <montage-video-settings
                 v-if="currentStep === 'Montage'"
                 :gameId="video.gameId"
-                @update:match="updateMontage($event)"
+                :montage="video.montage || defaultMontage"
+                @update:montage="updateMontage($event)"
             />
 
             <tournament-video-settings
@@ -100,7 +95,6 @@ import CombosService from '@/services/combos-service';
 import MatchesService from '@/services/matches-service';
 import MontagesService from '@/services/montages-service';
 import GameSearch from '@/components/games/game-search';
-import CreatorSearch from '@/components/content-creator/creator-search';
 import MatchVideoSettings from '@/components/videos/match-video-settings';
 import ComboVideoSettings from '@/components/videos/combo-video-settings';
 import MontageVideoSettings from '@/components/videos/montage-video-settings';
@@ -113,7 +107,6 @@ export default {
 
     components: {
         'upload-video': UploadVideo,
-        'creator-search': CreatorSearch,
         'game-search': GameSearch,
         'match-video-settings': MatchVideoSettings,
         'combo-video-settings': ComboVideoSettings,
@@ -142,7 +135,6 @@ export default {
             video: {
                 id: '',
                 contentType: '',
-                contentCreatorId: '',
                 type: '',
                 origin: '',
                 url: '',
@@ -164,6 +156,14 @@ export default {
     },
 
     computed: {
+        defaultMontage() {
+            return {
+                type: null,
+                players: [],
+                characters: [],
+            };
+        },
+
         timeStamp: function () {
             return moment().format();
         },
@@ -244,6 +244,13 @@ export default {
                 } else if (this.video.contentType === 'Match') {
                     this.currentStep = 'Match';
                 } else if (this.video.contentType === 'Montage') {
+                    if (!this.video.montage) {
+                        this.video.montage = {
+                            type: null,
+                            players: [],
+                            characters: [],
+                        };
+                    }
                     this.currentStep = 'Montage';
                 } else if (this.video.contentType === 'Tournament Match') {
                     this.currentStep = 'Tournament Match';
@@ -453,10 +460,6 @@ export default {
 
         setTournament(tournament) {
             this.video.match.tournamentId = tournament._id;
-        },
-
-        setCreator(creatorId) {
-            this.video.contentCreatorId = creatorId.id;
         },
 
         async getVideo() {

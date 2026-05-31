@@ -13,6 +13,28 @@
                     {{ character.gameplan }}
                 </p>
             </div>
+
+            <div v-if="selectedVideoType === 'Combos'" class="overview-card add-combo-card">
+                <h3>Combo Clips</h3>
+                <p class="add-combo-hint">
+                    Share a combo clip for {{ character.name }}. Game and character are filled in automatically.
+                </p>
+                <button type="button" class="add-combo-btn" @click="openAddCombo">
+                    <i class="fas fa-plus"></i>
+                    Add Combo
+                </button>
+            </div>
+
+            <div v-if="selectedVideoType === 'Montages'" class="overview-card add-montage-card">
+                <h3>Montages</h3>
+                <p class="add-combo-hint">
+                    Share a montage for {{ character.name }}. Game and character are filled in automatically.
+                </p>
+                <button type="button" class="add-montage-btn" @click="openAddMontage">
+                    <i class="fas fa-plus"></i>
+                    Add Montage
+                </button>
+            </div>
             <!-- <div class="move-list">
                 <div class="gameplan-strategy overview-card">
                     <h3>Unique Normals</h3>
@@ -219,6 +241,24 @@ export default {
             // to both the id (for API queries) and the slug (for the URL).
             this.$emit('character2Id:update', character);
         },
+
+        openAddCombo() {
+            if (!this.character || !this.character.id) return;
+            eventbus.$emit('open:widget', {
+                name: 'combo',
+                gameId: this.character.gameId,
+                characterId: this.character.id,
+            });
+        },
+
+        openAddMontage() {
+            if (!this.character || !this.character.id) return;
+            eventbus.$emit('open:widget', {
+                name: 'montage',
+                gameId: this.character.gameId,
+                characterId: this.character.id,
+            });
+        },
         playerInitials(name) {
             if (!name) return '?';
             return name.split(' ').slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('');
@@ -424,6 +464,75 @@ export default {
 
 .character-overview .strengths-weaknesses p {
     margin-bottom: 8px;
+}
+
+.character-overview .add-combo-hint {
+    color: #ffffff90;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 14px 0;
+}
+
+.character-overview .add-combo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: linear-gradient(135deg, #3eb489 0%, #2d8a6a 100%);
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(62, 180, 137, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.character-overview .add-combo-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(62, 180, 137, 0.35);
+}
+
+.character-overview .add-combo-btn:active {
+    transform: translateY(0);
+}
+
+.character-overview .add-combo-btn i {
+    font-size: 12px;
+}
+
+.character-overview .add-montage-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: linear-gradient(135deg, #fc73c4 0%, #d94fa8 100%);
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(252, 115, 196, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.character-overview .add-montage-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(252, 115, 196, 0.35);
+}
+
+.character-overview .add-montage-btn:active {
+    transform: translateY(0);
+}
+
+.character-overview .add-montage-btn i {
+    font-size: 12px;
 }
 
 /* ── Top Players ──────────────────────────────── */

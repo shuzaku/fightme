@@ -172,6 +172,7 @@
 </template>
 <script>
 import CombosService from '@/services/combos-service';
+import { resolveApiBaseURL } from '@/services/Api';
 import CollectionsService from '@/services/collections-service';
 import CollectionSearch from '@/components/collection/collection-search';
 import { Tweet, Moment, Timeline } from 'vue-tweet-embed';import Loading from '@/components/common/loading';
@@ -457,7 +458,14 @@ export default {
                     const tvResponse = await CombosService.getTwitterVideo(this.video.combo.clipUrl);
                     console.log('[twitter-video] response:', tvResponse.data);
                     if (tvResponse.data.videoUrl) {
-                        this.twitterVideoUrl = (process.env.VUE_APP_API_URL || '/api') + '/twitter-video-stream?tweetId=' + this.video.combo.clipUrl;
+                        // Use resolveApiBaseURL() so we pick the right host
+                        // at runtime — `process.env.VUE_APP_API_URL` is baked
+                        // in at build time and points at localhost in the
+                        // repo's .env, which leaks into production bundles.
+                        this.twitterVideoUrl =
+                            resolveApiBaseURL() +
+                            '/twitter-video-stream?tweetId=' +
+                            this.video.combo.clipUrl;
                         this.twitterPosterUrl = tvResponse.data.posterUrl || null;
                         this.twitterText = tvResponse.data.text || null;
                         this.twitterAuthor = tvResponse.data.author || null;

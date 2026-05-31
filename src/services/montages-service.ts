@@ -15,6 +15,9 @@ export default {
     if (params && params.playerId) {
       query += `&playerId=${params.playerId}`;
     }
+    if (params && params.characterId) {
+      query += `&characterId=${encodeURIComponent(params.characterId)}`;
+    }
     return Api().get(`montages?${query}`)
   },
 }

@@ -20,6 +20,7 @@
                 id="character-videos"
                 :selectedVideoType="selectedVideoType"
                 :characterId="character.id"
+                :gameId="character.gameId"
                 :account="account"
                 :character2Id="character2Id"
             />
@@ -43,6 +44,7 @@ import CharacterVideos from '@/components/character/character-videos';
 
 const TAB_ROUTE_MAP = {
     'Combos': 'combos',
+    'Montages': 'montages',
     'Online Matches': 'online-matches',
     'Tournament Matches': 'tournament-matches',
     'Matchups': 'matchups',
@@ -50,6 +52,7 @@ const TAB_ROUTE_MAP = {
 
 const ROUTE_TAB_MAP = {
     'combos': 'Combos',
+    'montages': 'Montages',
     'online-matches': 'Online Matches',
     'tournament-matches': 'Tournament Matches',
     'matchups': 'Matchups',
@@ -58,7 +61,7 @@ const ROUTE_TAB_MAP = {
 // Matches `/<tab>` or `/matchups/<character2>` at the end of the path.
 // Group 1 is the tab slug, group 2 (only present for matchups) is the
 // character2 slug.
-const TAB_PATH_RE = /\/(combos|online-matches|tournament-matches|matchups)(?:\/([^/]+))?$/;
+const TAB_PATH_RE = /\/(combos|montages|online-matches|tournament-matches|matchups)(?:\/([^/]+))?$/;
 
 export default {
     name: 'Character',

@@ -164,7 +164,7 @@ export default {
             matchupPopupActive: false,
             playerPopupActive: false,
             isFollowed: false,
-            tabs: ['Combos', 'Matchups', 'Online Matches', 'Tournament Matches'],
+            tabs: ['Combos', 'Montages', 'Matchups', 'Online Matches', 'Tournament Matches'],
             game: null,
         };
     },

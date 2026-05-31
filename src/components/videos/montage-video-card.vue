@@ -25,66 +25,90 @@
                 />
             </div>
             <div class="card-label">Montage</div>
-            <div v-for="(character, index) in video.montage.characters" :key="character.id">
-                <div
-                    :class="[
-                        'character-bubble',
-                        `character-${index + 1}`,
-                        character.name.toLowerCase(),
-                    ]"
-                    :style="{ backgroundImage: `url('${character.imageUrl}')` }"
-                />
-            </div>
-            <div v-if="!video.isEditing" class="characters">
-                <div class="player">
-                    <div
-                        v-for="player in video.montage.players"
-                        :key="player.id"
-                        class="heavy-weight player-name"
-                        @click="queryPlayer(player)"
-                    >
-                        <p>{{ player.name }}</p>
+            <div v-if="!video.isEditing" class="aside">
+                <div class="info">
+                    <div v-if="video.game" class="game">
+                        <div class="game-title" @click="queryGame(video.game)">
+                            <img :src="video.game.logoUrl" :alt="video.game.name" />
+                        </div>
                     </div>
-                    <div v-for="(character, index) in video.montage.characters" :key="index">
-                        <div class="character-name" @click="queryCharacter(character)">
-                            <p>
-                                <span>{{ character.name }}</span>
-                            </p>
+                    <div class="players">
+                        <div class="team1">
+                            <div
+                                v-for="(player, playerIndex) in montagePlayers"
+                                :key="player.id || 'montage-player-' + playerIndex"
+                                class="player"
+                            >
+                                <div
+                                    v-if="player.id"
+                                    class="heavy-weight player-name"
+                                    @click="queryPlayer(player)"
+                                >
+                                    <p>{{ player.name }}</p>
+                                </div>
+                                <div
+                                    v-if="showCharactersForPlayer(playerIndex)"
+                                    class="characters"
+                                >
+                                    <div
+                                        v-for="(character, index) in video.montage.characters"
+                                        :key="character.id || index"
+                                        class="character"
+                                    >
+                                        <div
+                                            class="character-name"
+                                            @click="queryCharacter(character)"
+                                        >
+                                            <p>
+                                                <span>
+                                                    <div class="img-container">
+                                                        <img
+                                                            :src="character.imageUrl"
+                                                            :alt="character.name"
+                                                        />
+                                                    </div>
+                                                    {{ character.name }}</span
+                                                >
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="admin-controls">
+                    <collection-search
+                        v-if="showCollections"
+                        v-model="video.collections"
+                        :account="account"
+                        multiple
+                        @update:collection="updateCollections($event, video)"
+                    />
+                    <v-btn
+                        v-if="account"
+                        class="favorite-button"
+                        @click="showCollections = !showCollections"
+                    >
+                        <v-icon light> mdi-plus </v-icon>
+                    </v-btn>
+                    <v-btn v-if="isAdmin" @click="editVideo()">
+                        <v-icon dark> mdi-wrench </v-icon>
+                    </v-btn>
+                    <v-btn v-if="isAdmin" @click="deleteVideo()">
+                        <v-icon dark> mdi-delete </v-icon>
+                    </v-btn>
+                    <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
+                        <v-icon light> mdi-heart-outline </v-icon>
+                    </v-btn>
+                    <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
+                        <v-icon> mdi-heart </v-icon>
+                    </v-btn>
+                    <v-btn class="share-button" @click="copyLink()">
+                        <v-icon light> mdi-link </v-icon>
+                    </v-btn>
+                </div>
             </div>
-        </div>
-        <div class="admin-controls">
-            <collection-search
-                v-if="showCollections"
-                v-model="video.collections"
-                :account="account"
-                multiple
-                @update:collection="updateCollections($event, video)"
-            />
-            <v-btn
-                v-if="account"
-                class="favorite-button"
-                @click="showCollections = !showCollections"
-            >
-                <v-icon light> mdi-plus </v-icon>
-            </v-btn>
-            <v-btn v-if="isAdmin" @click="editVideo()">
-                <v-icon dark> mdi-wrench </v-icon>
-            </v-btn>
-            <v-btn v-if="isAdmin" @click="deleteVideo(video.combo)">
-                <v-icon dark> mdi-delete </v-icon>
-            </v-btn>
-            <v-btn v-if="!video.isFavorited" class="favorite-button" @click="favoriteVideo()">
-                <v-icon light> mdi-heart-outline </v-icon>
-            </v-btn>
-            <v-btn v-else class="unfavorite-button" @click="unfavoriteVideo()">
-                <v-icon> mdi-heart </v-icon>
-            </v-btn>
-            <v-btn class="share-button" @click="copyLink()">
-                <v-icon light> mdi-link </v-icon>
-            </v-btn>
         </div>
     </div>
 </template>
@@ -95,7 +119,7 @@ import CollectionSearch from '@/components/collection/collection-search';
 import CollectionsService from '@/services/collections-service';
 import { eventbus } from '@/main';
 import { pauseWaypointMedia } from '@/utils/pause-waypoint-media';
-import { characterPagePath, playerPagePath } from '@/utils/game-character-routes';
+import { characterPagePath, gameHrefFromLike, playerPagePath } from '@/utils/game-character-routes';
 
 export default {
     name: 'VideoCard',
@@ -152,7 +176,18 @@ export default {
             return this.video.combo.inputs.join(' > ');
         },
         isAdmin() {
-            return this.account.role === 'admin';
+            return this.account && this.account.role === 'admin';
+        },
+        montagePlayers() {
+            const players = (this.video.montage && this.video.montage.players) || [];
+            if (players.length) {
+                return players;
+            }
+            const characters = (this.video.montage && this.video.montage.characters) || [];
+            if (characters.length) {
+                return [{ id: null, name: null }];
+            }
+            return [];
         },
     },
 
@@ -232,6 +267,15 @@ export default {
             };
             this.video.url = this.extractYoutubeId(montageResponse.VideoUrl) || montageResponse.VideoUrl;
             this.video.videoType = this.inferVideoType(montageResponse.VideoUrl);
+            const gameDoc = montageResponse.Game && montageResponse.Game[0];
+            if (gameDoc) {
+                this.video.game = {
+                    id: gameDoc._id,
+                    name: gameDoc.Name,
+                    logoUrl: gameDoc.LogoUrl,
+                    slug: gameDoc.Slug || null,
+                };
+            }
             this.video.isPlaying = false;
             this.video.montage.id = this.montageId;
             this.video.contentType = 'Montage';
@@ -267,9 +311,28 @@ export default {
             this.$emit('video:delete', montageResponse);
         },
 
+        showCharactersForPlayer(playerIndex) {
+            const players = (this.video.montage && this.video.montage.players) || [];
+            const characters = (this.video.montage && this.video.montage.characters) || [];
+            if (!characters.length) {
+                return false;
+            }
+            if (!players.length) {
+                return playerIndex === 0;
+            }
+            return playerIndex === players.length - 1;
+        },
+
         queryPlayer(player) {
             var path = playerPagePath(player);
             if (path) { this.$router.push(path); }
+        },
+
+        queryGame(gameLike) {
+            var path = gameHrefFromLike(gameLike);
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         queryCharacter(characterOrId) {
@@ -434,119 +497,175 @@ export default {
 </script>
 
 <style>
-.montage-video-card {
+.montage-video-card .montage-card {
     margin: 60px 0;
-}
-
-.montage-video-card .character-bubble {
-    height: 50px;
-    width: 50px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #3eb489;
-    background-position: top center;
-    position: absolute;
-    top: -15px;
-    left: -25px;
-    background-color: #e8e8e8;
-    background-size: contain;
-}
-
-.montage-video-card {
-    /* background-image: linear-gradient(#515b89, #171b33); */
-    background: #444;
-    border: 5px solid #444;
+    display: flex;
+    background: #242832;
+    border: 5px solid #242832;
     border-radius: 15px;
     margin-bottom: 30px;
     position: relative;
     cursor: pointer;
     width: 100%;
-    max-width: 570px;
     box-shadow: 0px 0px 30px 0px rgb(0 0 0 / 54%);
 }
 
-.montage-video-card .card-label {
+.montage-video-card .montage-card .aside {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    max-width: 25%;
+    width: 100%;
+    min-width: 200px;
+}
+
+.montage-video-card .montage-card .card-label {
     position: absolute;
     width: 70px;
     border-radius: 30px;
     top: -15px;
     left: 50%;
     margin-left: -35px;
-    background: #db8c10;
+    background: #fc73c4;
     text-align: center;
     padding: 5px;
     color: #fff;
     font-size: 11px;
     font-weight: 600;
+    z-index: 2;
 }
 
-.montage-video-card .montage-card .card-label {
-    background: #fc73c4;
-}
-
-.montage-video-card video {
+.montage-video-card .montage-card video {
     width: 100%;
 }
 
-.montage-video-card .character-name {
-    padding: 20px 20px 0;
-    color: #fff;
-    font-size: 20px;
+.montage-video-card .montage-card .character-name span,
+.montage-video-card .montage-card .game-title span {
+    padding: 3px 20px;
+    color: #242832;
+    font-size: 14px;
+    background: #3eb489;
+    border-radius: 15px;
+    display: inline-block;
+    position: relative;
+    padding-left: 40px;
+    overflow: hidden;
 }
 
-.montage-video-card .player-name {
-    color: #fff;
-    font-size: 20px;
-    padding: 0 20px;
+.montage-video-card .montage-card .game-title img {
+    max-width: 100px;
 }
 
-.montage-video-card .character-name {
-    padding-top: 0px;
+.montage-video-card .montage-card .player-name {
+    color: #fff;
+    font-size: 20px;
+    background: #131419;
+    display: inline-block;
+    padding: 2px 20px;
+    border-radius: 15px;
+    position: absolute;
+    top: -15px;
+    left: 10px;
+}
+
+.montage-video-card .montage-card .player-name p {
+    font-weight: 400;
+    font-size: 18px;
+    margin: 0;
+}
+
+.montage-video-card .montage-card .character-name {
+    padding-top: 0;
     font-size: 13px;
 }
 
-.montage-video-card .character-name p {
+.montage-video-card .montage-card .character-name p {
     font-size: 14px;
-    color: #3eb489;
+    color: #242832;
     font-weight: 300;
     margin-top: 3px;
 }
 
-.montage-video-card .characters {
-    padding: 10px 10px 15px;
+.montage-video-card .montage-card .character {
+    padding: 5px;
 }
 
-.montage-video-card .video-ghost {
-    height: 313px;
-    width: 556px;
+.montage-video-card .montage-card .game {
+    margin-bottom: 20px;
+    text-align: right;
 }
 
-.montage-video-card .card .edit-btn-container {
-    padding: 10px;
+.montage-video-card .montage-card .game .img-container img,
+.montage-video-card .montage-card .character .img-container img {
+    width: 30px;
 }
 
-.montage-video-card .card .edit-btn-container button {
-    padding: 20px 10px;
-    background-color: #1ab097 !important;
+.montage-video-card .montage-card .game .img-container,
+.montage-video-card .montage-card .character .img-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #fff;
     border-radius: 50%;
-    min-width: 0px;
-    color: #fff;
+    overflow: hidden;
+    height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.montage-video-card .montage-card .player {
+    border: 1px dashed #3eb489;
+    position: relative;
+    padding-top: 10px;
+    margin-bottom: 40px;
+}
+
+.montage-video-card .montage-card .characters {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+.montage-video-card .montage-card .admin-controls {
+    position: relative;
 }
 
 .montage-video-card .video-container {
     border-top-right-radius: 15px;
+    border-bottom-right-radius: 0;
     border-top-left-radius: 15px;
+    position: relative;
+    padding-bottom: 42.25%;
+    height: 0;
+    overflow: hidden;
+    min-width: 75%;
+    flex: 1 1 75%;
 }
 
-.montage-video-card .admin-controls {
+.montage-video-card .video-container iframe,
+.montage-video-card .video-container object,
+.montage-video-card .video-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.montage-video-card .montage-card .admin-controls {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 4px;
     padding: 0 20px;
+    bottom: 5px;
+    margin-top: auto;
 }
 
-#app .montage-video-card .admin-controls button.share-button {
-    width: 50px;
+#app .montage-video-card .montage-card .admin-controls button {
+    width: 35px;
     height: 50px;
     min-width: initial;
     background-color: transparent;
@@ -554,12 +673,20 @@ export default {
     border-radius: 50%;
 }
 
-#app .montage-video-card .admin-controls button {
+#app .montage-video-card .montage-card .admin-controls button:hover i::before {
+    opacity: 1;
+}
+
+#app .montage-video-card .montage-card .admin-controls button i::before {
+    color: #3eb489;
+    opacity: 0.9;
+}
+
+.montage-video-card .montage-card .admin-controls button.share-button {
     width: 50px;
     height: 50px;
     min-width: initial;
     background-color: transparent;
-    -webkit-box-shadow: none;
     box-shadow: none;
     border-radius: 50%;
 }
