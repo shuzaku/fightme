@@ -69,16 +69,15 @@
                 </div>
             </div>
 
+            <explore-characters
+                :key="gameId"
+                :gameId="gameId"
+            />
             <game-team-filter
                 v-if="isTeamGame"
-                :key="gameId"
+                :key="gameId + '-team'"
                 :gameId="gameId"
                 @change="onTeamFilterChange"
-            />
-            <explore-characters
-                v-else
-                :key="gameId"
-                :gameId="gameId"
             />
             <div v-if="featuredVideos && featuredVideos.length > 0" class="featured-videos">
                 <h2>🎥 Featured Videos</h2>

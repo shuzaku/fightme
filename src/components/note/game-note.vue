@@ -2,7 +2,7 @@
 <template>
     <div class="game-note">
         <div v-if="!isLoading" class="note-container">
-            <div class="title-row" @click="toggleContent()">
+            <div class="title-row" :class="{ open: showContent }" @click="toggleContent()">
                 <div class="game-bubble" :style="{ backgroundImage: `url('${game.logo}')` }" />
                 <h3>{{ note.heading }}</h3>
                 <v-icon> mdi-chevron-down </v-icon>
@@ -88,14 +88,31 @@ export default {
 };
 </script>
 <style type="text/css">
+.game-note .note-container {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.game-note .note-container:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
+}
+
 .game-note .title-row {
     display: flex;
     align-items: center;
-    background: #4447e2;
+    background: linear-gradient(135deg, #4447e2 0%, #6a3fe0 100%);
     width: 100%;
-    border-radius: 5px;
-    padding: 8px 10px;
+    padding: 12px 16px;
     position: relative;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.game-note .title-row:hover {
+    filter: brightness(1.08);
 }
 
 .game-note .game-bubble {
@@ -105,39 +122,71 @@ export default {
     overflow: hidden;
     border: 2px solid #3eb489;
     background-size: contain;
-    background-position: top center;
     background-color: #e8e8e8;
     background-repeat: no-repeat;
     background-position: 50%;
-    margin: 0;
-    margin-right: 10px;
+    margin: 0 14px 0 0;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
+
 .game-note h3 {
     color: #fff;
-    margin-left: 90px;
+    margin: 0;
+    flex: 1;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
-.game-note .v-icon {
-    position: absolute;
-    right: 20px;
+.game-note .title-row .v-icon {
+    color: #fff;
+    margin-left: 12px;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
 }
 
-.game-note .note-content .v-icon {
-    position: absolute;
-    right: -40px;
-}
-
-.game-note .delete-btn-container .v-icon {
-    position: absolute;
-    right: -40px;
-    top: 60px;
+.game-note .title-row.open .v-icon {
+    transform: rotate(180deg);
 }
 
 .game-note .note-content {
     background: #1c1c24;
-    color: #fff;
-    padding: 20px;
+    color: #e8e8ea;
+    padding: 46px 22px 22px;
     position: relative;
+    line-height: 1.6;
+    border-top: 2px solid rgba(62, 180, 137, 0.5);
+}
+
+.game-note .edit-btn-container .v-icon,
+.game-note .delete-btn-container .v-icon {
+    position: absolute;
+    top: 10px;
+    height: 34px;
+    width: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.game-note .edit-btn-container .v-icon {
+    right: 52px;
+}
+
+.game-note .delete-btn-container .v-icon {
+    right: 12px;
+}
+
+.game-note .edit-btn-container .v-icon:hover {
+    background: rgba(68, 71, 226, 0.65);
+}
+
+.game-note .delete-btn-container .v-icon:hover {
+    background: rgba(226, 68, 68, 0.65);
 }
 
 .game-note ul {

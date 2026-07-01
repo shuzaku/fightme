@@ -2,7 +2,7 @@
 <template>
     <div class="player-note">
         <div v-if="!isLoading" class="note-container">
-            <div class="title-row" @click="toggleContent()">
+            <div class="title-row" :class="{ open: showContent }" @click="toggleContent()">
                 <div
                     class="character-bubble"
                     :style="{ backgroundImage: `url('${player.imageUrl}')` }"
@@ -115,14 +115,31 @@ export default {
 };
 </script>
 <style type="text/css">
+.player-note .note-container {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.player-note .note-container:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
+}
+
 .player-note .title-row {
     display: flex;
     align-items: center;
-    background: #4447e2;
+    background: linear-gradient(135deg, #4447e2 0%, #6a3fe0 100%);
     width: 100%;
-    border-radius: 5px;
-    padding: 8px 10px;
+    padding: 12px 16px;
     position: relative;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.player-note .title-row:hover {
+    filter: brightness(1.08);
 }
 
 .player-note .character-bubble {
@@ -135,6 +152,8 @@ export default {
     background-position: top center;
     background-color: #e8e8e8;
     margin-right: 10px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .player-note .game-bubble {
@@ -144,40 +163,71 @@ export default {
     overflow: hidden;
     border: 2px solid #3eb489;
     background-size: contain;
-    background-position: top center;
     background-color: #e8e8e8;
     background-repeat: no-repeat;
     background-position: 50%;
-    margin: 0;
-    margin-right: 10px;
+    margin: 0 10px 0 0;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .player-note h3 {
     color: #fff;
-    margin-left: 30px;
+    margin: 0 0 0 8px;
+    flex: 1;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
-.player-note .v-icon {
-    position: absolute;
-    right: 20px;
+.player-note .title-row .v-icon {
+    color: #fff;
+    margin-left: 12px;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
 }
 
-.player-note .note-content .v-icon {
-    position: absolute;
-    right: -40px;
-}
-
-.player-note .delete-btn-container .v-icon {
-    position: absolute;
-    right: -40px;
-    top: 60px;
+.player-note .title-row.open .v-icon {
+    transform: rotate(180deg);
 }
 
 .player-note .note-content {
     background: #1c1c24;
-    color: #fff;
-    padding: 20px;
+    color: #e8e8ea;
+    padding: 46px 22px 22px;
     position: relative;
+    line-height: 1.6;
+    border-top: 2px solid rgba(62, 180, 137, 0.5);
+}
+
+.player-note .edit-btn-container .v-icon,
+.player-note .delete-btn-container .v-icon {
+    position: absolute;
+    top: 10px;
+    height: 34px;
+    width: 34px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.player-note .edit-btn-container .v-icon {
+    right: 52px;
+}
+
+.player-note .delete-btn-container .v-icon {
+    right: 12px;
+}
+
+.player-note .edit-btn-container .v-icon:hover {
+    background: rgba(68, 71, 226, 0.65);
+}
+
+.player-note .delete-btn-container .v-icon:hover {
+    background: rgba(226, 68, 68, 0.65);
 }
 
 .player-note ul {

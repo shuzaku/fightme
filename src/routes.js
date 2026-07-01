@@ -24,6 +24,7 @@ import Tournament from './views/tournament.vue';
 import TournamentMatch from './views/tournament-match.vue';
 import TournamentMatchesImport from './views/tournament-matches-import.vue';
 import CreateTournament from './views/create-tournament.vue';
+import EditTournament from './views/edit-tournament.vue';
 import PlayerList from './views/player-list.vue';
 import PlayerMerge from './views/merge-players-view.vue';
 import LinkUserToPlayer from './views/link-user-to-player-view.vue';
@@ -41,6 +42,8 @@ import UseCases from './views/use-cases.vue';
 import Landing from './views/landing.vue';
 import MultiStream from './views/multi-stream.vue';
 import MatchLogs from './views/match-logs.vue';
+import GameplanMaker from './views/gameplan-maker.vue';
+import GameplanGallery from './views/gameplan-gallery.vue';
 
 const routes = [
     {
@@ -263,6 +266,7 @@ const routes = [
     },
     { path: '/match/:id/review', name: 'MatchReview', component: MatchReview },
     { path: '/tournament/:id', name: 'Tournament', component: Tournament },
+    { path: '/tournament/:id/edit', name: 'EditTournament', component: EditTournament },
     { path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval },
     { path: '/admin/player-link-requests', name: 'AdminPlayerLinkApproval', component: AdminPlayerLinkApproval },
     {
@@ -284,6 +288,24 @@ const routes = [
         },
     },
     { path: '/tier-lists/:id', name: 'TierListDetails', component: TierListDetails },
+    {
+        path: '/gameplan-maker',
+        name: 'GameplanMaker',
+        component: GameplanMaker,
+        meta: {
+            title: 'Gameplan Maker | Fighters Edge',
+            description: 'Build a visual gameplan for your character. Drag moves onto the canvas, connect them with arrows, and save your strategy.',
+        },
+    },
+    {
+        path: '/gameplans',
+        name: 'GameplanGallery',
+        component: GameplanGallery,
+        meta: {
+            title: 'My Gameplans | Fighters Edge',
+            description: 'View and manage your saved character gameplans.',
+        },
+    },
     {
         path: '/how-it-works',
         name: 'HowItWorks',

@@ -1,7 +1,10 @@
 <!-- @format -->
 <template>
     <div class="gtf">
-        <div class="gtf-label">Filter by Team</div>
+        <div class="gtf-label">Filter by team pairing</div>
+        <p class="gtf-hint">
+            Pick two characters on the same team to narrow match results below.
+        </p>
 
         <!-- Selected team slots -->
         <div class="gtf-slots">
@@ -114,7 +117,7 @@ export default {
         selectChar(c) {
             if (this.char1 && this.char1.id === c.id) return this.clearChar(1);
             if (this.char2 && this.char2.id === c.id) return this.clearChar(2);
-            if (this.char2) return; // both slots full
+            if (this.char2) return;
             if (!this.char1) {
                 this.char1 = c;
             } else {
@@ -125,7 +128,6 @@ export default {
 
         clearChar(slot) {
             if (slot === 1) {
-                // promote char2 → char1 if present
                 this.char1 = this.char2 || null;
                 this.char2 = null;
             } else {
@@ -167,7 +169,14 @@ export default {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.45);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.gtf-hint {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    line-height: 1.4;
 }
 
 /* ── Slots ─────────────────────────────── */

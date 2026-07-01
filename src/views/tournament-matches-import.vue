@@ -42,11 +42,69 @@
             </v-card-text>
         </v-card>
 
+        <v-card class="bulk-card" dark outlined>
+            <v-card-title class="subtitle-1">Bulk import from list</v-card-title>
+            <v-card-text>
+                <p class="bulk-help">
+                    Paste one match per line. This fills the match rows below with clip times,
+                    players, and optional characters. Missing players and characters are created
+                    automatically. For 2XKO tag teams, separate partners with
+                    <code>//</code>. Characters use <code>/</code> or <code>,</code> inside
+                    parentheses.
+                </p>
+                <p class="bulk-format">
+                    <code>29:11 froggymustdie (blanka) v nuckledu (mai)</code>
+                    <br />
+                    <code>00:30:25 Ghirlanda (Kunimitsu) vs. Kirakira (Jun)</code>
+                </p>
+                <v-textarea
+                    v-model="bulkImportText"
+                    label="Match list"
+                    placeholder="Paste timestamps and matchups here…"
+                    outlined
+                    dense
+                    rows="10"
+                    hide-details="auto"
+                    class="bulk-textarea"
+                />
+                <v-btn
+                    color="secondary"
+                    class="mt-2"
+                    :loading="bulkImporting"
+                    :disabled="!bulkImportText.trim() || !gameId"
+                    @click="applyBulkImport"
+                >
+                    Fill match rows from list
+                </v-btn>
+                <p v-if="!gameId" class="bulk-game-hint">Select a game above before filling rows.</p>
+                <v-alert v-if="bulkImportMessage" type="info" dense outlined class="mt-3">{{
+                    bulkImportMessage
+                }}</v-alert>
+                <v-alert v-if="bulkImportWarnings.length" type="warning" dense outlined class="mt-3">
+                    <div v-for="(w, i) in bulkImportWarnings" :key="i">{{ w }}</div>
+                </v-alert>
+            </v-card-text>
+        </v-card>
+
         <div v-for="(row, index) in matchRows" :key="row.uid" class="match-row">
             <v-card class="match-card" dark outlined>
                 <v-card-title class="match-card-title">
-                    <span>Match {{ index + 1 }}</span>
+                    <span>
+                        Match {{ index + 1 }}
+                        <span v-if="rowMatchupLabel(row)" class="match-parsed-label">
+                            — {{ rowMatchupLabel(row) }}
+                        </span>
+                    </span>
                     <v-spacer />
+                    <a
+                        v-if="rowPreviewUrl(row)"
+                        href="#"
+                        class="match-preview-link"
+                        @click.stop.prevent="openPreviewWindow(row)"
+                    >
+                        <v-icon small class="mr-1">mdi-open-in-new</v-icon>
+                        Verify{{ row.clipStart ? ' at ' + row.clipStart : '' }}
+                    </a>
                     <v-btn v-if="matchRows.length > 1" icon small @click="removeRow(index)">
                         <v-icon small>mdi-delete-outline</v-icon>
                     </v-btn>
@@ -140,6 +198,16 @@ import GameSearch from '@/components/games/game-search';
 import TournamentSearch from '@/components/tournament/tournament-search.vue';
 import AddMatch from '@/components/videos/add-match';
 import TournamentMatchService from '@/services/tournament-match-service';
+import PlayersService from '@/services/players-service';
+import CharactersService from '@/services/characters-service';
+import { loadPlayers, setPlayersCache } from '@/services/players-cache';
+import { loadCharacters, setCharactersCache } from '@/services/characters-cache';
+import {
+    parseBulkMatchLines,
+    findPlayerByName,
+    findCharacterByName,
+    buildYoutubeWatchUrl,
+} from '@/utils/tournament-bulk-match-parse';
 
 let uidSeq = 0;
 function nextUid() {
@@ -180,6 +248,36 @@ function emptyRow() {
         secondaryNotes: '',
         match: emptyMatchState(),
     };
+}
+
+function buildTeamSlotPlayers(resolvedPlayers, defaultStartSlot) {
+    return resolvedPlayers.map((player, index) => ({
+        id: player.id || null,
+        name: player.name || null,
+        characterIds: player.characterIds || [],
+        slot: player.slot != null ? player.slot : defaultStartSlot + index,
+        characterCount: 1,
+    }));
+}
+
+function rowFromParsedMatch({
+    clipStart,
+    clipEnd,
+    team1Players,
+    team2Players,
+    videoInput,
+    notes,
+    secondaryNotes,
+}) {
+    const row = emptyRow();
+    row.videoInput = videoInput || '';
+    row.clipStart = clipStart || '';
+    row.clipEnd = clipEnd || '';
+    row.notes = notes || '';
+    row.secondaryNotes = secondaryNotes || '';
+    row.match.team1Players = buildTeamSlotPlayers(team1Players || [], 1);
+    row.match.team2Players = buildTeamSlotPlayers(team2Players || [], 2);
+    return row;
 }
 
 function extractVideoId(raw) {
@@ -232,6 +330,10 @@ export default {
             validationMessage: '',
             submitError: null,
             submitSuccess: null,
+            bulkImportText: '',
+            bulkImporting: false,
+            bulkImportMessage: '',
+            bulkImportWarnings: [],
         };
     },
 
@@ -314,6 +416,232 @@ export default {
 
         updateRowMatch(match, index) {
             this.matchRows[index].match = match;
+        },
+
+        rowMatchupLabel(row) {
+            const formatTeam = (players) => {
+                if (!players || !players.length) return '';
+                return players
+                    .map((p) => p.name)
+                    .filter(Boolean)
+                    .join(' / ');
+            };
+            const t1 = formatTeam(row.match && row.match.team1Players);
+            const t2 = formatTeam(row.match && row.match.team2Players);
+            if (!t1 || !t2) return '';
+            return t1 + ' vs ' + t2;
+        },
+
+        rowPreviewUrl(row) {
+            const videoId = extractVideoId(row.videoInput);
+            if (!videoId) return null;
+            return buildYoutubeWatchUrl(videoId, row.clipStart);
+        },
+
+        openPreviewWindow(row) {
+            const url = this.rowPreviewUrl(row);
+            if (!url) return;
+            const features = [
+                'popup=yes',
+                'width=1280',
+                'height=720',
+                'resizable=yes',
+                'scrollbars=yes',
+                'noopener=yes',
+                'noreferrer=yes',
+            ].join(',');
+            const win = window.open(url, 'matchPreview_' + row.uid, features);
+            if (win) {
+                win.opener = null;
+            }
+        },
+
+        async refreshGameCharacters(characters) {
+            const list = await loadCharacters(this.gameId, true);
+            characters.splice(
+                0,
+                characters.length,
+                ...list.map((c) => ({ id: c.id, name: c.name, Name: c.name }))
+            );
+        },
+
+        async resolvePlayerId(name, players, warnings, matchLabel) {
+            const found = findPlayerByName(players, name);
+            if (found) return found.id;
+
+            try {
+                const resp = await PlayersService.addPlayer({ Name: name.trim() });
+                const id = resp.data.playerId;
+                players.push({ id, playerName: name.trim(), Name: name.trim() });
+                return id;
+            } catch (err) {
+                warnings.push(matchLabel + ': could not create player "' + name + '"');
+                return null;
+            }
+        },
+
+        async resolveCharacterIds(names, characters, warnings, matchLabel, sideLabel) {
+            const ids = [];
+            for (const name of names) {
+                let found = findCharacterByName(characters, name);
+                if (found) {
+                    ids.push(found.id);
+                    continue;
+                }
+
+                try {
+                    await CharactersService.addCharacter({
+                        Name: name.trim(),
+                        GameId: this.gameId,
+                    });
+                    await this.refreshGameCharacters(characters);
+                    found = findCharacterByName(characters, name);
+                    if (found) {
+                        ids.push(found.id);
+                    } else {
+                        warnings.push(
+                            matchLabel +
+                                ' ' +
+                                sideLabel +
+                                ': created character "' +
+                                name +
+                                '" but could not resolve id'
+                        );
+                    }
+                } catch (err) {
+                    warnings.push(
+                        matchLabel + ' ' + sideLabel + ': could not create character "' + name + '"'
+                    );
+                }
+            }
+            return ids;
+        },
+
+        async resolveTeamPlayers(teamPlayers, players, characters, warnings, matchLabel, sideLabel) {
+            const resolved = [];
+            for (let i = 0; i < teamPlayers.length; i++) {
+                const entry = teamPlayers[i];
+                const playerLabel = sideLabel + ' player ' + (i + 1);
+                const id = await this.resolvePlayerId(
+                    entry.playerName,
+                    players,
+                    warnings,
+                    matchLabel + ' ' + playerLabel
+                );
+                const characterIds = entry.characterNames.length
+                    ? await this.resolveCharacterIds(
+                          entry.characterNames,
+                          characters,
+                          warnings,
+                          matchLabel,
+                          playerLabel
+                      )
+                    : [];
+                resolved.push({
+                    id,
+                    name: entry.playerName,
+                    characterIds,
+                });
+            }
+            return resolved;
+        },
+
+        async applyBulkImport() {
+            this.bulkImportMessage = '';
+            this.bulkImportWarnings = [];
+            this.validationMessage = '';
+
+            if (!this.gameId) {
+                this.bulkImportWarnings.push('Select a game before filling match rows.');
+                return;
+            }
+
+            const { matches, errors } = parseBulkMatchLines(this.bulkImportText);
+            if (errors.length) {
+                this.bulkImportWarnings = errors;
+                return;
+            }
+            if (!matches.length) {
+                this.bulkImportMessage = 'No matches found in the pasted text.';
+                return;
+            }
+
+            const template = this.matchRows[0] || emptyRow();
+            const videoInput = template.videoInput || '';
+            const notes = template.notes || '';
+            const secondaryNotes = template.secondaryNotes || '';
+
+            this.bulkImporting = true;
+            try {
+                const [playersList, charactersList] = await Promise.all([
+                    loadPlayers(),
+                    loadCharacters(this.gameId),
+                ]);
+
+                const players = playersList.map((p) => ({
+                    id: p.id,
+                    playerName: p.playerName,
+                    Name: p.playerName,
+                }));
+                const characters = charactersList.map((c) => ({
+                    id: c.id,
+                    name: c.name,
+                    Name: c.name,
+                }));
+                const warnings = [];
+                const rows = [];
+
+                for (let i = 0; i < matches.length; i++) {
+                    const m = matches[i];
+                    const label = 'Match ' + (i + 1);
+
+                    const team1Players = await this.resolveTeamPlayers(
+                        m.team1Players,
+                        players,
+                        characters,
+                        warnings,
+                        label,
+                        'team 1'
+                    );
+                    const team2Players = await this.resolveTeamPlayers(
+                        m.team2Players,
+                        players,
+                        characters,
+                        warnings,
+                        label,
+                        'team 2'
+                    );
+
+                    rows.push(
+                        rowFromParsedMatch({
+                            clipStart: m.clipStart,
+                            clipEnd: m.clipEnd,
+                            team1Players,
+                            team2Players,
+                            videoInput,
+                            notes,
+                            secondaryNotes,
+                        })
+                    );
+                }
+
+                setPlayersCache(players);
+                setCharactersCache(this.gameId, characters);
+                this.matchRows = rows;
+                this.bulkImportWarnings = warnings;
+                this.bulkImportMessage =
+                    'Added ' +
+                    rows.length +
+                    ' match row(s). Review any warnings, then save when ready.';
+            } catch (err) {
+                this.bulkImportWarnings = [
+                    (err.response && err.response.data && err.response.data.error) ||
+                        err.message ||
+                        'Could not fill match rows',
+                ];
+            } finally {
+                this.bulkImporting = false;
+            }
         },
 
         buildApiMatch(row) {
@@ -448,6 +776,39 @@ export default {
     background: rgba(0, 0, 0, 0.35) !important;
 }
 
+.bulk-card {
+    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.35) !important;
+}
+
+.bulk-help {
+    opacity: 0.85;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.bulk-format {
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.bulk-format code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+}
+
+.bulk-textarea {
+    margin-top: 8px;
+}
+
+.bulk-game-hint {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    opacity: 0.75;
+}
+
 .field-grid {
     display: flex;
     flex-wrap: wrap;
@@ -484,6 +845,27 @@ export default {
 .match-card-title {
     font-size: 1rem !important;
     padding-bottom: 8px !important;
+}
+
+.match-parsed-label {
+    font-weight: normal;
+    opacity: 0.75;
+    font-size: 0.9em;
+}
+
+.match-preview-link {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+    color: #8ab4f8;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.match-preview-link:hover {
+    text-decoration: underline;
 }
 
 .video-fields {

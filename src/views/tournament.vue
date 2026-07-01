@@ -3,6 +3,7 @@
     <div ref="videoViewRef" class="tournament-view">
         <tournament-nav
             :tournamentId="tournamentId"
+            :account="account"
             @filter:game="filterGame($event)"
             @filter:bracket="filterBracket($event)"
         />
@@ -191,10 +192,10 @@ export default {
         hydrateVideos(response) {
             const firstVideo = response.data.matches[0];
             if (firstVideo && this.videos.length === 0) {
-                const t        = firstVideo.Tournament && firstVideo.Tournament[0];
-                const tName    = t ? t.Name  : null;
-                const tDate    = t ? (t.Date || t.StartDate || null) : null;
-                const pageUrl  = `https://fighters-edge.com/tournament/${this.tournamentId}`;
+                const t = firstVideo.Tournament && firstVideo.Tournament[0];
+                const tName = t ? t.Name : null;
+                const tDate = t ? t.Date || t.StartDate || null : null;
+                const pageUrl = `https://fighters-edge.com/tournament/${this.tournamentId}`;
 
                 if (tName) {
                     setOgMeta({
@@ -204,12 +205,14 @@ export default {
                         pageUrl,
                     });
 
-                    injectJsonLd(buildSportsEvent({
-                        name: tName,
-                        pageUrl,
-                        startDate: tDate || undefined,
-                        sport: 'Fighting game',
-                    }));
+                    injectJsonLd(
+                        buildSportsEvent({
+                            name: tName,
+                            pageUrl,
+                            startDate: tDate || undefined,
+                            sport: 'Fighting game',
+                        })
+                    );
                 }
             }
             response.data.matches.forEach((video) => {
@@ -346,9 +349,7 @@ export default {
             const playerQuery = this.playerFilter
                 ? { queryName: 'PlayerId', queryValue: this.playerFilter }
                 : null;
-            this.queryVideos(
-                [this.gameFilter, this.bracketFilter, playerQuery].filter(Boolean)
-            );
+            this.queryVideos([this.gameFilter, this.bracketFilter, playerQuery].filter(Boolean));
         },
 
         handleScroll() {
@@ -374,7 +375,7 @@ export default {
     height: 100%;
     overflow: visible;
     width: 100%;
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 

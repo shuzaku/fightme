@@ -31,7 +31,10 @@
 </template>
 
 <script>
-import CharactersService from '@/services/characters-service';
+import {
+    loadCharacters,
+    subscribeCharactersCache,
+} from '@/services/characters-cache';
 
 export default {
     name: 'CharacterSearch',
@@ -73,17 +76,41 @@ export default {
 
     watch: {
         gameId() {
+            this.bindCharacterCache();
             this.getCharacters();
+        },
+        value() {
+            this.syncSelectedCharacters();
         },
     },
 
     mounted() {
         if (this.gameId) {
+            this.bindCharacterCache();
             this.getCharacters();
         }
     },
 
+    beforeDestroy() {
+        if (this.unsubscribeCache) {
+            this.unsubscribeCache();
+        }
+    },
+
     methods: {
+        bindCharacterCache() {
+            if (this.unsubscribeCache) {
+                this.unsubscribeCache();
+            }
+            if (!this.gameId) {
+                return;
+            }
+            this.unsubscribeCache = subscribeCharactersCache(this.gameId, (characters) => {
+                this.characters = characters;
+                this.syncSelectedCharacters();
+            });
+        },
+
         customLabel({ name }) {
             return `${name}`;
         },
@@ -92,38 +119,36 @@ export default {
             this.$emit('update:character', this.selectedCharacters);
         },
 
-        async getCharacters() {
-            var searchQuery = [
-                {
-                    queryName: 'GameId',
-                    queryValue: this.gameId,
-                },
-            ];
-
-            var queryParameter = {
-                searchQuery: searchQuery,
-            };
-
-            const response = await CharactersService.queryCharacters(queryParameter);
-
-            this.characters = (response.data.characters || []).map((character) => {
-                return {
-                    id: character._id,
-                    name: character.Name,
-                    avatarUrl: character.AvatarUrl,
-                    imageUrl: character.ImageUrl,
-                    slug: character.Slug,
-                };
+        syncSelectedCharacters() {
+            this.selectedCharacters = [];
+            if (!this.value || !this.value.length || !this.characters.length) {
+                return;
+            }
+            this.value.forEach((characterId) => {
+                const found = this.characters.find(
+                    (character) => String(character.id) === String(characterId)
+                );
+                if (found) {
+                    this.selectedCharacters.push(found);
+                }
             });
+        },
+
+        async getCharacters() {
+            if (!this.gameId) {
+                this.characters = [];
+                return;
+            }
+
+            try {
+                this.characters = await loadCharacters(this.gameId);
+            } catch (e) {
+                this.characters = [];
+            }
 
             if (this.value && this.value.length > 0) {
-                this.value.forEach((characterId) => {
-                    const found = this.characters.find(
-                        (character) => String(character.id) === String(characterId)
-                    );
-                    if (found) this.selectedCharacters.push(found);
-                });
-            } else if (this.defaultSelect) {
+                this.syncSelectedCharacters();
+            } else if (this.defaultSelect && this.characters.length) {
                 this.selectedCharacters = this.characters[0];
                 this.setCharacter();
             }

@@ -1,7 +1,6 @@
 <!-- @format -->
 <template>
     <div class="tnav" :class="{ loading: isLoading }">
-
         <!-- ── Hero ──────────────────────────────────────────────────────── -->
         <div class="tnav-hero">
             <div class="tnav-identity">
@@ -21,16 +20,27 @@
                 </div>
             </div>
 
-            <a
-                v-if="tournament.bracketUrl"
-                :href="tournament.bracketUrl"
-                target="_blank"
-                rel="noopener"
-                class="tnav-bracket-btn"
-            >
-                <tournament-bracket-svg />
-                <span>Bracket</span>
-            </a>
+            <div class="tnav-actions">
+                <router-link
+                    v-if="isAdmin"
+                    :to="{ name: 'EditTournament', params: { id: tournamentId } }"
+                    class="tnav-edit-btn"
+                    title="Edit tournament details"
+                >
+                    <v-icon small>mdi-pencil</v-icon>
+                    <span>Edit</span>
+                </router-link>
+                <a
+                    v-if="tournament.bracketUrl"
+                    :href="tournament.bracketUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="tnav-bracket-btn"
+                >
+                    <tournament-bracket-svg />
+                    <span>Bracket</span>
+                </a>
+            </div>
         </div>
 
         <!-- ── Game chips ─────────────────────────────────────────────────── -->
@@ -49,14 +59,22 @@
                     :class="['tnav-chip', 'tnav-chip--game', { active: activeGame === game.id }]"
                     @click="selectGame(game)"
                 >
-                    <img v-if="game.logoUrl" :src="game.logoUrl" class="tnav-chip-logo" :alt="game.title" />
+                    <img
+                        v-if="game.logoUrl"
+                        :src="game.logoUrl"
+                        class="tnav-chip-logo"
+                        :alt="game.title"
+                    />
                     <span>{{ game.abbreviation || game.title }}</span>
                 </button>
             </div>
         </div>
 
         <!-- ── Bracket stage chips ───────────────────────────────────────── -->
-        <div v-if="tournament.bracketFilters && tournament.bracketFilters.length > 1" class="tnav-filter-row">
+        <div
+            v-if="tournament.bracketFilters && tournament.bracketFilters.length > 1"
+            class="tnav-filter-row"
+        >
             <span class="tnav-filter-label">Round</span>
             <div class="tnav-chips">
                 <button
@@ -75,7 +93,6 @@
                 </button>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -115,11 +132,17 @@ export default {
                 location: null,
                 bracketFilters: [],
             },
-            games: [],        // full game objects for chip rendering
+            games: [], // full game objects for chip rendering
             activeGame: null,
             activeBracket: null,
             isLoading: false,
         };
+    },
+
+    computed: {
+        isAdmin() {
+            return this.account && String(this.account.role || '').toLowerCase() === 'admin';
+        },
     },
 
     watch: {
@@ -147,12 +170,12 @@ export default {
                 const t = response.data;
 
                 this.tournament = {
-                    name:           t.Name,
-                    logoUrl:        t.Image,
-                    bracketUrl:     t.BracketUrl,
-                    games:          t.Games || [],
-                    eventDate:      t.EventDate ? moment(t.EventDate).format('MMM Do, YYYY') : null,
-                    location:       t.Location || null,
+                    name: t.Name,
+                    logoUrl: t.Image,
+                    bracketUrl: t.BracketUrl,
+                    games: t.Games || [],
+                    eventDate: t.EventDate ? moment(t.EventDate).format('MMM Do, YYYY') : null,
+                    location: t.Location || null,
                     bracketFilters: t.BracketFilters || [],
                 };
 
@@ -160,10 +183,10 @@ export default {
                 if (this.tournament.games.length > 1) {
                     const gamesResponse = await GamesService.fetchGames();
                     const allGames = gamesResponse.data.games.map((g) => ({
-                        id:           String(g._id),
-                        title:        g.Title,
+                        id: String(g._id),
+                        title: g.Title,
                         abbreviation: g.Abbreviation || null,
-                        logoUrl:      g.LogoUrl || null,
+                        logoUrl: g.LogoUrl || null,
                     }));
                     const tournamentGameIds = this.tournament.games.map((id) => String(id));
                     this.games = allGames.filter((g) => tournamentGameIds.includes(g.id));
@@ -212,7 +235,6 @@ export default {
 /* ── Container ──────────────────────────────────────────────────────────────── */
 .tnav {
     width: 100%;
-    max-width: 900px;
     margin-bottom: 8px;
 }
 
@@ -274,6 +296,41 @@ export default {
 .tnav-meta-icon {
     color: #3eb489 !important;
     font-size: 14px !important;
+}
+
+/* ── Hero actions ───────────────────────────────────────────────────────────── */
+.tnav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.tnav-edit-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-shrink: 0;
+    width: 68px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.tnav-edit-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    text-decoration: none;
 }
 
 /* ── Bracket button ─────────────────────────────────────────────────────────── */

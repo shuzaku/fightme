@@ -1,8 +1,14 @@
 <!-- @format -->
 <template>
     <div class="notes-view">
-        <button class="add-btn" @click="openNoteModal">Add New Note</button>
-        <div class="notes-container">
+        <div class="notes-header">
+            <h1 class="notes-title">My Notes</h1>
+            <button class="add-btn" @click="openNoteModal">
+                <span class="add-btn-icon">+</span>
+                Add New Note
+            </button>
+        </div>
+        <div v-if="notes && notes.length" class="notes-container">
             <div v-for="note in notes" :key="note.id">
                 <character-matchup-note
                     v-if="note.type === 'Character Matchup'"
@@ -29,6 +35,11 @@
                     @delete:note="deleteNote($event)"
                 />
             </div>
+        </div>
+        <div v-else-if="notes" class="notes-empty">
+            <div class="notes-empty-icon">📝</div>
+            <p>You don't have any notes yet.</p>
+            <span>Tap “Add New Note” to capture your first matchup insight.</span>
         </div>
     </div>
 </template>
@@ -140,22 +151,83 @@ export default {
     min-width: 600px;
 }
 
-.notes-view .add-btn {
-    background: #3eb489;
+.notes-view .notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notes-view .notes-title {
     color: #fff;
-    padding: 5px 15px;
-    border-radius: 5px;
-    font-size: 20px;
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.notes-view .add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #3eb489 0%, #2e9c73 100%);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(62, 180, 137, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.notes-view .add-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.06);
+    box-shadow: 0 6px 18px rgba(62, 180, 137, 0.45);
+}
+
+.notes-view .add-btn:active {
+    transform: translateY(0);
+}
+
+.notes-view .add-btn-icon {
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 700;
 }
 
 .notes-view .notes-container {
-    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.notes-view .character-matchup-note,
-.notes-view .character-note,
-.notes-view .player-note,
-.notes-view .game-note {
-    margin-bottom: 10px;
+.notes-view .notes-empty {
+    text-align: center;
+    color: #9a9aa6;
+    padding: 80px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+}
+
+.notes-view .notes-empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.notes-view .notes-empty p {
+    color: #e8e8ea;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 6px;
+}
+
+.notes-view .notes-empty span {
+    font-size: 14px;
 }
 </style>

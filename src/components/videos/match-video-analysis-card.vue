@@ -10,30 +10,60 @@
         <div v-if="isLoading"></div>
         <div v-else class="match-analysis-card card">
             <div
-                :id="matchId"
-                v-waypoint="{
-                    active: true,
-                    callback: onWaypoint,
-                    options: intersectionOptions,
-                }"
-                class="video-container"
+                ref="videoColumn"
+                class="video-column"
+                tabindex="0"
+                @mouseenter="videoActive = true"
+                @mouseleave="videoActive = false"
             >
-                <youtube-media
-                    v-if="video.videoType === 'youtube'"
-                    ref="youtubeRef"
-                    :video-id="video.url"
-                    :player-width="556"
-                    :player-height="313"
-                    :player-vars="{
-                        rel: 0,
-                        autoplay: 0,
-                        start: video.match.startTime,
-                        end: video.match.endTime,
+                <div
+                    :id="matchId"
+                    v-waypoint="{
+                        active: true,
+                        callback: onWaypoint,
+                        options: intersectionOptions,
                     }"
-                    :mute="true"
-                    :playsinline="1"
-                    @ready="ready"
-                />
+                    class="video-container"
+                >
+                    <youtube-media
+                        v-if="video.videoType === 'youtube'"
+                        ref="youtubeRef"
+                        :video-id="video.url"
+                        :player-width="556"
+                        :player-height="313"
+                        :player-vars="{
+                            rel: 0,
+                            autoplay: 0,
+                            start: video.match.startTime,
+                            end: video.match.endTime,
+                        }"
+                        :mute="true"
+                        :playsinline="1"
+                        @ready="ready"
+                    />
+                </div>
+                <div v-if="video.videoType === 'youtube'" class="frame-controls">
+                    <button class="frame-btn" title="Back 10 frames" @click="frameStep(-10)">
+                        -10
+                    </button>
+                    <button class="frame-btn" title="Back 1 frame" @click="frameStep(-1)">
+                        -1
+                    </button>
+                    <span class="frame-time">{{ currentTimeDisplay }}</span>
+                    <button class="frame-btn" title="Forward 1 frame" @click="frameStep(1)">
+                        +1
+                    </button>
+                    <button class="frame-btn" title="Forward 10 frames" @click="frameStep(10)">
+                        +10
+                    </button>
+                    <button
+                        class="frame-btn fullscreen-btn"
+                        :title="isFullscreen ? 'Exit fullscreen' : 'Fullscreen'"
+                        @click="toggleFullscreen()"
+                    >
+                        <i :class="isFullscreen ? 'fas fa-compress' : 'fas fa-expand'"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-label">Match</div>
             <div v-if="!video.isEditing" class="aside">
@@ -169,15 +199,26 @@
                             <i class="fas fa-link"></i>
                             <span>Copy Link</span>
                         </button>
-                        <button class="share-action-btn share-action-btn--primary" @click="shareAtCurrentTime()">
+                        <button
+                            class="share-action-btn share-action-btn--primary"
+                            @click="shareAtCurrentTime()"
+                        >
                             <i class="fas fa-clock"></i>
-                            <span>Share at <strong>{{ currentTimeDisplay }}</strong></span>
+                            <span
+                                >Share at <strong>{{ currentTimeDisplay }}</strong></span
+                            >
                         </button>
-                        <button class="share-action-btn share-action-btn--twitter" @click="tweetMatch()">
+                        <button
+                            class="share-action-btn share-action-btn--twitter"
+                            @click="tweetMatch()"
+                        >
                             <i class="fab fa-twitter"></i>
                             <span>Tweet This Match</span>
                         </button>
-                        <button class="share-action-btn share-action-btn--discord" @click="discordShare()">
+                        <button
+                            class="share-action-btn share-action-btn--discord"
+                            @click="discordShare()"
+                        >
                             <i class="fab fa-discord"></i>
                             <span>Copy for Discord</span>
                         </button>
@@ -256,67 +297,95 @@
                     </h4>
                     <div v-show="!collapsedCategories['p1-counter']" class="counters label">
                         <div v-for="(timestamp, index) in player1Counter" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1Reversal.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-reversal')">
-                        <span class="category-icon">{{ collapsedCategories['p1-reversal'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-reversal'] ? '▶' : '▼'
+                        }}</span>
                         Reversal
                         <span class="count-badge">{{ player1Reversal.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p1-reversal']" class="reversals label">
                         <div v-for="(timestamp, index) in player1Reversal" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1Punish.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-punish')">
-                        <span class="category-icon">{{ collapsedCategories['p1-punish'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-punish'] ? '▶' : '▼'
+                        }}</span>
                         Punish
                         <span class="count-badge">{{ player1Punish.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p1-punish']" class="punishes label">
                         <div v-for="(timestamp, index) in player1Punish" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1HardKnockdown.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-hardknockdown')">
-                        <span class="category-icon">{{ collapsedCategories['p1-hardknockdown'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-hardknockdown'] ? '▶' : '▼'
+                        }}</span>
                         Hard Knockdown
                         <span class="count-badge">{{ player1HardKnockdown.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p1-hardknockdown']" class="hard-knockdowns label">
+                    <div
+                        v-show="!collapsedCategories['p1-hardknockdown']"
+                        class="hard-knockdowns label"
+                    >
                         <div v-for="(timestamp, index) in player1HardKnockdown" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1ThrowEscape.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-throwescape')">
-                        <span class="category-icon">{{ collapsedCategories['p1-throwescape'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-throwescape'] ? '▶' : '▼'
+                        }}</span>
                         Throw Escape
                         <span class="count-badge">{{ player1ThrowEscape.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p1-throwescape']" class="throw-escapes label">
+                    <div
+                        v-show="!collapsedCategories['p1-throwescape']"
+                        class="throw-escapes label"
+                    >
                         <div v-for="(timestamp, index) in player1ThrowEscape" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player1Just.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p1-just')">
-                        <span class="category-icon">{{ collapsedCategories['p1-just'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p1-just'] ? '▶' : '▼'
+                        }}</span>
                         Just
                         <span class="count-badge">{{ player1Just.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p1-just']" class="just label">
                         <div v-for="(timestamp, index) in player1Just" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
@@ -361,67 +430,95 @@
                     </h4>
                     <div v-show="!collapsedCategories['p2-counter']" class="counters label">
                         <div v-for="(timestamp, index) in player2Counter" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2Reversal.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-reversal')">
-                        <span class="category-icon">{{ collapsedCategories['p2-reversal'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-reversal'] ? '▶' : '▼'
+                        }}</span>
                         Reversal
                         <span class="count-badge">{{ player2Reversal.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p2-reversal']" class="reversals label">
                         <div v-for="(timestamp, index) in player2Reversal" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2Punish.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-punish')">
-                        <span class="category-icon">{{ collapsedCategories['p2-punish'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-punish'] ? '▶' : '▼'
+                        }}</span>
                         Punish
                         <span class="count-badge">{{ player2Punish.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p2-punish']" class="punishes label">
                         <div v-for="(timestamp, index) in player2Punish" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2HardKnockdown.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-hardknockdown')">
-                        <span class="category-icon">{{ collapsedCategories['p2-hardknockdown'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-hardknockdown'] ? '▶' : '▼'
+                        }}</span>
                         Hard Knockdown
                         <span class="count-badge">{{ player2HardKnockdown.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p2-hardknockdown']" class="hard-knockdowns label">
+                    <div
+                        v-show="!collapsedCategories['p2-hardknockdown']"
+                        class="hard-knockdowns label"
+                    >
                         <div v-for="(timestamp, index) in player2HardKnockdown" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2ThrowEscape.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-throwescape')">
-                        <span class="category-icon">{{ collapsedCategories['p2-throwescape'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-throwescape'] ? '▶' : '▼'
+                        }}</span>
                         Throw Escape
                         <span class="count-badge">{{ player2ThrowEscape.length }}</span>
                     </h4>
-                    <div v-show="!collapsedCategories['p2-throwescape']" class="throw-escapes label">
+                    <div
+                        v-show="!collapsedCategories['p2-throwescape']"
+                        class="throw-escapes label"
+                    >
                         <div v-for="(timestamp, index) in player2ThrowEscape" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
                 <div v-if="player2Just.length > 0" class="trigger">
                     <h4 @click="toggleCategory('p2-just')">
-                        <span class="category-icon">{{ collapsedCategories['p2-just'] ? '▶' : '▼' }}</span>
+                        <span class="category-icon">{{
+                            collapsedCategories['p2-just'] ? '▶' : '▼'
+                        }}</span>
                         Just
                         <span class="count-badge">{{ player2Just.length }}</span>
                     </h4>
                     <div v-show="!collapsedCategories['p2-just']" class="just label">
                         <div v-for="(timestamp, index) in player2Just" :key="index">
-                            <a @click="seekToTimeStamp(timestamp.s)">{{ timestamp.formattedTime }}</a>
+                            <a @click="seekToTimeStamp(timestamp.s)">{{
+                                timestamp.formattedTime
+                            }}</a>
                         </div>
                     </div>
                 </div>
@@ -525,6 +622,10 @@ export default {
     data() {
         return {
             videoCurrentTime: 0,
+            fps: 60,
+            frameTarget: null,
+            isFullscreen: false,
+            videoActive: false,
             isLoading: true,
             video: {
                 videoType: null,
@@ -567,13 +668,17 @@ export default {
         },
 
         p1Name() {
-            return this.video.match && this.video.match.team1Players && this.video.match.team1Players[0]
+            return this.video.match &&
+                this.video.match.team1Players &&
+                this.video.match.team1Players[0]
                 ? this.video.match.team1Players[0].name
                 : 'Player 1';
         },
 
         p2Name() {
-            return this.video.match && this.video.match.team2Players && this.video.match.team2Players[0]
+            return this.video.match &&
+                this.video.match.team2Players &&
+                this.video.match.team2Players[0]
                 ? this.video.match.team2Players[0].name
                 : 'Player 2';
         },
@@ -626,6 +731,7 @@ export default {
                 }
             } else if (this.video.videoType === 'youtube' && this.player) {
                 if (this.video.isPlaying === true) {
+                    this.frameTarget = null;
                     this.player.playVideo();
                 } else {
                     this.player.pauseVideo();
@@ -639,6 +745,7 @@ export default {
 
         videoCurrentTime() {
             if (this.videoCurrentTime > parseInt(this.video.match.endTime)) {
+                this.frameTarget = null;
                 this.$refs.youtubeRef.player.seekTo(this.video.match.startTime);
             }
         },
@@ -653,29 +760,115 @@ export default {
         this.playVideo();
     },
 
+    mounted() {
+        document.addEventListener('keydown', this.onKeydown);
+        document.addEventListener('fullscreenchange', this.onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', this.onFullscreenChange);
+    },
+
+    beforeDestroy() {
+        document.removeEventListener('keydown', this.onKeydown);
+        document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+        document.removeEventListener('webkitfullscreenchange', this.onFullscreenChange);
+    },
+
     methods: {
         extractYoutubeId(url) {
             if (!url || typeof url !== 'string') return null;
             var s = url.trim();
             if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
-            var m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            var m = s.match(
+                /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+            );
             return m ? m[1] : null;
         },
 
         inferVideoType(url) {
             if (!url) return null;
             var u = url.trim().toLowerCase();
-            if (u.includes('youtube') || u.includes('youtu.be') || /^[a-zA-Z0-9_-]{11}$/.test(url.trim())) return 'youtube';
+            if (
+                u.includes('youtube') ||
+                u.includes('youtu.be') ||
+                /^[a-zA-Z0-9_-]{11}$/.test(url.trim())
+            )
+                return 'youtube';
             if (u.includes('twitter') || u.includes('x.com')) return 'twitter';
             return 'uploaded';
         },
 
         seekToTimeStamp(seconds) {
+            this.frameTarget = null;
             this.$refs.youtubeRef.player.seekTo(seconds);
             this.$el.querySelector('.video-container').scrollIntoView({
                 behavior: 'smooth',
                 block: 'center',
             });
+        },
+
+        frameStep(direction) {
+            var player = this.$refs.youtubeRef && this.$refs.youtubeRef.player;
+            if (!player) return;
+            player.pauseVideo();
+            this.video.isPlaying = false;
+            // getCurrentTime() lags behind seekTo(), so reading it on every press would
+            // make rapid steps all compute the same stale target. Track our own target
+            // instead; it's reset to null whenever playback moves elsewhere (play,
+            // timestamp jump, loop reset) so the next step re-seeds from the real time.
+            if (this.frameTarget === null) {
+                this.frameTarget = player.getCurrentTime();
+            }
+            var next = this.frameTarget + direction * (1 / this.fps);
+            if (next < 0) next = 0;
+            this.frameTarget = next;
+            player.seekTo(next, true);
+            this.videoCurrentTime = next;
+            // Keep keyboard focus on the player while stepping in fullscreen, otherwise
+            // a stray click into the iframe would steal arrow-key input.
+            if (this.isFullscreen && this.$refs.videoColumn) {
+                this.$refs.videoColumn.focus();
+            }
+        },
+
+        onKeydown(e) {
+            if (this.video.videoType !== 'youtube') return;
+            // Only when the player is the user's focus: hovered or fullscreen.
+            if (!this.isFullscreen && !this.videoActive) return;
+            // Never hijack typing in notes or other inputs.
+            var tag = (e.target && e.target.tagName) || '';
+            if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable)) {
+                return;
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                this.frameStep(1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                this.frameStep(-1);
+            }
+        },
+
+        toggleFullscreen() {
+            var el = this.$refs.videoColumn;
+            if (!el) return;
+            var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+            if (!fsEl) {
+                var request = el.requestFullscreen || el.webkitRequestFullscreen;
+                if (request) {
+                    var result = request.call(el);
+                    if (result && result.catch) result.catch(function () {});
+                }
+            } else {
+                var exit = document.exitFullscreen || document.webkitExitFullscreen;
+                if (exit) exit.call(document);
+            }
+        },
+
+        onFullscreenChange() {
+            var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+            this.isFullscreen = !!fsEl && fsEl === this.$refs.videoColumn;
+            if (this.isFullscreen && this.$refs.videoColumn) {
+                this.$refs.videoColumn.focus();
+            }
         },
 
         async getMatch() {
@@ -718,9 +911,11 @@ export default {
                     : null,
                 endTime: matchResponse.StartTime ? this.convertTime(matchResponse.EndTime) : null,
             };
-            this.video.url = this.extractYoutubeId(matchResponse.VideoUrl) || matchResponse.VideoUrl;
+            this.video.url =
+                this.extractYoutubeId(matchResponse.VideoUrl) || matchResponse.VideoUrl;
             this.video.videoType = this.inferVideoType(matchResponse.VideoUrl);
-            var gFromMatch = matchResponse.Game && matchResponse.Game.length ? matchResponse.Game[0] : null;
+            var gFromMatch =
+                matchResponse.Game && matchResponse.Game.length ? matchResponse.Game[0] : null;
             if (gFromMatch) {
                 this.video.game = {
                     title: gFromMatch.Title || '',
@@ -820,7 +1015,9 @@ export default {
 
         queryPlayer(player) {
             var path = playerPagePath(player);
-            if (path) { this.$router.push(path); }
+            if (path) {
+                this.$router.push(path);
+            }
         },
 
         queryCharacter(characterOrId) {
@@ -864,7 +1061,9 @@ export default {
         showToast(msg) {
             this.toastMessage = msg;
             clearTimeout(this.toastTimer);
-            this.toastTimer = setTimeout(() => { this.toastMessage = ''; }, 2500);
+            this.toastTimer = setTimeout(() => {
+                this.toastMessage = '';
+            }, 2500);
         },
 
         toggleSharePanel() {
@@ -900,10 +1099,12 @@ export default {
             const url = this.buildUrl(seconds);
             const ts = this.formatSeconds(seconds);
             if (navigator.share) {
-                navigator.share({
-                    title: `${this.p1Name} vs ${this.p2Name} at ${ts} — Fighters Edge`,
-                    url,
-                }).catch(() => {});
+                navigator
+                    .share({
+                        title: `${this.p1Name} vs ${this.p2Name} at ${ts} — Fighters Edge`,
+                        url,
+                    })
+                    .catch(() => {});
             } else {
                 this.$copyText(url).then(() => this.showToast(`Link copied at ${ts}!`));
             }
@@ -912,7 +1113,9 @@ export default {
         tweetMatch() {
             const url = this.buildUrl();
             const text = `Watch ${this.p1Name} vs ${this.p2Name} on Fighters Edge`;
-            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&via=fightersedgefgc`;
+            const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                text
+            )}&url=${encodeURIComponent(url)}&via=fightersedgefgc`;
             window.open(tweetUrl, '_blank', 'width=550,height=420');
             this.showSharePanel = false;
         },
@@ -1339,6 +1542,53 @@ export default {
     color: #fff;
 }
 
+.match-analysis-card .video-column {
+    min-width: 75%;
+    display: flex;
+    flex-direction: column;
+    outline: none;
+}
+
+/* Fullscreen: center a 16:9 video with the frame controls pinned below it.
+   The :fullscreen and prefixed selectors must be in separate rules — grouping an
+   unrecognized pseudo would drop the whole rule in that browser. */
+.match-analysis-card .video-column:fullscreen {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+.match-analysis-card .video-column:-webkit-full-screen {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+.match-analysis-card .video-column:fullscreen .video-container {
+    padding-bottom: 0;
+    height: calc(100vh - 56px);
+    width: 100%;
+    max-width: calc((100vh - 56px) * 16 / 9);
+}
+.match-analysis-card .video-column:-webkit-full-screen .video-container {
+    padding-bottom: 0;
+    height: calc(100vh - 56px);
+    width: 100%;
+    max-width: calc((100vh - 56px) * 16 / 9);
+}
+.match-analysis-card .video-column:fullscreen .frame-controls {
+    width: 100%;
+    max-width: calc((100vh - 56px) * 16 / 9);
+    border-radius: 0;
+}
+.match-analysis-card .video-column:-webkit-full-screen .frame-controls {
+    width: 100%;
+    max-width: calc((100vh - 56px) * 16 / 9);
+    border-radius: 0;
+}
+
 .match-analysis-card .video-container {
     border-top-right-radius: 15px;
     border-top-left-radius: 15px;
@@ -1346,7 +1596,77 @@ export default {
     padding-bottom: 42.25%;
     height: 0;
     overflow: hidden;
-    min-width: 75%;
+    width: 100%;
+}
+
+.match-analysis-card .frame-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: #1a1d2a;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+#app .match-analysis-card .frame-controls .frame-btn {
+    width: 38px;
+    height: 32px;
+    min-width: initial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(62, 180, 137, 0.12);
+    border: 1px solid rgba(62, 180, 137, 0.4);
+    border-radius: 6px;
+    color: #3eb489;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#app .match-analysis-card .frame-controls .frame-btn:hover {
+    background: rgba(62, 180, 137, 0.25);
+    border-color: #3eb489;
+}
+
+.match-analysis-card .frame-controls .frame-time {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    min-width: 44px;
+    text-align: center;
+}
+
+.match-analysis-card .frame-controls .fullscreen-btn {
+    margin-left: auto;
+}
+
+#app .match-analysis-card .frame-controls .fps-btn {
+    width: 34px;
+    height: 28px;
+    min-width: initial;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #aaa;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#app .match-analysis-card .frame-controls .fps-btn.active {
+    background: #3eb489;
+    border-color: #3eb489;
+    color: #131419;
+}
+
+.match-analysis-card .frame-controls .fps-label {
+    color: #ffffff80;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .video-container iframe,
@@ -1859,7 +2179,7 @@ export default {
 /* ── Share Panel ──────────────────────────────────────────── */
 .match-analysis-card .share-panel {
     background: #1a1d2a;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding: 14px 16px;
     width: 100%;
 }
@@ -1885,8 +2205,8 @@ export default {
     gap: 10px;
     padding: 10px 14px;
     border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
     color: #fff;
     font-size: 13px;
     cursor: pointer;
@@ -1896,8 +2216,8 @@ export default {
 }
 
 .match-analysis-card .share-action-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.25);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .match-analysis-card .share-action-btn i {
@@ -1907,34 +2227,40 @@ export default {
 }
 
 .match-analysis-card .share-action-btn--primary {
-    border-color: rgba(62,180,137,0.4);
-    background: rgba(62,180,137,0.1);
+    border-color: rgba(62, 180, 137, 0.4);
+    background: rgba(62, 180, 137, 0.1);
 }
 .match-analysis-card .share-action-btn--primary:hover {
-    background: rgba(62,180,137,0.2);
+    background: rgba(62, 180, 137, 0.2);
     border-color: #3eb489;
 }
-.match-analysis-card .share-action-btn--primary i { color: #3eb489; }
+.match-analysis-card .share-action-btn--primary i {
+    color: #3eb489;
+}
 
 .match-analysis-card .share-action-btn--twitter {
-    border-color: rgba(29,161,242,0.3);
-    background: rgba(29,161,242,0.08);
+    border-color: rgba(29, 161, 242, 0.3);
+    background: rgba(29, 161, 242, 0.08);
 }
 .match-analysis-card .share-action-btn--twitter:hover {
-    background: rgba(29,161,242,0.18);
+    background: rgba(29, 161, 242, 0.18);
     border-color: #1da1f2;
 }
-.match-analysis-card .share-action-btn--twitter i { color: #1da1f2; }
+.match-analysis-card .share-action-btn--twitter i {
+    color: #1da1f2;
+}
 
 .match-analysis-card .share-action-btn--discord {
-    border-color: rgba(88,101,242,0.3);
-    background: rgba(88,101,242,0.08);
+    border-color: rgba(88, 101, 242, 0.3);
+    background: rgba(88, 101, 242, 0.08);
 }
 .match-analysis-card .share-action-btn--discord:hover {
-    background: rgba(88,101,242,0.18);
+    background: rgba(88, 101, 242, 0.18);
     border-color: #5865f2;
 }
-.match-analysis-card .share-action-btn--discord i { color: #5865f2; }
+.match-analysis-card .share-action-btn--discord i {
+    color: #5865f2;
+}
 
 /* ── Toast ────────────────────────────────────────────────── */
 .share-toast {
@@ -1949,18 +2275,24 @@ export default {
     padding: 12px 24px;
     border-radius: 30px;
     z-index: 9999;
-    box-shadow: 0 4px 20px rgba(62,180,137,0.4);
+    box-shadow: 0 4px 20px rgba(62, 180, 137, 0.4);
     display: flex;
     align-items: center;
     gap: 8px;
     white-space: nowrap;
 }
 
-.toast-fade-enter-active, .toast-fade-leave-active {
+.toast-fade-enter-active,
+.toast-fade-leave-active {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
-.toast-fade-enter, .toast-fade-leave-to {
+.toast-fade-enter,
+.toast-fade-leave-to {
     opacity: 0;
     transform: translateX(-50%) translateY(10px);
+}
+
+ytm-custom-control .player-controls-middle.prevent-controls-collision {
+    display: none;
 }
 </style>

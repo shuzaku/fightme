@@ -120,6 +120,7 @@
                     @update:character="setCharacter2Id($event)"
                 />
             </div>
+
             <!-- <div class="recent-patches overview-card">
                 <h3>Recent Patches</h3>
                 <div class="patch">
@@ -227,6 +228,7 @@ export default {
             }
             return `https://bsky.app/search?q=${encodeURIComponent('#' + this.resourceHashtag)}`;
         },
+
     },
 
     watch: {},
@@ -606,4 +608,5 @@ export default {
     width: 100%;
     max-width: 100%;
 }
+
 </style>
