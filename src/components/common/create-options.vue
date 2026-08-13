@@ -78,6 +78,13 @@ export default {
                     value: 'game-update',
                     adminOnly: true,
                 },
+                {
+                    // Full page rather than a modal widget, so it routes instead.
+                    name: 'tournament',
+                    value: 'tournament',
+                    adminOnly: true,
+                    route: '/create-tournament',
+                },
             ],
         };
     },
@@ -107,6 +114,10 @@ export default {
 
     methods: {
         openAddModal(option) {
+            if (option.route) {
+                this.$router.push(option.route);
+                return;
+            }
             eventbus.$emit('open:widget', option);
         },
     },

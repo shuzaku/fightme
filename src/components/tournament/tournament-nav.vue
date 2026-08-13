@@ -101,6 +101,7 @@ import { eventbus } from '@/main';
 import GamesService from '@/services/games-service';
 import TournamentsService from '@/services/tournaments-service';
 import TournamentBracketSvg from '../svg/tournament-bracket-svg.vue';
+import { startggBracketUrl } from '@/utils/startgg-bracket-url';
 import moment from 'moment';
 
 export default {
@@ -172,7 +173,7 @@ export default {
                 this.tournament = {
                     name: t.Name,
                     logoUrl: t.Image,
-                    bracketUrl: t.BracketUrl,
+                    bracketUrl: t.BracketUrl || startggBracketUrl(t.StartggSlug),
                     games: t.Games || [],
                     eventDate: t.EventDate ? moment(t.EventDate).format('MMM Do, YYYY') : null,
                     location: t.Location || null,

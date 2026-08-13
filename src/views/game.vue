@@ -79,6 +79,12 @@
                 :gameId="gameId"
                 @change="onTeamFilterChange"
             />
+            <game-point-character-filter
+                v-if="isPointGame"
+                :key="gameId + '-point'"
+                :gameId="gameId"
+                @change="onPointFilterChange"
+            />
             <div v-if="featuredVideos && featuredVideos.length > 0" class="featured-videos">
                 <h2>🎥 Featured Videos</h2>
                 <div class="videos">
@@ -125,6 +131,7 @@
                         :selectedVideoType="selectedVideoType"
                         :teamChar1="teamChar1"
                         :teamChar2="teamChar2"
+                        :pointChar="pointChar"
                         :account="account"
                     />
                 </div>
@@ -164,6 +171,26 @@
                     </div>
                 </div>
                 <div
+                    v-if="rankings && rankings.length"
+                    v-show="activeContentTab === 'rankings'"
+                    class="game-content-panel game-content-panel--rankings"
+                >
+                    <rankings-leaderboard :rows="rankings" />
+                </div>
+                <div
+                    v-if="seasonRankings && seasonRankings.length"
+                    v-show="activeContentTab === 'season-rankings'"
+                    class="game-content-panel game-content-panel--season-rankings"
+                >
+                    <season-power-rankings-leaderboard
+                        :rows="seasonRankings"
+                        :seasons="seasonRankingsSeasons"
+                        :computed-seasons="seasonRankingsComputedSeasons"
+                        :selected-season="selectedSeason"
+                        @change-season="handleSeasonChange"
+                    />
+                </div>
+                <div
                     v-if="gameUpdates && gameUpdates.length"
                     v-show="activeContentTab === 'updates'"
                     class="game-content-panel game-content-panel--updates"
@@ -189,11 +216,17 @@ import Loading from '@/components/common/loading';
 import ExploreCharacters from '@/components/explore/explore-characters';
 import GameVideos from '@/components/games/game-videos';
 import GameTeamFilter from '@/components/games/game-team-filter';
+import GamePointCharacterFilter from '@/components/games/game-point-character-filter';
+import { isTeamPairingGame, isPointCharacterGame } from '@/utils/team-games';
 import GamesService from '@/services/games-service';
 import FeaturedVideosService from '@/services/featured-videos-service';
 import TierListsService from '@/services/tier-lists-service';
 import UpdatesService from '@/services/updates-service';
+import PlayerRatingsService from '@/services/player-ratings-service';
+import SeasonPowerRankingsService from '@/services/season-power-rankings-service';
 import UpdateCard from '@/components/update/update-card';
+import RankingsLeaderboard from '@/components/rankings/rankings-leaderboard.vue';
+import SeasonPowerRankingsLeaderboard from '@/components/rankings/season-power-rankings-leaderboard.vue';
 import moment from 'moment';
 import { eventbus } from '@/main';
 import { setPageTitle } from '@/services/og-meta-service';
@@ -209,7 +242,10 @@ export default {
         'explore-characters': ExploreCharacters,
         'game-videos': GameVideos,
         'game-team-filter': GameTeamFilter,
+        'game-point-character-filter': GamePointCharacterFilter,
         'update-card': UpdateCard,
+        'rankings-leaderboard': RankingsLeaderboard,
+        'season-power-rankings-leaderboard': SeasonPowerRankingsLeaderboard,
     },
 
     props: {
@@ -234,6 +270,7 @@ export default {
             activeContentTab: 'online',
             teamChar1: null,
             teamChar2: null,
+            pointChar: null,
             stats: {
                 characters: 0,
                 matches: 0,
@@ -244,6 +281,11 @@ export default {
             tierLists: [],
             statsLoading: false,
             gameUpdates: [],
+            rankings: [],
+            seasonRankings: [],
+            seasonRankingsSeasons: [],
+            seasonRankingsComputedSeasons: [],
+            selectedSeason: null,
         };
     },
 
@@ -272,6 +314,12 @@ export default {
             if (this.gameUpdates && this.gameUpdates.length) {
                 t.push({ id: 'updates', label: '📰 Game updates' });
             }
+            if (this.rankings && this.rankings.length) {
+                t.push({ id: 'rankings', label: '🏆 Rankings' });
+            }
+            if (this.seasonRankings && this.seasonRankings.length) {
+                t.push({ id: 'season-rankings', label: '📅 Season Power Rankings' });
+            }
             return t;
         },
         isVideoContentTab() {
@@ -283,7 +331,11 @@ export default {
         },
 
         isTeamGame() {
-            return this.gameId === '68cba126f261500022897969';
+            return isTeamPairingGame(this.gameId);
+        },
+
+        isPointGame() {
+            return isPointCharacterGame(this.gameId);
         },
         selectedVideoType() {
             return this.mapTabIdToGameVideosLabel(this.activeContentTab);
@@ -310,6 +362,8 @@ export default {
             this.getFeaturedVideos();
             this.getTierLists();
             this.getGameUpdates();
+            this.getPlayerRankings();
+            this.getSeasonPowerRankings();
             this.activeContentTab = 'online';
         },
         allContentTabs: {
@@ -399,6 +453,10 @@ export default {
         onTeamFilterChange({ char1, char2 }) {
             this.teamChar1 = char1;
             this.teamChar2 = char2;
+        },
+
+        onPointFilterChange({ pointChar }) {
+            this.pointChar = pointChar;
         },
 
         mapTabIdToGameVideosLabel(id) {
@@ -542,6 +600,113 @@ export default {
             }
         },
 
+        async getPlayerRankings() {
+            if (!this.gameId) {
+                this.rankings = [];
+                return;
+            }
+            try {
+                const response = await PlayerRatingsService.getLeaderboard(this.gameId, { limit: 50 });
+                const rows = (response.data && response.data.ratings) || [];
+                this.rankings = rows.map((row, index) => {
+                    const player = row.PlayerId && typeof row.PlayerId === 'object' ? row.PlayerId : null;
+                    return {
+                        rank: index + 1,
+                        playerId: player ? player._id : row.PlayerId,
+                        name: player ? player.Name : 'Unknown player',
+                        imageUrl: player ? player.ImageUrl : null,
+                        slug: player ? player.Slug : null,
+                        rating: Math.round(row.Rating),
+                        rd: Math.round(row.RatingDeviation),
+                        wins: row.Wins || 0,
+                        losses: row.Losses || 0,
+                        lastActiveLabel: row.LastEventAt
+                            ? moment(row.LastEventAt).format('MMM YYYY')
+                            : null,
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching player rankings:', error);
+                this.rankings = [];
+            }
+        },
+
+        async getSeasonPowerRankings() {
+            if (!this.gameId) {
+                this.seasonRankings = [];
+                this.seasonRankingsSeasons = [];
+                this.seasonRankingsComputedSeasons = [];
+                this.selectedSeason = null;
+                return;
+            }
+            try {
+                const seasonsResponse = await SeasonPowerRankingsService.getAvailableSeasons(this.gameId);
+                const computedSeasons = (seasonsResponse.data && seasonsResponse.data.seasons) || [];
+                this.seasonRankingsComputedSeasons = computedSeasons;
+
+                // The year filter should let you browse ANY season, not just
+                // ones already computed — otherwise there's no way to notice
+                // "hey, 2022 hasn't been backfilled yet" from the UI. Merge
+                // computed years with a browsable range back to
+                // SEASON_EARLIEST_YEAR_FALLBACK (matches ranking-service's
+                // SEASON_EARLIEST_YEAR default of 2018 — see that service's
+                // README if it's ever configured differently).
+                const SEASON_EARLIEST_YEAR_FALLBACK = 2018;
+                const currentYear = new Date().getFullYear();
+                const browsableRange = [];
+                for (let y = currentYear; y >= SEASON_EARLIEST_YEAR_FALLBACK; y -= 1) browsableRange.push(y);
+
+                const allYears = new Set([...computedSeasons, ...browsableRange]);
+                this.seasonRankingsSeasons = Array.from(allYears).sort((a, b) => b - a);
+
+                // Default to the most recent COMPUTED season if there is
+                // one; otherwise just land on the current year so there's
+                // still something sensible selected (the leaderboard will
+                // show its existing "no data yet" empty state).
+                this.selectedSeason = computedSeasons.length > 0 ? computedSeasons[0] : currentYear;
+                await this.fetchSeasonRankingsFor(this.selectedSeason);
+            } catch (error) {
+                console.error('Error fetching season power rankings:', error);
+                this.seasonRankings = [];
+                this.seasonRankingsSeasons = [];
+                this.seasonRankingsComputedSeasons = [];
+                this.selectedSeason = null;
+            }
+        },
+
+        async fetchSeasonRankingsFor(season) {
+            try {
+                const response = await SeasonPowerRankingsService.getLeaderboard(this.gameId, season, { limit: 50 });
+                const rows = (response.data && response.data.rankings) || [];
+                this.seasonRankings = rows.map((row) => {
+                    const player = row.PlayerId && typeof row.PlayerId === 'object' ? row.PlayerId : null;
+                    // A row may represent someone never linked to a Fighters-Edge
+                    // player profile — tracked across the season via their
+                    // start.gg account instead (see ranking-service's
+                    // entrant-identity.js). No profile to link to in that case.
+                    return {
+                        rank: row.Rank,
+                        playerId: player ? player._id : null,
+                        name: player ? player.Name : row.UnresolvedName || 'Unknown player',
+                        imageUrl: player ? player.ImageUrl : null,
+                        slug: player ? player.Slug : null,
+                        unlinked: !player,
+                        score: Math.round(row.Score * 10) / 10,
+                        tournamentsAttended: row.TournamentsAttended || 0,
+                        notConverged: row.Converged === false,
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching season power rankings for season', season, error);
+                this.seasonRankings = [];
+            }
+        },
+
+        async handleSeasonChange(season) {
+            this.selectedSeason = season;
+            await this.fetchSeasonRankingsFor(season);
+        },
+
         mapTierListItems(items) {
             return items.map((item) => {
                 // Find top 3 characters
@@ -585,10 +750,44 @@ export default {
     height: 100%;
     overflow: visible;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 0 10px;
-    padding-top: 200px;
+    padding: 0 20px 120px;
+    padding-top: 180px;
+}
+
+/* Angled backdrop wash behind the hero, so the banner reads as part of a
+   stylized spread rather than a floating card. */
+.game-view::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 560px;
+    background: linear-gradient(180deg, #1b1d2b 0%, #242832 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.game-view > * {
+    position: relative;
+    z-index: 1;
+}
+
+.mobile .game-view {
+    padding: 150px 14px 80px;
+}
+
+/* Condensed uppercase section headings, matching the character page. */
+.game-view .featured-videos h2,
+.game-view .game-cta h2 {
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .game-view::-webkit-scrollbar-track {
@@ -638,39 +837,49 @@ export default {
 }
 
 .game-view .game-stats .stat-card {
-    background: #191b2490;
-    border-radius: 15px;
-    padding: 16px;
-    max-width: 190px;
+    background: #0e1018cc;
+    padding: 16px 18px;
+    max-width: 200px;
     min-width: 140px;
     height: 85px;
     width: 100%;
     color: #ffffff90;
-    border: 1px solid #ffffff30;
+    border: 1px solid #ffffff1f;
+    border-bottom: 2px solid #3eb489;
+    transform: skewX(-8deg);
     flex: 1;
 }
 
+.game-view .game-stats .stat-card > * {
+    transform: skewX(8deg);
+}
+
 .game-view .game-stats .stat-card .number {
-    font-size: 25px;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-size: 32px;
     font-weight: 800;
+    line-height: 1.05;
     color: #fff;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .game-view .game-stats .stat-card .label {
-    font-size: 14px;
-    font-weight: 300;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #ffffff90;
+    color: #ffffff70;
 }
 
 .game-view .game-cta {
-    background: #191b2490;
-    border-radius: 15px;
+    background: linear-gradient(180deg, #1b1e2b 0%, #16181f 100%);
+    border-radius: 4px;
     padding: 40px;
     margin: 60px 0;
     text-align: center;
-    border: 1px solid #ffffff30;
+    border: 1px solid #ffffff1f;
+    border-left: 3px solid #3eb489;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
 }
 
 .game-view .game-cta h2 {
@@ -699,10 +908,14 @@ export default {
 
 .game-view .game-cta .cta-btn {
     background: #3eb489 !important;
-    color: #fff !important;
+    color: #06231a !important;
     padding: 12px 32px;
-    font-weight: 600;
-    text-transform: none;
+    border-radius: 0 !important;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .game-view .game-cta .cta-btn:hover {
@@ -710,10 +923,12 @@ export default {
 }
 
 .game-view .game-cta-compact {
-    background: #191b2490;
-    border-radius: 12px;
-    padding: 16px 24px;
-    border: 1px solid #ffffff30;
+    background: linear-gradient(180deg, #1b1e2b 0%, #16181f 100%);
+    border-radius: 4px;
+    padding: 14px 20px;
+    border: 1px solid #ffffff1f;
+    border-left: 3px solid #3eb489;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
     flex: 0 0 auto;
     min-width: 280px;
     max-width: 400px;
@@ -747,12 +962,14 @@ export default {
 
 .game-view .game-cta-compact .cta-compact-btn {
     background: #3eb489 !important;
-    color: #fff !important;
+    color: #06231a !important;
     padding: 6px 16px;
-    font-weight: 600;
-    text-transform: none;
-    font-size: 12px;
-    min-width: auto;
+    border-radius: 0 !important;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: 13px;
     flex: 1;
     min-width: 100px;
     height: 28px;
@@ -852,12 +1069,14 @@ export default {
 }
 
 .game-view .tier-list-item {
-    background: #191b2490;
-    border-radius: 15px;
-    padding: 20px;
+    background: linear-gradient(180deg, #1b1e2b 0%, #16181f 100%);
+    border-radius: 4px;
+    padding: 18px 20px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #ffffff30;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    border: 1px solid #ffffff1f;
+    border-left: 3px solid #3eb489;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -866,6 +1085,8 @@ export default {
 .game-view .tier-list-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: #3eb48959;
+    border-left-color: #5ae1ae;
 }
 
 .game-view .tier-list-header {
@@ -876,8 +1097,11 @@ export default {
 
 .game-view .tier-list-header h3 {
     color: #fff;
-    font-size: 18px;
-    font-weight: 600;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;

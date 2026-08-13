@@ -3,16 +3,19 @@
  *   0:35 SQUISHY FISH vs FRANCIS
  *   00:30:25 Ghirlanda (Kunimitsu) vs. Kirakira (Jun)
  *   29:11 froggymustdie (blanka) v nuckledu (mai)
+ *   36:05 - Shinko9 (Eddy) vs Magnalynx21 (Law)
+ *   1:10:27 - Salty (Hwoarang) vs Sh4ky (Leo)
  *   20:58 LukesFH (Blitzcrank / Vi) VS Toshi // Haru (Jinx / Thresh)
  *
  * Timestamp is clip start; clip end is the next line's start (last row has no end).
+ * Optional " - " may follow the timestamp (YouTube chapter lists).
  * Match separator: " vs ", " vs.", " v ", or " VS " (case insensitive).
  * Tag teams: "//" between players (2XKO), or "/" when not inside ().
  * Characters: inside () separated by "," or "/".
  * Tag teams with 2 players: first character → player 1, remaining → player 2.
  */
 
-const LINE_RE = /^(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+?)\s+v(?:s)?\.?\s+(.+)$/i;
+const LINE_RE = /^(\d{1,2}:\d{2}(?::\d{2})?)\s*(?:-\s*)?(.+?)\s+v(?:s)?\.?\s+(.+)$/i;
 const PLAYER_SIDE_RE = /^(.+?)\s*\(([^)]+)\)\s*$/;
 const TAG_TEAM_SPLIT_RE = /\s*\/\/\s*/;
 

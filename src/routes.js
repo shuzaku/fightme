@@ -21,6 +21,8 @@ import Collection from './views/collection.vue';
 import Note from './views/notes.vue';
 import YoutubeGenerator from './views/youtube-generator.vue';
 import Tournament from './views/tournament.vue';
+import TournamentsBrowse from './views/tournaments-browse.vue';
+import TournamentDetail from './views/tournament-detail.vue';
 import TournamentMatch from './views/tournament-match.vue';
 import TournamentMatchesImport from './views/tournament-matches-import.vue';
 import CreateTournament from './views/create-tournament.vue';
@@ -44,6 +46,7 @@ import MultiStream from './views/multi-stream.vue';
 import MatchLogs from './views/match-logs.vue';
 import GameplanMaker from './views/gameplan-maker.vue';
 import GameplanGallery from './views/gameplan-gallery.vue';
+import Calendar from './views/calendar.vue';
 
 const routes = [
     {
@@ -267,6 +270,20 @@ const routes = [
     { path: '/match/:id/review', name: 'MatchReview', component: MatchReview },
     { path: '/tournament/:id', name: 'Tournament', component: Tournament },
     { path: '/tournament/:id/edit', name: 'EditTournament', component: EditTournament },
+    {
+        path: '/tournaments',
+        name: 'TournamentsBrowse',
+        component: TournamentsBrowse,
+        meta: {
+            // No " | Fighters Edge" suffix here — setPageTitle appends it.
+            // Including it makes the router's afterEach hook produce
+            // "Tournaments | Fighters Edge | Fighters Edge", which this page
+            // now shows because syncing filters to the URL re-runs that hook.
+            title: 'Tournaments',
+            description: 'Browse fighting game tournaments — filter by game, tier, date, and location.',
+        },
+    },
+    { path: '/tournaments/:id', name: 'TournamentDetail', component: TournamentDetail },
     { path: '/admin/video-approval', name: 'AdminVideoApproval', component: AdminVideoApproval },
     { path: '/admin/player-link-requests', name: 'AdminPlayerLinkApproval', component: AdminPlayerLinkApproval },
     {
@@ -304,6 +321,15 @@ const routes = [
         meta: {
             title: 'My Gameplans | Fighters Edge',
             description: 'View and manage your saved character gameplans.',
+        },
+    },
+    {
+        path: '/calendar',
+        name: 'Calendar',
+        component: Calendar,
+        meta: {
+            title: 'FGC Calendar | Fighters Edge',
+            description: 'Upcoming patches, character releases, and tournaments across every tracked fighting game.',
         },
     },
     {

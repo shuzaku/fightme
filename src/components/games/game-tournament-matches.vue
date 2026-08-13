@@ -36,6 +36,7 @@
 import TournamentMatchService from '@/services/tournament-match-service';
 import MatchesService from '@/services/matches-service';
 import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
+import { isTeamPairingGame, isPointCharacterGame } from '@/utils/team-games';
 import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
 import MatchVideoCard from '@/components/videos/match-video-card';
 
@@ -51,6 +52,7 @@ export default {
         account: { type: Object, default: null },
         teamChar1: { type: String, default: null },
         teamChar2: { type: String, default: null },
+        pointChar: { type: String, default: null },
         gameId: {
             type: String,
             default: null,
@@ -87,11 +89,19 @@ export default {
         },
 
         isTeamGame() {
-            return this.effectiveGameId === '68cba126f261500022897969';
+            return isTeamPairingGame(this.effectiveGameId);
         },
 
+        isPointGame() {
+            return isPointCharacterGame(this.effectiveGameId);
+        },
+
+        // Both filters go through the /matchesTeam endpoint.
         teamFilterActive() {
-            return this.isTeamGame && (this.teamChar1 || this.teamChar2);
+            return (
+                (this.isTeamGame && (this.teamChar1 || this.teamChar2)) ||
+                (this.isPointGame && this.pointChar)
+            );
         },
     },
 
@@ -102,6 +112,7 @@ export default {
         },
         teamChar1() { this.videos = []; this.isLast = false; this.queryVideos(); },
         teamChar2() { this.videos = []; this.isLast = false; this.queryVideos(); },
+        pointChar() { this.videos = []; this.isLast = false; this.queryVideos(); },
     },
 
     mounted() {
@@ -150,8 +161,9 @@ export default {
                         const response = await MatchesService.queryMatchesByTeam({
                             skip: this.skip,
                             gameId: this.effectiveGameId,
-                            char1: this.teamChar1 || undefined,
-                            char2: this.teamChar2 || undefined,
+                            char1: this.isTeamGame ? this.teamChar1 || undefined : undefined,
+                            char2: this.isTeamGame ? this.teamChar2 || undefined : undefined,
+                            pointChar: this.isPointGame ? this.pointChar || undefined : undefined,
                         });
                         if (response.data.matches.length === 0) {
                             this.isLast = true;

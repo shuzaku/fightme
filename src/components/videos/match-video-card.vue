@@ -1,6 +1,6 @@
 <!-- @format -->
 <template>
-    <div ref="videoList">
+    <div ref="videoList" class="match-video-card">
         <transition name="toast-fade">
             <div v-if="toastMessage" class="share-toast">
                 <i class="fas fa-check-circle"></i> {{ toastMessage }}
@@ -43,72 +43,56 @@
                         </div>
                     </div>
                     <div class="players">
-                        <div class="team1">
+                        <div class="team team1">
                             <div
                                 v-for="team1Player in video.match.team1Players"
                                 :key="team1Player.id"
                                 class="player"
                             >
-                                <div
-                                    class="heavy-weight player-name"
-                                    @click="queryPlayer(team1Player)"
-                                >
-                                    <p>{{ team1Player.name }}</p>
+                                <div class="player-name" @click="queryPlayer(team1Player)">
+                                    <span>{{ team1Player.name }}</span>
                                 </div>
                                 <div class="characters">
                                     <div
                                         v-for="(character, index) in team1Player.characters"
                                         :key="index"
                                         class="character"
+                                        :title="character.name"
+                                        @click="queryCharacter(character)"
                                     >
-                                        <div
-                                            class="character-name"
-                                            @click="queryCharacter(character)"
-                                        >
-                                            <p>
-                                                <span>
-                                                    <div class="img-container">
-                                                        <img :src="character.imageUrl" />
-                                                    </div>
-                                                    {{ character.name }}</span
-                                                >
-                                            </p>
-                                        </div>
+                                        <img
+                                            class="character-img"
+                                            :src="character.imageUrl"
+                                            :alt="character.name"
+                                        />
+                                        <span class="character-label">{{ character.name }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="team2">
+                        <div class="team team2">
                             <div
                                 v-for="team2Player in video.match.team2Players"
                                 :key="team2Player.id"
                                 class="player"
                             >
-                                <div
-                                    class="heavy-weight player-name"
-                                    @click="queryPlayer(team2Player)"
-                                >
-                                    <p>{{ team2Player.name }}</p>
+                                <div class="player-name" @click="queryPlayer(team2Player)">
+                                    <span>{{ team2Player.name }}</span>
                                 </div>
                                 <div class="characters">
                                     <div
                                         v-for="(character, index) in team2Player.characters"
                                         :key="index"
                                         class="character"
+                                        :title="character.name"
+                                        @click="queryCharacter(character)"
                                     >
-                                        <div
-                                            class="character-name"
-                                            @click="queryCharacter(character)"
-                                        >
-                                            <p>
-                                                <span>
-                                                    <div class="img-container">
-                                                        <img :src="character.imageUrl" />
-                                                    </div>
-                                                    {{ character.name }}</span
-                                                >
-                                            </p>
-                                        </div>
+                                        <img
+                                            class="character-img"
+                                            :src="character.imageUrl"
+                                            :alt="character.name"
+                                        />
+                                        <span class="character-label">{{ character.name }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1006,5 +990,232 @@ export default {
 .toast-fade-enter, .toast-fade-leave-to {
     opacity: 0;
     transform: translateX(-50%) translateY(10px);
+}
+
+/* ══ Stylized match card ═══════════════════════════════════════════
+   Scoped under .match-video-card so the legacy unprefixed .match-card
+   rules above keep applying to the other components that share them.
+   The aside is built to stay SHORTER than the video for any roster
+   size, so the card height is driven by the video and there is no
+   dead space under it — which is what went wrong on 4-character
+   games like Marvel Tokon.
+   ══════════════════════════════════════════════════════════════════ */
+.match-video-card .match-card {
+    margin: 26px 0;
+    display: flex;
+    align-items: stretch;
+    background: linear-gradient(180deg, #1b1e2b 0%, #16181f 100%);
+    border: 1px solid #ffffff1f;
+    /* Square: the video is full-bleed on the left edge, so a corner radius
+       here would just peek out from behind it. The clipped top-right corner
+       carries the angular treatment instead. */
+    border-radius: 0;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Width stays at 75% to match the legacy 42.25% padding-bottom, which is
+   the 16:9 height of a 75%-wide box measured against the card width. */
+.match-video-card .match-card .video-container {
+    border-radius: 0;
+}
+
+/* "Match" tag — skewed, tucked against the top-left of the card. */
+.match-video-card .match-card .card-label {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    width: auto;
+    margin-left: 0;
+    padding: 3px 14px;
+    border-radius: 0;
+    transform: skewX(-8deg);
+    background: #3c73a8;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    z-index: 3;
+}
+
+.match-video-card .match-card .aside {
+    padding: 12px 12px 6px;
+    gap: 8px;
+}
+
+.match-video-card .match-card .game {
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+.match-video-card .match-card .game-title img {
+    max-width: 76px;
+    max-height: 46px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.match-video-card .match-card .players {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Player panel — reset the legacy absolute-positioned name badge that
+   forced 40px of margin under every player. */
+.match-video-card .match-card .player {
+    border: 1px solid #ffffff1a;
+    border-left: 3px solid #3eb489;
+    border-radius: 3px;
+    background: #ffffff08;
+    position: static;
+    padding: 8px 10px 10px;
+    margin-bottom: 0;
+}
+
+.match-video-card .match-card .team2 .player {
+    border: 1px solid #ffffff1a;
+    border-left: 3px solid #6a6ef5;
+}
+
+.match-video-card .match-card .player-name {
+    position: static;
+    display: inline-block;
+    top: auto;
+    left: auto;
+    padding: 2px 10px;
+    margin-bottom: 7px;
+    border-radius: 0;
+    background: #3eb489;
+    transform: skewX(-8deg);
+    cursor: pointer;
+    max-width: 100%;
+}
+
+.match-video-card .match-card .team2 .player-name {
+    background: #6a6ef5;
+}
+
+.match-video-card .match-card .player-name span {
+    display: block;
+    transform: skewX(8deg);
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.25;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #06231a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.match-video-card .match-card .team2 .player-name span {
+    color: #0d0f2b;
+}
+
+/* Compact wrapping chips — two per row in the aside column. */
+.match-video-card .match-card .characters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0;
+}
+
+.match-video-card .match-card .character {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 2px 8px 2px 2px;
+    border-radius: 20px;
+    background: #3eb4891f;
+    border: 1px solid #3eb48959;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.match-video-card .match-card .team2 .character {
+    background: #6a6ef51f;
+    border-color: #6a6ef559;
+}
+
+.match-video-card .match-card .character:hover {
+    background: #3eb48938;
+    border-color: #3eb489;
+}
+
+.match-video-card .match-card .team2 .character:hover {
+    background: #6a6ef538;
+    border-color: #6a6ef5;
+}
+
+.match-video-card .match-card .character-img {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #0e1018;
+}
+
+.match-video-card .match-card .character-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #d8f5ea;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.match-video-card .match-card .team2 .character-label {
+    color: #dcddff;
+}
+
+.match-video-card .match-card .admin-controls {
+    padding: 0;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+#app .match-video-card .match-card .admin-controls button,
+#app .match-video-card .match-card .admin-controls button.share-button,
+#app .match-video-card .match-card .admin-controls button.view-match-button {
+    width: 32px;
+    height: 36px;
+}
+
+/* ── Mobile ─────────────────────────────────────── */
+#app.mobile.small-mobile .match-video-card .match-card {
+    flex-direction: column;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+}
+
+#app.mobile.small-mobile .match-video-card .match-card .aside {
+    max-width: 100%;
+}
+
+#app.mobile.small-mobile .match-video-card .match-card .players {
+    flex-direction: column;
+}
+
+#app.mobile.small-mobile .match-video-card .match-card .players .player {
+    margin-bottom: 0;
+    max-width: 100%;
+    width: 100%;
+}
+
+#app.mobile.small-mobile .match-video-card .match-card .player-name {
+    top: auto;
+}
+
+#app.mobile.small-mobile .match-video-card .match-card .characters {
+    padding: 0;
 }
 </style>

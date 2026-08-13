@@ -9,6 +9,7 @@
                 :account="account"
                 :teamChar1="teamChar1"
                 :teamChar2="teamChar2"
+                :pointChar="pointChar"
                 :gameId="gameId"
             />
         </div>
@@ -17,6 +18,7 @@
                 :account="account"
                 :teamChar1="teamChar1"
                 :teamChar2="teamChar2"
+                :pointChar="pointChar"
                 :gameId="gameId"
             />
         </div>
@@ -47,6 +49,7 @@ export default {
         },
         teamChar1: { type: String, default: null },
         teamChar2: { type: String, default: null },
+        pointChar: { type: String, default: null },
         /** Resolved Mongo game _id (required when route uses /game/:abbrev). */
         gameId: {
             type: String,

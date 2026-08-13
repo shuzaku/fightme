@@ -54,6 +54,7 @@ import ExploreCharacters from '@/components/explore/explore-characters';
 import { eventbus } from '@/main';
 import { setOgMeta, tournamentOgUrl } from '@/services/og-meta-service';
 import { injectJsonLd, removeJsonLd, buildSportsEvent } from '@/services/json-ld-service';
+import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 
 export default {
     name: 'Tournament',
@@ -123,6 +124,7 @@ export default {
         tournamentId: function () {
             this.loading = true;
             this.videos = [];
+            this.isLast = false;
             this.gameFilter = null;
             this.bracketFilter = null;
             this.playerFilter = null;
@@ -148,6 +150,7 @@ export default {
     },
 
     beforeDestroy() {
+        window.removeEventListener('scroll', this.handleScroll);
         eventbus.$off('newVideoPosted');
         eventbus.$off('search');
         eventbus.$off('account:update');
@@ -157,17 +160,23 @@ export default {
     methods: {
         applySort(sort) {
             this.videos = [];
+            this.isLast = false;
             this.sort = sort;
             this.queryVideos();
         },
 
         applyFilter(filter) {
             this.videos = [];
+            this.isLast = false;
             this.filter = filter;
             this.queryVideos();
         },
 
         async queryVideos(queryParam) {
+            if (this.isLast || this.loading) {
+                return;
+            }
+
             this.loading = true;
 
             this.savedSearchParam = queryParam;
@@ -183,10 +192,20 @@ export default {
             if (queryParam && queryParam.length > 0) {
                 queryParameter.searchQuery.push(...queryParam);
             }
-            const response = await TournamentMatchService.getTournamentMatches(queryParameter);
 
-            this.hydrateVideos(response);
-            this.loading = false;
+            try {
+                const response = await TournamentMatchService.getTournamentMatches(queryParameter);
+                const batch = response.data.matches || [];
+                if (batch.length === 0) {
+                    this.isLast = true;
+                } else {
+                    this.hydrateVideos(response);
+                }
+            } catch (e) {
+                console.error('queryVideos error:', e);
+            } finally {
+                this.loading = false;
+            }
         },
 
         hydrateVideos(response) {
@@ -316,11 +335,13 @@ export default {
 
         addedNewVideo() {
             this.videos = [];
+            this.isLast = false;
             this.queryVideos();
         },
 
         filterGame(queryParam) {
             this.videos = [];
+            this.isLast = false;
             this.gameFilter = queryParam || null;
             this.bracketFilter = null;
             this.playerFilter = null;
@@ -329,6 +350,7 @@ export default {
 
         filterBracket(queryParam) {
             this.videos = [];
+            this.isLast = false;
             this.bracketFilter = queryParam || null;
             this.playerFilter = null;
             this.queryVideos(this.activeFilters());
@@ -340,6 +362,7 @@ export default {
 
         filterPlayer(player) {
             this.videos = [];
+            this.isLast = false;
             // Toggle: clicking the active player clears the filter
             if (this.playerFilter === player.id) {
                 this.playerFilter = null;
@@ -353,10 +376,7 @@ export default {
         },
 
         handleScroll() {
-            var bottomOfWindow =
-                document.documentElement.scrollTop + window.innerHeight ===
-                document.documentElement.offsetHeight;
-            if (bottomOfWindow && !this.isLoading) {
+            if (isNearDocumentBottom() && !this.loading) {
                 this.fetchVideos();
             }
         },

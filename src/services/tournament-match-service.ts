@@ -19,15 +19,17 @@ export default {
 
   },
 
-  queryTournamentMatches (params: Params) {
+  queryTournamentMatches (params: Params & { pointChar?: string }) {
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];
     if(params.searchQuery) {
-      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
-      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      var queryNames = params.searchQuery.map(param => { return param.queryName});
+      var queryValue = params.searchQuery.map(param => { return param.queryValue});
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
-    } 
+    }
+    // Narrow to matches where this character was played on point (listed first).
+    if (params.pointChar) queryParams.push(`pointChar=${params.pointChar}`);
 
     return Api().get(`/tournament-matches?${queryParams.join('&')}`)
   },

@@ -48,14 +48,17 @@
         <div class="filter-section">
             <div class="section-label">View</div>
             <div class="filter-row">
-                <div class="filter-pill" :class="{ active: !activeFilter }" @click="clearFilter()">
+                <div class="filter-pill" :class="{ active: activeView === 'all' }" @click="clearFilter()">
                     All
                 </div>
-                <div class="filter-pill" @click="queryOnlineMatches()">
+                <div class="filter-pill" :class="{ active: activeView === 'online' }" @click="queryOnlineMatches()">
                     Online
                 </div>
-                <div class="filter-pill" @click="queryTournamentMatches()">
+                <div class="filter-pill" :class="{ active: activeView === 'tournaments' }" @click="queryTournamentMatches()">
                     Tournaments
+                </div>
+                <div class="filter-pill" :class="{ active: activeView === 'history' }" @click="queryTournamentHistory()">
+                    History
                 </div>
             </div>
         </div>
@@ -227,6 +230,7 @@ export default {
             requestLoading: false,
             linkRequest: null,
             activeFilter: null,
+            activeView: 'all',
             player: {
                 id: this.playerId,
                 name: null,
@@ -540,6 +544,7 @@ export default {
                 return;
             }
             this.activeFilter = f;
+            this.activeView = 'all';
             this.$emit('player-filter:update', f);
         },
 
@@ -550,11 +555,13 @@ export default {
                 return;
             }
             this.activeFilter = f;
+            this.activeView = 'all';
             this.$emit('player-filter:update', f);
         },
 
         clearFilter() {
             this.activeFilter = null;
+            this.activeView = 'all';
             this.$emit('player-filter:update', null);
         },
 
@@ -586,11 +593,18 @@ export default {
         },
 
         queryTournamentMatches() {
+            this.activeView = 'tournaments';
             this.$emit('query-tournament-matches');
         },
 
         queryOnlineMatches() {
+            this.activeView = 'online';
             this.$emit('query-online-matches');
+        },
+
+        queryTournamentHistory() {
+            this.activeView = 'history';
+            this.$emit('query-tournament-history');
         },
     },
 };

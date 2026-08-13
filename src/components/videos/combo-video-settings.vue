@@ -17,7 +17,11 @@
                     />
                 </div>
                 <div class="inputs-container">
-                    <v-textarea v-model="combo.inputs" dark placeholder="Combo Inputs" />
+                    <combo-notation-input
+                        v-model="combo.inputs"
+                        :gameId="gameId"
+                        :gameAbbreviation="gameAbbreviation"
+                    />
                 </div>
                 <div class="combo-stats">
                     <div class="startTime input-container">
@@ -54,12 +58,15 @@
 
 <script>
 import CharacterSearch from '@/components/character/character-search';
+import ComboNotationInput from '@/components/notation/combo-notation-input';
+import GamesService from '@/services/games-service';
 
 export default {
     name: 'MatchVideoSettings',
 
     components: {
         'character-search': CharacterSearch,
+        'combo-notation-input': ComboNotationInput,
     },
 
     props: {
@@ -82,14 +89,43 @@ export default {
     data() {
         return {
             showErrorMessage: null,
+            // Looked up whenever gameId changes so the notation builder can
+            // show the right per-game attack buttons (SF6, GGST, 2XKO, ...).
+            // Covers manual game selection as well as forms that arrive
+            // pre-filled or in edit mode, where gameId is set without the
+            // game-search dropdown ever emitting `update:game`.
+            gameAbbreviation: null,
         };
     },
 
     computed: {},
 
+    watch: {
+        gameId: {
+            immediate: true,
+            handler(newGameId) {
+                this.loadGameAbbreviation(newGameId);
+            },
+        },
+    },
+
     mounted() {},
 
     methods: {
+        async loadGameAbbreviation(gameId) {
+            if (!gameId) {
+                this.gameAbbreviation = null;
+                return;
+            }
+            try {
+                const response = await GamesService.getGame({ id: gameId });
+                this.gameAbbreviation = response.data ? response.data.Abbreviation : null;
+            } catch (error) {
+                console.error('Error loading game for combo notation:', error);
+                this.gameAbbreviation = null;
+            }
+        },
+
         expandComboMenu(index) {
             this.combos.forEach((combo) => (combo.isExpanded = false));
             this.combos[index].isExpanded = true;

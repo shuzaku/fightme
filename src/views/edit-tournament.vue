@@ -104,7 +104,22 @@
                         placeholder="e.g. 1"
                     />
 
-                    <v-switch v-model="form.IsFinished" label="Event finished" class="mt-0 mb-4" />
+                    <div
+                        class="finished-toggle mb-4"
+                        role="button"
+                        tabindex="0"
+                        @click="toggleIsFinished"
+                        @keydown.enter.prevent="toggleIsFinished"
+                        @keydown.space.prevent="toggleIsFinished"
+                    >
+                        <v-switch
+                            :input-value="form.IsFinished"
+                            label="Event finished"
+                            readonly
+                            hide-details
+                            class="mt-0 pt-0"
+                        />
+                    </div>
 
                     <div class="field-label">Bracket filters</div>
                     <v-combobox
@@ -221,6 +236,10 @@ export default {
     },
 
     methods: {
+        toggleIsFinished() {
+            this.form.IsFinished = !this.form.IsFinished;
+        },
+
         formatDateForInput(value) {
             if (!value) return '';
             const d = new Date(value);
@@ -397,5 +416,11 @@ export default {
 .multiselect-dark >>> .multiselect__content-wrapper {
     background: #1e1e1e;
     border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.finished-toggle {
+    position: relative;
+    z-index: 51;
+    cursor: pointer;
 }
 </style>

@@ -793,7 +793,7 @@ export default {
                     CharacterId: Array.isArray(this.characterId)
                         ? this.characterId[0]
                         : this.characterId,
-                    Inputs: this.comboInputs,
+                    Inputs: this.comboInputs ? [this.comboInputs] : [],
                     Damage: this.comboDamage || null,
                     Hits: this.comboHits || null,
                     Tags: [],

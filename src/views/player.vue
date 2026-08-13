@@ -8,8 +8,20 @@
             @player-filter:update="filterQuery($event)"
             @query-tournament-matches="queryTournamentMatches()"
             @query-online-matches="queryVideos()"
+            @query-tournament-history="queryTournamentHistory()"
         />
-        <div v-if="videos.length > 0" class="videos-container">
+        <player-tournament-history
+            v-if="isHistory"
+            :entries="historyEntries"
+            :isLoading="historyLoading"
+            :isLast="historyIsLast"
+            :years="historyYears"
+            :games="historyGames"
+            :selectedYear="historyYear"
+            :selectedGameId="historyGameId"
+            @change-filter="changeHistoryFilter($event)"
+        />
+        <div v-if="!isHistory && videos.length > 0" class="videos-container">
             <div
                 v-for="(video, index) in videos"
                 :key="index"
@@ -66,10 +78,10 @@
                 </div>
             </div>
         </div>
-        <div v-else-if="videos.length === 0 && !isLoading" class="no-videos">
+        <div v-else-if="!isHistory && videos.length === 0 && !isLoading" class="no-videos">
             <h2>Unable to find any videos</h2>
         </div>
-        <loading v-show="isLoading"></loading>
+        <loading v-show="!isHistory && isLoading"></loading>
     </div>
 </template>
 
@@ -86,6 +98,8 @@ import PlayersService from '@/services/players-service';
 import { injectJsonLd, removeJsonLd, buildPerson } from '@/services/json-ld-service';
 import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
 import { MONGO_OBJECT_ID_RE } from '@/utils/game-character-routes';
+import PlayerTournamentHistoryService from '@/services/player-tournament-history-service';
+import PlayerTournamentHistory from '@/components/players/player-tournament-history';
 
 export default {
     name: 'Player',
@@ -94,6 +108,7 @@ export default {
         'match-video-card': NewMatchVideoCard,
         'tournament-match-video-card': TournamentMatchVideoCard,
         'player-nav': PlayerNav,
+        'player-tournament-history': PlayerTournamentHistory,
         loading: Loading,
     },
 
@@ -119,6 +134,16 @@ export default {
             suggestedGameId: null,
             suggestedCharacterId: null,
             suggestedCharacterSlug: null,
+            resolvedPlayerId: null,
+            isHistory: false,
+            historyEntries: [],
+            historyPage: 0,
+            historyIsLast: false,
+            historyLoading: false,
+            historyYear: null,
+            historyGameId: null,
+            historyYears: [],
+            historyGames: [],
         };
     },
 
@@ -154,6 +179,15 @@ export default {
             this.suggestedGameId = null;
             this.suggestedCharacterId = null;
             this.suggestedCharacterSlug = null;
+            this.resolvedPlayerId = null;
+            this.isHistory = false;
+            this.historyEntries = [];
+            this.historyPage = 0;
+            this.historyIsLast = false;
+            this.historyYear = null;
+            this.historyGameId = null;
+            this.historyYears = [];
+            this.historyGames = [];
             window.scrollTo(0, 0);
             this.queryVideos();
         },
@@ -190,11 +224,13 @@ export default {
                     const res = await PlayersService.getPlayer({ id: this.playerId });
                     name    = res.data && res.data.Name    ? res.data.Name    : null;
                     twitter = res.data && res.data.Twitter ? res.data.Twitter : null;
+                    this.resolvedPlayerId = this.playerId;
                 } else if (this.playerSlug) {
                     const res = await PlayersService.getPlayerBySlug({ slug: this.playerSlug });
                     const p  = res.data && res.data.players && res.data.players[0];
                     name    = p ? p.Name    : null;
                     twitter = p ? p.Twitter : null;
+                    this.resolvedPlayerId = p ? p._id : null;
                 }
                 const id      = this.playerId || '';
                 const pageUrl = `https://fighters-edge.com/player/${id}`;
@@ -230,6 +266,7 @@ export default {
             this.filter = filter;
             this.isLast = false;
             this.isTournament = false;
+            this.isHistory = false;
             this.queryVideos();
         },
 
@@ -240,9 +277,10 @@ export default {
         },
 
         async queryVideos(newQuery) {
-            if (this.isTournament) {
+            if (this.isTournament || this.isHistory) {
                 this.videos = [];
                 this.isTournament = false;
+                this.isHistory = false;
                 this.isLast = false;
             }
             if (!this.isLast && !this.loading) {
@@ -320,11 +358,17 @@ export default {
         },
 
         handleScroll() {
-            if (isNearDocumentBottom() && !this.isLoading) {
-                if (this.isTournament) {
-                    this.queryTournamentMatches();
-                } else {
-                    this.queryVideos();
+            if (isNearDocumentBottom()) {
+                if (this.isHistory) {
+                    if (!this.historyLoading) {
+                        this.queryTournamentHistory();
+                    }
+                } else if (!this.isLoading) {
+                    if (this.isTournament) {
+                        this.queryTournamentMatches();
+                    } else {
+                        this.queryVideos();
+                    }
                 }
             }
         },
@@ -353,9 +397,10 @@ export default {
         },
 
         async queryTournamentMatches() {
-            if (!this.isTournament) {
+            if (!this.isTournament || this.isHistory) {
                 this.videos = [];
                 this.isTournament = true;
+                this.isHistory = false;
                 this.isLast = false;
             }
             if (!this.isLast && !this.loading) {
@@ -399,6 +444,84 @@ export default {
                     this.isLoading = false;
                 }
             }
+        },
+
+        // Resolves the numeric-ish PlayerId this page needs for endpoints (like
+        // tournament history) that don't support looking a player up by slug —
+        // reuses the same lookup setPlayerMeta() already does, caching the result.
+        async ensureResolvedPlayerId() {
+            if (this.resolvedPlayerId) return this.resolvedPlayerId;
+            if (this.playerId) {
+                this.resolvedPlayerId = this.playerId;
+                return this.resolvedPlayerId;
+            }
+            if (this.playerSlug) {
+                try {
+                    const res = await PlayersService.getPlayerBySlug({ slug: this.playerSlug });
+                    const p = res.data && res.data.players && res.data.players[0];
+                    this.resolvedPlayerId = p ? p._id : null;
+                } catch (e) {
+                    this.resolvedPlayerId = null;
+                }
+            }
+            return this.resolvedPlayerId;
+        },
+
+        // Raw bracket-data tournament/match history (distinct from the curated
+        // video-clip feed above) — see player-tournament-history-service.js.
+        async queryTournamentHistory() {
+            if (!this.isHistory) {
+                this.videos = [];
+                this.isTournament = false;
+                this.isHistory = true;
+                this.historyEntries = [];
+                this.historyPage = 0;
+                this.historyIsLast = false;
+            }
+
+            if (this.historyIsLast || this.historyLoading) {
+                return;
+            }
+            const id = await this.ensureResolvedPlayerId();
+            if (!id) {
+                this.historyIsLast = true;
+                return;
+            }
+
+            this.historyLoading = true;
+            try {
+                const nextPage = this.historyPage + 1;
+                const response = await PlayerTournamentHistoryService.getPlayerTournamentHistory(id, {
+                    page: nextPage,
+                    limit: 10,
+                    year: this.historyYear,
+                    gameId: this.historyGameId,
+                });
+                const data = response.data || {};
+                this.historyEntries = this.historyEntries.concat(data.tournaments || []);
+                this.historyPage = nextPage;
+                this.historyIsLast = nextPage >= (data.totalPages || 1);
+                if (data.filters) {
+                    this.historyYears = data.filters.years || [];
+                    this.historyGames = data.filters.games || [];
+                }
+            } catch (e) {
+                console.error('queryTournamentHistory error:', e);
+                this.historyIsLast = true;
+            } finally {
+                this.historyLoading = false;
+            }
+        },
+
+        // Fired by player-tournament-history.vue's year/game selects — resets
+        // pagination and re-fetches page 1 under the new filter.
+        changeHistoryFilter({ year, gameId }) {
+            this.historyYear = year || null;
+            this.historyGameId = gameId || null;
+            this.historyEntries = [];
+            this.historyPage = 0;
+            this.historyIsLast = false;
+            this.queryTournamentHistory();
         },
 
         hydrateTournamentVideos(response) {

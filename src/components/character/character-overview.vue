@@ -4,8 +4,8 @@
         <div class="overview-left">
             <div class="strengths-weaknesses overview-card">
                 <h3>Strengths and Weaknesses</h3>
-                <p><span class="strength">+ </span> {{ character.strengths }}</p>
-                <p><span class="weakness">- </span> {{ character.weaknesses }}</p>
+                <p class="sw-row"><span class="sw-tag strength">+</span> {{ character.strengths }}</p>
+                <p class="sw-row"><span class="sw-tag weakness">−</span> {{ character.weaknesses }}</p>
             </div>
             <div class="gameplan-strategy overview-card">
                 <h3>Gameplan Summary</h3>
@@ -20,8 +20,7 @@
                     Share a combo clip for {{ character.name }}. Game and character are filled in automatically.
                 </p>
                 <button type="button" class="add-combo-btn" @click="openAddCombo">
-                    <i class="fas fa-plus"></i>
-                    Add Combo
+                    <span class="btn-label"><i class="fas fa-plus"></i> Add Combo</span>
                 </button>
             </div>
 
@@ -31,8 +30,7 @@
                     Share a montage for {{ character.name }}. Game and character are filled in automatically.
                 </p>
                 <button type="button" class="add-montage-btn" @click="openAddMontage">
-                    <i class="fas fa-plus"></i>
-                    Add Montage
+                    <span class="btn-label"><i class="fas fa-plus"></i> Add Montage</span>
                 </button>
             </div>
             <!-- <div class="move-list">
@@ -91,24 +89,6 @@
                 <a v-if="character.discordLink" :href="character.discordLink" target="_blank" rel="noopener noreferrer" class="discord-link">
                     <i class="fab fa-discord"></i> Discord Server
                 </a>
-            </div>
-
-            <div v-if="character.players && character.players.length" class="top-players overview-card">
-                <h3>Top Players</h3>
-                <div class="top-players-list">
-                    <router-link
-                        v-for="player in character.players"
-                        :key="player.id"
-                        :to="player.slug ? '/player/' + player.slug : '/player/' + player.id"
-                        class="top-player-row"
-                    >
-                        <div class="top-player-avatar">
-                            <img v-if="player.imageUrl" :src="player.imageUrl" :alt="player.name" />
-                            <span v-else class="top-player-initials">{{ playerInitials(player.name) }}</span>
-                        </div>
-                        <span class="top-player-name">{{ player.name }}</span>
-                    </router-link>
-                </div>
             </div>
 
             <div v-if="selectedVideoType === 'Matchups'" class="overview-card">
@@ -261,10 +241,6 @@ export default {
                 characterId: this.character.id,
             });
         },
-        playerInitials(name) {
-            if (!name) return '?';
-            return name.split(' ').slice(0, 2).map((w) => w.charAt(0).toUpperCase()).join('');
-        },
     },
 };
 </script>
@@ -284,16 +260,40 @@ export default {
 }
 
 .character-overview .overview-card {
-    background: #191b2490;
-    border-radius: 15px;
-    padding: 20px;
+    position: relative;
+    background: linear-gradient(180deg, #1b1e2b 0%, #16181f 100%);
+    border-radius: 4px;
+    padding: 18px 20px 20px;
     color: #ffffff90;
-    border: 1px solid #ffffff30;
+    border: 1px solid #ffffff1f;
+    border-left: 3px solid #4447e2;
     margin-top: 16px;
+    /* Clipped top-right corner, echoing the angled hero panels. */
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
 }
 
 .character-overview .overview-card h3 {
-    margin-bottom: 8px;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ffffff14;
+}
+
+.character-overview .strengths-weaknesses {
+    border-left-color: #3eb489;
+}
+
+.character-overview .add-montage-card {
+    border-left-color: #fc73c4;
+}
+
+.character-overview .top-guides {
+    border-left-color: #3eb489;
 }
 
 .character-overview .character-overview {
@@ -331,9 +331,19 @@ export default {
 .character-overview .top-guides a {
     display: block;
     color: #3eb489;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    padding: 7px 10px;
+    background: #ffffff08;
+    border: 1px solid #ffffff10;
+    border-radius: 2px;
+    font-size: 0.9rem;
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.character-overview .top-guides a:hover {
+    background: #ffffff12;
+    border-color: #ffffff26;
 }
 
 .character-overview .top-guides a:hover {
@@ -413,12 +423,37 @@ export default {
     margin-bottom: 16px;
 }
 
-.character-overview .strength {
-    color: #5ae1ae;
+.character-overview .sw-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.6;
 }
 
-.character-overview .weakness {
+.character-overview .sw-tag {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1;
+    transform: skewX(-8deg);
+}
+
+.character-overview .sw-tag.strength {
+    color: #5ae1ae;
+    background: #3eb4891f;
+    border: 1px solid #3eb48959;
+}
+
+.character-overview .sw-tag.weakness {
     color: #ba6d79;
+    background: #ba6d791f;
+    border: 1px solid #ba6d7959;
 }
 
 .character-overview .patch-label {
@@ -481,28 +516,40 @@ export default {
     justify-content: center;
     gap: 8px;
     width: 100%;
-    background: linear-gradient(135deg, #3eb489 0%, #2d8a6a 100%);
-    color: #fff;
-    font-weight: 600;
-    font-size: 14px;
+    background: #3eb489;
+    color: #06231a;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 0;
     border: none;
+    transform: skewX(-8deg);
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(62, 180, 137, 0.25);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .character-overview .add-combo-btn:hover {
-    transform: translateY(-1px);
+    transform: skewX(-8deg) translateY(-1px);
     box-shadow: 0 6px 16px rgba(62, 180, 137, 0.35);
 }
 
 .character-overview .add-combo-btn:active {
-    transform: translateY(0);
+    transform: skewX(-8deg) translateY(0);
 }
 
-.character-overview .add-combo-btn i {
+.character-overview .btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transform: skewX(8deg);
+}
+
+.character-overview .add-combo-btn i,
+.character-overview .add-montage-btn i {
     font-size: 12px;
 }
 
@@ -512,90 +559,29 @@ export default {
     justify-content: center;
     gap: 8px;
     width: 100%;
-    background: linear-gradient(135deg, #fc73c4 0%, #d94fa8 100%);
-    color: #fff;
-    font-weight: 600;
-    font-size: 14px;
+    background: #fc73c4;
+    color: #3d0d2b;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 0;
     border: none;
+    transform: skewX(-8deg);
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(252, 115, 196, 0.25);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .character-overview .add-montage-btn:hover {
-    transform: translateY(-1px);
+    transform: skewX(-8deg) translateY(-1px);
     box-shadow: 0 6px 16px rgba(252, 115, 196, 0.35);
 }
 
 .character-overview .add-montage-btn:active {
-    transform: translateY(0);
-}
-
-.character-overview .add-montage-btn i {
-    font-size: 12px;
-}
-
-/* ── Top Players ──────────────────────────────── */
-.character-overview .top-players-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-.character-overview .top-player-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
-    border-radius: 8px;
-    background: #ffffff08;
-    border: 1px solid #ffffff10;
-    text-decoration: none;
-    color: #c0c4e0;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.character-overview .top-player-row:hover {
-    background: #3eb48918;
-    border-color: #3eb48960;
-    color: #3eb489;
-}
-
-.character-overview .top-player-avatar {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 1px solid #ffffff20;
-    background: #1c1f27;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.character-overview .top-player-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.character-overview .top-player-initials {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #6a6ef5;
-}
-
-.character-overview .top-player-name {
-    font-size: 0.88rem;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    transform: skewX(-8deg) translateY(0);
 }
 
 .mobile .character-overview {

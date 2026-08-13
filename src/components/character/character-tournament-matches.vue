@@ -1,6 +1,14 @@
 <!-- @format -->
 <template>
     <div class="character-tournament-matches">
+        <point-character-toggle
+            v-if="isPointGame"
+            :value="pointOnly"
+            @input="$emit('update:pointOnly', $event)"
+        />
+        <div v-if="pointOnly && !loading && videos.length === 0" class="feed-empty-note">
+            No tournament matches with this character on point yet.
+        </div>
         <div v-if="videos.length > 0">
             <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
                 <tournament-match-video-card
@@ -26,7 +34,9 @@
 <script>
 import TournamentMatchService from '@/services/tournament-match-service';
 import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
+import { isPointCharacterGame } from '@/utils/team-games';
 import TournamentMatchVideoCard from '@/components/videos/tournament-match-video-card';
+import PointCharacterToggle from '@/components/character/point-character-toggle';
 import Loading from '@/components/common/loading';
 
 export default {
@@ -34,6 +44,7 @@ export default {
 
     components: {
         'tournament-match-video-card': TournamentMatchVideoCard,
+        'point-character-toggle': PointCharacterToggle,
 
         loading: Loading,
     },
@@ -47,6 +58,17 @@ export default {
         characterId: {
             type: String,
             default: null,
+        },
+
+        gameId: {
+            type: String,
+            default: null,
+        },
+
+        // Owned by the character view so the setting survives tab switches.
+        pointOnly: {
+            type: Boolean,
+            default: false,
         },
     },
 
@@ -67,10 +89,22 @@ export default {
         skip: function () {
             return this.videos.length;
         },
+
+        // Point characters only mean something in games that record several
+        // characters per player (Marvel Tokon).
+        isPointGame: function () {
+            return isPointCharacterGame(this.gameId);
+        },
     },
 
     watch: {
         characterId: function () {
+            this.videos = [];
+            this.isLast = false;
+            this.queryVideos();
+        },
+
+        pointOnly: function () {
             this.videos = [];
             this.isLast = false;
             this.queryVideos();
@@ -129,6 +163,10 @@ export default {
                         ],
                         filter: this.filter,
                     };
+
+                    if (this.isPointGame && this.pointOnly && this.characterId) {
+                        queryParameter.pointChar = this.characterId;
+                    }
 
                     const response = await TournamentMatchService.queryTournamentMatches(
                         queryParameter

@@ -29,6 +29,10 @@ export default {
     return Api().delete(`video-validate/${videoId}`)
   },
 
+  updatePendingVideo(videoId: string, params: Params) {
+    return Api().put(`video-validate/${videoId}`, params)
+  },
+
   queryComboClips(params: Params) {
     var skip = params.skip || 0;
     var queryParams = [`skip=${skip}`];

@@ -117,6 +117,7 @@ import AdminVideoCard from '@/components/videos/admin-video-card';
 import Loading from '@/components/common/loading';
 import AuthService from '@/services/auth-service';
 import moment from 'moment';
+import { eventbus } from '@/main';
 
 export default {
     name: 'AdminVideoApproval',
@@ -172,6 +173,11 @@ export default {
             return;
         }
         this.loadPendingVideos();
+        eventbus.$on('pendingVideo:updated', this.loadPendingVideos);
+    },
+
+    beforeDestroy() {
+        eventbus.$off('pendingVideo:updated', this.loadPendingVideos);
     },
 
     methods: {
@@ -191,7 +197,6 @@ export default {
         hydrateVideos(response) {
             const videos = response.data.video_validates || [];
             this.pendingVideos = videos.map((video) => {
-                // Store raw video data for the component
                 const rawVideoData = video;
                 return {
                     id: video._id,
@@ -205,10 +210,13 @@ export default {
                     approving: false,
                     rejecting: false,
                     isFavorited: false,
-                    submittedBy: video.SubmittedByUser.DisplayName,
+                    submittedBy:
+                        (video.SubmittedByUser && video.SubmittedByUser.DisplayName) || 'Unknown',
                     submittedAt: video.SubmittedAt || video.CreatedAt,
                     tags: video.Tags || [],
-                    createdAt: moment(video.CreatedAt).local().format('MM/DD/YYYY'),
+                    createdAt: video.CreatedAt
+                        ? moment(video.CreatedAt).local().format('MM/DD/YYYY')
+                        : 'Unknown',
 
                     game: video.Game
                         ? {
@@ -219,33 +227,8 @@ export default {
                         : null,
                     combo: {},
                     match: {
-                        team1Players: video.Team1Players.map((player) => {
-                            return {
-                                id: player.Id,
-                                slot: player.Slot,
-                                name: player.PlayerData.Name || 'Unknown Player', // Add name if available
-                                characters: player.CharacterData.map((character) => {
-                                    return {
-                                        name: character.Name,
-                                        id: character.id,
-                                        imageUrl: character.AvatarUrl,
-                                    };
-                                }),
-                            };
-                        }),
-                        team2Players: video.Team2Players.map((player) => {
-                            return {
-                                id: player.Id,
-                                name: player.PlayerData.Name || 'Unknown Player', // Add name if available
-                                characters: player.CharacterData.map((character) => {
-                                    return {
-                                        name: character.Name,
-                                        id: character.id,
-                                        imageUrl: character.AvatarUrl,
-                                    };
-                                }),
-                            };
-                        }),
+                        team1Players: this.mapApprovalTeamPlayers(video.Team1Players),
+                        team2Players: this.mapApprovalTeamPlayers(video.Team2Players),
                         startTime: video.StartTime ? this.convertTime(video.StartTime) : null,
                         endTime: video.EndTime ? this.convertTime(video.EndTime) : null,
                     },
@@ -253,10 +236,24 @@ export default {
                 };
             });
 
-            // Set first video as playing
             if (this.pendingVideos.length > 0) {
                 this.pendingVideos[0].isFirst = true;
             }
+        },
+
+        mapApprovalTeamPlayers(players) {
+            return (players || []).map((player) => ({
+                id: player.Id,
+                slot: player.Slot,
+                name: (player.PlayerData && player.PlayerData.Name) || 'Unknown Player',
+                characters: (player.CharacterData || [])
+                    .filter(Boolean)
+                    .map((character) => ({
+                        name: character.Name || 'Unknown Character',
+                        id: character.id || character._id,
+                        imageUrl: character.AvatarUrl,
+                    })),
+            }));
         },
 
         convertTime(time) {

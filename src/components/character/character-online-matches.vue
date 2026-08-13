@@ -1,6 +1,14 @@
 <!-- @format -->
 <template>
     <div class="character-online-matches">
+        <point-character-toggle
+            v-if="isPointGame"
+            :value="pointOnly"
+            @input="$emit('update:pointOnly', $event)"
+        />
+        <div v-if="pointOnly && !loading && videos.length === 0" class="feed-empty-note">
+            No online matches with this character on point yet.
+        </div>
         <div v-if="videos.length > 0">
             <div v-for="(video, index) in videos" :key="index" :class="{ selected: video.selected }">
                 <match-video-card
@@ -26,8 +34,10 @@
 <script>
 import MatchesService from '@/services/matches-service';
 import { isNearDocumentBottom } from '@/utils/is-near-document-bottom';
+import { isPointCharacterGame } from '@/utils/team-games';
 
 import MatchVideoCard from '@/components/videos/match-video-card';
+import PointCharacterToggle from '@/components/character/point-character-toggle';
 import Loading from '@/components/common/loading';
 
 export default {
@@ -35,6 +45,7 @@ export default {
 
     components: {
         'match-video-card': MatchVideoCard,
+        'point-character-toggle': PointCharacterToggle,
 
         loading: Loading,
     },
@@ -48,6 +59,17 @@ export default {
         characterId: {
             type: String,
             default: null,
+        },
+
+        gameId: {
+            type: String,
+            default: null,
+        },
+
+        // Owned by the character view so the setting survives tab switches.
+        pointOnly: {
+            type: Boolean,
+            default: false,
         },
     },
 
@@ -68,10 +90,22 @@ export default {
         skip: function () {
             return this.videos.length;
         },
+
+        // Point characters only mean something in games that record several
+        // characters per player (Marvel Tokon).
+        isPointGame: function () {
+            return isPointCharacterGame(this.gameId);
+        },
     },
 
     watch: {
         characterId: function () {
+            this.videos = [];
+            this.isLast = false;
+            this.queryVideos();
+        },
+
+        pointOnly: function () {
             this.videos = [];
             this.isLast = false;
             this.queryVideos();
@@ -135,6 +169,10 @@ export default {
                     if (this.characterSlug) {
                         queryParameter.searchQuery[0].queryName = 'CharacterSlug';
                         queryParameter.searchQuery[0].queryValue = this.characterSlug.toUpperCase();
+                    }
+
+                    if (this.isPointGame && this.pointOnly && this.characterId) {
+                        queryParameter.pointChar = this.characterId;
                     }
 
                     const response = await MatchesService.queryMatchesByCharacter(queryParameter);
@@ -238,6 +276,13 @@ export default {
     max-width: 900px;
     margin: 0 auto;
     display: block;
+}
+
+.feed-empty-note {
+    padding: 28px 20px 40px;
+    color: #ffffff70;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .feed-end {

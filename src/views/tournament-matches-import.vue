@@ -56,6 +56,8 @@
                     <code>29:11 froggymustdie (blanka) v nuckledu (mai)</code>
                     <br />
                     <code>00:30:25 Ghirlanda (Kunimitsu) vs. Kirakira (Jun)</code>
+                    <br />
+                    <code>1:10:27 - Salty (Hwoarang) vs Sh4ky (Leo)</code>
                 </p>
                 <v-textarea
                     v-model="bulkImportText"

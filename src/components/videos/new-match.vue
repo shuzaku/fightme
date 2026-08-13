@@ -135,6 +135,12 @@ export default {
             type: String,
             default: null,
         },
+
+        pendingVideo: {
+            type: Object,
+            default: null,
+        },
+
         account: {
             type: Object,
             default: null,
@@ -219,6 +225,9 @@ export default {
     mounted() {
         if (this.matchId) {
             this.loadMatch();
+        } else if (this.pendingVideo) {
+            this.video = this.mapPendingVideo(this.pendingVideo);
+            this.isLoading = false;
         } else {
             this.isLoading = false;
         }
@@ -254,6 +263,8 @@ export default {
             try {
                 if (!this.videoId && !this.matchId) {
                     await this.validateVideo();
+                } else if (this.pendingVideo) {
+                    await this.updatePendingVideo();
                 } else {
                     await MatchesService.patchMatch({
                         id: this.video.match.id,
@@ -284,8 +295,8 @@ export default {
             }
         },
 
-        async validateVideo() {
-            await VideosService.validateVideo({
+        buildValidatePayload() {
+            return {
                 Url: this.video.url,
                 ImportVideoUrl: this.importVideoUrl,
                 GameId: this.video.gameId,
@@ -304,13 +315,25 @@ export default {
                     };
                 }),
                 VideoUrl: this.video.url,
-                SubmittedBy: this.account.id,
                 UpdatedBy: this.account.id,
                 ContentType: 'Match',
                 VideoType: this.video.type,
                 Tags: this.video.tags,
                 StartTime: this.video.startTime,
                 EndTime: this.video.endTime,
+            };
+        },
+
+        async updatePendingVideo() {
+            await VideosService.updatePendingVideo(this.videoId, this.buildValidatePayload());
+            eventbus.$emit('pendingVideo:updated');
+            this.$emit('closeModal');
+        },
+
+        async validateVideo() {
+            await VideosService.validateVideo({
+                ...this.buildValidatePayload(),
+                SubmittedBy: this.account.id,
             });
 
             this.$emit('closeModal');
@@ -387,6 +410,56 @@ export default {
                     }),
                 },
             };
+        },
+
+        mapPendingVideo(v) {
+            const g = v.Game || null;
+            const gameId = g ? g._id || v.GameId : v.GameId;
+
+            return {
+                id: v._id,
+                contentType: v.ContentType || 'Match',
+                videoType: v.VideoType || 'youtube',
+                type: v.VideoType || 'youtube',
+                url: v.Url || v.VideoUrl || '',
+                combo: null,
+                gameId: gameId ? String(gameId) : '',
+                tags: v.Tags || [],
+                startTime: v.StartTime || '',
+                endTime: v.EndTime || '',
+                game: g
+                    ? { id: g._id, Title: g.Title, LogoUrl: g.LogoUrl }
+                    : { id: null, Title: '', LogoUrl: '' },
+                match: {
+                    id: v._id,
+                    team1Players: this.mapPendingTeamPlayers(v.Team1Players),
+                    team2Players: this.mapPendingTeamPlayers(v.Team2Players),
+                },
+            };
+        },
+
+        mapPendingTeamPlayers(players) {
+            return (players || []).map((player) => {
+                const characterIds = this.extractPendingCharacterIds(player);
+                return {
+                    id: player.Id,
+                    slot: player.Slot,
+                    name: (player.PlayerData && player.PlayerData.Name) || '',
+                    characterIds,
+                    characterCount: characterIds.length || 1,
+                };
+            });
+        },
+
+        extractPendingCharacterIds(player) {
+            if (player.CharacterIds && player.CharacterIds.length) {
+                return player.CharacterIds.map((id) => String(id));
+            }
+
+            return (player.CharacterData || [])
+                .filter(Boolean)
+                .map((character) => String(character._id || character.id))
+                .filter(Boolean);
         },
 
         hydrateCharacters(characterIds, characters) {

@@ -41,15 +41,17 @@ export default {
     return Api().put('matches/', params)
   },
 
-  queryMatchesByCharacter(params: Params){
+  queryMatchesByCharacter(params: Params & { pointChar?: string }){
     var skip = params.skip;
     var queryParams = [`skip=${skip}`];
     if(params.searchQuery){
-      var queryNames = params.searchQuery.map(param => { return param.queryName}); 
-      var queryValue = params.searchQuery.map(param => { return param.queryValue}); 
+      var queryNames = params.searchQuery.map(param => { return param.queryName});
+      var queryValue = params.searchQuery.map(param => { return param.queryValue});
       queryParams.push(`queryName=${queryNames.join(',')}`);
       queryParams.push(`queryValue=${queryValue.join(',')}`)
     }
+    // Narrow to matches where this character was played on point (listed first).
+    if (params.pointChar) queryParams.push(`pointChar=${params.pointChar}`);
 
     return Api().get(`/matchesCharacter?${queryParams.join('&')}`)
   },
@@ -75,10 +77,12 @@ export default {
     return Api().get(`matchesFeed?${queryParams.join('&')}`);
   },
 
-  queryMatchesByTeam(params: { skip: number; gameId: string; char1?: string; char2?: string }) {
+  queryMatchesByTeam(params: { skip: number; gameId: string; char1?: string; char2?: string; pointChar?: string }) {
     const queryParams = [`skip=${params.skip}`, `gameId=${params.gameId}`];
     if (params.char1) queryParams.push(`char1=${params.char1}`);
     if (params.char2) queryParams.push(`char2=${params.char2}`);
+    // Point character = first entry in a player's CharacterIds array.
+    if (params.pointChar) queryParams.push(`pointChar=${params.pointChar}`);
     return Api().get(`/matchesTeam?${queryParams.join('&')}`);
   },
 

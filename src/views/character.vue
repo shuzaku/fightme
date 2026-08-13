@@ -23,6 +23,8 @@
                 :gameId="character.gameId"
                 :account="account"
                 :character2Id="character2Id"
+                :pointOnly="pointOnly"
+                @update:pointOnly="pointOnly = $event"
             />
         </div>
     </div>
@@ -95,6 +97,8 @@ export default {
             selectedVideoType: (tabMatch && ROUTE_TAB_MAP[tabMatch[1]]) || 'Online Matches',
             // ID(s) of the opponent character for the Matchups tab.
             character2Id: [],
+            // "Point only" replay filter, held here so it survives tab switches.
+            pointOnly: false,
             // Lowercased slug of the opponent character, used to keep the
             // URL in sync (e.g. /character/ggst_na/matchups/ggst_ax).
             character2Slug: (tabMatch && tabMatch[2]) ? tabMatch[2].toLowerCase() : null,
@@ -302,6 +306,9 @@ export default {
                 name: response.Name,
                 slug: response.Slug || null,
                 imageUrl: response.AvatarUrl,
+                // Full-body key art for the hero banner. Falls back to the
+                // avatar portrait when a character has no full art on file.
+                fullArtUrl: response.ImageUrl || response.AvatarUrl,
                 gameId: response.GameId,
                 players: this.hydratePlayer(response.Players),
                 archetype: response.Archetype,
@@ -412,12 +419,33 @@ export default {
 <style>
 .character-view {
     position: relative;
-    padding: 200px 20px;
+    padding: 180px 20px 120px;
     height: 100%;
     overflow: visible;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1240px;
     margin: 0 auto;
+}
+
+/* Angled backdrop wash behind the whole page, so the hero banner reads
+   as part of a stylized spread rather than a floating card. */
+.character-view::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 620px;
+    background: linear-gradient(180deg, #1b1d2b 0%, #242832 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 78%, 0 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.character-view > * {
+    position: relative;
+    z-index: 1;
 }
 
 .character-view::-webkit-scrollbar-track {
@@ -441,6 +469,10 @@ export default {
     max-width: 1600px;
     margin: 0 auto;
     width: 100%;
+}
+
+.mobile .character-view {
+    padding: 150px 14px 80px;
 }
 
 .character-view .videos-container {

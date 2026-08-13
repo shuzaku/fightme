@@ -22,6 +22,7 @@
             v-if="options.name === 'match'"
             :videoId="options.videoId"
             :matchId="options.matchId"
+            :pendingVideo="options.pendingVideo"
             :account="this.account"
             @closeModal="closeModal()"
         />

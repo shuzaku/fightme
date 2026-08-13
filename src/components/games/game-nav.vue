@@ -1,29 +1,36 @@
 <!-- @format -->
 <template>
     <div class="game-nav">
-        <div v-if="game" class="game-header" :style="trendingStyle">
-            <div class="game-header-logo">
-                <img :src="game.logoUrl" />
+        <!-- ── Hero banner ─────────────────────────────── -->
+        <div v-if="game" class="hero">
+            <div class="hero-bg" aria-hidden="true">
+                <div class="hero-wedge"></div>
+                <div class="hero-dots"></div>
+                <div class="hero-streaks"></div>
+                <div class="hero-glow"></div>
             </div>
-            <div v-if="showMenu" class="game-header-actions">
-                <div class="info-card share" @click="shareGame()">Share</div>
-                <div v-if="account" class="followed-container">
-                    <div
-                        v-if="!isFollowed"
-                        class="follow-btn info-card"
-                        @click="followCharacter()"
-                    >
-                        <v-icon> mdi-heart-outline </v-icon>
-                    </div>
-                    <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
-                        <v-icon> mdi-heart </v-icon>
-                    </div>
+
+            <!-- Game banner art in an angled panel sweeping in from the right. -->
+            <div v-if="game.banner" class="hero-art" :style="heroArtStyle" role="img" :aria-label="game.title">
+                <div class="hero-art-scrim"></div>
+            </div>
+
+            <div class="hero-ghost-name" aria-hidden="true">{{ ghostTitle }}</div>
+
+            <div class="hero-content">
+                <div class="hero-top">
+                    <img v-if="game.logoUrl" class="game-logo" :src="game.logoUrl" :alt="game.title" />
                 </div>
-                <div v-if="isAdmin" class="admin-edit-btn info-card" @click="openEditModal()">
-                    <v-icon small>mdi-pencil</v-icon> Edit
+
+                <h1 class="hero-name">{{ game.title }}</h1>
+
+                <div v-if="game.abbreviation" class="hero-tagline">
+                    <span>{{ game.abbreviation }}</span>
                 </div>
             </div>
         </div>
+
+        <!-- ── Tab rail ────────────────────────────────── -->
         <div v-if="showMenu" class="quick-nav">
             <div class="left-section" role="tablist" aria-label="Game content">
                 <div
@@ -37,10 +44,30 @@
                     :aria-selected="t.id === activeTabId"
                     @click="onSelectContentTab(t.id)"
                 >
-                    {{ t.label }}
+                    <span>{{ t.label }}</span>
+                </div>
+            </div>
+
+            <div class="right-section">
+                <div class="info-card share" @click="shareGame()"><span>Share</span></div>
+                <div v-if="account" class="followed-container">
+                    <div
+                        v-if="!isFollowed"
+                        class="follow-btn info-card"
+                        @click="followCharacter()"
+                    >
+                        <v-icon> mdi-heart-outline </v-icon>
+                    </div>
+                    <div v-else class="unfollow-btn info-card" @click="unfollowCharacter()">
+                        <v-icon> mdi-heart </v-icon>
+                    </div>
+                </div>
+                <div v-if="isAdmin" class="admin-edit-btn info-card" @click="openEditModal()">
+                    <span><v-icon small>mdi-pencil</v-icon> Edit</span>
                 </div>
             </div>
         </div>
+
         <div v-show="popupActive" class="popup">
             <character-search :gameId="gameId" @update:character="goToCharacter($event)" />
         </div>
@@ -95,16 +122,26 @@ export default {
     },
 
     computed: {
-        trendingStyle() {
+        heroArtStyle() {
             if (this.game && this.game.banner) {
-                return {
-                    'background-image': `url(${this.game.banner})`,
-                    'background-size': 'cover',
-                    'background-repeat': 'no-repeat',
-                };
+                return { backgroundImage: `url(${this.game.banner})` };
             }
             return {};
         },
+
+        // The outlined echo behind the art. Long titles would run off the
+        // banner, so fall back to the abbreviation when there is one.
+        ghostTitle() {
+            if (!this.game) {
+                return '';
+            }
+            var title = this.game.title || '';
+            if (title.length > 14 && this.game.abbreviation) {
+                return this.game.abbreviation;
+            }
+            return title;
+        },
+
         isAdmin() {
             return this.account && String(this.account.role || '').toLowerCase() === 'admin';
         },
@@ -194,79 +231,207 @@ export default {
     margin-bottom: 16px;
 }
 
-.game-nav .game-header {
-    min-height: 100px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    box-sizing: border-box;
-    padding: 8px 12px 8px 16px;
-    margin-bottom: 10px;
-    border-radius: 12px;
+/* ── Hero banner ─────────────────────────────────── */
+.game-nav .hero {
+    position: relative;
+    isolation: isolate;
     overflow: hidden;
-}
-
-.game-nav .game-header-logo {
+    border-radius: 20px;
+    border: 1px solid #ffffff1a;
+    background: #14161f;
+    padding: 40px 44px 36px;
+    min-height: 300px;
     display: flex;
     align-items: center;
-    min-height: 0;
-    flex: 0 1 auto;
 }
 
-.game-nav .game-header-logo img {
-    height: 100px;
-    max-height: 100px;
+.game-nav .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+/* Angled colour field sweeping in from the right. Games use the green
+   accent, characters the indigo one, so the two pages stay distinct. */
+.game-nav .hero-wedge {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(112deg, #14161f 0%, #14161f 34%, #16453a 62%, #3eb489 100%);
+    clip-path: polygon(28% 0, 100% 0, 100% 100%, 8% 100%);
+}
+
+.game-nav .hero-dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(#ffffff 1px, transparent 1.2px);
+    background-size: 8px 8px;
+    opacity: 0.07;
+    clip-path: polygon(38% 0, 100% 0, 100% 100%, 18% 100%);
+}
+
+.game-nav .hero-streaks {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        112deg,
+        #ffffff12 0px,
+        #ffffff12 2px,
+        transparent 2px,
+        transparent 34px
+    );
+    opacity: 0.9;
+}
+
+.game-nav .hero-glow {
+    position: absolute;
+    top: -34%;
+    right: 4%;
+    width: 560px;
+    height: 560px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3eb48955 0%, transparent 68%);
+}
+
+/* Banner art panel. A background rather than an <img> so any aspect ratio
+   fills the angled panel cleanly. */
+.game-nav .hero-art {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 60%;
+    background-size: cover;
+    background-position: center 30%;
+    background-repeat: no-repeat;
+    clip-path: polygon(22% 0, 100% 0, 100% 100%, 4% 100%);
+    pointer-events: none;
+}
+
+.game-nav .hero-art-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, #14161f 0%, #14161fe6 22%, #14161f4d 52%, transparent 78%),
+        linear-gradient(0deg, #14161fcc 0%, transparent 42%);
+}
+
+.game-nav .hero-ghost-name {
+    position: absolute;
+    z-index: 2;
+    right: 2%;
+    bottom: -6%;
+    margin: 0;
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 900;
+    font-size: 170px;
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 2px #ffffff1f;
+    transform: skewX(-8deg);
+    pointer-events: none;
+    user-select: none;
+}
+
+.game-nav .hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 62%;
+}
+
+.game-nav .hero-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.game-nav .game-logo {
+    max-height: 76px;
+    max-width: 240px;
     width: auto;
     object-fit: contain;
     display: block;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
 }
 
-.game-nav .game-header-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex: 0 0 auto;
-    flex-wrap: wrap;
-    gap: 10px;
-    z-index: 1;
+.game-nav .hero-name {
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 900;
+    font-size: clamp(44px, 5vw, 78px);
+    line-height: 0.94;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+    color: #fff;
+    margin: 0 0 14px;
+    transform: skewX(-8deg);
+    transform-origin: left bottom;
+    text-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+    overflow-wrap: anywhere;
 }
 
-.game-nav .game-header .divider {
-    margin: 0 10px;
+.game-nav .hero-tagline {
+    display: inline-block;
+    transform: skewX(-8deg);
+    background: #ffffff14;
+    border-left: 4px solid #3eb489;
+    padding: 6px 18px 6px 14px;
 }
 
-.game-nav .game-header select {
-    margin: 0 5px;
-    border-bottom: 1px solid #3eb489;
-    font-weight: 600;
-    cursor: pointer;
+.game-nav .hero-tagline span {
+    display: block;
+    transform: skewX(8deg);
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffffffdd;
 }
 
-.game-nav .sort-filter-container .divider {
-    margin: 0;
-}
+/* ── Tab rail ────────────────────────────────────── */
 .game-nav .info-card {
-    height: 40px;
-    border-radius: 24px;
+    height: 42px;
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    border: 1px solid #ffffff30;
-    color: #ffffff;
-    background: #242832;
+    justify-content: center;
+    border: 1px solid #ffffff26;
+    color: #ffffffcc;
+    background: #1c1f2b;
     cursor: pointer;
-    margin-right: 5px;
     position: relative;
-    padding: 0 16px;
+    padding: 0 20px;
+    transform: skewX(-8deg);
+    font-family: 'Saira Condensed', 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.game-nav .info-card > span,
+.game-nav .info-card .v-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transform: skewX(8deg);
+}
+
+.game-nav .info-card:hover {
+    background: #22392f;
+    border-color: #3eb48980;
+    color: #fff;
 }
 
 .game-nav .info-card.info-card--active {
-    border-color: #3eb489;
-    color: #fff;
-    background: #1a2e28;
-    box-shadow: 0 0 0 1px #3eb489;
+    background: #3eb489;
+    border-color: #5ae1ae;
+    color: #06231a;
+    box-shadow: 0 6px 18px rgba(62, 180, 137, 0.35);
 }
 
 .game-nav .info-card.info-card--info {
@@ -289,41 +454,101 @@ export default {
 
 .game-nav .follow-btn,
 .game-nav .unfollow-btn {
-    width: 50px;
+    width: 52px;
     padding: 0;
 }
 
 .game-nav .v-icon.v-icon {
-    color: #4447e2;
+    color: #fff;
 }
 
 .game-nav .quick-nav {
     display: flex;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 28px;
     flex-wrap: wrap;
-    gap: 4px;
-    justify-content: flex-start;
+    gap: 6px;
+    justify-content: space-between;
 }
 
-.game-nav .quick-nav .left-section {
+.game-nav .quick-nav .left-section,
+.game-nav .quick-nav .right-section {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-}
-
-.mobile .game-nav .game-header-logo img {
-    width: auto;
-    max-height: 100px;
+    gap: 6px;
 }
 
 .game-nav .admin-edit-btn {
     border-color: #3eb489;
     color: #3eb489;
-    gap: 4px;
 }
+
+.game-nav .admin-edit-btn .v-icon.v-icon {
+    color: #3eb489;
+}
+
 .game-nav .admin-edit-btn:hover {
     background: #3eb48920;
+    border-color: #3eb489;
+    color: #3eb489;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1100px) {
+    .game-nav .hero-ghost-name {
+        font-size: 120px;
+    }
+}
+
+.mobile .game-nav .hero {
+    padding: 24px 20px 26px;
+    min-height: 0;
+    border-radius: 16px;
+}
+
+.mobile .game-nav .hero-wedge,
+.mobile .game-nav .hero-dots {
+    clip-path: polygon(0 46%, 100% 18%, 100% 100%, 0 100%);
+}
+
+.mobile .game-nav .hero-content {
+    max-width: 100%;
+}
+
+/* The art becomes a full-bleed backdrop behind the copy on small screens. */
+.mobile .game-nav .hero-art {
+    width: 100%;
+    clip-path: none;
+    background-position: center 25%;
+}
+
+.mobile .game-nav .hero-art-scrim {
+    background:
+        linear-gradient(180deg, #14161fd9 0%, #14161ff2 55%, #14161f 100%),
+        linear-gradient(90deg, #14161fbf 0%, transparent 100%);
+}
+
+.mobile .game-nav .hero-ghost-name {
+    display: none;
+}
+
+.mobile .game-nav .game-logo {
+    max-height: 56px;
+    max-width: 60%;
+}
+
+.mobile .game-nav .hero-name {
+    font-size: clamp(34px, 10vw, 54px);
+}
+
+.mobile .game-nav .hero-tagline span {
+    font-size: 15px;
+}
+
+.mobile .game-nav .info-card {
+    height: 38px;
+    font-size: 13px;
+    padding: 0 14px;
 }
 </style>

@@ -5,8 +5,8 @@
             v-if="filteredGames"
             v-model="selectedGame"
             :options="filteredGames"
-            :multiple="taggable"
-            :close-on-select="true"
+            :multiple="taggable || multiple"
+            :close-on-select="!(taggable || multiple)"
             :clear-on-select="false"
             :preserve-search="true"
             :taggable="taggable"
@@ -17,7 +17,12 @@
             @tag="addGame"
             @input="setGame"
         >
-            <template slot="selection" slot-scope="{ values, isOpen }">
+            <template v-if="multiple && !taggable" slot="selection" slot-scope="{ values, isOpen }">
+                <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
+                    {{ values.length }} game{{ values.length === 1 ? '' : 's' }} selected
+                </span>
+            </template>
+            <template v-else slot="selection" slot-scope="{ values, isOpen }">
                 <span v-if="values.length &amp;&amp; !isOpen" class="multiselect__single">
                     Select Game
                 </span>
@@ -46,8 +51,16 @@ export default {
             type: Boolean,
             default: false,
         },
+        // Allow selecting more than one game without enabling `taggable`'s
+        // "type to create a new Game doc" behavior — kept as a separate flag
+        // so existing taggable-multiselect callers (new-tournament.vue,
+        // edit-tournament.vue) are unaffected.
+        multiple: {
+            type: Boolean,
+            default: false,
+        },
         value: {
-            type: String,
+            type: [String, Array],
             default: null,
         },
 
@@ -65,7 +78,7 @@ export default {
     data() {
         return {
             games: [],
-            selectedGame: null,
+            selectedGame: this.taggable || this.multiple ? [] : null,
             isLoading: false,
         };
     },
@@ -122,13 +135,27 @@ export default {
             this.games.sort((a, b) => (b.id > a.id ? 1 : -1));
 
             this.isLoading = false;
+            this.selectedGame = this.resolveSelectedFromValue();
+        },
+
+        // `value` is either a single id (String) or, when `multiple`/`taggable`
+        // is on, an array of ids/game objects — normalize either shape into
+        // what vue-multiselect expects for its v-model.
+        resolveSelectedFromValue() {
+            const isMulti = this.taggable || this.multiple;
+            const idOf = (v) => (v && typeof v === 'object' ? v.id || v._id : v);
+
+            if (Array.isArray(this.value)) {
+                const wanted = this.value.map((v) => String(idOf(v)));
+                return this.games.filter((game) => wanted.includes(String(game.id)));
+            }
 
             if (this.value) {
-                this.selectedGame =
-                    this.games.find((game) => String(game.id) === String(this.value)) || null;
-            } else {
-                this.selectedGame = null;
+                const match = this.games.find((game) => String(game.id) === String(this.value)) || null;
+                return isMulti ? (match ? [match] : []) : match;
             }
+
+            return isMulti ? [] : null;
         },
 
         setGame() {

@@ -2,6 +2,19 @@
 import Api from '@/services/Api'
 import Params from '@/types/params'
 
+export interface TournamentSearchFilters {
+  game?: string,
+  tier?: string,
+  location?: string,
+  search?: string,
+  isFinished?: boolean | string,
+  dateFrom?: string,
+  dateTo?: string,
+  sort?: string,
+  page?: number,
+  limit?: number
+}
+
 export default {
   //Tournaments
   fetchTournaments () {
@@ -44,5 +57,23 @@ export default {
 
   deleteTournament (id: string) {
     return Api().delete('tournaments/' + id)
+  },
+
+  searchTournaments (filters: TournamentSearchFilters) {
+    const queryParams: string[] = []
+
+    Object.keys(filters || {}).forEach((key) => {
+      const value = (filters as any)[key]
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.push(`${key}=${encodeURIComponent(value)}`)
+      }
+    })
+
+    return Api().get(`tournamentSearch?${queryParams.join('&')}`)
+  },
+
+  getTournamentResults (id: string, topN?: number) {
+    const query = topN ? `?topN=${topN}` : ''
+    return Api().get(`tournaments/${id}/results${query}`)
   }
 }

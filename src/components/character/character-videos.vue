@@ -9,10 +9,22 @@
             />
         </div>
         <div v-else-if="selectedVideoType === 'Online Matches'">
-            <character-online-matches :account="account" :characterId="characterId" />
+            <character-online-matches
+                :account="account"
+                :characterId="characterId"
+                :gameId="gameId"
+                :pointOnly="pointOnly"
+                @update:pointOnly="$emit('update:pointOnly', $event)"
+            />
         </div>
         <div v-else-if="selectedVideoType === 'Tournament Matches'">
-            <character-tournament-matches :account="account" :characterId="characterId" />
+            <character-tournament-matches
+                :account="account"
+                :characterId="characterId"
+                :gameId="gameId"
+                :pointOnly="pointOnly"
+                @update:pointOnly="$emit('update:pointOnly', $event)"
+            />
         </div>
         <div v-else-if="selectedVideoType === 'Montages'">
             <character-montages
@@ -73,6 +85,11 @@ export default {
             type: String,
             default: null,
         },
+
+        pointOnly: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     data() {
@@ -95,7 +112,6 @@ export default {
 .character-videos {
     position: relative;
     width: 100%;
-    max-width: 1100px;
 }
 
 .character-videos video {

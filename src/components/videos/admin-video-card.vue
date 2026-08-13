@@ -417,6 +417,7 @@ export default {
             eventbus.$emit('open:widget', {
                 name: 'match',
                 videoId: this.video.id,
+                pendingVideo: this.rawVideoData,
             });
         },
 
